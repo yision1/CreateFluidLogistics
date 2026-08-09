@@ -86,6 +86,14 @@ public class CopperBasinBlockEntity extends BasinBlockEntity {
 	}
 
 	@Override
+	public void clearContent() {
+		spoutputBuffer.clear();
+		inputInventory.clearContent();
+		outputInventory.clearContent();
+		filtering.setFilter(ItemStack.EMPTY);
+	}
+
+	@Override
 	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
 		int titleIndex = tooltip.size();
 		boolean added = super.addToGoggleTooltip(tooltip, isPlayerSneaking);
