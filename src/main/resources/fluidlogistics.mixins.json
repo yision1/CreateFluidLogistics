@@ -28,6 +28,7 @@
         "accessor.FrogportChainConveyorOBBAccessor",
         "client.ChainConveyorRendererMixin",
         "client.ChainConveyorInteractionHandlerMixin",
+        "client.BlueprintOverlayRendererMixin",
         "client.CreativeModeInventoryScreenAccessor",
         "client.CreativeModeItemPickerMenuAccessor",
         "client.CreativeModeTabBannerPaddingMixin",
@@ -39,7 +40,8 @@
         "client.RedstoneRequesterScreenMixin",
         "client.PackagePortTargetSelectionHandlerMixin",
         "client.StockKeeperTransferHandlerMixin",
-        "client.StockKeeperRequestScreenMixin"
+        "client.StockKeeperRequestScreenMixin",
+        "client.TableClothBlockEntityMixin"
     ],
     "injectors": {
         "defaultRequire": 1
