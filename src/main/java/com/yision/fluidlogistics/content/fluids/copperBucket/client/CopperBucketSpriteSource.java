@@ -1,19 +1,26 @@
 package com.yision.fluidlogistics.content.fluids.copperBucket.client;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import org.jetbrains.annotations.Nullable;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.serialization.MapCodec;
 import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.registry.AllItems;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.atlas.SpriteResourceLoader;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
@@ -24,6 +31,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 public final class CopperBucketSpriteSource implements SpriteSource {
@@ -57,11 +65,14 @@ public final class CopperBucketSpriteSource implements SpriteSource {
             }
 
             ResourceLocation bucketId = BuiltInRegistries.ITEM.getKey(bucket);
-            ResourceLocation sourceSprite = sourceSprite(bucketId);
-            getTexture(resourceManager, sourceSprite).ifPresent(sourceTexture -> {
-                ResourceLocation generatedSprite = generatedSprite(bucketId);
-                output.add(generatedSprite, loader -> compose(loader, generatedSprite, sourceSprite,
-                        sourceTexture, emptyBucket.get(), copperBucket.get()));
+            ItemStack bucketStack = new ItemStack(bucket);
+            layerSprites(resourceManager, bucketId).forEach((tintIndex, sourceSprite) -> {
+                getTexture(resourceManager, sourceSprite).ifPresent(sourceTexture -> {
+                    int tintColor = Minecraft.getInstance().getItemColors().getColor(bucketStack, tintIndex);
+                    ResourceLocation generatedSprite = generatedSprite(bucketId, tintIndex);
+                    output.add(generatedSprite, loader -> compose(loader, generatedSprite, sourceSprite,
+                            sourceTexture, emptyBucket.get(), copperBucket.get(), tintColor));
+                });
             });
         });
     }
@@ -69,7 +80,7 @@ public final class CopperBucketSpriteSource implements SpriteSource {
     @Nullable
     private static SpriteContents compose(SpriteResourceLoader loader, ResourceLocation generatedSprite,
             ResourceLocation sourceSprite, Resource sourceTexture, Resource emptyBucketTexture,
-            Resource copperBucketTexture) {
+            Resource copperBucketTexture, int tintColor) {
         SpriteContents source = loader.loadSprite(sourceSprite, sourceTexture);
         if (source == null) {
             return null;
@@ -99,7 +110,7 @@ public final class CopperBucketSpriteSource implements SpriteSource {
                     for (int x = 0; x < sourceImage.getWidth(); x++) {
                         int frameX = x % source.width();
                         int frameY = y % source.height();
-                        int sourcePixel = sourceImage.getPixelRGBA(x, y);
+                        int sourcePixel = applyTint(sourceImage.getPixelRGBA(x, y), tintColor);
                         boolean protectedFluidPixel = isProtectedFluidPixel(frameX, frameY);
                         int resultPixel = !protectedFluidPixel && matchesBucketColor(sourcePixel, emptyBucketColors)
                                 ? copperBucket.getPixelRGBA(frameX, frameY)
@@ -140,6 +151,17 @@ public final class CopperBucketSpriteSource implements SpriteSource {
         return false;
     }
 
+    private static int applyTint(int pixel, int tintColor) {
+        if (tintColor == -1) {
+            return pixel;
+        }
+        int alpha = (pixel >>> 24) * (tintColor >>> 24) / 255;
+        int red = (pixel & 0xFF) * (tintColor >>> 16 & 0xFF) / 255;
+        int green = (pixel >>> 8 & 0xFF) * (tintColor >>> 8 & 0xFF) / 255;
+        int blue = (pixel >>> 16 & 0xFF) * (tintColor & 0xFF) / 255;
+        return alpha << 24 | blue << 16 | green << 8 | red;
+    }
+
     private static Optional<Resource> getTexture(ResourceManager resourceManager, ResourceLocation sprite) {
         return resourceManager.getResource(TEXTURE_ID_CONVERTER.idToFile(sprite));
     }
@@ -148,9 +170,96 @@ public final class CopperBucketSpriteSource implements SpriteSource {
         return ResourceLocation.fromNamespaceAndPath(bucketId.getNamespace(), "item/" + bucketId.getPath());
     }
 
-    public static ResourceLocation generatedSprite(ResourceLocation bucketId) {
+    public static ResourceLocation generatedSprite(ResourceLocation bucketId, int tintIndex) {
         return FluidLogistics.asResource("item/copper_bucket_generated/" + bucketId.getNamespace()
-                + "/" + bucketId.getPath());
+                + "/" + bucketId.getPath() + "/layer" + tintIndex);
+    }
+
+    static Map<Integer, ResourceLocation> layerSprites(ResourceManager resourceManager, ResourceLocation bucketId) {
+        Map<String, String> textures = new LinkedHashMap<>();
+        ResourceLocation itemModel = ResourceLocation.fromNamespaceAndPath(
+                bucketId.getNamespace(), "item/" + bucketId.getPath());
+        collectModelTextures(resourceManager, itemModel, textures, new HashSet<>());
+
+        Map<Integer, ResourceLocation> sprites = new LinkedHashMap<>();
+        textures.forEach((key, value) -> {
+            int tintIndex = layerIndex(key);
+            if (tintIndex < 0) {
+                return;
+            }
+            resolveTexture(value, textures, new HashSet<>())
+                    .ifPresent(sprite -> sprites.put(tintIndex, sprite));
+        });
+        sprites.putIfAbsent(0, sourceSprite(bucketId));
+        return Map.copyOf(sprites);
+    }
+
+    private static void collectModelTextures(ResourceManager resourceManager, ResourceLocation modelId,
+            Map<String, String> textures, Set<ResourceLocation> visitedModels) {
+        if (!visitedModels.add(modelId)) {
+            return;
+        }
+
+        ResourceLocation modelFile = ResourceLocation.fromNamespaceAndPath(
+                modelId.getNamespace(), "models/" + modelId.getPath() + ".json");
+        Optional<Resource> modelResource = resourceManager.getResource(modelFile);
+        if (modelResource.isEmpty()) {
+            return;
+        }
+
+        try (Reader reader = modelResource.get().openAsReader()) {
+            JsonObject model = JsonParser.parseReader(reader).getAsJsonObject();
+            JsonElement parent = model.get("parent");
+            if (parent != null && parent.isJsonPrimitive()) {
+                ResourceLocation parentId = ResourceLocation.tryParse(parent.getAsString());
+                if (parentId != null && !parentId.getPath().startsWith("builtin/")) {
+                    collectModelTextures(resourceManager, parentId, textures, visitedModels);
+                }
+            }
+
+            JsonElement modelTextures = model.get("textures");
+            if (modelTextures != null && modelTextures.isJsonObject()) {
+                for (Map.Entry<String, JsonElement> entry : modelTextures.getAsJsonObject().entrySet()) {
+                    if (entry.getValue().isJsonPrimitive()) {
+                        textures.put(entry.getKey(), entry.getValue().getAsString());
+                    }
+                }
+            }
+        } catch (IOException | RuntimeException exception) {
+            FluidLogistics.LOGGER.debug("Unable to resolve bucket model textures from {}", modelFile, exception);
+        }
+    }
+
+    private static Optional<ResourceLocation> resolveTexture(String value, Map<String, String> textures,
+            Set<String> visitedTextures) {
+        String resolved = value;
+        while (resolved.startsWith("#")) {
+            String key = resolved.substring(1);
+            if (!visitedTextures.add(key)) {
+                return Optional.empty();
+            }
+            resolved = textures.get(key);
+            if (resolved == null) {
+                return Optional.empty();
+            }
+        }
+        return Optional.ofNullable(ResourceLocation.tryParse(resolved));
+    }
+
+    private static int layerIndex(String key) {
+        if (!key.startsWith("layer") || key.length() == 5) {
+            return -1;
+        }
+        for (int index = 5; index < key.length(); index++) {
+            if (!Character.isDigit(key.charAt(index))) {
+                return -1;
+            }
+        }
+        try {
+            return Integer.parseInt(key.substring(5));
+        } catch (NumberFormatException exception) {
+            return -1;
+        }
     }
 
     @Override

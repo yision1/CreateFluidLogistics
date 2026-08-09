@@ -2,6 +2,7 @@ package com.yision.fluidlogistics.content.fluids.copperBucket.client;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -90,14 +91,21 @@ public class CopperBucketModel extends BakedModelWrapper<BakedModel> {
             }
 
             ResourceLocation bucketId = BuiltInRegistries.ITEM.getKey(bucketItem);
-            ResourceLocation sourceSprite = CopperBucketSpriteSource.sourceSprite(bucketId);
-            TextureAtlasSprite replacementSprite = minecraft.getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
-                    .apply(CopperBucketSpriteSource.generatedSprite(bucketId));
-            if (replacementSprite.contents().name().equals(MissingTextureAtlasSprite.getLocation())) {
+            Map<SpriteLayer, TextureAtlasSprite> replacementSprites = new HashMap<>();
+            for (Map.Entry<Integer, ResourceLocation> layer : CopperBucketSpriteSource.layerSprites(
+                    minecraft.getResourceManager(), bucketId).entrySet()) {
+                TextureAtlasSprite replacementSprite = minecraft.getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
+                        .apply(CopperBucketSpriteSource.generatedSprite(bucketId, layer.getKey()));
+                if (!replacementSprite.contents().name().equals(MissingTextureAtlasSprite.getLocation())) {
+                    replacementSprites.put(new SpriteLayer(layer.getValue(), layer.getKey()), replacementSprite);
+                    replacementSprites.putIfAbsent(new SpriteLayer(layer.getValue(), -1), replacementSprite);
+                }
+            }
+            if (replacementSprites.isEmpty()) {
                 return Optional.empty();
             }
 
-            return RetexturedBucketModel.create(bucketModel, bucketStack, sourceSprite, replacementSprite);
+            return RetexturedBucketModel.create(bucketModel, bucketStack, Map.copyOf(replacementSprites));
         }
     }
 
@@ -114,9 +122,9 @@ public class CopperBucketModel extends BakedModelWrapper<BakedModel> {
         }
 
         private static Optional<BakedModel> create(BakedModel bucketModel, ItemStack bucketStack,
-                ResourceLocation sourceSprite, TextureAtlasSprite replacementSprite) {
-            Passes normal = createPasses(bucketModel, bucketStack, sourceSprite, replacementSprite, false);
-            Passes fabulous = createPasses(bucketModel, bucketStack, sourceSprite, replacementSprite, true);
+                Map<SpriteLayer, TextureAtlasSprite> replacementSprites) {
+            Passes normal = createPasses(bucketModel, bucketStack, replacementSprites, false);
+            Passes fabulous = createPasses(bucketModel, bucketStack, replacementSprites, true);
             if (!normal.compatible() || !fabulous.compatible()) {
                 return Optional.empty();
             }
@@ -124,14 +132,11 @@ public class CopperBucketModel extends BakedModelWrapper<BakedModel> {
         }
 
         private static Passes createPasses(BakedModel bucketModel, ItemStack bucketStack,
-                ResourceLocation sourceSprite, TextureAtlasSprite replacementSprite, boolean fabulous) {
+                Map<SpriteLayer, TextureAtlasSprite> replacementSprites, boolean fabulous) {
             List<BakedModel> passes = new ArrayList<>();
             boolean replaced = false;
             for (BakedModel pass : bucketModel.getRenderPasses(bucketStack, fabulous)) {
-                RetexturedPass retextured = new RetexturedPass(pass, bucketStack, sourceSprite, replacementSprite);
-                if (retextured.hasTintedReplacement()) {
-                    return Passes.INCOMPATIBLE;
-                }
+                RetexturedPass retextured = new RetexturedPass(pass, bucketStack, replacementSprites);
                 replaced |= retextured.hasReplacement();
                 passes.add(retextured);
             }
@@ -165,20 +170,19 @@ public class CopperBucketModel extends BakedModelWrapper<BakedModel> {
         private final Map<Direction, List<BakedQuad>> sideQuads = new EnumMap<>(Direction.class);
         private final List<BakedQuad> unculledQuads;
         private boolean hasReplacement;
-        private boolean hasTintedReplacement;
 
-        private RetexturedPass(BakedModel model, ItemStack bucketStack, ResourceLocation sourceSprite,
-                TextureAtlasSprite replacementSprite) {
+        private RetexturedPass(BakedModel model, ItemStack bucketStack,
+                Map<SpriteLayer, TextureAtlasSprite> replacementSprites) {
             super(model);
             this.bucketStack = bucketStack;
             RandomSource random = RandomSource.create();
             for (Direction direction : Direction.values()) {
                 random.setSeed(42L);
                 sideQuads.put(direction, replaceSprite(model.getQuads(null, direction, random),
-                        sourceSprite, replacementSprite));
+                        replacementSprites));
             }
             random.setSeed(42L);
-            unculledQuads = replaceSprite(model.getQuads(null, null, random), sourceSprite, replacementSprite);
+            unculledQuads = replaceSprite(model.getQuads(null, null, random), replacementSprites);
         }
 
         @Override
@@ -192,21 +196,17 @@ public class CopperBucketModel extends BakedModelWrapper<BakedModel> {
             return originalModel.getRenderTypes(bucketStack, fabulous);
         }
 
-        private List<BakedQuad> replaceSprite(List<BakedQuad> quads, ResourceLocation sourceSprite,
-                TextureAtlasSprite replacementSprite) {
+        private List<BakedQuad> replaceSprite(List<BakedQuad> quads,
+                Map<SpriteLayer, TextureAtlasSprite> replacementSprites) {
             return quads.stream().map(quad -> {
                 TextureAtlasSprite originalSprite = quad.getSprite();
-                if (!originalSprite.contents().name().equals(sourceSprite)) {
+                TextureAtlasSprite replacementSprite = replacementSprites.get(
+                        new SpriteLayer(originalSprite.contents().name(), quad.getTintIndex()));
+                if (replacementSprite == null) {
                     return quad;
                 }
 
                 hasReplacement = true;
-                if (quad.getTintIndex() >= 0 && Minecraft.getInstance().getItemColors()
-                        .getColor(bucketStack, quad.getTintIndex()) != -1) {
-                    hasTintedReplacement = true;
-                    return quad;
-                }
-
                 int[] vertices = quad.getVertices().clone();
                 for (int vertex = 0; vertex < vertices.length / BakedQuadHelper.VERTEX_STRIDE; vertex++) {
                     float u = BakedQuadHelper.getU(vertices, vertex);
@@ -216,7 +216,7 @@ public class CopperBucketModel extends BakedModelWrapper<BakedModel> {
                     BakedQuadHelper.setV(vertices, vertex,
                             replacementSprite.getV(originalSprite.getVOffset(v)));
                 }
-                return new BakedQuad(vertices, quad.getTintIndex(), quad.getDirection(), replacementSprite,
+                return new BakedQuad(vertices, -1, quad.getDirection(), replacementSprite,
                         quad.isShade(), quad.hasAmbientOcclusion());
             }).toList();
         }
@@ -224,9 +224,8 @@ public class CopperBucketModel extends BakedModelWrapper<BakedModel> {
         private boolean hasReplacement() {
             return hasReplacement;
         }
+    }
 
-        private boolean hasTintedReplacement() {
-            return hasTintedReplacement;
-        }
+    private record SpriteLayer(ResourceLocation sprite, int tintIndex) {
     }
 }
