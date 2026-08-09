@@ -63,7 +63,7 @@ public class PackagerBlockEntityMixin implements IPackagerOverrideData, IHaveGog
         cir.setReturnValue(packager != null && ResourcePackagers.unpack(packager, box, simulate));
     }
 
-    @Inject(method = "getAvailableItems", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "getAvailableItems()Lcom/simibubi/create/content/logistics/packager/InventorySummary;", at = @At("HEAD"), cancellable = true)
     private void fluidlogistics$getAvailableResources(CallbackInfoReturnable<InventorySummary> cir) {
         ResourcePackager packager = ResourcePackagers
                 .ownerOf((PackagerBlockEntity) (Object) this)
