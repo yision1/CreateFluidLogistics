@@ -24,12 +24,11 @@ public final class FeatureToggle {
     public static final ResourceLocation COPPER_BASIN = FluidLogistics.asResource("copper_basin");
     public static final ResourceLocation MECHANICAL_FLUID_GUN = FluidLogistics.asResource("mechanical_fluid_gun");
     public static final ResourceLocation HAND_POINTER = FluidLogistics.asResource("hand_pointer");
-    public static final ResourceLocation ADVANCED_LOGISTICS_NETWORK = FluidLogistics.asResource("advanced_logistics_network");
-
+    public static final ResourceLocation COPPER_FROGPORT = FluidLogistics.asResource("copper_frogport");
     public static final ResourceLocation FLUID_PACKAGER = FluidLogistics.asResource("fluid_packager");
     public static final ResourceLocation FLUID_REPACKAGER = FluidLogistics.asResource("fluid_repackager");
-    public static final ResourceLocation COMPRESSED_STORAGE_TANK = FluidLogistics.asResource("compressed_storage_tank");
-    public static final ResourceLocation FLUID_PACKAGE = FluidLogistics.asResource("fluid_package");
+    public static final ResourceLocation COPPER_BUCKET = FluidLogistics.asResource("copper_bucket");
+    public static final ResourceLocation PHANTOM_CHAIN = FluidLogistics.asResource("phantom_chain");
 
     public static final ResourceLocation FLUID_HATCH = FluidLogistics.asResource("fluid_hatch");
 
@@ -50,11 +49,11 @@ public final class FeatureToggle {
         map.put(COPPER_BASIN, Config::isCopperBasinEnabled);
         map.put(MECHANICAL_FLUID_GUN, Config::isMechanicalFluidGunEnabled);
         map.put(HAND_POINTER, Config::isHandPointerEnabled);
-        map.put(ADVANCED_LOGISTICS_NETWORK, Config::isAdvancedLogisticsNetworkEnabled);
-        map.put(FLUID_PACKAGER, Config::isAdvancedLogisticsNetworkEnabled);
-        map.put(FLUID_REPACKAGER, Config::isAdvancedLogisticsNetworkEnabled);
-        map.put(COMPRESSED_STORAGE_TANK, Config::isAdvancedLogisticsNetworkEnabled);
-        map.put(FLUID_PACKAGE, Config::isAdvancedLogisticsNetworkEnabled);
+        map.put(COPPER_FROGPORT, Config::isCopperFrogportEnabled);
+        map.put(FLUID_PACKAGER, Config::isFluidPackagerEnabled);
+        map.put(FLUID_REPACKAGER, Config::isFluidRepackagerEnabled);
+        map.put(COPPER_BUCKET, Config::isCopperBucketEnabled);
+        map.put(PHANTOM_CHAIN, Config::isPhantomChainEnabled);
         map.put(FLUID_HATCH, Config::isFluidHatchEnabled);
         FEATURE_MAP = Collections.unmodifiableMap(map);
     }
@@ -68,10 +67,6 @@ public final class FeatureToggle {
         Map<ResourceLocation, Boolean> next = new HashMap<>();
         FEATURE_MAP.forEach((key, supplier) -> next.put(key, supplier.getAsBoolean()));
         CACHE = Map.copyOf(next);
-    }
-
-    public static void onConfigChanged(net.neoforged.fml.event.config.ModConfigEvent event) {
-        reload();
     }
 
     public static boolean isEnabled(ResourceLocation feature) {

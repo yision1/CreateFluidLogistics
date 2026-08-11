@@ -17,5 +17,11 @@
   "result": {
     "count": 1,
     "id": "fluidlogistics:copper_frogport"
-  }
+  },
+  "neoforge:conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:copper_frogport"
+    }
+  ]
 }

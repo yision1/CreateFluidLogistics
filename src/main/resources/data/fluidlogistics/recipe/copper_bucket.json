@@ -14,5 +14,11 @@
   "result": {
     "count": 1,
     "id": "fluidlogistics:copper_bucket"
-  }
+  },
+  "neoforge:conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:copper_bucket"
+    }
+  ]
 }

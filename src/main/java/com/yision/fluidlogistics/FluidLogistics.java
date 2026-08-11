@@ -124,13 +124,12 @@ public class FluidLogistics {
         AllMenuTypes.register();
         FluidLogisticsArmInteractionPointTypes.ARM_INTERACTION_POINT_TYPES.register(modEventBus);
 
-        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        modContainer.registerConfig(ModConfig.Type.SERVER, Config.SERVER_SPEC);
 
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::registerCapabilities);
         modEventBus.addListener(this::hideDisabledItems);
         modEventBus.addListener(AllItems::registerAliases);
-        modEventBus.addListener(FeatureToggle::onConfigChanged);
 
         NeoForge.EVENT_BUS.register(this);
         LOGGER.info("FluidLogistics initialized!");
@@ -223,10 +222,12 @@ public class FluidLogistics {
             new FeatureItem(FeatureToggle.COPPER_BASIN, AllBlocks.COPPER_BASIN),
             new FeatureItem(FeatureToggle.MECHANICAL_FLUID_GUN, AllBlocks.MECHANICAL_FLUID_GUN),
             new FeatureItem(FeatureToggle.HAND_POINTER, AllItems.HAND_POINTER),
+            new FeatureItem(FeatureToggle.COPPER_FROGPORT, AllBlocks.COPPER_FROGPORT),
             new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllBlocks.FLUID_PACKAGER),
+            new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllItems.FLUID_PACKAGE),
             new FeatureItem(FeatureToggle.FLUID_REPACKAGER, AllBlocks.FLUID_REPACKAGER),
-            new FeatureItem(FeatureToggle.COMPRESSED_STORAGE_TANK, AllItems.COMPRESSED_STORAGE_TANK),
-            new FeatureItem(FeatureToggle.FLUID_PACKAGE, AllItems.FLUID_PACKAGE),
+            new FeatureItem(FeatureToggle.COPPER_BUCKET, AllItems.COPPER_BUCKET),
+            new FeatureItem(FeatureToggle.PHANTOM_CHAIN, AllItems.PHANTOM_CHAIN),
             new FeatureItem(FeatureToggle.FLUID_HATCH, AllBlocks.FLUID_HATCH),
     };
 
