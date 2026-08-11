@@ -23,7 +23,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 
 public class CopperBucketItem extends Item {
 
-    public static final int CAPACITY = 2 * FluidType.BUCKET_VOLUME;
+    public static final int CAPACITY = 5 * FluidType.BUCKET_VOLUME;
 
     public CopperBucketItem(Properties properties) {
         super(properties);
