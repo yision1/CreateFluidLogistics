@@ -9,7 +9,7 @@
       "item": "minecraft:copper_block"
     },
     "L": {
-      "tag": "minecraft:logs"
+      "item": "create:copper_casing"
     },
     "S": {
       "item": "minecraft:smooth_stone"
