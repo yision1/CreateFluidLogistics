@@ -113,7 +113,7 @@ public class CopperSchematicannonRenderer extends SafeBlockEntityRenderer<Copper
                 } else {
                     NeoForgeCatnipServices.FLUID_RENDERER.renderFluidBox(
                         shot.requiredFluid(), 0, 0, 0, 1, 1, 1,
-                        buffer, poseStack, light, false, true);
+                        buffer, poseStack, light, true, true);
                 }
             } else if (launched instanceof ForEntity) {
                 poseStack.scale(1.2f, 1.2f, 1.2f);
