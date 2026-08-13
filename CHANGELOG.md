@@ -1,6 +1,5 @@
-- Add Copper Bucket
-- Add ponder to fluid pump, unpackager, multi-fluid Tank,
-- Update copper frogport ponder
-- Fix unpacker no longer working as before
-- Fix factory gauges with fluids have high μs/t
-- Fix fluid package rendered incorrectly in the depot/basin
+- Add CC:tweaked compatibility
+- Better visuals for sellings fluids
+- Allow printing fluid through fluid schematic and copper schematicannon
+- Fix factory gauges promises are overclearing
+- Fix factory gauges connected to a fluid packager leads to world corruption
