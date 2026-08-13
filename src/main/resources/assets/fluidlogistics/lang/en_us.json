@@ -253,7 +253,7 @@
   "resourcepack.fluidlogistics.cu_again_for_fluidlogistics": "Legacy Copper Textures for Fluid Logistics",
   "create.gui.fluidlogistics.hand_pointer_filter.place_item_to_filter": "Place item to filter",
   "item.fluidlogistics.empty_fluid_schematic": "Empty Fluid Schematic",
-  "item.fluidlogistics.empty_fluid_schematic.tooltip.summary": "Used for writing _Fluid Schematics_ at the _Schematic Table_.",
+  "item.fluidlogistics.empty_fluid_schematic.tooltip.summary": "Used as a recipe ingredient or for writing at the _Schematic Table_.",
   "item.fluidlogistics.fluid_schematic": "Fluid Schematic",
   "item.fluidlogistics.fluid_schematic.tooltip.summary": "Holds a fluid structure to be positioned and placed into the world. Position the Hologram as desired and use a _Copper-Cased Schematicannon_ to build it.",
   "item.fluidlogistics.fluid_schematic.tooltip.condition1": "When Held",
