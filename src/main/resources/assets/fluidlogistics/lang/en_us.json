@@ -251,5 +251,21 @@
   "fluidlogistics.ponder.fluid_repackager.text_7": "Place an Unpackager on the storage block and activate it with a redstone signal",
   "logistically_linked.protected": "This logistics network is protected",
   "resourcepack.fluidlogistics.cu_again_for_fluidlogistics": "Legacy Copper Textures for Fluid Logistics",
-  "create.gui.fluidlogistics.hand_pointer_filter.place_item_to_filter": "Place item to filter"
+  "create.gui.fluidlogistics.hand_pointer_filter.place_item_to_filter": "Place item to filter",
+  "item.fluidlogistics.empty_fluid_schematic": "Empty Fluid Schematic",
+  "item.fluidlogistics.empty_fluid_schematic.tooltip.summary": "Used for writing _Fluid Schematics_ at the _Schematic Table_.",
+  "item.fluidlogistics.fluid_schematic": "Fluid Schematic",
+  "item.fluidlogistics.fluid_schematic.tooltip.summary": "Holds a fluid structure to be positioned and placed into the world. Position the Hologram as desired and use a _Copper-Cased Schematicannon_ to build it.",
+  "item.fluidlogistics.fluid_schematic.tooltip.condition1": "When Held",
+  "item.fluidlogistics.fluid_schematic.tooltip.behaviour1": "Can be positioned using the Tools on Screen.",
+  "item.fluidlogistics.fluid_schematic.tooltip.condition2": "R-Click while Sneaking",
+  "item.fluidlogistics.fluid_schematic.tooltip.behaviour2": "Opens an _Interface_ for entering exact _Coordinates_.",
+  "block.fluidlogistics.copper_schematicannon": "Copper Schematicannon",
+  "block.fluidlogistics.copper_schematicannon.tooltip.summary": "Shoots fluids to recreate a deployed _Fluid Schematic_ in the World. Uses fluids from adjacent Containers and _Gunpowder_ as fuel.",
+  "block.fluidlogistics.copper_schematicannon.tooltip.condition1": "When R-Clicked",
+  "block.fluidlogistics.copper_schematicannon.tooltip.behaviour1": "Opens the _Interface_",
+  "fluidlogistics.fluid_material_checklist": "Fluid Material Checklist",
+  "create.schematicannon.status.waitingForHost": "Waiting for target block",
+  "create.schematicannon.status.missingFluid": "Missing fluid:",
+  "create.schematicannon.status.placingFluid": "Placing fluid"
 }

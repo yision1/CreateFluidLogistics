@@ -31,6 +31,8 @@ public class AllPartialModels {
     public static final PartialModel MECHANICAL_FLUID_GUN_GUNPOINT_TOP = block("mechanical_fluid_gun/top");
     public static final PartialModel MECHANICAL_FLUID_GUN_GUNPOINT_MIDDLE = block("mechanical_fluid_gun/middle");
     public static final PartialModel MECHANICAL_FLUID_GUN_GUNPOINT_BOTTOM = block("mechanical_fluid_gun/bottom");
+    public static final PartialModel COPPER_SCHEMATICANNON_CONNECTOR = block("copper_schematicannon/connector");
+    public static final PartialModel COPPER_SCHEMATICANNON_PIPE = block("copper_schematicannon/pipe");
 
     public static final PartialModel FLUID_PACKAGE = item("fluid_package");
     public static final PartialModel FLUID_PACKAGE_EXPOSED = item("fluid_package_exposed");
@@ -88,7 +90,9 @@ public class AllPartialModels {
                 MECHANICAL_FLUID_GUN_GUN_BODY.modelLocation(),
                 MECHANICAL_FLUID_GUN_GUNPOINT_TOP.modelLocation(),
                 MECHANICAL_FLUID_GUN_GUNPOINT_MIDDLE.modelLocation(),
-                MECHANICAL_FLUID_GUN_GUNPOINT_BOTTOM.modelLocation()
+                MECHANICAL_FLUID_GUN_GUNPOINT_BOTTOM.modelLocation(),
+                COPPER_SCHEMATICANNON_CONNECTOR.modelLocation(),
+                COPPER_SCHEMATICANNON_PIPE.modelLocation()
         );
     }
 

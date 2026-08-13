@@ -35,6 +35,9 @@ import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.Mechanical
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.MechanicalFluidGunRenderer;
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.MechanicalFluidGunVisual;
 import com.yision.fluidlogistics.content.fluids.fluidHatch.FluidHatchBlockEntity;
+import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonBlockEntity;
+import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonRenderer;
+import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonVisual;
 
 import static com.yision.fluidlogistics.FluidLogistics.REGISTRATE;
 
@@ -139,6 +142,13 @@ public class AllBlockEntities {
             .blockEntity("fluid_hatch", FluidHatchBlockEntity::new)
             .validBlocks(AllBlocks.FLUID_HATCH)
             .renderer(() -> SmartBlockEntityRenderer::new)
+            .register();
+
+    public static final BlockEntityEntry<CopperSchematicannonBlockEntity> COPPER_SCHEMATICANNON = REGISTRATE
+            .blockEntity("copper_schematicannon", CopperSchematicannonBlockEntity::new)
+            .visual(() -> CopperSchematicannonVisual::new)
+            .validBlocks(AllBlocks.COPPER_SCHEMATICANNON)
+            .renderer(() -> CopperSchematicannonRenderer::new)
             .register();
 
     public static void register() {

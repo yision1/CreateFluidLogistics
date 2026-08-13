@@ -183,6 +183,8 @@ public class FluidLogistics {
             return;
         }
 
+        removeCreativeItem(event, AllItems.FLUID_SCHEMATIC);
+
         for (FeatureItem fi : FEATURE_ITEMS) {
             boolean shouldHide;
             if (fi.feature == FeatureToggle.FLUID_HATCH) {
@@ -191,18 +193,23 @@ public class FluidLogistics {
                 shouldHide = !FeatureToggle.isEnabled(fi.feature);
             }
             if (shouldHide) {
-                ItemStack hiddenItem = event.getSearchEntries().stream()
-                        .filter(stack -> stack.getItem() == fi.item.get().asItem())
-                        .findFirst()
-                        .orElseGet(() -> event.getParentEntries().stream()
-                                .filter(stack -> stack.getItem() == fi.item.get().asItem())
-                                .findFirst()
-                                .orElse(ItemStack.EMPTY));
-
-                if (!hiddenItem.isEmpty()) {
-                    event.remove(hiddenItem, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-                }
+                removeCreativeItem(event, fi.item);
             }
+        }
+    }
+
+    private static void removeCreativeItem(
+            BuildCreativeModeTabContentsEvent event, Supplier<? extends ItemLike> item) {
+        ItemStack hiddenItem = event.getSearchEntries().stream()
+                .filter(stack -> stack.getItem() == item.get().asItem())
+                .findFirst()
+                .orElseGet(() -> event.getParentEntries().stream()
+                        .filter(stack -> stack.getItem() == item.get().asItem())
+                        .findFirst()
+                        .orElse(ItemStack.EMPTY));
+
+        if (!hiddenItem.isEmpty()) {
+            event.remove(hiddenItem, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
         }
     }
 

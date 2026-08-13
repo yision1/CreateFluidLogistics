@@ -1,6 +1,8 @@
 package com.yision.fluidlogistics;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.simibubi.create.Create;
+import com.simibubi.create.CreateClient;
 import com.simibubi.create.content.contraptions.wrench.RadialWrenchMenu;
 import com.yision.fluidlogistics.api.packager.PackageResourceTypes;
 import com.yision.fluidlogistics.api.packager.client.PackageResourceClient;
@@ -11,7 +13,11 @@ import com.yision.fluidlogistics.content.fluids.copperBucket.client.CopperBucket
 import com.yision.fluidlogistics.content.fluids.copperBucket.client.CopperBucketModel;
 import com.yision.fluidlogistics.content.fluids.copperBucket.client.CopperBucketSpriteSource;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.client.FluidPackageClientRendering;
+import com.yision.fluidlogistics.content.schematics.client.FluidSchematicColors;
+import com.yision.fluidlogistics.content.schematics.client.FluidSchematicGuiGraphics;
 import com.yision.fluidlogistics.client.event.FluidSlotClickHandler;
+import net.createmod.catnip.animation.AnimationTickHolder;
+import net.createmod.catnip.outliner.AABBOutline;
 import com.yision.fluidlogistics.ponder.CopperBasinPonderPlugin;
 import net.createmod.catnip.render.DefaultSuperRenderTypeBuffer;
 import net.createmod.catnip.render.SuperRenderTypeBuffer;
@@ -43,6 +49,7 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.event.RegisterSpriteSourceTypesEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
@@ -82,6 +89,19 @@ public class FluidLogisticsClient {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     static void onRegisterEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         FluidPackageClientRendering.registerEntityRenderers(event);
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    static void onRegisterGuiLayers(RegisterGuiLayersEvent event) {
+        event.wrapLayer(Create.asResource("schematic"), original -> (graphics, deltaTracker) -> {
+            Minecraft minecraft = Minecraft.getInstance();
+            if (minecraft.player != null
+                    && AllItems.FLUID_SCHEMATIC.isIn(minecraft.player.getMainHandItem())) {
+                original.render(new FluidSchematicGuiGraphics(graphics), deltaTracker);
+                return;
+            }
+            original.render(graphics, deltaTracker);
+        });
     }
 
     @SubscribeEvent
@@ -134,11 +154,25 @@ public class FluidLogisticsClient {
 
     @EventBusSubscriber(modid = FluidLogistics.MODID, value = Dist.CLIENT)
     public static class ClientEvents {
-        @SubscribeEvent
+        @SubscribeEvent(priority = EventPriority.HIGHEST)
+        static void prepareFluidSchematicOutline(RenderLevelStageEvent event) {
+            if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
+                return;
+            }
+
+            AABBOutline outline = getActiveFluidSchematicOutline();
+            if (outline != null) {
+                outline.getParams().colored(FluidSchematicColors.COPPER);
+            }
+        }
+
+        @SubscribeEvent(priority = EventPriority.LOWEST)
         static void onRenderWorld(RenderLevelStageEvent event) {
             if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
                 return;
             }
+
+            renderDeployedFluidSchematicOutline(event);
 
             if (HandPointerModeManager.getCurrentMode() != HandPointerModeManager.SelectionMode.FROGPORT) {
                 return;
@@ -151,6 +185,38 @@ public class FluidLogisticsClient {
 
             FrogportSelectionHandler.tickChainTarget(Minecraft.getInstance());
             FrogportSelectionHandler.drawChainContour(ms, buffer, camera);
+
+            buffer.draw();
+            ms.popPose();
+        }
+
+        private static AABBOutline getActiveFluidSchematicOutline() {
+            Minecraft minecraft = Minecraft.getInstance();
+            if (minecraft.player == null
+                    || !AllItems.FLUID_SCHEMATIC.isIn(minecraft.player.getMainHandItem())
+                    || !CreateClient.SCHEMATIC_HANDLER.isActive()) {
+                return null;
+            }
+            return CreateClient.SCHEMATIC_HANDLER.getOutline();
+        }
+
+        private static void renderDeployedFluidSchematicOutline(RenderLevelStageEvent event) {
+            AABBOutline outline = getActiveFluidSchematicOutline();
+            if (outline == null || !CreateClient.SCHEMATIC_HANDLER.isDeployed()) {
+                return;
+            }
+
+            PoseStack ms = event.getPoseStack();
+            ms.pushPose();
+            SuperRenderTypeBuffer buffer = DefaultSuperRenderTypeBuffer.getInstance();
+            Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+
+            CreateClient.SCHEMATIC_HANDLER.getTransformation().applyTransformations(ms, camera);
+            outline.getParams()
+                .clearTextures()
+                .colored(FluidSchematicColors.COPPER)
+                .lineWidth(1 / 16f);
+            outline.render(ms, buffer, Vec3.ZERO, AnimationTickHolder.getPartialTicks());
 
             buffer.draw();
             ms.popPose();

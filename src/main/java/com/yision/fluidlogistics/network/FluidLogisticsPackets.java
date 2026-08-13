@@ -6,6 +6,8 @@ import com.yision.fluidlogistics.network.factoryPanel.FactoryPanelSetRequestSele
 import com.yision.fluidlogistics.content.fluids.faucet.network.FaucetDripParticlePacket;
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.network.MechanicalFluidGunPackets;
 import com.yision.fluidlogistics.content.logistics.copperFrogport.CopperFrogportPlacementRequestPacket;
+import com.yision.fluidlogistics.content.schematics.network.FluidSchematicPlacePacket;
+import com.yision.fluidlogistics.content.schematics.network.FluidSchematicSyncPacket;
 import com.yision.fluidlogistics.content.equipment.handPointer.network.HandPointerPackagerTogglePacket;
 import com.yision.fluidlogistics.content.equipment.handPointer.network.HandPointerOpenFilterMenuPacket;
 import com.yision.fluidlogistics.content.equipment.handPointer.network.HandPointerMailboxStationConnectionPacket;
@@ -47,7 +49,9 @@ public enum FluidLogisticsPackets implements BasePacketPayload.PacketTypeProvide
     MECHANICAL_FLUID_GUN_TARGET(MechanicalFluidGunPackets.TargetPacket.class, MechanicalFluidGunPackets.TargetPacket.STREAM_CODEC),
     MECHANICAL_FLUID_GUN_ITEM_TARGET_SELECTION(MechanicalFluidGunPackets.ItemTargetSelectionPacket.class, MechanicalFluidGunPackets.ItemTargetSelectionPacket.STREAM_CODEC),
     MECHANICAL_FLUID_GUN_SPRAY_PARTICLE(MechanicalFluidGunPackets.SprayParticlePacket.class, MechanicalFluidGunPackets.SprayParticlePacket.STREAM_CODEC),
-    MECHANICAL_FLUID_GUN_VISUAL_STATE(MechanicalFluidGunPackets.VisualStatePacket.class, MechanicalFluidGunPackets.VisualStatePacket.STREAM_CODEC);
+    MECHANICAL_FLUID_GUN_VISUAL_STATE(MechanicalFluidGunPackets.VisualStatePacket.class, MechanicalFluidGunPackets.VisualStatePacket.STREAM_CODEC),
+    PLACE_FLUID_SCHEMATIC(FluidSchematicPlacePacket.class, FluidSchematicPlacePacket.STREAM_CODEC),
+    SYNC_FLUID_SCHEMATIC(FluidSchematicSyncPacket.class, FluidSchematicSyncPacket.STREAM_CODEC);
 
     private final CatnipPacketRegistry.PacketType<?> type;
 

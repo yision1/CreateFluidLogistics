@@ -6,6 +6,9 @@
     "mixins": [
         "accessor.ArmBlockEntityAccessor",
         "accessor.LogisticallyLinkedBehaviourAccessor",
+        "accessor.SchematicannonBlockEntityAccessor",
+        "schematics.SchematicTableInputSlotMixin",
+        "schematics.ServerSchematicLoaderMixin",
         "fluids.FluidPropagatorMixin",
         "kinetics.BeltInventoryMixin",
         "kinetics.BeltProcessingBehaviourMixin",
@@ -29,6 +32,7 @@
         "client.ChainConveyorRendererMixin",
         "client.ChainConveyorInteractionHandlerMixin",
         "client.BlueprintOverlayRendererMixin",
+        "client.ClipboardScreenMixin",
         "client.CreativeModeInventoryScreenAccessor",
         "client.CreativeModeItemPickerMenuAccessor",
         "client.CreativeModeTabBannerPaddingMixin",
@@ -39,6 +43,7 @@
         "client.GoggleOverlayRendererMixin",
         "client.RedstoneRequesterScreenMixin",
         "client.PackagePortTargetSelectionHandlerMixin",
+        "client.SchematicHandlerMixin",
         "client.StockKeeperTransferHandlerMixin",
         "client.StockKeeperRequestScreenMixin",
         "client.TableClothBlockEntityMixin"
