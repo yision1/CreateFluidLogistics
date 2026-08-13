@@ -46,7 +46,7 @@ public class FactoryPanelSetFluidFilterPacket extends SimplePacketBase {
                 return;
             }
 
-            FactoryPanelBehaviour behaviour = FactoryPanelBehaviour.at(player.level(), panelPosition);
+            FactoryPanelBehaviour behaviour = FactoryPanelPacketTarget.resolve(player, panelPosition);
             if (behaviour == null) {
                 return;
             }

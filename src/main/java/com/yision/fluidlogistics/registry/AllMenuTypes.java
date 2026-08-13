@@ -8,7 +8,9 @@ import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.content.equipment.handPointer.filter.HandPointerFilterMenu;
 import com.yision.fluidlogistics.content.equipment.handPointer.filter.HandPointerFilterScreen;
 import com.yision.fluidlogistics.content.logistics.copperFrogport.CopperFrogportScreen;
+import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonScreen;
 import com.simibubi.create.content.logistics.packagePort.PackagePortMenu;
+import com.simibubi.create.content.schematics.cannon.SchematicannonMenu;
 
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
@@ -21,6 +23,9 @@ public class AllMenuTypes {
 
     public static final MenuEntry<HandPointerFilterMenu> HAND_POINTER_FILTER =
         register("hand_pointer_filter", HandPointerFilterMenu::new, () -> HandPointerFilterScreen::new);
+
+    public static final MenuEntry<SchematicannonMenu> COPPER_SCHEMATICANNON =
+        register("copper_schematicannon", SchematicannonMenu::new, () -> CopperSchematicannonScreen::new);
 
     private static <C extends AbstractContainerMenu, S extends Screen & MenuAccess<C>> MenuEntry<C> register(
         String name, ForgeMenuFactory<C> factory, NonNullSupplier<ScreenFactory<C, S>> screenFactory) {

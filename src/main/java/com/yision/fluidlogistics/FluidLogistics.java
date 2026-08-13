@@ -32,7 +32,6 @@ import com.yision.fluidlogistics.registry.AllMenuTypes;
 import com.yision.fluidlogistics.registry.AllFluidAttributeTypes;
 import com.yision.fluidlogistics.registry.AllMountedStorageTypes;
 import com.yision.fluidlogistics.registry.AllFluidLogisticsParticleTypes;
-import com.yision.fluidlogistics.registry.AllPartialModels;
 import com.yision.fluidlogistics.registry.FluidLogisticsArmInteractionPointTypes;
 import net.createmod.catnip.lang.FontHelper;
 import net.minecraft.core.registries.Registries;
@@ -119,7 +118,7 @@ public class FluidLogistics
         FluidLogisticsArmInteractionPointTypes.ARM_INTERACTION_POINT_TYPES.register(modEventBus);
         FluidLogisticsPackets.register();
 
-        context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        context.registerConfig(ModConfig.Type.SERVER, Config.SERVER_SPEC);
 
         CraftingHelper.register(FeatureEnabledCondition.Serializer.INSTANCE);
         CraftingHelper.register(FluidHatchAdvertisedCondition.Serializer.INSTANCE);
@@ -138,7 +137,6 @@ public class FluidLogistics
     {
         event.enqueueWork(() -> {
             PackageResources.bootstrap();
-            AllPartialModels.register();
             ArmInteractionPointType.init();
             FluidLogisticsUnpackingHandlers.registerDefaults();
             BlockStressValues.IMPACTS.register(AllBlocks.FLUID_PUMP.get(), () -> 8.0);
@@ -177,18 +175,25 @@ public class FluidLogistics
             return;
         }
 
+        removeCreativeItem(event, AllItems.FLUID_SCHEMATIC);
+
         for (FeatureItem fi : FEATURE_ITEMS) {
             if (!FeatureToggle.isEnabled(fi.feature)) {
-                List<ItemStack> toRemove = new ArrayList<>();
-                for (Map.Entry<ItemStack, CreativeModeTab.TabVisibility> entry : event.getEntries()) {
-                    if (entry.getKey().getItem() == fi.item.get().asItem()) {
-                        toRemove.add(entry.getKey());
-                    }
-                }
-                for (ItemStack stack : toRemove) {
-                    event.getEntries().remove(stack);
-                }
+                removeCreativeItem(event, fi.item);
             }
+        }
+    }
+
+    private static void removeCreativeItem(
+            BuildCreativeModeTabContentsEvent event, Supplier<? extends ItemLike> item) {
+        List<ItemStack> toRemove = new ArrayList<>();
+        for (Map.Entry<ItemStack, CreativeModeTab.TabVisibility> entry : event.getEntries()) {
+            if (entry.getKey().getItem() == item.get().asItem()) {
+                toRemove.add(entry.getKey());
+            }
+        }
+        for (ItemStack stack : toRemove) {
+            event.getEntries().remove(stack);
         }
     }
 
@@ -207,12 +212,14 @@ public class FluidLogistics
             new FeatureItem(FeatureToggle.WATER_CONTAINING_COPPER_CASING, AllBlocks.WATER_CONTAINING_COPPER_CASING),
             new FeatureItem(FeatureToggle.COPPER_BASIN, AllBlocks.COPPER_BASIN),
             new FeatureItem(FeatureToggle.MECHANICAL_FLUID_GUN, AllBlocks.MECHANICAL_FLUID_GUN),
-            new FeatureItem(FeatureToggle.FLUID_HATCH, AllBlocks.FLUID_HATCH),
             new FeatureItem(FeatureToggle.HAND_POINTER, AllItems.HAND_POINTER),
+            new FeatureItem(FeatureToggle.COPPER_FROGPORT, AllBlocks.COPPER_FROGPORT),
             new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllBlocks.FLUID_PACKAGER),
+            new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllItems.FLUID_PACKAGE),
             new FeatureItem(FeatureToggle.FLUID_REPACKAGER, AllBlocks.FLUID_REPACKAGER),
-            new FeatureItem(FeatureToggle.COMPRESSED_STORAGE_TANK, AllItems.COMPRESSED_STORAGE_TANK),
-            new FeatureItem(FeatureToggle.FLUID_PACKAGE, AllItems.FLUID_PACKAGE),
+            new FeatureItem(FeatureToggle.COPPER_BUCKET, AllItems.COPPER_BUCKET),
+            new FeatureItem(FeatureToggle.PHANTOM_CHAIN, AllItems.PHANTOM_CHAIN),
+            new FeatureItem(FeatureToggle.FLUID_HATCH, AllBlocks.FLUID_HATCH),
     };
 
     @SubscribeEvent

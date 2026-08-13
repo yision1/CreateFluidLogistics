@@ -1,232 +1,105 @@
 package com.yision.fluidlogistics.network;
 
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import com.simibubi.create.foundation.networking.SimplePacketBase;
 import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.content.equipment.handPointer.network.HandPointerArmPlacementPacket;
 import com.yision.fluidlogistics.content.equipment.handPointer.network.HandPointerAuthorizeLogisticsNetworkPacket;
 import com.yision.fluidlogistics.content.equipment.handPointer.network.HandPointerClearClipboardAddressPacket;
 import com.yision.fluidlogistics.content.equipment.handPointer.network.HandPointerCrafterConnectionPacket;
-import com.yision.fluidlogistics.content.equipment.handPointer.network.HandPointerLogisticsNetworkPacket;
 import com.yision.fluidlogistics.content.equipment.handPointer.network.HandPointerDisplayLinkConfigurationPacket;
 import com.yision.fluidlogistics.content.equipment.handPointer.network.HandPointerFrogportConnectionPacket;
+import com.yision.fluidlogistics.content.equipment.handPointer.network.HandPointerLogisticsNetworkPacket;
 import com.yision.fluidlogistics.content.equipment.handPointer.network.HandPointerMailboxStationConnectionPacket;
 import com.yision.fluidlogistics.content.equipment.handPointer.network.HandPointerOpenFilterMenuPacket;
 import com.yision.fluidlogistics.content.equipment.handPointer.network.HandPointerPackagerTogglePacket;
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.network.MechanicalFluidGunPackets;
 import com.yision.fluidlogistics.content.fluids.faucet.network.FaucetDripParticlePacket;
+import com.yision.fluidlogistics.content.schematics.network.FluidSchematicPlacePacket;
+import com.yision.fluidlogistics.content.schematics.network.FluidSchematicSyncPacket;
 import com.yision.fluidlogistics.network.factoryPanel.FactoryPanelSetFluidFilterPacket;
 import com.yision.fluidlogistics.network.factoryPanel.FactoryPanelSetRequestSelectorPacket;
 import com.yision.fluidlogistics.network.factoryPanel.FactoryPanelSetResourceRestockSettingPacket;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkEvent.Context;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PacketDistributor.TargetPoint;
 import net.minecraftforge.network.simple.SimpleChannel;
 
-public class FluidLogisticsPackets {
+public enum FluidLogisticsPackets {
 
-    private static final String PROTOCOL_VERSION = "1";
+    CLIPBOARD_SET_ADDRESS(ClipboardSetAddressPacket.class, ClipboardSetAddressPacket::new,
+        NetworkDirection.PLAY_TO_SERVER),
+    FACTORY_PANEL_SET_FLUID_FILTER(FactoryPanelSetFluidFilterPacket.class, FactoryPanelSetFluidFilterPacket::new,
+        NetworkDirection.PLAY_TO_SERVER),
+    FACTORY_PANEL_SET_REQUEST_SELECTOR(FactoryPanelSetRequestSelectorPacket.class,
+        FactoryPanelSetRequestSelectorPacket::new, NetworkDirection.PLAY_TO_SERVER),
+    FACTORY_PANEL_SET_RESOURCE_RESTOCK_SETTING(FactoryPanelSetResourceRestockSettingPacket.class,
+        FactoryPanelSetResourceRestockSettingPacket::new, NetworkDirection.PLAY_TO_SERVER),
+    HAND_POINTER_AUTHORIZE_LOGISTICS_NETWORK(HandPointerAuthorizeLogisticsNetworkPacket.class,
+        HandPointerAuthorizeLogisticsNetworkPacket::new, NetworkDirection.PLAY_TO_SERVER),
+    HAND_POINTER_ARM_PLACEMENT(HandPointerArmPlacementPacket.class, HandPointerArmPlacementPacket::new,
+        NetworkDirection.PLAY_TO_SERVER),
+    HAND_POINTER_CRAFTER_CONNECTION(HandPointerCrafterConnectionPacket.class,
+        HandPointerCrafterConnectionPacket::new, NetworkDirection.PLAY_TO_SERVER),
+    HAND_POINTER_DISPLAY_LINK_CONFIGURATION(HandPointerDisplayLinkConfigurationPacket.class,
+        HandPointerDisplayLinkConfigurationPacket::new, NetworkDirection.PLAY_TO_SERVER),
+    HAND_POINTER_FROGPORT_CONNECTION(HandPointerFrogportConnectionPacket.class,
+        HandPointerFrogportConnectionPacket::new, NetworkDirection.PLAY_TO_SERVER),
+    HAND_POINTER_MAILBOX_STATION_CONNECTION(HandPointerMailboxStationConnectionPacket.class,
+        HandPointerMailboxStationConnectionPacket::new, NetworkDirection.PLAY_TO_SERVER),
+    HAND_POINTER_LOGISTICS_NETWORK(HandPointerLogisticsNetworkPacket.class, HandPointerLogisticsNetworkPacket::new,
+        NetworkDirection.PLAY_TO_SERVER),
+    HAND_POINTER_CLEAR_CLIPBOARD_ADDRESS(HandPointerClearClipboardAddressPacket.class,
+        HandPointerClearClipboardAddressPacket::new, NetworkDirection.PLAY_TO_SERVER),
+    HAND_POINTER_OPEN_FILTER_MENU(HandPointerOpenFilterMenuPacket.class, HandPointerOpenFilterMenuPacket::new,
+        NetworkDirection.PLAY_TO_SERVER),
+    HAND_POINTER_PACKAGER_TOGGLE(HandPointerPackagerTogglePacket.class, HandPointerPackagerTogglePacket::new,
+        NetworkDirection.PLAY_TO_SERVER),
+    FAUCET_DRIP_PARTICLE(FaucetDripParticlePacket.class, FaucetDripParticlePacket::new,
+        NetworkDirection.PLAY_TO_CLIENT),
+    MECHANICAL_FLUID_GUN_TARGET(MechanicalFluidGunPackets.TargetPacket.class,
+        MechanicalFluidGunPackets.TargetPacket::new, NetworkDirection.PLAY_TO_SERVER),
+    MECHANICAL_FLUID_GUN_ITEM_TARGET_SELECTION(MechanicalFluidGunPackets.ItemTargetSelectionPacket.class,
+        MechanicalFluidGunPackets.ItemTargetSelectionPacket::new, NetworkDirection.PLAY_TO_SERVER),
+    MECHANICAL_FLUID_GUN_SPRAY_PARTICLE(MechanicalFluidGunPackets.SprayParticlePacket.class,
+        MechanicalFluidGunPackets.SprayParticlePacket::new, NetworkDirection.PLAY_TO_CLIENT),
+    MECHANICAL_FLUID_GUN_VISUAL_STATE(MechanicalFluidGunPackets.VisualStatePacket.class,
+        MechanicalFluidGunPackets.VisualStatePacket::new, NetworkDirection.PLAY_TO_CLIENT),
+    PLACE_FLUID_SCHEMATIC(FluidSchematicPlacePacket.class, FluidSchematicPlacePacket::new,
+        NetworkDirection.PLAY_TO_SERVER),
+    SYNC_FLUID_SCHEMATIC(FluidSchematicSyncPacket.class, FluidSchematicSyncPacket::new,
+        NetworkDirection.PLAY_TO_SERVER);
+
+    public static final String NETWORK_VERSION = "1.0";
+
     private static final SimpleChannel CHANNEL = NetworkRegistry.ChannelBuilder
         .named(FluidLogistics.asResource("main"))
-        .networkProtocolVersion(() -> PROTOCOL_VERSION)
-        .clientAcceptedVersions(PROTOCOL_VERSION::equals)
-        .serverAcceptedVersions(PROTOCOL_VERSION::equals)
+        .networkProtocolVersion(() -> NETWORK_VERSION)
+        .clientAcceptedVersions(NETWORK_VERSION::equals)
+        .serverAcceptedVersions(NETWORK_VERSION::equals)
         .simpleChannel();
 
+    private final PacketType<?> packetType;
+
+    <T extends SimplePacketBase> FluidLogisticsPackets(Class<T> type, Function<FriendlyByteBuf, T> decoder,
+            NetworkDirection direction) {
+        packetType = new PacketType<>(type, decoder, direction);
+    }
+
     public static void register() {
-        int index = 0;
-        CHANNEL.messageBuilder(FactoryPanelSetFluidFilterPacket.class, index++, NetworkDirection.PLAY_TO_SERVER)
-            .encoder(FactoryPanelSetFluidFilterPacket::write)
-            .decoder(FactoryPanelSetFluidFilterPacket::new)
-            .consumerNetworkThread((packet, contextSupplier) -> {
-                if (packet.handle(contextSupplier.get())) {
-                    contextSupplier.get().setPacketHandled(true);
-                }
-            })
-            .add();
-
-        CHANNEL.messageBuilder(FactoryPanelSetRequestSelectorPacket.class, index++, NetworkDirection.PLAY_TO_SERVER)
-            .encoder(FactoryPanelSetRequestSelectorPacket::write)
-            .decoder(FactoryPanelSetRequestSelectorPacket::new)
-            .consumerNetworkThread((packet, contextSupplier) -> {
-                if (packet.handle(contextSupplier.get())) {
-                    contextSupplier.get().setPacketHandled(true);
-                }
-            })
-            .add();
-
-        CHANNEL.messageBuilder(FactoryPanelSetResourceRestockSettingPacket.class, index++, NetworkDirection.PLAY_TO_SERVER)
-            .encoder(FactoryPanelSetResourceRestockSettingPacket::write)
-            .decoder(FactoryPanelSetResourceRestockSettingPacket::new)
-            .consumerNetworkThread((packet, contextSupplier) -> {
-                if (packet.handle(contextSupplier.get())) {
-                    contextSupplier.get().setPacketHandled(true);
-                }
-            })
-            .add();
-
-        CHANNEL.messageBuilder(HandPointerFrogportConnectionPacket.class, index++, NetworkDirection.PLAY_TO_SERVER)
-            .encoder(HandPointerFrogportConnectionPacket::write)
-            .decoder(HandPointerFrogportConnectionPacket::new)
-            .consumerNetworkThread((packet, contextSupplier) -> {
-                if (packet.handle(contextSupplier.get())) {
-                    contextSupplier.get().setPacketHandled(true);
-                }
-            })
-            .add();
-
-        CHANNEL.messageBuilder(HandPointerMailboxStationConnectionPacket.class, index++, NetworkDirection.PLAY_TO_SERVER)
-            .encoder(HandPointerMailboxStationConnectionPacket::write)
-            .decoder(HandPointerMailboxStationConnectionPacket::new)
-            .consumerNetworkThread((packet, contextSupplier) -> {
-                if (packet.handle(contextSupplier.get())) {
-                    contextSupplier.get().setPacketHandled(true);
-                }
-            })
-            .add();
-
-        CHANNEL.messageBuilder(HandPointerPackagerTogglePacket.class, index++, NetworkDirection.PLAY_TO_SERVER)
-            .encoder(HandPointerPackagerTogglePacket::write)
-            .decoder(HandPointerPackagerTogglePacket::new)
-            .consumerNetworkThread((packet, contextSupplier) -> {
-                if (packet.handle(contextSupplier.get())) {
-                    contextSupplier.get().setPacketHandled(true);
-                }
-            })
-            .add();
-
-        CHANNEL.messageBuilder(HandPointerClearClipboardAddressPacket.class, index++, NetworkDirection.PLAY_TO_SERVER)
-            .encoder(HandPointerClearClipboardAddressPacket::write)
-            .decoder(HandPointerClearClipboardAddressPacket::new)
-            .consumerNetworkThread((packet, contextSupplier) -> {
-                if (packet.handle(contextSupplier.get())) {
-                    contextSupplier.get().setPacketHandled(true);
-                }
-            })
-            .add();
-
-        CHANNEL.messageBuilder(HandPointerArmPlacementPacket.class, index++, NetworkDirection.PLAY_TO_SERVER)
-            .encoder(HandPointerArmPlacementPacket::write)
-            .decoder(HandPointerArmPlacementPacket::new)
-            .consumerNetworkThread((packet, contextSupplier) -> {
-                if (packet.handle(contextSupplier.get())) {
-                    contextSupplier.get().setPacketHandled(true);
-                }
-            })
-            .add();
-
-        CHANNEL.messageBuilder(HandPointerCrafterConnectionPacket.class, index++, NetworkDirection.PLAY_TO_SERVER)
-            .encoder(HandPointerCrafterConnectionPacket::write)
-            .decoder(HandPointerCrafterConnectionPacket::new)
-            .consumerNetworkThread((packet, contextSupplier) -> {
-                if (packet.handle(contextSupplier.get())) {
-                    contextSupplier.get().setPacketHandled(true);
-                }
-            })
-            .add();
-
-        CHANNEL.messageBuilder(HandPointerDisplayLinkConfigurationPacket.class, index++, NetworkDirection.PLAY_TO_SERVER)
-            .encoder(HandPointerDisplayLinkConfigurationPacket::write)
-            .decoder(HandPointerDisplayLinkConfigurationPacket::new)
-            .consumerNetworkThread((packet, contextSupplier) -> {
-                if (packet.handle(contextSupplier.get())) {
-                    contextSupplier.get().setPacketHandled(true);
-                }
-            })
-            .add();
-
-        CHANNEL.messageBuilder(HandPointerOpenFilterMenuPacket.class, index++, NetworkDirection.PLAY_TO_SERVER)
-            .encoder(HandPointerOpenFilterMenuPacket::write)
-            .decoder(HandPointerOpenFilterMenuPacket::new)
-            .consumerNetworkThread((packet, contextSupplier) -> {
-                if (packet.handle(contextSupplier.get())) {
-                    contextSupplier.get().setPacketHandled(true);
-                }
-            })
-            .add();
-
-        CHANNEL.messageBuilder(HandPointerLogisticsNetworkPacket.class, index++, NetworkDirection.PLAY_TO_SERVER)
-            .encoder(HandPointerLogisticsNetworkPacket::write)
-            .decoder(HandPointerLogisticsNetworkPacket::new)
-            .consumerNetworkThread((packet, contextSupplier) -> {
-                if (packet.handle(contextSupplier.get())) {
-                    contextSupplier.get().setPacketHandled(true);
-                }
-            })
-            .add();
-
-        CHANNEL.messageBuilder(HandPointerAuthorizeLogisticsNetworkPacket.class, index++, NetworkDirection.PLAY_TO_SERVER)
-            .encoder(HandPointerAuthorizeLogisticsNetworkPacket::write)
-            .decoder(HandPointerAuthorizeLogisticsNetworkPacket::new)
-            .consumerNetworkThread((packet, contextSupplier) -> {
-                if (packet.handle(contextSupplier.get())) {
-                    contextSupplier.get().setPacketHandled(true);
-                }
-            })
-            .add();
-
-        CHANNEL.messageBuilder(ClipboardSetAddressPacket.class, index++, NetworkDirection.PLAY_TO_SERVER)
-            .encoder(ClipboardSetAddressPacket::write)
-            .decoder(ClipboardSetAddressPacket::new)
-            .consumerNetworkThread((packet, contextSupplier) -> {
-                if (packet.handle(contextSupplier.get())) {
-                    contextSupplier.get().setPacketHandled(true);
-                }
-            })
-            .add();
-
-        CHANNEL.messageBuilder(FaucetDripParticlePacket.class, index++, NetworkDirection.PLAY_TO_CLIENT)
-            .encoder(FaucetDripParticlePacket::write)
-            .decoder(FaucetDripParticlePacket::new)
-            .consumerNetworkThread((packet, contextSupplier) -> {
-                if (packet.handle(contextSupplier.get())) {
-                    contextSupplier.get().setPacketHandled(true);
-                }
-            })
-            .add();
-
-        CHANNEL.messageBuilder(MechanicalFluidGunPackets.TargetPacket.class, index++, NetworkDirection.PLAY_TO_SERVER)
-            .encoder(MechanicalFluidGunPackets.TargetPacket::write)
-            .decoder(MechanicalFluidGunPackets.TargetPacket::new)
-            .consumerNetworkThread((packet, contextSupplier) -> {
-                if (packet.handle(contextSupplier.get())) {
-                    contextSupplier.get().setPacketHandled(true);
-                }
-            })
-            .add();
-
-        CHANNEL.messageBuilder(MechanicalFluidGunPackets.ItemTargetSelectionPacket.class, index++, NetworkDirection.PLAY_TO_SERVER)
-            .encoder(MechanicalFluidGunPackets.ItemTargetSelectionPacket::write)
-            .decoder(MechanicalFluidGunPackets.ItemTargetSelectionPacket::new)
-            .consumerNetworkThread((packet, contextSupplier) -> {
-                if (packet.handle(contextSupplier.get())) {
-                    contextSupplier.get().setPacketHandled(true);
-                }
-            })
-            .add();
-
-        CHANNEL.messageBuilder(MechanicalFluidGunPackets.SprayParticlePacket.class, index++, NetworkDirection.PLAY_TO_CLIENT)
-            .encoder(MechanicalFluidGunPackets.SprayParticlePacket::write)
-            .decoder(MechanicalFluidGunPackets.SprayParticlePacket::new)
-            .consumerNetworkThread((packet, contextSupplier) -> {
-                if (packet.handle(contextSupplier.get())) {
-                    contextSupplier.get().setPacketHandled(true);
-                }
-            })
-            .add();
-
-        CHANNEL.messageBuilder(MechanicalFluidGunPackets.VisualStatePacket.class, index++, NetworkDirection.PLAY_TO_CLIENT)
-            .encoder(MechanicalFluidGunPackets.VisualStatePacket::write)
-            .decoder(MechanicalFluidGunPackets.VisualStatePacket::new)
-            .consumerNetworkThread((packet, contextSupplier) -> {
-                if (packet.handle(contextSupplier.get())) {
-                    contextSupplier.get().setPacketHandled(true);
-                }
-            })
-            .add();
+        for (FluidLogisticsPackets packet : values()) {
+            packet.packetType.register();
+        }
     }
 
     public static SimpleChannel getChannel() {
@@ -234,12 +107,44 @@ public class FluidLogisticsPackets {
     }
 
     public static void sendToNear(Level level, BlockPos pos, int range, Object message) {
-        CHANNEL.send(PacketDistributor.NEAR.with(TargetPoint.p(pos.getX(), pos.getY(), pos.getZ(), range, level.dimension())),
-            message);
+        CHANNEL.send(PacketDistributor.NEAR.with(TargetPoint.p(pos.getX(), pos.getY(), pos.getZ(), range,
+            level.dimension())), message);
     }
 
     public static void sendToNear(Level level, Vec3 pos, int range, Object message) {
         CHANNEL.send(PacketDistributor.NEAR.with(TargetPoint.p(pos.x, pos.y, pos.z, range, level.dimension())),
             message);
+    }
+
+    private static class PacketType<T extends SimplePacketBase> {
+
+        private static int index;
+
+        private final BiConsumer<T, FriendlyByteBuf> encoder;
+        private final Function<FriendlyByteBuf, T> decoder;
+        private final BiConsumer<T, Supplier<Context>> handler;
+        private final Class<T> type;
+        private final NetworkDirection direction;
+
+        private PacketType(Class<T> type, Function<FriendlyByteBuf, T> decoder, NetworkDirection direction) {
+            this.encoder = T::write;
+            this.decoder = decoder;
+            this.handler = (packet, contextSupplier) -> {
+                Context context = contextSupplier.get();
+                if (packet.handle(context)) {
+                    context.setPacketHandled(true);
+                }
+            };
+            this.type = type;
+            this.direction = direction;
+        }
+
+        private void register() {
+            CHANNEL.messageBuilder(type, index++, direction)
+                .encoder(encoder)
+                .decoder(decoder)
+                .consumerNetworkThread(handler)
+                .add();
+        }
     }
 }

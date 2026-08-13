@@ -1,6 +1,5 @@
 package com.yision.fluidlogistics.network.factoryPanel;
 
-import com.simibubi.create.Create;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBehaviour;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelPosition;
 import com.simibubi.create.foundation.networking.SimplePacketBase;
@@ -41,8 +40,8 @@ public class FactoryPanelSetRequestSelectorPacket extends SimplePacketBase {
             if (player == null) {
                 return;
             }
-            FactoryPanelBehaviour behaviour = FactoryPanelBehaviour.at(player.level(), panelPosition);
-            if (behaviour == null || !Create.LOGISTICS.mayInteract(behaviour.network, player)) {
+            FactoryPanelBehaviour behaviour = FactoryPanelPacketTarget.resolve(player, panelPosition);
+            if (behaviour == null) {
                 return;
             }
             ItemStack key = PackageResources.resolveRequestKey(player.getItemInHand(hand)).orElse(ItemStack.EMPTY);

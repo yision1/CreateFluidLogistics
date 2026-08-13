@@ -1,6 +1,7 @@
 package com.yision.fluidlogistics;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.simibubi.create.CreateClient;
 import com.yision.fluidlogistics.content.equipment.handPointer.client.FrogportSelectionHandler;
 import com.yision.fluidlogistics.content.equipment.handPointer.client.HandPointerModeManager;
 import com.yision.fluidlogistics.client.event.FluidSlotClickHandler;
@@ -10,6 +11,7 @@ import com.yision.fluidlogistics.content.fluids.copperBucket.client.CopperBucket
 import com.yision.fluidlogistics.content.fluids.copperBucket.client.CopperBucketModel;
 import com.yision.fluidlogistics.content.fluids.copperBucket.client.CopperBucketSpriteSource;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.client.FluidPackageClientRendering;
+import com.yision.fluidlogistics.content.schematics.client.FluidSchematicColors;
 import com.yision.fluidlogistics.ponder.CopperBasinPonderPlugin;
 import com.yision.fluidlogistics.ponder.CopperFrogportPonderPlugin;
 import com.yision.fluidlogistics.ponder.FluidLogisticsPonderPlugin;
@@ -18,6 +20,8 @@ import com.yision.fluidlogistics.registry.AllItems;
 import com.yision.fluidlogistics.registry.AllPartialModels;
 import com.yision.fluidlogistics.render.FactoryPanelFluidPreviewRenderer;
 import com.yision.fluidlogistics.render.FluidSlotAmountRenderer;
+import net.createmod.catnip.animation.AnimationTickHolder;
+import net.createmod.catnip.outliner.AABBOutline;
 import net.createmod.catnip.render.DefaultSuperRenderTypeBuffer;
 import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.createmod.ponder.foundation.PonderIndex;
@@ -127,11 +131,25 @@ public class FluidLogisticsClient {
 
     @Mod.EventBusSubscriber(modid = FluidLogistics.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
     public static class ClientEvents {
-        @SubscribeEvent
+        @SubscribeEvent(priority = EventPriority.HIGHEST)
+        static void prepareFluidSchematicOutline(RenderLevelStageEvent event) {
+            if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
+                return;
+            }
+
+            AABBOutline outline = getActiveFluidSchematicOutline();
+            if (outline != null) {
+                outline.getParams().colored(FluidSchematicColors.COPPER);
+            }
+        }
+
+        @SubscribeEvent(priority = EventPriority.LOWEST)
         static void onRenderLevelStage(RenderLevelStageEvent event) {
             if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
                 return;
             }
+
+            renderDeployedFluidSchematicOutline(event);
 
             if (HandPointerModeManager.getCurrentMode() != HandPointerModeManager.SelectionMode.FROGPORT) {
                 return;
@@ -144,6 +162,38 @@ public class FluidLogisticsClient {
 
             FrogportSelectionHandler.tickChainTarget(Minecraft.getInstance());
             FrogportSelectionHandler.drawChainContour(ms, buffer, camera);
+
+            buffer.draw();
+            ms.popPose();
+        }
+
+        private static AABBOutline getActiveFluidSchematicOutline() {
+            Minecraft minecraft = Minecraft.getInstance();
+            if (minecraft.player == null
+                    || !AllItems.FLUID_SCHEMATIC.isIn(minecraft.player.getMainHandItem())
+                    || !CreateClient.SCHEMATIC_HANDLER.isActive()) {
+                return null;
+            }
+            return CreateClient.SCHEMATIC_HANDLER.getOutline();
+        }
+
+        private static void renderDeployedFluidSchematicOutline(RenderLevelStageEvent event) {
+            AABBOutline outline = getActiveFluidSchematicOutline();
+            if (outline == null || !CreateClient.SCHEMATIC_HANDLER.isDeployed()) {
+                return;
+            }
+
+            PoseStack ms = event.getPoseStack();
+            ms.pushPose();
+            SuperRenderTypeBuffer buffer = DefaultSuperRenderTypeBuffer.getInstance();
+            Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+
+            CreateClient.SCHEMATIC_HANDLER.getTransformation().applyTransformations(ms, camera);
+            outline.getParams()
+                .clearTextures()
+                .colored(FluidSchematicColors.COPPER)
+                .lineWidth(1 / 16f);
+            outline.render(ms, buffer, Vec3.ZERO, AnimationTickHolder.getPartialTicks());
 
             buffer.draw();
             ms.popPose();

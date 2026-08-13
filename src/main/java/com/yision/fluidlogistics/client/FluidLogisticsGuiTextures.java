@@ -11,6 +11,19 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public enum FluidLogisticsGuiTextures implements ScreenElement, TextureSheetSegment {
 
+    SCHEMATIC_OVERLAY("schematic_overlay", 0, 0, 16, 16, 16, 16),
+    FLUID_SCHEMATIC_SLOT_OVERLAY("fluid_schematic_slot_overlay", 0, 0, 16, 16, 16, 16),
+    FLUID_SCHEMATIC("fluid_schematics", 10, 8, 192, 123, 256, 256),
+
+    COPPER_SCHEMATICANNON_TITLE("fluid_schematics_2", 0, 0, 205, 15, 256, 256),
+    COPPER_SCHEMATICANNON_TOP("fluid_schematics_2", 0, 77, 213, 42, 256, 256),
+    COPPER_SCHEMATICANNON_BOTTOM("fluid_schematics_2", 0, 119, 213, 99, 256, 256),
+    COPPER_SCHEMATICANNON_PROGRESS("fluid_schematics_2", 76, 239, 114, 16, 256, 256),
+    COPPER_SCHEMATICANNON_CHECKLIST_PROGRESS("fluid_schematics_2", 191, 240, 16, 14, 256, 256),
+    COPPER_SCHEMATICANNON_HIGHLIGHT("fluid_schematics_2", 1, 229, 26, 26, 256, 256),
+    COPPER_SCHEMATICANNON_FUEL("fluid_schematics_2", 28, 222, 47, 16, 256, 256),
+    COPPER_SCHEMATICANNON_FUEL_CREATIVE("fluid_schematics_2", 28, 239, 47, 16, 256, 256),
+
     ADDITIONAL_STOCK_LEFT_BG("fluid_threshold", 20, 0, 37, 27, 192, 32),
     PROMISE_LIMIT_BG("fluid_threshold", 57, 0, 72, 28, 192, 32),
     ADDITIONAL_STOCK_BG("fluid_threshold", 140, 0, 36, 18, 192, 32),

@@ -8,13 +8,13 @@ import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
 import com.simibubi.create.foundation.fluid.FluidHelper;
-import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.compat.CompatMods;
 import com.yision.fluidlogistics.compat.kaleidoscopetavern.KaleidoscopeTavernCompat;
 import com.yision.fluidlogistics.content.fluids.infiniteWater.InfiniteWaterSource;
 import com.yision.fluidlogistics.foundation.fluid.CachedFluidInterface;
 import com.yision.fluidlogistics.foundation.fluid.CauldronFills;
 import com.yision.fluidlogistics.foundation.fluid.DepotFills;
+import com.yision.fluidlogistics.foundation.fluid.FluidContainerPolicies;
 import com.yision.fluidlogistics.foundation.fluid.FluidSourceScans;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
 import com.yision.fluidlogistics.util.MergedFluidDisplayHandler;
@@ -25,13 +25,10 @@ import net.createmod.catnip.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -58,9 +55,6 @@ public class FaucetBlockEntity extends SmartBlockEntity {
     private static final String TAG_KALEIDOSCOPE_TAP_PARTICLE = "KaleidoscopeTapParticle";
     private static final String TAG_RENDERING_FLUID = "RenderingFluid";
     private static final String TAG_TRANSFER_COOLDOWN = "TransferCooldown";
-    private static final TagKey<Block> FAUCET_FILLABLE = TagKey.create(Registries.BLOCK,
-        FluidLogistics.asResource("faucet_fillable"));
-
     protected BeltProcessingBehaviour beltProcessing;
     protected FilteringBehaviour filtering;
     protected FluidStack renderingFluid = FluidStack.EMPTY;
@@ -342,10 +336,12 @@ public class FaucetBlockEntity extends SmartBlockEntity {
                 : ResolvedTarget.NONE;
         }
 
-        if (targetState.is(FAUCET_FILLABLE)) {
-            return new ResolvedTarget(TargetKind.TANK, targetPos, targetState, targetEntity, cacheTankHandler);
+        if (!FluidContainerPolicies.allowsFaucet(targetState)) {
+            return ResolvedTarget.NONE;
         }
-        return ResolvedTarget.NONE;
+        ResolvedTarget target = new ResolvedTarget(
+            TargetKind.TANK, targetPos, targetState, targetEntity, cacheTankHandler);
+        return getTargetHandler(target) != null ? target : ResolvedTarget.NONE;
     }
 
     private boolean tryProcessTarget(IFluidHandler source, ResolvedTarget target,
@@ -378,7 +374,7 @@ public class FaucetBlockEntity extends SmartBlockEntity {
             return true;
         }
 
-        if (target.kind() != TargetKind.TANK || target.entity() == null) {
+        if (target.kind() != TargetKind.TANK || !FluidContainerPolicies.allowsFaucet(target.state())) {
             return false;
         }
 

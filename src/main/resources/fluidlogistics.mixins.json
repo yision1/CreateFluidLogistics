@@ -8,6 +8,9 @@
   "mixins": [
     "accessor.ArmBlockEntityAccessor",
     "accessor.LogisticallyLinkedBehaviourAccessor",
+    "accessor.SchematicannonBlockEntityAccessor",
+    "schematics.SchematicTableInputSlotMixin",
+    "schematics.ServerSchematicLoaderMixin",
     "fluids.FluidPropagatorMixin",
     "kinetics.BeltInventoryMixin",
     "kinetics.BeltProcessingBehaviourMixin",
@@ -31,6 +34,8 @@
     "accessor.FrogportChainConveyorOBBAccessor",
     "client.ChainConveyorRendererMixin",
     "client.ChainConveyorInteractionHandlerMixin",
+    "client.BlueprintOverlayRendererMixin",
+    "client.ClipboardScreenMixin",
     "client.CreativeModeInventoryScreenAccessor",
     "client.CreativeModeItemPickerMenuAccessor",
     "client.CreativeModeTabBannerPaddingMixin",
@@ -40,10 +45,12 @@
     "client.FactoryPanelScreenMixin",
     "client.GoggleOverlayRendererMixin",
     "client.PackagePortTargetSelectionHandlerMixin",
+    "client.SchematicHandlerMixin",
     "accessor.RedstoneRequesterScreenAccessor",
     "client.RedstoneRequesterScreenMixin",
     "client.StockKeeperTransferHandlerMixin",
-    "client.StockKeeperRequestScreenMixin"
+    "client.StockKeeperRequestScreenMixin",
+    "client.TableClothBlockEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

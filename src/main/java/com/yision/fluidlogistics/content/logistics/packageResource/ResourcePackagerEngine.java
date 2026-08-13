@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.WeakHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -16,26 +17,33 @@ import com.yision.fluidlogistics.api.packager.PackageResourceType;
 import com.yision.fluidlogistics.api.packager.PackageResources;
 import com.yision.fluidlogistics.api.packager.ResourcePackager;
 
+import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.logistics.BigItemStack;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.packager.InventorySummary;
 import com.simibubi.create.content.logistics.packager.PackagerBlockEntity;
 import com.simibubi.create.content.logistics.packager.PackagingRequest;
 import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBehaviour;
+import com.simibubi.create.content.logistics.packagerLink.LogisticsManager;
 import com.simibubi.create.content.logistics.packagerLink.PackagerLinkBlock;
 import com.simibubi.create.content.logistics.packagerLink.PackagerLinkBlockEntity;
 import com.simibubi.create.foundation.advancement.AdvancementBehaviour;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
 
+import net.createmod.catnip.data.Iterate;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 @ApiStatus.Internal
 public final class ResourcePackagerEngine {
+    private static final int STORAGE_SETTLE_TICKS = 65;
     private static final Map<PackagerBlockEntity, RuntimeState> STATES_BY_OWNER = new WeakHashMap<>();
+    private static final AtomicLong SUMMARY_OBSERVATIONS = new AtomicLong();
 
     private ResourcePackagerEngine() {
         throw new AssertionError("This class should not be instantiated");
@@ -103,12 +111,44 @@ public final class ResourcePackagerEngine {
 
     public static InventorySummary getAvailableResources(ResourcePackager packager) {
         RuntimeState state = state(packager);
-        InventorySummary current = refreshAvailableResources(packager, state);
-        if (current != null) {
-            return current;
-        }
+        refreshAvailableResources(packager, state);
         synchronized (state) {
-            return state.summary().copy();
+            return state.storageAvailable() && state.summary() != null
+                    ? state.summary().copy()
+                    : InventorySummary.EMPTY;
+        }
+    }
+
+    public static InventorySummary getLastKnownResources(ResourcePackager packager) {
+        return getLastKnownResources(packager, null);
+    }
+
+    public static InventorySummary getLastKnownResources(
+            ResourcePackager packager, @Nullable InventorySummary lastKnown) {
+        RuntimeState state = state(packager);
+        synchronized (state) {
+            if (state.summary() == null && lastKnown != null) {
+                state.summary(lastKnown.copy());
+                state.restoredSummaryPending(true);
+            }
+        }
+        refreshAvailableResources(packager, state);
+        synchronized (state) {
+            return state.summary() == null ? InventorySummary.EMPTY : state.summary().copy();
+        }
+    }
+
+    public static void restoreAvailableResources(
+            ResourcePackager packager, @Nullable InventorySummary lastKnown) {
+        RuntimeState state = state(packager);
+        synchronized (state) {
+            state.storageIdentity(null);
+            state.storageAvailable(false);
+            state.summary(lastKnown == null ? null : lastKnown.copy());
+            state.restoredSummaryPending(lastKnown != null);
+            state.scanTick(Long.MIN_VALUE);
+            state.summaryObservation(0);
+            state.clearPendingStorage();
         }
     }
 
@@ -117,7 +157,7 @@ public final class ResourcePackagerEngine {
         RuntimeState state = state(packager);
         refreshAvailableResources(packager, state);
         synchronized (state) {
-            return state.storageIdentity();
+            return state.storageAvailable() ? state.storageIdentity() : null;
         }
     }
 
@@ -167,7 +207,6 @@ public final class ResourcePackagerEngine {
         owner.previouslyUnwrapped.setCount(1);
         owner.animationInward = true;
         owner.animationTicks = PackagerBlockEntity.CYCLE;
-        triggerStockCheck(packager);
         owner.notifyUpdate();
         return true;
     }
@@ -237,6 +276,7 @@ public final class ResourcePackagerEngine {
         if (extracted <= 0) {
             return ExtractedPackage.EMPTY;
         }
+        invalidateAccurateSummary(packager.owner());
         ItemStack packageStack = extracted == simulated
                 ? prepared
                 : PackageResources.createPackage(normalizedKey.copy(), extracted);
@@ -297,15 +337,43 @@ public final class ResourcePackagerEngine {
 
             ResourcePackager.Snapshot snapshot = Objects.requireNonNull(
                     packager.scan(), "resource packager snapshot");
+            if (snapshot.storageIdentity() == null) {
+                state.storageAvailable(false);
+                state.scanTick(scanTick);
+                return null;
+            }
             InventorySummary current = snapshot.resources();
             validateSummary(packager, current);
+            if (state.storageIdentity() != snapshot.storageIdentity()
+                    && current.getStacks().isEmpty()
+                    && !state.storageSettled(snapshot.storageIdentity(), scanTick)) {
+                state.storageAvailable(false);
+                state.scanTick(scanTick);
+                return null;
+            }
+            state.clearPendingStorage();
 
             InventorySummary previous =
-                    state.storageIdentity() == snapshot.storageIdentity() ? state.summary() : null;
+                    state.storageIdentity() == snapshot.storageIdentity() || state.restoredSummaryPending()
+                            ? state.summary()
+                            : null;
+            long previousObservation = state.summaryObservation();
+            long currentObservation = SUMMARY_OBSERVATIONS.incrementAndGet();
+            InventorySummary stored = current.copy();
             state.storageIdentity(snapshot.storageIdentity());
-            state.summary(current.copy());
+            state.storageAvailable(true);
+            state.summary(stored);
+            state.restoredSummaryPending(false);
             state.scanTick(scanTick);
-            ResourcePackagerPromiseHelper.notifyNewArrivals(owner, previous, current);
+            state.summaryObservation(currentObservation);
+            ResourcePackagerPromiseHelper.notifyNewArrivals(
+                    owner,
+                    packager.resourceTypeId(),
+                    snapshot.storageIdentity(),
+                    previous,
+                    previousObservation,
+                    currentObservation,
+                    stored);
             return current;
         }
     }
@@ -314,6 +382,25 @@ public final class ResourcePackagerEngine {
         RuntimeState state = state(packager);
         synchronized (state) {
             state.scanTick(Long.MIN_VALUE);
+        }
+    }
+
+    private static void invalidateAccurateSummary(PackagerBlockEntity owner) {
+        Level level = owner.getLevel();
+        if (level == null) {
+            return;
+        }
+        for (Direction direction : Iterate.directions) {
+            BlockPos linkPos = owner.getBlockPos().relative(direction);
+            BlockState linkState = level.getBlockState(linkPos);
+            if (!AllBlocks.STOCK_LINK.has(linkState)
+                    || PackagerLinkBlock.getConnectedDirection(linkState) != direction) {
+                continue;
+            }
+            if (level.getBlockEntity(linkPos) instanceof PackagerLinkBlockEntity link) {
+                LogisticsManager.ACCURATE_SUMMARIES.invalidate(link.behaviour.freqId);
+            }
+            return;
         }
     }
 
@@ -360,7 +447,13 @@ public final class ResourcePackagerEngine {
         private Object storageIdentity;
         @Nullable
         private InventorySummary summary;
+        @Nullable
+        private Object pendingStorageIdentity;
+        private long pendingStorageSince = Long.MIN_VALUE;
+        private boolean storageAvailable;
+        private boolean restoredSummaryPending;
         private long scanTick = Long.MIN_VALUE;
+        private long summaryObservation;
 
         private RuntimeState(WeakReference<ResourcePackager> packager) {
             this.packager = packager;
@@ -379,12 +472,42 @@ public final class ResourcePackagerEngine {
             this.storageIdentity = storageIdentity;
         }
 
+        private boolean storageAvailable() {
+            return storageAvailable;
+        }
+
+        private void storageAvailable(boolean storageAvailable) {
+            this.storageAvailable = storageAvailable;
+        }
+
+        private boolean restoredSummaryPending() {
+            return restoredSummaryPending;
+        }
+
+        private void restoredSummaryPending(boolean restoredSummaryPending) {
+            this.restoredSummaryPending = restoredSummaryPending;
+        }
+
+        private boolean storageSettled(Object storageIdentity, long scanTick) {
+            if (pendingStorageIdentity != storageIdentity) {
+                pendingStorageIdentity = storageIdentity;
+                pendingStorageSince = scanTick;
+                return false;
+            }
+            return scanTick != Long.MIN_VALUE && scanTick - pendingStorageSince >= STORAGE_SETTLE_TICKS;
+        }
+
+        private void clearPendingStorage() {
+            pendingStorageIdentity = null;
+            pendingStorageSince = Long.MIN_VALUE;
+        }
+
         @Nullable
         private InventorySummary summary() {
             return summary;
         }
 
-        private void summary(InventorySummary summary) {
+        private void summary(@Nullable InventorySummary summary) {
             this.summary = summary;
         }
 
@@ -394,6 +517,14 @@ public final class ResourcePackagerEngine {
 
         private void scanTick(long scanTick) {
             this.scanTick = scanTick;
+        }
+
+        private long summaryObservation() {
+            return summaryObservation;
+        }
+
+        private void summaryObservation(long summaryObservation) {
+            this.summaryObservation = summaryObservation;
         }
     }
 }

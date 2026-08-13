@@ -24,6 +24,8 @@ import net.minecraftforge.network.NetworkEvent.Context;
 
 public class HandPointerFrogportConnectionPacket extends SimplePacketBase {
 
+    private static final int MAX_POSITIONS = 64;
+
     private final List<BlockPos> frogportPositions;
     private final BlockPos chainConveyorPos;
     private final float chainPosition;
@@ -44,6 +46,9 @@ public class HandPointerFrogportConnectionPacket extends SimplePacketBase {
 
     public HandPointerFrogportConnectionPacket(FriendlyByteBuf buffer) {
         int count = buffer.readVarInt();
+        if (count < 0 || count > MAX_POSITIONS) {
+            throw new IllegalArgumentException("Frogport position count exceeds maximum: " + count);
+        }
         List<BlockPos> positions = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             positions.add(buffer.readBlockPos());
@@ -72,12 +77,12 @@ public class HandPointerFrogportConnectionPacket extends SimplePacketBase {
     public boolean handle(Context context) {
         context.enqueueWork(() -> {
             ServerPlayer player = context.getSender();
-            if (player == null || !player.mayBuild()) {
+            if (player == null) {
                 return;
             }
 
             Level level = player.level();
-            if (!HandPointerInteractionGuard.canUseHandPointer(player) || !level.isLoaded(chainConveyorPos)) {
+            if (!HandPointerInteractionGuard.canUseHandPointer(player, chainConveyorPos)) {
                 return;
             }
 

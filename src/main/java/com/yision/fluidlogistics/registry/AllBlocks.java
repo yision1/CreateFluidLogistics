@@ -60,6 +60,7 @@ import com.yision.fluidlogistics.content.materials.WaterproofCardboardBlock;
 import com.yision.fluidlogistics.content.fluids.horizontalMultiFluidTank.HorizontalMultiFluidTankItem;
 import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidTankItem;
 import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankItem;
+import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonBlock;
 
 import static com.simibubi.create.api.behaviour.movement.MovementBehaviour.movementBehaviour;
 import static com.simibubi.create.api.contraption.storage.fluid.MountedFluidStorageType.mountedFluidStorage;
@@ -354,6 +355,26 @@ public class AllBlocks {
             .blockstate(MechanicalFluidGunGenerator::generate)
             .item(MechanicalFluidGunItem::new)
             .model(AssetLookup::customItemModel)
+            .build()
+            .register();
+
+    public static final BlockEntry<CopperSchematicannonBlock> COPPER_SCHEMATICANNON =
+        REGISTRATE.block("copper_schematicannon", CopperSchematicannonBlock::new)
+            .initialProperties(() -> Blocks.DISPENSER)
+            .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
+            .transform(pickaxeOnly())
+            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
+            .blockstate((ctx, prov) -> prov.simpleBlock(ctx.get(),
+                prov.models().getExistingFile(prov.modLoc("block/copper_schematicannon/block"))))
+            .loot((loot, block) -> loot.add(block, LootTable.lootTable()
+                .withPool(loot.applyExplosionCondition(block, LootPool.lootPool()
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .add(LootItem.lootTableItem(block)
+                        .apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
+                            .copy("Options", "BlockEntityTag.Options")))))))
+            .item()
+            .model((ctx, prov) -> prov.withExistingParent(ctx.getName(),
+                prov.modLoc("block/copper_schematicannon/item")))
             .build()
             .register();
 

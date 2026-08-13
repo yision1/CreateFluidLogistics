@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.logistics.BigItemStack;
+import com.simibubi.create.content.logistics.packager.IdentifiedInventory;
 import com.simibubi.create.content.logistics.packager.PackagerBlock;
 import com.simibubi.create.content.logistics.packager.PackagerBlockEntity;
 import com.simibubi.create.content.logistics.packager.InventorySummary;
@@ -14,6 +15,8 @@ import com.yision.fluidlogistics.api.handpointer.PackagerAddresses;
 import com.yision.fluidlogistics.api.packager.PackageResources;
 import com.yision.fluidlogistics.api.packager.ResourcePackager;
 import com.yision.fluidlogistics.api.packager.ResourcePackagers;
+import com.yision.fluidlogistics.content.logistics.packageResource.ResourcePackagerEngine;
+import com.yision.fluidlogistics.content.logistics.packageResource.ResourcePackagerInventoryIdentifier;
 import com.yision.fluidlogistics.util.IPackagerOverrideData;
 import net.createmod.catnip.data.Iterate;
 import net.minecraft.core.Direction;
@@ -25,7 +28,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -34,6 +39,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = PackagerBlockEntity.class, remap = false)
 public class PackagerBlockEntityMixin implements IPackagerOverrideData, IHaveGoggleInformation {
+
+    @Shadow
+    private InventorySummary availableItems;
 
     @Unique
     private boolean fluidlogistics$manualOverrideLocked;
@@ -54,10 +62,34 @@ public class PackagerBlockEntityMixin implements IPackagerOverrideData, IHaveGog
         cir.setReturnValue(packager != null && ResourcePackagers.unpack(packager, box, simulate));
     }
 
-    @Inject(method = "getAvailableItems", at = @At("HEAD"), cancellable = true)
-    private void fluidlogistics$getAvailableResources(CallbackInfoReturnable<InventorySummary> cir) {
-        ResourcePackagers.ownerOf((PackagerBlockEntity) (Object) this)
-                .ifPresent(packager -> cir.setReturnValue(ResourcePackagers.getAvailableResources(packager)));
+    @Inject(method = "getAvailableItems(Z)Lcom/simibubi/create/content/logistics/packager/InventorySummary;", at = @At("HEAD"), cancellable = true)
+    private void fluidlogistics$getAvailableResources(boolean scanInputSlots, CallbackInfoReturnable<InventorySummary> cir) {
+        ResourcePackager packager = ResourcePackagers
+                .ownerOf((PackagerBlockEntity) (Object) this)
+                .orElse(null);
+        if (packager == null) {
+            return;
+        }
+        InventorySummary lastKnown = ResourcePackagerEngine.getLastKnownResources(packager, availableItems);
+        availableItems = lastKnown.copy();
+        cir.setReturnValue(ResourcePackagerEngine.getAvailableResources(packager));
+    }
+
+    @Inject(method = "isTargetingSameInventory", at = @At("HEAD"), cancellable = true)
+    private void fluidlogistics$isTargetingSameResourceInventory(
+            @Nullable IdentifiedInventory inventory, CallbackInfoReturnable<Boolean> cir) {
+        if (inventory == null
+                || !(inventory.identifier() instanceof ResourcePackagerInventoryIdentifier identifier)) {
+            return;
+        }
+        ResourcePackager packager = ResourcePackagers
+                .ownerOf((PackagerBlockEntity) (Object) this)
+                .orElse(null);
+        if (packager == null) {
+            return;
+        }
+        Object storageIdentity = ResourcePackagers.storageIdentity(packager);
+        cir.setReturnValue(storageIdentity != null && identifier.matches(storageIdentity));
     }
 
     @Inject(method = "attemptToSend", at = @At("HEAD"), cancellable = true)
@@ -86,6 +118,14 @@ public class PackagerBlockEntityMixin implements IPackagerOverrideData, IHaveGog
         fluidlogistics$manualOverrideLocked = compound.getBoolean("FluidLogisticsManualOverrideLocked");
         fluidlogistics$clipboardAddress = compound.getString("FluidLogisticsClipboardAddress");
         fluidlogistics$queuedPackageCount = compound.getInt("FluidLogisticsQueuedPackageCount");
+        if (!clientPacket) {
+            ResourcePackager packager = ResourcePackagers
+                    .ownerOf((PackagerBlockEntity) (Object) this)
+                    .orElse(null);
+            if (packager != null) {
+                ResourcePackagerEngine.restoreAvailableResources(packager, availableItems);
+            }
+        }
     }
 
     @Inject(method = "updateSignAddress", at = @At("RETURN"))

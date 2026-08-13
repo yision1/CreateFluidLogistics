@@ -23,8 +23,7 @@ public class PackagerBlockMixin {
             target = "Lnet/minecraft/world/level/Level;hasNeighborSignal(Lnet/minecraft/core/BlockPos;)Z",
             remap = true
         ),
-        remap = true,
-        require = 0
+        remap = true
     )
     private boolean fluidlogistics$lockNeighborChanged(boolean original, BlockState state, Level worldIn,
             BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving) {

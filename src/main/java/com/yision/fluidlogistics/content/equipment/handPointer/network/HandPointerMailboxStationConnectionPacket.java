@@ -24,6 +24,8 @@ import net.minecraftforge.network.NetworkEvent.Context;
 
 public class HandPointerMailboxStationConnectionPacket extends SimplePacketBase {
 
+    private static final int MAX_POSITIONS = 64;
+
     private final List<BlockPos> mailboxPositions;
     private final BlockPos stationPos;
 
@@ -38,6 +40,9 @@ public class HandPointerMailboxStationConnectionPacket extends SimplePacketBase 
 
     public HandPointerMailboxStationConnectionPacket(FriendlyByteBuf buffer) {
         int count = buffer.readVarInt();
+        if (count < 0 || count > MAX_POSITIONS) {
+            throw new IllegalArgumentException("Mailbox position count exceeds maximum: " + count);
+        }
         List<BlockPos> positions = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             positions.add(buffer.readBlockPos());
@@ -59,12 +64,12 @@ public class HandPointerMailboxStationConnectionPacket extends SimplePacketBase 
     public boolean handle(Context context) {
         context.enqueueWork(() -> {
             ServerPlayer player = context.getSender();
-            if (player == null || !player.mayBuild()) {
+            if (player == null) {
                 return;
             }
 
             Level level = player.level();
-            if (!HandPointerInteractionGuard.canUseHandPointer(player) || !level.isLoaded(stationPos)) {
+            if (!HandPointerInteractionGuard.canUseHandPointer(player, stationPos)) {
                 return;
             }
 

@@ -12,6 +12,7 @@ import com.yision.fluidlogistics.content.fluids.copperBucket.CopperBucketItem;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.CompressedTankItem;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageItem;
 import com.yision.fluidlogistics.content.equipment.handPointer.HandPointerItem;
+import com.yision.fluidlogistics.content.schematics.FluidSchematicItem;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
@@ -20,6 +21,20 @@ import net.minecraft.world.item.ItemStack;
 import static com.yision.fluidlogistics.FluidLogistics.REGISTRATE;
 
 public class AllItems {
+
+    public static final ItemEntry<Item> EMPTY_FLUID_SCHEMATIC = REGISTRATE
+            .item("empty_fluid_schematic", Item::new)
+            .properties(p -> p.stacksTo(1))
+            .model(AssetLookup.existingItemModel())
+            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
+            .register();
+
+    public static final ItemEntry<FluidSchematicItem> FLUID_SCHEMATIC = REGISTRATE
+            .item("fluid_schematic", FluidSchematicItem::new)
+            .properties(p -> p.stacksTo(1))
+            .model(AssetLookup.existingItemModel())
+            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
+            .register();
 
     public static final ItemEntry<CopperBucketItem> COPPER_BUCKET = REGISTRATE
             .item("copper_bucket", CopperBucketItem::new)

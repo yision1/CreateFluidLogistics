@@ -1,5 +1,6 @@
 package com.yision.fluidlogistics.network.factoryPanel;
 
+import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBehaviour;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelPosition;
 import com.simibubi.create.foundation.networking.SimplePacketBase;
 import com.yision.fluidlogistics.api.packager.PackageResourceDisplay.FactoryPanelRestockPolicy;
@@ -70,9 +71,13 @@ public class FactoryPanelSetResourceRestockSettingPacket extends SimplePacketBas
     public boolean handle(Context context) {
         context.enqueueWork(() -> {
             ServerPlayer player = context.getSender();
-            if (player != null) {
+            if (player == null) {
+                return;
+            }
+            FactoryPanelBehaviour behaviour = FactoryPanelPacketTarget.resolve(player, panelPosition);
+            if (behaviour != null) {
                 ResourceGaugeHelper.applyPanelSetting(
-                        player, panelPosition, (policy, settings) -> setting.apply(settings, policy, value));
+                        behaviour, (policy, settings) -> setting.apply(settings, policy, value));
             }
         });
         return true;

@@ -17,5 +17,11 @@
   "result": {
     "count": 1,
     "item": "fluidlogistics:copper_frogport"
-  }
+  },
+  "conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:copper_frogport"
+    }
+  ]
 }

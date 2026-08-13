@@ -9,7 +9,6 @@ import com.simibubi.create.content.logistics.packager.PackagerBlock;
 import com.simibubi.create.content.logistics.packager.PackagerBlockEntity;
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.yision.fluidlogistics.content.fluids.multiFluidAccessPort.MultiFluidAccessPortBlockEntity;
-import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageItem;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
 
 import net.minecraft.core.BlockPos;
@@ -105,19 +104,16 @@ public class FluidPackagerBlock extends PackagerBlock {
             if (be.heldBox.isEmpty()) {
                 if (be.animationTicks > 0)
                     return InteractionResult.SUCCESS;
-                if (FluidPackageItem.isFluidPackage(stack)) {
-                    if (level.isClientSide())
-                        return InteractionResult.SUCCESS;
-                    if (!be.unwrapBox(stack.copy(), true))
-                        return InteractionResult.SUCCESS;
-                    be.unwrapBox(stack.copy(), false);
-                    be.triggerStockCheck();
-                    stack.shrink(1);
-                    AllSoundEvents.DEPOT_PLOP.playOnServer(level, pos);
-                    if (stack.isEmpty())
-                        player.setItemInHand(hand, ItemStack.EMPTY);
+                if (level.isClientSide())
                     return InteractionResult.SUCCESS;
-                }
+                if (!be.unwrapBox(stack.copy(), true))
+                    return InteractionResult.SUCCESS;
+                be.unwrapBox(stack.copy(), false);
+                be.triggerStockCheck();
+                stack.shrink(1);
+                AllSoundEvents.DEPOT_PLOP.playOnServer(level, pos);
+                if (stack.isEmpty())
+                    player.setItemInHand(hand, ItemStack.EMPTY);
                 return InteractionResult.SUCCESS;
             }
             if (be.animationTicks > 0)

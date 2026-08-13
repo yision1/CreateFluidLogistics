@@ -15,6 +15,7 @@ import com.simibubi.create.content.logistics.packager.InventorySummary;
 import com.simibubi.create.content.logistics.packager.PackagerBlockEntity;
 import com.simibubi.create.foundation.advancement.AdvancementBehaviour;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
+import com.simibubi.create.foundation.blockEntity.IMultiBlockEntityContainer;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.inventory.CapManipulationBehaviourBase.InterfaceProvider;
 import com.simibubi.create.foundation.blockEntity.behaviour.inventory.InvManipulationBehaviour;
@@ -24,6 +25,7 @@ import com.yision.fluidlogistics.api.packager.PackageResourceTypes;
 import com.yision.fluidlogistics.api.packager.ResourcePackager;
 import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidHandlerHelper;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.CompressedTankItem;
+import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageItem;
 import com.yision.fluidlogistics.util.IPackagerOverrideData;
 
 import net.createmod.catnip.data.Iterate;
@@ -36,6 +38,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -123,8 +126,16 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
     }
 
     @Override
+    public boolean unwrapBox(ItemStack box, boolean simulate) {
+        if (!FluidPackageItem.isFluidPackage(box)) {
+            return false;
+        }
+        return super.unwrapBox(box, simulate);
+    }
+
+    @Override
     public Snapshot scan() {
-        IFluidHandler fluidHandler = fluidTarget.getInventory();
+        IFluidHandler fluidHandler = getFluidHandler();
         if (fluidHandler == null) {
             return Snapshot.empty(null);
         }
@@ -140,7 +151,7 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
         if (maxAmount <= 0 || !CompressedTankItem.isFluidStack(normalizedKey)) {
             return 0;
         }
-        IFluidHandler handler = fluidTarget.getInventory();
+        IFluidHandler handler = getFluidHandler();
         if (handler == null) {
             return 0;
         }
@@ -160,7 +171,7 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
         if (maxAmount <= 0 || !CompressedTankItem.isFluidStack(normalizedKey)) {
             return 0;
         }
-        IFluidHandler handler = fluidTarget.getInventory();
+        IFluidHandler handler = getFluidHandler();
         if (handler == null) {
             return 0;
         }
@@ -189,6 +200,35 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
             scanned.merge(key, amount, FluidPackagerBlockEntity::mergeFluidAmounts);
         }
         return scanned.isEmpty() ? Map.of() : scanned;
+    }
+
+    @Nullable
+    private IFluidHandler getFluidHandler() {
+        if (level == null) {
+            return null;
+        }
+        BlockPos targetPos = fluidTarget.getTarget().getConnectedPos();
+        if (!level.isLoaded(targetPos)) {
+            return null;
+        }
+        BlockEntity target = level.getBlockEntity(targetPos);
+        if (target instanceof IMultiBlockEntityContainer.Fluid multiblock) {
+            BlockEntity controller = multiblock.getControllerBE();
+            if (controller != null) {
+                IFluidHandler controllerHandler = controller
+                        .getCapability(ForgeCapabilities.FLUID_HANDLER)
+                        .orElse(null);
+                if (controllerHandler != null) {
+                    return controllerHandler;
+                }
+            }
+        }
+        IFluidHandler fluidHandler = fluidTarget.getInventory();
+        if (fluidHandler == null) {
+            fluidTarget.findNewCapability();
+            fluidHandler = fluidTarget.getInventory();
+        }
+        return fluidHandler;
     }
 
     private static int mergeFluidAmounts(int existingAmount, int addedAmount) {
