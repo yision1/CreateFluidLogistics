@@ -7,7 +7,6 @@ import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.kinetics.belt.behaviour.BeltProcessingBehaviour;
 import com.simibubi.create.content.kinetics.belt.behaviour.TransportedItemStackHandlerBehaviour;
 import com.simibubi.create.content.kinetics.belt.transport.TransportedItemStack;
-import com.yision.fluidlogistics.compat.sable.SableSublevelTargetHelper;
 import com.yision.fluidlogistics.content.fluids.infiniteWater.InfiniteWaterSource;
 import com.yision.fluidlogistics.foundation.fluid.DepotFills;
 import com.yision.fluidlogistics.foundation.fluid.FluidSourceScans;
@@ -220,8 +219,7 @@ class FaucetItemFilling {
         if (handler.blockEntity == null) {
             return false;
         }
-        return SableSublevelTargetHelper.isSameBlockAcrossSublevels(be.getLevel(), be.getBlockPos().below(),
-            handler.blockEntity.getBlockPos());
+        return be.getBlockPos().below().equals(handler.blockEntity.getBlockPos());
     }
 
     private boolean validateItemStillPresent() {
@@ -229,8 +227,7 @@ class FaucetItemFilling {
             return false;
         }
 
-        var resolved = SableSublevelTargetHelper.resolveBlockEntity(be.getLevel(), be.getBlockPos().below());
-        BlockEntity targetEntity = resolved.blockEntity();
+        BlockEntity targetEntity = be.getLevel().getBlockEntity(be.getBlockPos().below());
         if (!DepotFills.isDepot(targetEntity)) {
             return false;
         }
@@ -244,9 +241,8 @@ class FaucetItemFilling {
             return;
         }
 
-        var resolved = SableSublevelTargetHelper.resolveBlockEntity(be.getLevel(), be.getBlockPos().below());
-        BlockPos targetPos = resolved.resolvedPos();
-        BlockEntity targetEntity = resolved.blockEntity();
+        BlockPos targetPos = be.getBlockPos().below();
+        BlockEntity targetEntity = be.getLevel().getBlockEntity(targetPos);
         if (!DepotFills.isDepot(targetEntity)) {
             cancel();
             return;
@@ -395,16 +391,14 @@ class FaucetItemFilling {
     }
 
     private ItemStack getCurrentStackInBeltSegment(BlockPos beltPos) {
-        var resolved = SableSublevelTargetHelper.resolveBlockEntity(be.getLevel(), beltPos);
-        BlockEntity blockEntity = resolved.blockEntity();
+        BlockEntity blockEntity = be.getLevel().getBlockEntity(beltPos);
         if (blockEntity == null) {
             return ItemStack.EMPTY;
         }
-        BlockPos resolvedPos = resolved.resolvedPos();
-        var state = be.getLevel().getBlockState(resolvedPos);
+        var state = be.getLevel().getBlockState(beltPos);
         var handler = be.getLevel().getCapability(
             Capabilities.ItemHandler.BLOCK,
-            resolvedPos,
+            beltPos,
             state,
             blockEntity,
             null

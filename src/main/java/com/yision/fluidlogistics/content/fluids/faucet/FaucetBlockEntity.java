@@ -9,7 +9,6 @@ import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringB
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.yision.fluidlogistics.compat.CompatMods;
 import com.yision.fluidlogistics.compat.kaleidoscopetavern.KaleidoscopeTavernCompat;
-import com.yision.fluidlogistics.compat.sable.SableSublevelTargetHelper;
 import com.yision.fluidlogistics.content.fluids.infiniteWater.InfiniteWaterSource;
 import com.yision.fluidlogistics.foundation.fluid.CachedFluidInterface;
 import com.yision.fluidlogistics.foundation.fluid.CauldronFills;
@@ -332,13 +331,7 @@ public class FaucetBlockEntity extends SmartBlockEntity {
             return new ResolvedTarget(TargetKind.TANK, targetPos, directState, null, true);
         }
 
-        var resolved = SableSublevelTargetHelper.resolveBlockEntity(level, targetPos);
-        BlockEntity targetEntity = resolved.blockEntity();
-        if (targetEntity == null) {
-            return ResolvedTarget.NONE;
-        }
-        BlockState targetState = level.getBlockState(resolved.resolvedPos());
-        return resolveBlockEntityTarget(resolved.resolvedPos(), targetState, targetEntity, false);
+        return ResolvedTarget.NONE;
     }
 
     private ResolvedTarget resolveBlockEntityTarget(BlockPos targetPos, BlockState targetState,

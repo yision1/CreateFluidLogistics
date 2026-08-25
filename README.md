@@ -27,7 +27,6 @@ This mod expands the logistics system of Create 6.0, adding a fluid logistics sy
 ## Mod Compatibility
 - **JEI / EMI** — Fluid icon drag support
 - **Jade / Cyber Goggles** — Fluid package information display support
-- **Sable** — Faucet filling across sub-levels support
 - **Mobile Packages / Package Couriers / Phantom** — Portable Stock Ticker request fluids support
 - **Enchantment Industry** — Faucet filling experience support, Package breakage drop experience support
 - **Kaleidoscope Tavern** — Faucet can connect to Cauldrons, Dragon Heads, Bee Nests, Beehives, Melons, and other blocks to dispense special content
