@@ -3,6 +3,7 @@ package com.yision.fluidlogistics;
 import com.mojang.logging.LogUtils;
 import com.simibubi.create.AllFluids;
 import com.simibubi.create.content.kinetics.mechanicalArm.ArmInteractionPointType;
+import com.simibubi.create.api.event.BlockEntityBehaviourEvent;
 import com.simibubi.create.api.stress.BlockStressValues;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.item.ItemDescription;
@@ -10,6 +11,8 @@ import com.simibubi.create.foundation.item.KineticStats;
 import com.simibubi.create.foundation.item.TooltipModifier;
 import net.createmod.catnip.lang.FontHelper;
 import com.yision.fluidlogistics.config.Config;
+import com.yision.fluidlogistics.api.factorygauge.FactoryGauges;
+import com.yision.fluidlogistics.api.factorygauge.FactoryGaugeType;
 import com.yision.fluidlogistics.api.packager.PackageResources;
 import com.yision.fluidlogistics.api.packager.PackageResourceTypes;
 import com.yision.fluidlogistics.api.handpointer.PackagerAddresses;
@@ -18,6 +21,9 @@ import com.yision.fluidlogistics.content.equipment.handPointer.CreateMechanicalC
 import com.yision.fluidlogistics.content.fluids.copperBucket.CopperBucketItem;
 import com.yision.fluidlogistics.content.fluids.waterContainingCopperCasing.WaterContainingCopperCasingFluidHandler;
 import com.yision.fluidlogistics.content.fluids.fluidPump.FluidPumpNetworkUpdater;
+import com.yision.fluidlogistics.content.logistics.factoryGauge.FactoryGaugeBehaviourAttachment;
+import com.yision.fluidlogistics.content.logistics.factoryGauge.FactoryGaugeLootModifier;
+import com.yision.fluidlogistics.content.logistics.factoryGauge.builtin.FluidContainerProbe;
 import com.yision.fluidlogistics.content.logistics.fluidPackager.FluidPackagerBlockEntity;
 import com.yision.fluidlogistics.content.logistics.copperFrogport.CopperFrogportBlockEntity;
 import com.yision.fluidlogistics.content.logistics.fluidPackager.repackager.FluidRepackagerBlockEntity;
@@ -70,9 +76,10 @@ import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.fluids.capability.templates.FluidHandlerItemStack;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.neoforged.neoforge.registries.DeferredRegister;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
@@ -93,6 +100,9 @@ public class FluidLogistics {
                     .icon(() -> createRandomFluidPackage(Config.getFluidPerPackage()))
                     .build());
 
+    private static final DeferredRegister<com.mojang.serialization.MapCodec<? extends net.neoforged.neoforge.common.loot.IGlobalLootModifier>>
+            LOOT_MODIFIERS = DeferredRegister.create(NeoForgeRegistries.GLOBAL_LOOT_MODIFIER_SERIALIZERS, MODID);
+
     public static final CreateRegistrate REGISTRATE = CreateRegistrate.create(MODID)
             .setTooltipModifierFactory(item -> {
                 TooltipModifier base = item instanceof InfiniteFluidTankItem
@@ -106,6 +116,8 @@ public class FluidLogistics {
 
     public FluidLogistics(IEventBus modEventBus, ModContainer modContainer) {
         CREATIVE_TABS.register(modEventBus);
+        LOOT_MODIFIERS.register("factory_gauge_drops", () -> FactoryGaugeLootModifier.CODEC);
+        LOOT_MODIFIERS.register(modEventBus);
         REGISTRATE.registerEventListeners(modEventBus);
 
         AllConditionCodecs.register(modEventBus);
@@ -121,10 +133,16 @@ public class FluidLogistics {
         AllBlockEntities.register();
         AllItems.register();
         PackageResourceTypes.registerBuiltIns();
+        FactoryGauges.register(new FactoryGaugeType(
+                AllItems.FLUID_GAUGE_TYPE_ID,
+                PackageResourceTypes.FLUID,
+                AllItems.FLUID_FACTORY_GAUGE,
+                FluidContainerProbe.INSTANCE));
         AllMenuTypes.register();
         FluidLogisticsArmInteractionPointTypes.ARM_INTERACTION_POINT_TYPES.register(modEventBus);
 
         modContainer.registerConfig(ModConfig.Type.SERVER, Config.SERVER_SPEC);
+        modContainer.registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_SPEC);
 
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::registerCapabilities);
@@ -132,12 +150,14 @@ public class FluidLogistics {
         modEventBus.addListener(AllItems::registerAliases);
 
         NeoForge.EVENT_BUS.register(this);
+        NeoForge.EVENT_BUS.addListener(FactoryGaugeBehaviourAttachment::onAttachBehaviours);
         LOGGER.info("FluidLogistics initialized!");
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
             PackageResources.bootstrap();
+            FactoryGauges.bootstrap();
             FluidLogisticsPackets.register();
             ArmInteractionPointType.init();
             AllMountedStorageTypes.register();
@@ -236,6 +256,7 @@ public class FluidLogistics {
             new FeatureItem(FeatureToggle.COPPER_BUCKET, AllItems.COPPER_BUCKET),
             new FeatureItem(FeatureToggle.PHANTOM_CHAIN, AllItems.PHANTOM_CHAIN),
             new FeatureItem(FeatureToggle.FLUID_HATCH, AllBlocks.FLUID_HATCH),
+            new FeatureItem(FeatureToggle.FLUID_FACTORY_GAUGE, AllItems.FLUID_FACTORY_GAUGE),
     };
 
     public static ResourceLocation asResource(String path) {

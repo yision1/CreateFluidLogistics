@@ -6,6 +6,7 @@ import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
 import com.yision.fluidlogistics.FluidLogistics;
+import com.yision.fluidlogistics.api.factorygauge.FactoryGauges;
 import com.yision.fluidlogistics.content.fluids.copperBucket.CopperBucketItem;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageItem;
 import com.yision.fluidlogistics.content.equipment.handPointer.HandPointerItem;
@@ -13,6 +14,7 @@ import com.yision.fluidlogistics.content.schematics.FluidSchematicItem;
 import com.yision.fluidlogistics.item.CompressedTankItem;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.Tags.Items;
@@ -24,6 +26,16 @@ import java.util.concurrent.ThreadLocalRandom;
 import static com.yision.fluidlogistics.FluidLogistics.REGISTRATE;
 
 public class AllItems {
+
+    public static final ResourceLocation FLUID_GAUGE_TYPE_ID = FluidLogistics.asResource("fluid");
+
+    public static final ItemEntry<Item> FLUID_FACTORY_GAUGE = REGISTRATE
+            .item("fluid_factory_gauge", properties ->
+                    FactoryGauges.createItem(FLUID_GAUGE_TYPE_ID, properties))
+            .model(AssetLookup.existingItemModel())
+            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
+            .register();
+
 
     public static final ItemEntry<Item> EMPTY_FLUID_SCHEMATIC = REGISTRATE
             .item("empty_fluid_schematic", Item::new)

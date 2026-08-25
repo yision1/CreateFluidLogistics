@@ -1,6 +1,5 @@
 package com.yision.fluidlogistics.compat.emi;
 
-import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelSetItemScreen;
 import com.simibubi.create.content.logistics.filter.AttributeFilterScreen;
 import com.simibubi.create.content.logistics.filter.FilterScreen;
 import com.simibubi.create.content.logistics.redstoneRequester.RedstoneRequesterScreen;
@@ -44,11 +43,14 @@ public final class EmiFluidStackProvider {
         return EmiStackInteraction.EMPTY;
     }
 
-    public static class FactoryPanel implements EmiStackProvider<FactoryPanelSetItemScreen> {
-        public static final FactoryPanel INSTANCE = new FactoryPanel();
+    public static class ResourceGaugeSetFilter
+            implements EmiStackProvider<com.yision.fluidlogistics.content.logistics.factoryGauge.client.ResourceFactoryGaugeSetFilterScreen> {
+        public static final ResourceGaugeSetFilter INSTANCE = new ResourceGaugeSetFilter();
 
         @Override
-        public EmiStackInteraction getStackAt(FactoryPanelSetItemScreen screen, int x, int y) {
+        public EmiStackInteraction getStackAt(
+                com.yision.fluidlogistics.content.logistics.factoryGauge.client.ResourceFactoryGaugeSetFilterScreen screen,
+                int x, int y) {
             return forGhostSlotScreen(screen, x, y);
         }
     }

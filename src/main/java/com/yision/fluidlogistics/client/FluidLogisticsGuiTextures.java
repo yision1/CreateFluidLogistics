@@ -11,6 +11,12 @@ import net.neoforged.api.distmarker.OnlyIn;
 
 public enum FluidLogisticsGuiTextures implements ScreenElement, TextureSheetSegment {
 
+    FACTORY_GAUGE_RECIPE("factory_gauge", 32, 0, 192, 96, 256, 256),
+    FACTORY_GAUGE_RESTOCK("factory_gauge", 32, 112, 192, 40, 256, 256),
+    FACTORY_GAUGE_BOTTOM("factory_gauge", 32, 176, 200, 64, 256, 256),
+    FLUID_THRESHOLD_RESTOCK("fluid_threshold_restock", 0, 0, 192, 28, 192, 32),
+    FLUID_THRESHOLD_RECIPE("fluid_threshold_recipe", 0, 0, 192, 28, 192, 32),
+
     SCHEMATIC_OVERLAY("schematic_overlay", 0, 0, 16, 16, 16, 16),
     FLUID_SCHEMATIC_SLOT_OVERLAY("fluid_schematic_slot_overlay", 0, 0, 16, 16, 16, 16),
     FLUID_SCHEMATIC("fluid_schematics", 10, 8, 192, 123, 256, 256),
@@ -23,10 +29,6 @@ public enum FluidLogisticsGuiTextures implements ScreenElement, TextureSheetSegm
     COPPER_SCHEMATICANNON_HIGHLIGHT("fluid_schematics_2", 1, 229, 26, 26, 256, 256),
     COPPER_SCHEMATICANNON_FUEL("fluid_schematics_2", 28, 222, 47, 16, 256, 256),
     COPPER_SCHEMATICANNON_FUEL_CREATIVE("fluid_schematics_2", 28, 239, 47, 16, 256, 256),
-
-    ADDITIONAL_STOCK_LEFT_BG("fluid_threshold", 20, 0, 37, 27, 192, 32),
-    PROMISE_LIMIT_BG("fluid_threshold", 57, 0, 72, 28, 192, 32),
-    ADDITIONAL_STOCK_BG("fluid_threshold", 140, 0, 36, 18, 192, 32),
 
     FROGPORT_HEADER("frogport_and_mailbox", 0, 0, 214, 17, 256, 256),
     FROGPORT_SLOT("frogport_and_mailbox", 26, 55, 18, 18, 256, 256),

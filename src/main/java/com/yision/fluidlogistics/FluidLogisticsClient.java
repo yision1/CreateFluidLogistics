@@ -22,6 +22,7 @@ import com.yision.fluidlogistics.ponder.CopperBasinPonderPlugin;
 import net.createmod.catnip.render.DefaultSuperRenderTypeBuffer;
 import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import com.yision.fluidlogistics.ponder.CopperFrogportPonderPlugin;
+import com.yision.fluidlogistics.ponder.FluidFactoryGaugePonderPlugin;
 import com.yision.fluidlogistics.ponder.FluidLogisticsPonderPlugin;
 import com.yision.fluidlogistics.registry.AllBlocks;
 import com.yision.fluidlogistics.registry.AllItems;
@@ -66,6 +67,10 @@ public class FluidLogisticsClient {
                 PackageResourceTypes.FLUID, FluidSlotAmountRenderer::renderInStockKeeper);
         PackageResourceClient.registerFactoryPanelPreviewRenderer(
                 PackageResourceTypes.FLUID, FactoryPanelFluidPreviewRenderer::render);
+        com.yision.fluidlogistics.api.factorygauge.client.FactoryGaugeClient.registerModels(
+                AllItems.FLUID_GAUGE_TYPE_ID,
+                com.yision.fluidlogistics.api.factorygauge.client.FactoryGaugeModelSet.fromRoot(
+                        FluidLogistics.asResource("block/fluid_factory_gauge")));
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
         NeoForge.EVENT_BUS.register(new HandPointerInteractionHandler());
         NeoForge.EVENT_BUS.register(FluidSlotClickHandler.class);
@@ -75,6 +80,7 @@ public class FluidLogisticsClient {
     static void onClientSetup(FMLClientSetupEvent event) {
         AllSpriteShifts.register();
         PonderIndex.addPlugin(new CopperBasinPonderPlugin());
+        PonderIndex.addPlugin(new FluidFactoryGaugePonderPlugin());
         PonderIndex.addPlugin(new FluidLogisticsPonderPlugin());
         PonderIndex.addPlugin(new CopperFrogportPonderPlugin());
         event.enqueueWork(() -> {
@@ -111,6 +117,12 @@ public class FluidLogisticsClient {
         }
 
         AllPartialModels.register();
+
+        for (ResourceLocation modelLocation : com.yision.fluidlogistics.api.factorygauge.client.FactoryGaugeClient
+                .customModelLocations()) {
+            event.register(ModelResourceLocation.standalone(modelLocation));
+        }
+        com.yision.fluidlogistics.api.factorygauge.client.FactoryGaugeClient.freezeModels();
     }
 
     @SubscribeEvent

@@ -83,7 +83,7 @@ public class FluidPackagerBlock extends PackagerBlock {
                                               Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (AllItems.WRENCH.isIn(stack))
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-        if (AllBlocks.FACTORY_GAUGE.isIn(stack))
+        if (com.yision.fluidlogistics.registry.AllItems.FLUID_FACTORY_GAUGE.isIn(stack))
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if (AllBlocks.STOCK_LINK.isIn(stack) && !(state.hasProperty(LINKED) && state.getValue(LINKED)))
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;

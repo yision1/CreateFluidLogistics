@@ -105,7 +105,7 @@ public abstract class RedstoneRequesterScreenMixin extends AbstractSimiContainer
             if (!GenericItemEmptying.canItemBeEmptied(this.menu.contentHolder.getLevel(), carried)) {
                 return;
             }
-            hint = CreateLang.translateDirect("fluidlogistics.factory_panel.hold_alt_to_set_contained_fluid");
+            hint = CreateLang.translateDirect("fluidlogistics.redstone_requester.hold_alt_to_set_contained_fluid");
         }
 
         graphics.renderComponentTooltip(font,

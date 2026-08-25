@@ -9,21 +9,17 @@ import java.util.function.Supplier;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBehaviour;
 import com.simibubi.create.foundation.gui.menu.GhostItemMenu;
 import com.simibubi.create.foundation.gui.menu.GhostItemSubmitPacket;
 import com.yision.fluidlogistics.api.packager.PackageResources;
 import com.yision.fluidlogistics.api.packager.client.FactoryPanelPreviewRenderer;
 import com.yision.fluidlogistics.api.packager.client.StockKeeperAmountRenderer;
-import com.yision.fluidlogistics.network.factoryPanel.FactoryPanelSetRequestSelectorPacket;
 
 import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -151,22 +147,6 @@ public final class PackageResourceClientRegistry {
             return false;
         }
         submitGhostItem(menu, slotIndex, resolved.orElseThrow());
-        return true;
-    }
-
-    public static boolean trySetFactoryPanelRequestSelector(
-            FactoryPanelBehaviour behaviour, Player player, InteractionHand hand) {
-        Objects.requireNonNull(behaviour, "behaviour");
-        Objects.requireNonNull(player, "player");
-        Objects.requireNonNull(hand, "hand");
-        if (!shouldResolveRequestSelector(Screen.hasAltDown())) {
-            return false;
-        }
-        if (PackageResources.resolveRequestKey(player.getItemInHand(hand)).isEmpty()) {
-            return false;
-        }
-        CatnipServices.NETWORK.sendToServer(
-                new FactoryPanelSetRequestSelectorPacket(behaviour.getPanelPosition(), hand));
         return true;
     }
 

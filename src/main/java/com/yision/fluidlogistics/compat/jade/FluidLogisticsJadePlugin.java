@@ -1,5 +1,6 @@
 package com.yision.fluidlogistics.compat.jade;
 
+import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
 import com.simibubi.create.content.logistics.box.PackageEntity;
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.MechanicalFluidGunBlockEntity;
@@ -35,5 +36,6 @@ public class FluidLogisticsJadePlugin implements IWailaPlugin {
         registration.registerFluidStorageClient(MultiFluidTankProvider.INSTANCE);
         registration.registerFluidStorageClient(ContraptionMultiFluidTankProvider.INSTANCE);
         registration.registerFluidStorageClient(ConnectedFluidSourceProvider.INSTANCE);
+        registration.usePickedResult(AllBlocks.FACTORY_GAUGE.get());
     }
 }

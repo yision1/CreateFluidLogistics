@@ -45,10 +45,6 @@ public class ResourceAmountScrollInput extends ScrollInput {
             toolTip.add(hint.plainCopy().withStyle(style -> style.withColor(HINT_RGB.getRGB())));
         }
         toolTip.add(scrollToModify.plainCopy().withStyle(ChatFormatting.ITALIC, ChatFormatting.DARK_GRAY));
-        toolTip.add(CreateLang.translate("fluidlogistics.scroll_precise_amount")
-                .style(ChatFormatting.DARK_GRAY)
-                .style(ChatFormatting.ITALIC)
-                .component());
         if (hasRedstoneLink.get()) {
             toolTip.add(Component.empty());
             toolTip.add(CreateLang.translate("gui.factory_panel.has_link_connections")
