@@ -1,5 +1,1 @@
-- Add CC:tweaked compatibility
-- Better visuals for sellings fluids
-- Allow printing fluid through fluid schematic and copper schematicannon
-- Fix factory gauges promises are overclearing
-- Fix factory gauges connected to a fluid packager leads to world corruption
+- Add Fluid Factory Gauge
