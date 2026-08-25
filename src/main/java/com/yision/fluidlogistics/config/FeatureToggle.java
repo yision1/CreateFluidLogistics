@@ -32,6 +32,7 @@ public final class FeatureToggle {
     public static final ResourceLocation PHANTOM_CHAIN = FluidLogistics.asResource("phantom_chain");
 
     public static final ResourceLocation FLUID_HATCH = FluidLogistics.asResource("fluid_hatch");
+    public static final ResourceLocation FLUID_FACTORY_GAUGE = FluidLogistics.asResource("fluid_factory_gauge");
 
     private static final Map<ResourceLocation, BooleanSupplier> FEATURE_MAP;
 
@@ -56,6 +57,7 @@ public final class FeatureToggle {
         map.put(COPPER_BUCKET, Config::isCopperBucketEnabled);
         map.put(PHANTOM_CHAIN, Config::isPhantomChainEnabled);
         map.put(FLUID_HATCH, Config::isFluidHatchEnabled);
+        map.put(FLUID_FACTORY_GAUGE, Config::isFluidFactoryGaugeEnabled);
         FEATURE_MAP = Collections.unmodifiableMap(map);
     }
 

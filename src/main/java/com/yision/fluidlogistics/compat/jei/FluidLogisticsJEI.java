@@ -2,13 +2,13 @@ package com.yision.fluidlogistics.compat.jei;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelSetItemScreen;
 import com.simibubi.create.content.logistics.filter.AbstractFilterScreen;
 import com.simibubi.create.content.logistics.redstoneRequester.RedstoneRequesterScreen;
 import com.simibubi.create.content.logistics.stockTicker.StockKeeperRequestScreen;
 import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.compat.CompatMods;
 import com.yision.fluidlogistics.content.equipment.handPointer.filter.HandPointerFilterScreen;
+import com.yision.fluidlogistics.content.logistics.factoryGauge.client.ResourceFactoryGaugeSetFilterScreen;
 import com.yision.fluidlogistics.mixin.accessor.RedstoneRequesterScreenAccessor;
 import com.yision.fluidlogistics.util.FluidAmountHelper;
 
@@ -31,7 +31,7 @@ public class FluidLogisticsJEI implements IModPlugin {
 
     private static final FluidGhostIngredientHandler<AbstractFilterScreen<?>> FILTER_FLUID_HANDLER =
         new FluidGhostIngredientHandler<>();
-    private static final FluidGhostIngredientHandler<FactoryPanelSetItemScreen> FACTORY_PANEL_FLUID_HANDLER =
+    private static final FluidGhostIngredientHandler<ResourceFactoryGaugeSetFilterScreen> RESOURCE_GAUGE_SET_FILTER_FLUID_HANDLER =
         new FluidGhostIngredientHandler<>();
     private static final FluidGhostIngredientHandler<RedstoneRequesterScreen> REDSTONE_REQUESTER_FLUID_HANDLER =
         new FluidGhostIngredientHandler<>((gui, slotIndex) ->
@@ -62,7 +62,8 @@ public class FluidLogisticsJEI implements IModPlugin {
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
         if (!CompatMods.emiLoaded()) {
             registration.addGhostIngredientHandler((Class) AbstractFilterScreen.class, FILTER_FLUID_HANDLER);
-            registration.addGhostIngredientHandler(FactoryPanelSetItemScreen.class, FACTORY_PANEL_FLUID_HANDLER);
+            registration.addGhostIngredientHandler(ResourceFactoryGaugeSetFilterScreen.class,
+                RESOURCE_GAUGE_SET_FILTER_FLUID_HANDLER);
             registration.addGhostIngredientHandler(RedstoneRequesterScreen.class, REDSTONE_REQUESTER_FLUID_HANDLER);
             registration.addGhostIngredientHandler(HandPointerFilterScreen.class, HandPointerFilterGhostHandler.INSTANCE);
         }

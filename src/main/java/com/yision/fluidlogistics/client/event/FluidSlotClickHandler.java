@@ -2,9 +2,6 @@ package com.yision.fluidlogistics.client.event;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.simibubi.create.content.fluids.transfer.GenericItemEmptying;
-import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBehaviour;
-import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelSetItemMenu;
-import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelSetItemScreen;
 import com.simibubi.create.content.logistics.redstoneRequester.RedstoneRequesterMenu;
 import com.simibubi.create.content.logistics.redstoneRequester.RedstoneRequesterScreen;
 import com.yision.fluidlogistics.api.packager.PackageResourceTypes;
@@ -74,15 +71,6 @@ public final class FluidSlotClickHandler {
             return PackageResourceClient.trySubmitRequestSelector(
                 menu, slot.getSlotIndex(), menu.getCarried());
         }
-        if (screen instanceof FactoryPanelSetItemScreen panelScreen) {
-            Slot slot = panelScreen.getSlotUnderMouse();
-            if (!(slot instanceof SlotItemHandler)) {
-                return false;
-            }
-            FactoryPanelSetItemMenu menu = panelScreen.getMenu();
-            return PackageResourceClient.trySubmitRequestSelector(
-                menu, slot.getSlotIndex(), menu.getCarried());
-        }
         return false;
     }
 
@@ -90,10 +78,6 @@ public final class FluidSlotClickHandler {
         if (screen instanceof RedstoneRequesterScreen requesterScreen) {
             Slot slot = requesterScreen.getSlotUnderMouse();
             return slot instanceof SlotItemHandler && handleRedstoneRequester(requesterScreen, slot);
-        }
-        if (screen instanceof FactoryPanelSetItemScreen panelScreen) {
-            Slot slot = panelScreen.getSlotUnderMouse();
-            return slot instanceof SlotItemHandler && handleFactoryPanel(panelScreen, slot);
         }
         return false;
     }
@@ -119,25 +103,4 @@ public final class FluidSlotClickHandler {
         return true;
     }
 
-    private static boolean handleFactoryPanel(FactoryPanelSetItemScreen screen, Slot slot) {
-        FactoryPanelSetItemMenu menu = screen.getMenu();
-        ItemStack carried = menu.getCarried();
-        if (carried.isEmpty()) {
-            return false;
-        }
-
-        FactoryPanelBehaviour behaviour = menu.contentHolder;
-        if (behaviour == null || !GenericItemEmptying.canItemBeEmptied(behaviour.getWorld(), carried)) {
-            return false;
-        }
-
-        Pair<FluidStack, ItemStack> emptyResult = GenericItemEmptying.emptyItem(behaviour.getWorld(), carried, true);
-        if (emptyResult.getFirst().isEmpty()) {
-            return false;
-        }
-
-        PackageResourceClient.submitGhostItem(
-            menu, slot.getSlotIndex(), PackageResourceTypes.createFluidKey(emptyResult.getFirst()));
-        return true;
-    }
 }

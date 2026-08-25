@@ -8,6 +8,8 @@ import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.content.equipment.handPointer.filter.HandPointerFilterMenu;
 import com.yision.fluidlogistics.content.equipment.handPointer.filter.HandPointerFilterScreen;
 import com.yision.fluidlogistics.content.logistics.copperFrogport.CopperFrogportScreen;
+import com.yision.fluidlogistics.content.logistics.factoryGauge.ResourceFactoryGaugeSetFilterMenu;
+import com.yision.fluidlogistics.content.logistics.factoryGauge.client.ResourceFactoryGaugeSetFilterScreen;
 import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonScreen;
 import com.simibubi.create.content.logistics.packagePort.PackagePortMenu;
 import com.simibubi.create.content.schematics.cannon.SchematicannonMenu;
@@ -26,6 +28,10 @@ public class AllMenuTypes {
 
     public static final MenuEntry<SchematicannonMenu> COPPER_SCHEMATICANNON =
         register("copper_schematicannon", SchematicannonMenu::new, () -> CopperSchematicannonScreen::new);
+
+    public static final MenuEntry<ResourceFactoryGaugeSetFilterMenu> RESOURCE_GAUGE_SET_FILTER =
+        register("resource_gauge_set_filter", ResourceFactoryGaugeSetFilterMenu::new,
+            () -> ResourceFactoryGaugeSetFilterScreen::new);
 
     private static <C extends AbstractContainerMenu, S extends Screen & MenuAccess<C>> MenuEntry<C> register(
         String name, ForgeMenuFactory<C> factory, NonNullSupplier<ScreenFactory<C, S>> screenFactory) {

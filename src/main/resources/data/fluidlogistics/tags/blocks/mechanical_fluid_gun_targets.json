@@ -59,6 +59,14 @@
       "id": "vintageimprovements:vacuum_chamber",
       "required": false
     },
+        {
+      "id": "create_enchantment_industry:blaze_forger",
+      "required": false
+    },
+    {
+      "id": "create_enchantment_industry:blaze_enchanter",
+      "required": false
+    },
     "fluidlogistics:fluid_hatch"
   ]
 }

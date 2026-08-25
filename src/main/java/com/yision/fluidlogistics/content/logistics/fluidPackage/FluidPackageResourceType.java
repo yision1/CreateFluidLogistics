@@ -288,8 +288,8 @@ public final class FluidPackageResourceType {
     private static final class FluidResourceDisplay implements PackageResourceDisplay {
         private static final int MAX_FACTORY_PANEL_AMOUNT = 100 * FluidAmountHelper.MB_PER_BUCKET;
         private static final List<FactoryPanelUnit> FACTORY_PANEL_UNITS = List.of(
-                new FactoryPanelUnit("mB", 1),
-                new FactoryPanelUnit("B", FluidAmountHelper.MB_PER_BUCKET));
+                new FactoryPanelUnit("mB", 10, 10),
+                new FactoryPanelUnit(" B", 10 * FluidAmountHelper.MB_PER_BUCKET, 10));
 
         @Override
         public String baseUnit() {

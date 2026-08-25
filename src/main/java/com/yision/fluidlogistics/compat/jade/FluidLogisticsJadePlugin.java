@@ -1,5 +1,6 @@
 package com.yision.fluidlogistics.compat.jade;
 
+import com.simibubi.create.AllBlocks;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,6 +68,7 @@ public class FluidLogisticsJadePlugin implements IWailaPlugin {
         registration.registerFluidStorageClient(MultiFluidTankProvider.INSTANCE);
         registration.registerFluidStorageClient(ContraptionMultiFluidTankProvider.INSTANCE);
         registration.registerFluidStorageClient(ConnectedFluidSourceProvider.INSTANCE);
+        registration.usePickedResult(AllBlocks.FACTORY_GAUGE.get());
     }
 
     public enum PackageItemStorageProvider

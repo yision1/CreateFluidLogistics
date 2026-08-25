@@ -8,6 +8,7 @@ import net.minecraftforge.fml.event.config.ModConfigEvent;
 @Mod.EventBusSubscriber(modid = "fluidlogistics", bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Config {
     private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
+    private static final ForgeConfigSpec.Builder CLIENT_BUILDER = new ForgeConfigSpec.Builder();
 
     private static final boolean FLUID_TRANSPORTER_ENABLED_DEFAULT = true;
     private static final boolean SMART_FAUCET_ENABLED_DEFAULT = true;
@@ -28,6 +29,7 @@ public class Config {
     private static final boolean COPPER_BUCKET_ENABLED_DEFAULT = true;
     private static final boolean PHANTOM_CHAIN_ENABLED_DEFAULT = true;
     private static final boolean FLUID_HATCH_ENABLED_DEFAULT = true;
+    private static final boolean FLUID_FACTORY_GAUGE_ENABLED_DEFAULT = true;
 
     private static final int FLUID_PACKAGE_CAPACITY_DEFAULT = 10000;
     private static final int FLUID_PACKAGE_CAPACITY_MIN = 1;
@@ -48,6 +50,14 @@ public class Config {
     private static final int INFINITE_FLUID_TANK_CAPACITY_DEFAULT = -1;
     private static final int INFINITE_FLUID_TANK_CAPACITY_MIN = -1;
     private static final int INFINITE_FLUID_TANK_CAPACITY_MAX = Integer.MAX_VALUE / MILLIBUCKETS_PER_BUCKET;
+    private static final boolean USE_ITEM_RENDERING_FOR_FLUID_FACTORY_GAUGE_FLUID_DEFAULT = false;
+
+    public static final ForgeConfigSpec.BooleanValue USE_ITEM_RENDERING_FOR_FLUID_FACTORY_GAUGE_FLUID = CLIENT_BUILDER
+            .translation("fluidlogistics.configuration.useItemRenderingForFluidFactoryGaugeFluid")
+            .define("useItemRenderingForFluidFactoryGaugeFluid",
+                    USE_ITEM_RENDERING_FOR_FLUID_FACTORY_GAUGE_FLUID_DEFAULT);
+
+    public static final ForgeConfigSpec CLIENT_SPEC = CLIENT_BUILDER.build();
 
     static {
         BUILDER.translation("fluidlogistics.configuration.section.featureToggles")
@@ -129,6 +139,10 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue FLUID_HATCH_ENABLED = BUILDER
             .translation("block.fluidlogistics.fluid_hatch")
             .define("fluidHatchEnabled", FLUID_HATCH_ENABLED_DEFAULT);
+
+    public static final ForgeConfigSpec.BooleanValue FLUID_FACTORY_GAUGE_ENABLED = BUILDER
+            .translation("item.fluidlogistics.fluid_factory_gauge")
+            .define("fluidFactoryGaugeEnabled", FLUID_FACTORY_GAUGE_ENABLED_DEFAULT);
 
     static {
         BUILDER.pop();
@@ -234,6 +248,7 @@ public class Config {
     private static boolean copperBucketEnabled = COPPER_BUCKET_ENABLED_DEFAULT;
     private static boolean phantomChainEnabled = PHANTOM_CHAIN_ENABLED_DEFAULT;
     private static boolean fluidHatchEnabled = FLUID_HATCH_ENABLED_DEFAULT;
+    private static boolean fluidFactoryGaugeEnabled = FLUID_FACTORY_GAUGE_ENABLED_DEFAULT;
     private static int fluidPackageCapacity = FLUID_PACKAGE_CAPACITY_DEFAULT;
     private static int fluidPumpRange = FLUID_PUMP_RANGE_DEFAULT;
     private static int handPointerMaxArms = HAND_POINTER_MAX_ARMS_DEFAULT;
@@ -245,11 +260,15 @@ public class Config {
     private static boolean smartHopperInfiniteWaterEnabled = SMART_HOPPER_INFINITE_WATER_ENABLED_DEFAULT;
     private static int infiniteFluidTankCapacity = INFINITE_FLUID_TANK_CAPACITY_DEFAULT;
     private static InfiniteTankFluidMode infiniteFluidTankAllowedFluids = InfiniteTankFluidMode.FOLLOW_CREATE;
+    private static boolean useItemRenderingForFluidFactoryGaugeFluid =
+            USE_ITEM_RENDERING_FOR_FLUID_FACTORY_GAUGE_FLUID_DEFAULT;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent.Loading event) {
         if (event.getConfig().getSpec() == SERVER_SPEC) {
             reloadValues();
+        } else if (event.getConfig().getSpec() == CLIENT_SPEC) {
+            reloadClientValues();
         }
     }
 
@@ -257,7 +276,13 @@ public class Config {
     static void onReload(final ModConfigEvent.Reloading event) {
         if (event.getConfig().getSpec() == SERVER_SPEC) {
             reloadValues();
+        } else if (event.getConfig().getSpec() == CLIENT_SPEC) {
+            reloadClientValues();
         }
+    }
+
+    private static void reloadClientValues() {
+        useItemRenderingForFluidFactoryGaugeFluid = USE_ITEM_RENDERING_FOR_FLUID_FACTORY_GAUGE_FLUID.get();
     }
 
     private static void reloadValues() {
@@ -280,6 +305,7 @@ public class Config {
         copperBucketEnabled = COPPER_BUCKET_ENABLED.get();
         phantomChainEnabled = PHANTOM_CHAIN_ENABLED.get();
         fluidHatchEnabled = FLUID_HATCH_ENABLED.get();
+        fluidFactoryGaugeEnabled = FLUID_FACTORY_GAUGE_ENABLED.get();
         fluidPackageCapacity = FLUID_PACKAGE_CAPACITY.get();
         fluidPumpRange = FLUID_PUMP_RANGE.get();
         handPointerMaxArms = HAND_POINTER_MAX_ARMS.get();
@@ -313,6 +339,7 @@ public class Config {
     public static boolean isCopperBucketEnabled() { return copperBucketEnabled; }
     public static boolean isPhantomChainEnabled() { return phantomChainEnabled; }
     public static boolean isFluidHatchEnabled() { return fluidHatchEnabled; }
+    public static boolean isFluidFactoryGaugeEnabled() { return fluidFactoryGaugeEnabled; }
 
     public static int getFluidPumpRange() { return fluidPumpRange; }
 
@@ -330,6 +357,9 @@ public class Config {
     public static boolean isSmartHopperInfiniteWaterEnabled() { return smartHopperInfiniteWaterEnabled; }
     public static int getInfiniteFluidTankCapacity() { return infiniteFluidTankCapacity; }
     public static InfiniteTankFluidMode getInfiniteFluidTankAllowedFluids() { return infiniteFluidTankAllowedFluids; }
+    public static boolean useItemRenderingForFluidFactoryGaugeFluid() {
+        return useItemRenderingForFluidFactoryGaugeFluid;
+    }
 
     private static int bucketsToMillibuckets(int buckets) {
         if (buckets <= 0) {

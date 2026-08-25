@@ -1,15 +1,22 @@
 package com.yision.fluidlogistics;
 
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Codec;
 import com.simibubi.create.AllFluids;
 import com.simibubi.create.content.kinetics.mechanicalArm.ArmInteractionPointType;
+import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlockEntity;
 import com.simibubi.create.api.stress.BlockStressValues;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.item.ItemDescription;
 import com.simibubi.create.foundation.item.KineticStats;
 import com.simibubi.create.foundation.item.TooltipModifier;
+import com.yision.fluidlogistics.api.factorygauge.FactoryGaugeType;
+import com.yision.fluidlogistics.api.factorygauge.FactoryGauges;
 import com.yision.fluidlogistics.content.logistics.fluidPackager.FluidPackagerBlockEntity;
 import com.yision.fluidlogistics.content.fluids.fluidPump.FluidPumpNetworkUpdater;
+import com.yision.fluidlogistics.content.logistics.factoryGauge.FactoryGaugeBehaviourAttachment;
+import com.yision.fluidlogistics.content.logistics.factoryGauge.FactoryGaugeLootModifier;
+import com.yision.fluidlogistics.content.logistics.factoryGauge.builtin.FluidContainerProbe;
 import com.yision.fluidlogistics.config.Config;
 import com.yision.fluidlogistics.api.handpointer.PackagerAddresses;
 import com.yision.fluidlogistics.api.handpointer.crafter.HandPointerCrafterAdapters;
@@ -44,7 +51,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.ForgeMod;
+import net.minecraftforge.common.loot.IGlobalLootModifier;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
@@ -57,9 +66,11 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.RegisterEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
 
@@ -79,12 +90,17 @@ public class FluidLogistics
             ResourceKey.create(Registries.CREATIVE_MODE_TAB, asResource("fluidlogistics_tab"));
     private static final DeferredRegister<CreativeModeTab> CREATIVE_TABS =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
+    private static final DeferredRegister<Codec<? extends IGlobalLootModifier>> LOOT_MODIFIERS =
+            DeferredRegister.create(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, MODID);
 
     public static final RegistryObject<CreativeModeTab> FLUID_LOGISTICS_CREATIVE_TAB =
             CREATIVE_TABS.register("fluidlogistics_tab", () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup.fluidlogistics.fluidlogistics_tab"))
                     .icon(() -> createRandomFluidPackage(Config.getFluidPerPackage()))
                     .build());
+
+    public static final RegistryObject<Codec<? extends IGlobalLootModifier>> FACTORY_GAUGE_LOOT_MODIFIER =
+            LOOT_MODIFIERS.register("factory_gauge_drops", () -> FactoryGaugeLootModifier.CODEC);
 
     public static final CreateRegistrate REGISTRATE = CreateRegistrate.create(MODID)
             .setTooltipModifierFactory(item -> {
@@ -102,6 +118,7 @@ public class FluidLogistics
         IEventBus modEventBus = context.getModEventBus();
 
         CREATIVE_TABS.register(modEventBus);
+        LOOT_MODIFIERS.register(modEventBus);
         REGISTRATE.registerEventListeners(modEventBus);
 
         AllBlocks.register();
@@ -112,6 +129,13 @@ public class FluidLogistics
         AllBlockEntities.register();
         AllItems.register();
         PackageResourceTypes.registerBuiltIns();
+        FactoryGauges.register(new FactoryGaugeType(
+            AllItems.FLUID_GAUGE_TYPE_ID,
+            PackageResourceTypes.FLUID,
+            AllItems.FLUID_FACTORY_GAUGE,
+            FluidContainerProbe.INSTANCE));
+        // Forge 1.20.1 can start its initial model reload before FMLClientSetupEvent completes.
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> FluidLogisticsClient::registerFactoryGaugeModels);
         AllMenuTypes.register();
         AllMountedStorageTypes.register();
         AllFluidLogisticsParticleTypes.register(modEventBus);
@@ -119,6 +143,7 @@ public class FluidLogistics
         FluidLogisticsPackets.register();
 
         context.registerConfig(ModConfig.Type.SERVER, Config.SERVER_SPEC);
+        context.registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_SPEC);
 
         CraftingHelper.register(FeatureEnabledCondition.Serializer.INSTANCE);
         CraftingHelper.register(FluidHatchAdvertisedCondition.Serializer.INSTANCE);
@@ -129,6 +154,8 @@ public class FluidLogistics
         modEventBus.addListener(this::hideDisabledItems);
 
         MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.addGenericListener(FactoryPanelBlockEntity.class,
+            FactoryGaugeBehaviourAttachment::onAttachBehaviours);
         
         LOGGER.info("FluidLogistics initialized!");
     }
@@ -137,6 +164,7 @@ public class FluidLogistics
     {
         event.enqueueWork(() -> {
             PackageResources.bootstrap();
+            FactoryGauges.bootstrap();
             ArmInteractionPointType.init();
             FluidLogisticsUnpackingHandlers.registerDefaults();
             BlockStressValues.IMPACTS.register(AllBlocks.FLUID_PUMP.get(), () -> 8.0);
@@ -220,6 +248,7 @@ public class FluidLogistics
             new FeatureItem(FeatureToggle.COPPER_BUCKET, AllItems.COPPER_BUCKET),
             new FeatureItem(FeatureToggle.PHANTOM_CHAIN, AllItems.PHANTOM_CHAIN),
             new FeatureItem(FeatureToggle.FLUID_HATCH, AllBlocks.FLUID_HATCH),
+            new FeatureItem(FeatureToggle.FLUID_FACTORY_GAUGE, AllItems.FLUID_FACTORY_GAUGE),
     };
 
     @SubscribeEvent

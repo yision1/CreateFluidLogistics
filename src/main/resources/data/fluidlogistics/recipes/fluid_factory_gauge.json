@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:fluid_factory_gauge"
+    }
+  ],
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "create:factory_gauge"
+    },
+    {
+      "item": "minecraft:copper_ingot"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "item": "fluidlogistics:fluid_factory_gauge"
+  }
+}

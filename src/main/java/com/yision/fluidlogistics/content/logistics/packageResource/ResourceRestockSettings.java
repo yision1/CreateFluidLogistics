@@ -12,13 +12,8 @@ public interface ResourceRestockSettings {
 
     void fluidlogistics$setPromiseLimit(int limit);
 
-    boolean fluidlogistics$hasPromiseLimit();
-
     int fluidlogistics$getAdditionalStock();
 
     void fluidlogistics$setAdditionalStock(int amount);
 
-    boolean fluidlogistics$hasAdditionalStock();
-
-    int fluidlogistics$getRemainingAdditionalStock();
 }

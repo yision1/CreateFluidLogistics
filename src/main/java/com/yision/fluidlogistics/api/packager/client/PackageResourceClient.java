@@ -3,15 +3,12 @@ package com.yision.fluidlogistics.api.packager.client;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBehaviour;
 import com.simibubi.create.foundation.gui.menu.GhostItemMenu;
 import com.yision.fluidlogistics.content.logistics.packageResource.client.PackageResourceClientRegistry;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -61,11 +58,6 @@ public final class PackageResourceClient {
             GhostItemMenu<?> menu, int slotIndex, ItemStack selectorStack) {
         return PackageResourceClientRegistry.trySubmitRequestSelector(
                 menu, slotIndex, selectorStack);
-    }
-
-    public static boolean trySetFactoryPanelRequestSelector(
-            FactoryPanelBehaviour behaviour, Player player, InteractionHand hand) {
-        return PackageResourceClientRegistry.trySetFactoryPanelRequestSelector(behaviour, player, hand);
     }
 
     public static void submitGhostItem(GhostItemMenu<?> menu, int slotIndex, ItemStack stack) {

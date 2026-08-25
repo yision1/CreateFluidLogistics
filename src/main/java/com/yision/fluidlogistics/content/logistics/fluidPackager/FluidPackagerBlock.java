@@ -93,7 +93,7 @@ public class FluidPackagerBlock extends PackagerBlock {
         if (AllItems.WRENCH.isIn(stack))
             return InteractionResult.PASS;
         
-        if (AllBlocks.FACTORY_GAUGE.isIn(stack))
+        if (com.yision.fluidlogistics.registry.AllItems.FLUID_FACTORY_GAUGE.isIn(stack))
             return InteractionResult.PASS;
         if (AllBlocks.STOCK_LINK.isIn(stack) && !(state.hasProperty(LINKED) && state.getValue(LINKED)))
             return InteractionResult.PASS;

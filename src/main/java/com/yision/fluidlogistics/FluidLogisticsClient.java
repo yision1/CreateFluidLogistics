@@ -14,6 +14,7 @@ import com.yision.fluidlogistics.content.logistics.fluidPackage.client.FluidPack
 import com.yision.fluidlogistics.content.schematics.client.FluidSchematicColors;
 import com.yision.fluidlogistics.ponder.CopperBasinPonderPlugin;
 import com.yision.fluidlogistics.ponder.CopperFrogportPonderPlugin;
+import com.yision.fluidlogistics.ponder.FluidFactoryGaugePonderPlugin;
 import com.yision.fluidlogistics.ponder.FluidLogisticsPonderPlugin;
 import com.yision.fluidlogistics.registry.AllFluidLogisticsParticleTypes;
 import com.yision.fluidlogistics.registry.AllItems;
@@ -59,6 +60,7 @@ public class FluidLogisticsClient {
     @SubscribeEvent
     static void onClientSetup(FMLClientSetupEvent event) {
         PonderIndex.addPlugin(new CopperBasinPonderPlugin());
+        PonderIndex.addPlugin(new FluidFactoryGaugePonderPlugin());
         PonderIndex.addPlugin(new FluidLogisticsPonderPlugin());
         PonderIndex.addPlugin(new CopperFrogportPonderPlugin());
         PackageResourceClient.registerStockKeeperAmountRenderer(
@@ -71,6 +73,13 @@ public class FluidLogisticsClient {
                 .registerBlacklistedBlock(com.yision.fluidlogistics.registry.AllBlocks.MECHANICAL_FLUID_GUN.getId());
             FluidPackageClientRendering.registerFlywheelVisualizer();
         });
+    }
+
+    static void registerFactoryGaugeModels() {
+        com.yision.fluidlogistics.api.factorygauge.client.FactoryGaugeClient.registerModels(
+            AllItems.FLUID_GAUGE_TYPE_ID,
+            com.yision.fluidlogistics.api.factorygauge.client.FactoryGaugeModelSet.fromRoot(
+                FluidLogistics.asResource("block/fluid_factory_gauge")));
     }
 
     @SubscribeEvent
@@ -122,6 +131,12 @@ public class FluidLogisticsClient {
         }
 
         AllPartialModels.register();
+
+        for (ResourceLocation modelLocation : com.yision.fluidlogistics.api.factorygauge.client.FactoryGaugeClient
+            .customModelLocations()) {
+            event.register(modelLocation);
+        }
+        com.yision.fluidlogistics.api.factorygauge.client.FactoryGaugeClient.freezeModels();
     }
 
     @SubscribeEvent

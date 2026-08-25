@@ -20,9 +20,8 @@ import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.network.Me
 import com.yision.fluidlogistics.content.fluids.faucet.network.FaucetDripParticlePacket;
 import com.yision.fluidlogistics.content.schematics.network.FluidSchematicPlacePacket;
 import com.yision.fluidlogistics.content.schematics.network.FluidSchematicSyncPacket;
-import com.yision.fluidlogistics.network.factoryPanel.FactoryPanelSetFluidFilterPacket;
-import com.yision.fluidlogistics.network.factoryPanel.FactoryPanelSetRequestSelectorPacket;
 import com.yision.fluidlogistics.network.factoryPanel.FactoryPanelSetResourceRestockSettingPacket;
+import com.yision.fluidlogistics.network.factoryPanel.ResourceFactoryGaugeConfigurePacket;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -39,12 +38,10 @@ public enum FluidLogisticsPackets {
 
     CLIPBOARD_SET_ADDRESS(ClipboardSetAddressPacket.class, ClipboardSetAddressPacket::new,
         NetworkDirection.PLAY_TO_SERVER),
-    FACTORY_PANEL_SET_FLUID_FILTER(FactoryPanelSetFluidFilterPacket.class, FactoryPanelSetFluidFilterPacket::new,
-        NetworkDirection.PLAY_TO_SERVER),
-    FACTORY_PANEL_SET_REQUEST_SELECTOR(FactoryPanelSetRequestSelectorPacket.class,
-        FactoryPanelSetRequestSelectorPacket::new, NetworkDirection.PLAY_TO_SERVER),
     FACTORY_PANEL_SET_RESOURCE_RESTOCK_SETTING(FactoryPanelSetResourceRestockSettingPacket.class,
         FactoryPanelSetResourceRestockSettingPacket::new, NetworkDirection.PLAY_TO_SERVER),
+    RESOURCE_FACTORY_GAUGE_CONFIGURE(ResourceFactoryGaugeConfigurePacket.class,
+        ResourceFactoryGaugeConfigurePacket::new, NetworkDirection.PLAY_TO_SERVER),
     HAND_POINTER_AUTHORIZE_LOGISTICS_NETWORK(HandPointerAuthorizeLogisticsNetworkPacket.class,
         HandPointerAuthorizeLogisticsNetworkPacket::new, NetworkDirection.PLAY_TO_SERVER),
     HAND_POINTER_ARM_PLACEMENT(HandPointerArmPlacementPacket.class, HandPointerArmPlacementPacket::new,

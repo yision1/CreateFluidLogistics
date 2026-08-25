@@ -12,6 +12,7 @@ public final class FluidAmountHelper {
     public static final int MB_PER_BUCKET = 1000;
     public static final int MB_PER_TENTH_BUCKET = 100;
     public static final int MB_PER_KILOBUCKET = MB_PER_BUCKET * 1000;
+    public static final int MAX_FACTORY_GAUGE_TARGET_AMOUNT = 10 * MB_PER_KILOBUCKET;
     public static final int DEFAULT_FLUID_REQUEST_AMOUNT = 1;
     public static final String INACTIVE_AMOUNT_LABEL = "---";
 
