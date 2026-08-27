@@ -5,6 +5,7 @@ on:
     branches: [master]
     paths:
       - "src/main/resources/assets/fluidlogistics/lang/zh_cn.json"
+      - "src/main/resources/assets/fluidlogistics/lang/en_us.json"
       - "crowdin.yml"
 
   schedule:
@@ -12,7 +13,7 @@ on:
 
   workflow_dispatch:
     inputs:
-      upload_existing_translations:
+      upload_github_english:
         type: boolean
         required: false
         default: false
@@ -32,13 +33,34 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: master
+          fetch-depth: 0
+
+      - name: Detect en_us.json changes
+        id: english_changes
+        if: github.event_name == 'push'
+        shell: bash
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.sha }}
+        run: |
+          english_path="src/main/resources/assets/fluidlogistics/lang/en_us.json"
+
+          if [[ "$BEFORE_SHA" =~ ^0+$ ]] || ! git cat-file -e "${BEFORE_SHA}^{commit}" 2>/dev/null; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          elif git diff --quiet "$BEFORE_SHA" "$AFTER_SHA" -- "$english_path"; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Sync master with Crowdin
         uses: crowdin/github-action@v2
         with:
           upload_sources: true
-          upload_translations: ${{ github.event_name == 'workflow_dispatch' && inputs.upload_existing_translations }}
+          upload_translations: ${{ (github.event_name == 'push' && steps.english_changes.outputs.changed == 'true') || (github.event_name == 'workflow_dispatch' && inputs.upload_github_english) }}
+          upload_language: en
           download_translations: true
+          skip_untranslated_strings: true
 
           localization_branch_name: l10n_crowdin_translations
           create_pull_request: true
@@ -62,9 +84,11 @@ jobs:
       - name: Sync shared translations to 1.20.1
         uses: crowdin/github-action@v2
         with:
+          skip_ref_checkout: true
           upload_sources: false
           upload_translations: false
           download_translations: true
+          skip_untranslated_strings: true
 
           localization_branch_name: l10n_crowdin_translations_1_20_1
           create_pull_request: true
