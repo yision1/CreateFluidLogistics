@@ -1,0 +1,16 @@
+project_id_env: CROWDIN_PROJECT_ID
+api_token_env: CROWDIN_PERSONAL_TOKEN
+
+preserve_hierarchy: true
+
+files:
+  - source: "/src/main/resources/assets/fluidlogistics/lang/zh_cn.json"
+    translation: "/src/main/resources/assets/fluidlogistics/lang/%locale_with_underscore%.json"
+    update_option: "update_as_unapproved"
+
+    languages_mapping:
+      locale_with_underscore:
+        "en": "en_us"
+        "fr": "fr_fr"
+        "ja": "ja_jp"
+        "ru": "ru_ru"
