@@ -3,24 +3,20 @@ package com.yision.fluidlogistics.mixin.logistics;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBehaviour;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlock;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlock.PanelSlot;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlockEntity;
 import com.yision.fluidlogistics.api.factorygauge.FactoryGaugeType;
 import com.yision.fluidlogistics.api.factorygauge.FactoryGauges;
 import com.yision.fluidlogistics.content.logistics.factoryGauge.FactoryGaugeHostHooks;
-import com.yision.fluidlogistics.content.logistics.factoryGauge.ResourceFactoryPanelBehaviour;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -30,7 +26,6 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
 
 @Mixin(FactoryPanelBlock.class)
 public abstract class FactoryGaugeHostBlockMixin {
@@ -41,42 +36,6 @@ public abstract class FactoryGaugeHostBlockMixin {
         if (!picked.isEmpty())
             return picked;
         return ((FactoryPanelBlock) (Object) this).getCloneItemStack(level, pos, state);
-    }
-
-    @Inject(
-        method = "setPlacedBy",
-        at = @At("TAIL"),
-        remap = false
-    )
-    private void fluidlogistics$typePlacedGauge(Level level, BlockPos pos, BlockState state,
-        LivingEntity placer, ItemStack stack, CallbackInfo ci) {
-        if (placer == null)
-            return;
-        if (!(level.getBlockEntity(pos) instanceof FactoryPanelBlockEntity be))
-            return;
-
-        FactoryGaugeType type = FactoryGauges.findByItem(stack.getItem())
-            .orElse(null);
-        if (type == null)
-            return;
-
-        double range = placer.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) + 1;
-        HitResult hitResult = placer.pick(range, 1, false);
-        Vec3 location = hitResult == null ? null : hitResult.getLocation();
-        if (location == null)
-            return;
-
-        PanelSlot slot = FactoryPanelBlock.getTargetedSlot(pos, state, location);
-        FactoryPanelBehaviour behaviour = be.panels.get(slot);
-        ResourceFactoryPanelBehaviour resource;
-        if (behaviour instanceof ResourceFactoryPanelBehaviour existing && existing.isActive()) {
-            resource = existing;
-        } else {
-            resource = FactoryGaugeHostHooks.ensureResourceBehaviour(be, slot);
-        }
-
-        if (resource.gaugeTypeId() == null)
-            resource.setGaugeTypeId(type.id());
     }
 
     @Inject(
