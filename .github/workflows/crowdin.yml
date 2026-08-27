@@ -1,0 +1,78 @@
+name: Crowdin translations
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "src/main/resources/assets/fluidlogistics/lang/zh_cn.json"
+      - "crowdin.yml"
+
+  schedule:
+    - cron: "0 0 * * *"
+
+  workflow_dispatch:
+    inputs:
+      upload_existing_translations:
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: crowdin-translations
+  cancel-in-progress: false
+
+jobs:
+  sync-master:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: Sync master with Crowdin
+        uses: crowdin/github-action@v2
+        with:
+          upload_sources: true
+          upload_translations: ${{ github.event_name == 'workflow_dispatch' && inputs.upload_existing_translations }}
+          download_translations: true
+
+          localization_branch_name: l10n_crowdin_translations
+          create_pull_request: true
+          pull_request_base_branch_name: master
+          pull_request_title: "l10n: update Crowdin translations"
+          pull_request_body: "Automated translation update from Crowdin."
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+
+  sync-1-20-1:
+    needs: sync-master
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 1.20.1
+
+      - name: Sync shared translations to 1.20.1
+        uses: crowdin/github-action@v2
+        with:
+          upload_sources: false
+          upload_translations: false
+          download_translations: true
+
+          localization_branch_name: l10n_crowdin_translations_1_20_1
+          create_pull_request: true
+          pull_request_base_branch_name: 1.20.1
+          pull_request_title: "l10n: sync Crowdin translations"
+          pull_request_body: "Automated translation update from Crowdin."
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
