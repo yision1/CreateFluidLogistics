@@ -38,6 +38,7 @@
   "create.fluidlogistics.gauge.hide_enhanced_settings": "隐藏增强设置",
   "create.fluidlogistics.gauge.promise_limit": "承诺中的流体数量限制为",
   "create.fluidlogistics.gauge.promise_limit.none": "承诺中的流体数量不受限制",
+  "create.fluidlogistics.gauge.promised_fluid": "承诺的流体",
   "create.fluidlogistics.gauge.request_additional": "补货时，额外请求的流体数量",
   "create.fluidlogistics.gauge.request_additional.none": "补货时，不请求额外流体",
   "create.fluidlogistics.gauge.restock_threshold": "单次流体补货量",

@@ -38,6 +38,7 @@
   "create.fluidlogistics.gauge.hide_enhanced_settings": "Hide Enhanced Settings",
   "create.fluidlogistics.gauge.promise_limit": "Promised Fluid Limit",
   "create.fluidlogistics.gauge.promise_limit.none": "No limit on promised fluid",
+  "create.fluidlogistics.gauge.promised_fluid": "Promised Fluid",
   "create.fluidlogistics.gauge.request_additional": "Additional fluid to request while restocking",
   "create.fluidlogistics.gauge.request_additional.none": "Do not request additional fluid while restocking",
   "create.fluidlogistics.gauge.restock_threshold": "Minimum fluid restock amount",

@@ -9,6 +9,7 @@ import com.simibubi.create.foundation.gui.AllIcons;
 import com.simibubi.create.foundation.gui.menu.AbstractSimiContainerScreen;
 import com.simibubi.create.foundation.gui.widget.IconButton;
 import com.simibubi.create.foundation.utility.CreateLang;
+import com.yision.fluidlogistics.client.FluidLogisticsGuiTextures;
 import com.yision.fluidlogistics.content.logistics.factoryGauge.ResourceFactoryGaugeSetFilterMenu;
 import com.yision.fluidlogistics.content.logistics.factoryGauge.ResourceFactoryPanelBehaviour;
 
@@ -24,6 +25,8 @@ import net.neoforged.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class ResourceFactoryGaugeSetFilterScreen extends AbstractSimiContainerScreen<ResourceFactoryGaugeSetFilterMenu> {
 
+    private static final FluidLogisticsGuiTextures BACKGROUND = FluidLogisticsGuiTextures.FACTORY_GAUGE_SET_FILTER;
+
     private IconButton confirmButton;
     private List<Rect2i> extraAreas = Collections.emptyList();
 
@@ -34,8 +37,8 @@ public class ResourceFactoryGaugeSetFilterScreen extends AbstractSimiContainerSc
 
     @Override
     protected void init() {
-        int bgHeight = AllGuiTextures.FACTORY_GAUGE_SET_ITEM.getHeight();
-        int bgWidth = AllGuiTextures.FACTORY_GAUGE_SET_ITEM.getWidth();
+        int bgHeight = BACKGROUND.getHeight();
+        int bgWidth = BACKGROUND.getWidth();
         setWindowSize(bgWidth, bgHeight + AllGuiTextures.PLAYER_INVENTORY.getHeight());
         super.init();
         clearWidgets();
@@ -53,7 +56,7 @@ public class ResourceFactoryGaugeSetFilterScreen extends AbstractSimiContainerSc
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         int x = getGuiLeft();
         int y = getGuiTop();
-        AllGuiTextures.FACTORY_GAUGE_SET_ITEM.render(graphics, x - 5, y);
+        BACKGROUND.render(graphics, x - 5, y);
         renderPlayerInventory(graphics, x + 5, y + 94);
 
         Component title = CreateLang.translate("gui.factory_panel.place_item_to_monitor")
