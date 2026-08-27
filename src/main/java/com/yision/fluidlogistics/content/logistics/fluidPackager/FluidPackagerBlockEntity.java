@@ -148,15 +148,16 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
 
     @Override
     public Snapshot scan() {
-        IFluidHandler fluidHandler = getFluidHandler();
-        if (fluidHandler == null) {
+        FluidAccess fluidAccess = getFluidAccess();
+        if (fluidAccess == null) {
             return Snapshot.empty(null);
         }
+        IFluidHandler fluidHandler = fluidAccess.handler();
         InventorySummary summary = new InventorySummary();
         for (Map.Entry<FluidTypeKey, Integer> entry : scanAvailableFluids(fluidHandler).entrySet()) {
             summary.add(PackageResourceTypes.createFluidKey(entry.getKey().template()), entry.getValue());
         }
-        return new Snapshot(fluidHandler, summary);
+        return new Snapshot(fluidAccess.storageIdentity(), summary);
     }
 
     @Override
@@ -164,10 +165,11 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
         if (maxAmount <= 0 || !CompressedTankItem.isFluidStack(normalizedKey)) {
             return 0;
         }
-        IFluidHandler handler = getFluidHandler();
-        if (handler == null) {
+        FluidAccess fluidAccess = getFluidAccess();
+        if (fluidAccess == null) {
             return 0;
         }
+        IFluidHandler handler = fluidAccess.handler();
         FluidStack target = CompressedTankItem.getFluid(normalizedKey);
         if (InfiniteFluidHandlerHelper.isInfiniteSource(handler, target)) {
             return maxAmount;
@@ -183,10 +185,11 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
         if (maxAmount <= 0 || !CompressedTankItem.isFluidStack(normalizedKey)) {
             return 0;
         }
-        IFluidHandler handler = getFluidHandler();
-        if (handler == null) {
+        FluidAccess fluidAccess = getFluidAccess();
+        if (fluidAccess == null) {
             return 0;
         }
+        IFluidHandler handler = fluidAccess.handler();
         FluidStack fluid = CompressedTankItem.getFluid(normalizedKey).copyWithAmount(maxAmount);
         if (InfiniteFluidHandlerHelper.canAcceptInfinitely(handler, fluid)) {
             return maxAmount;
@@ -214,7 +217,7 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
     }
 
     @Nullable
-    private IFluidHandler getFluidHandler() {
+    private FluidAccess getFluidAccess() {
         if (level == null) {
             return null;
         }
@@ -223,13 +226,16 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
             return null;
         }
         BlockEntity target = level.getBlockEntity(targetPos);
+        if (target == null) {
+            return null;
+        }
         if (target instanceof IMultiBlockEntityContainer.Fluid multiblock) {
             BlockEntity controller = multiblock.getControllerBE();
             if (controller != null) {
                 IFluidHandler controllerHandler = level.getCapability(
                         Capabilities.FluidHandler.BLOCK, controller.getBlockPos(), null);
                 if (controllerHandler != null) {
-                    return controllerHandler;
+                    return new FluidAccess(controller, controllerHandler);
                 }
             }
         }
@@ -238,7 +244,10 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
             fluidTarget.findNewCapability();
             fluidHandler = fluidTarget.getInventory();
         }
-        return fluidHandler;
+        return fluidHandler == null ? null : new FluidAccess(target, fluidHandler);
+    }
+
+    private record FluidAccess(BlockEntity storageIdentity, IFluidHandler handler) {
     }
 
     private static int mergeFluidAmounts(int existingAmount, int addedAmount) {
