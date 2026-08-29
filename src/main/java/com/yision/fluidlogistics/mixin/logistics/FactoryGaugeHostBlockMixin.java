@@ -5,6 +5,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlock;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlock.PanelSlot;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlockEntity;
@@ -32,6 +33,9 @@ public abstract class FactoryGaugeHostBlockMixin {
 
     public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level,
         BlockPos pos, Player player) {
+        if (!AllBlocks.FACTORY_GAUGE.has(state))
+            return ((FactoryPanelBlock) (Object) this).getCloneItemStack(level, pos, state);
+
         ItemStack picked = FactoryGaugeHostHooks.pickStackFor(state, target, level, pos);
         if (!picked.isEmpty())
             return picked;
