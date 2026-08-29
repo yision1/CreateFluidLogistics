@@ -11,7 +11,10 @@
       "tag": "c:ingots/copper"
     },
     {
-      "item": "create:item_hatch"
+      "item": "create:andesite_alloy"
+    },
+    {
+      "item": "minecraft:iron_trapdoor"
     }
   ],
   "result": {

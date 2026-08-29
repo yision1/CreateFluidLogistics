@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "fluidlogistics:phantom_chain"
+    }
+  ],
+  "result": {
+    "id": "minecraft:chain",
+    "count": 1
+  },
+  "neoforge:conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:phantom_chain"
+    }
+  ]
+}

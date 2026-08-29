@@ -8,9 +8,14 @@
     "E": {
       "item": "create:electron_tube"
     },
-    "T": {
-      "item": "fluidlogistics:multi_fluid_tank"
-    }
+    "T": [
+      {
+        "item": "fluidlogistics:multi_fluid_tank"
+      },
+      {
+        "item": "fluidlogistics:horizontal_multi_fluid_tank"
+      }
+    ]
   },
   "pattern": [
     " B ",

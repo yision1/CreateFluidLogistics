@@ -12,7 +12,7 @@
       "tag": "c:dusts/redstone"
     },
     "G": {
-      "item": "create:framed_glass"
+      "tag": "c:glass_blocks"
     }
   },
   "pattern": [

@@ -2,17 +2,17 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": {
-      "item": "create:basin"
-    },
     "C": {
       "tag": "c:ingots/copper"
+    },
+    "A": {
+      "item": "create:andesite_alloy"
     }
   },
   "pattern": [
-    "CCC",
-    "CBC",
-    "CCC"
+    "C C",
+    "A A",
+    "CAC"
   ],
   "result": {
     "count": 1,

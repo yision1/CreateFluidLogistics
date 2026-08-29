@@ -5,26 +5,30 @@
       "feature": "fluidlogistics:fluid_transporter"
     }
   ],
-  "type": "minecraft:crafting_shaped",
+  "type": "create:mechanical_crafting",
+  "accept_mirrored": true,
   "category": "misc",
   "key": {
-    "A": {
-      "tag": "c:ingots/brass"
+    "B": {
+      "tag": "c:plates/brass"
     },
     "C": {
-      "item": "minecraft:copper_block"
+      "tag": "c:plates/copper"
     },
     "E": {
       "item": "create:electron_tube"
     },
+    "F": {
+      "item": "create:fluid_pipe"
+    },
     "P": {
-      "item": "create:smart_fluid_pipe"
+      "item": "create:precision_mechanism"
     }
   },
   "pattern": [
-    "PAP",
-    "ECE",
-    "PAP"
+    "CBC",
+    "PFP",
+    "CEC"
   ],
   "result": {
     "count": 1,

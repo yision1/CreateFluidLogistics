@@ -2,31 +2,20 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": {
-      "tag": "c:ingots/brass"
-    },
     "C": {
       "tag": "c:ingots/copper"
     },
-    "E": {
-      "item": "create:electron_tube"
+    "F": {
+      "item": "create:fluid_pipe"
     },
-    "T": [
-      {
-        "item": "fluidlogistics:multi_fluid_tank"
-      },
-      {
-        "item": "fluidlogistics:horizontal_multi_fluid_tank"
-      }
-    ],
-    "V": {
-      "item": "create:item_vault"
+    "H": {
+      "item": "create:brass_funnel"
     }
   },
   "pattern": [
-    "BVB",
-    "ETE",
-    " C "
+    " C ",
+    " H ",
+    " F "
   ],
   "result": {
     "count": 1,

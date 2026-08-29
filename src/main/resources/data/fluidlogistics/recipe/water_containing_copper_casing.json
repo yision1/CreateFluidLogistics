@@ -16,9 +16,9 @@
     }
   },
   "pattern": [
-    "CGC",
+    " C ",
     "BLB",
-    "CGC"
+    " G "
   ],
   "result": {
     "count": 1,
