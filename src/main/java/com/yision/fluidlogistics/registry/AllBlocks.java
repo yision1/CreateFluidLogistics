@@ -1,18 +1,22 @@
 package com.yision.fluidlogistics.registry;
 
 import com.simibubi.create.content.fluids.PipeAttachmentModel;
+import com.simibubi.create.AllTags.AllBlockTags;
 import com.simibubi.create.foundation.data.AssetLookup;
 import com.simibubi.create.foundation.data.BlockStateGen;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.data.SharedProperties;
 import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.util.entry.BlockEntry;
+import com.tterrag.registrate.util.DataIngredient;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.MapColor;
@@ -23,6 +27,7 @@ import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.common.Tags;
 import com.yision.fluidlogistics.content.logistics.fluidPackager.FluidPackagerBlock;
 import com.yision.fluidlogistics.content.logistics.copperFrogport.CopperFrogportBlock;
 import com.yision.fluidlogistics.content.logistics.copperFrogport.CopperFrogportItem;
@@ -389,6 +394,26 @@ public class AllBlocks {
             .item()
             .model((ctx, prov) -> prov.withExistingParent(ctx.getName(),
                 prov.modLoc("block/copper_schematicannon/item")))
+            .build()
+            .register();
+
+    public static final BlockEntry<Block> INDUSTRIAL_COPPER_BLOCK =
+        REGISTRATE.block("industrial_copper_block", Block::new)
+            .initialProperties(SharedProperties::copperMetal)
+            .properties(p -> p.mapColor(MapColor.COLOR_ORANGE)
+                .sound(SoundType.COPPER)
+                .requiresCorrectToolForDrops())
+            .transform(pickaxeOnly())
+            .tag(AllBlockTags.WRENCH_PICKUP.tag)
+            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
+            .blockstate((ctx, prov) -> prov.simpleBlock(ctx.get(),
+                prov.models().getExistingFile(prov.modLoc("block/industrial_copper_block"))))
+            .recipe((ctx, prov) -> prov.stonecutting(
+                DataIngredient.tag(Tags.Items.INGOTS_COPPER),
+                RecipeCategory.BUILDING_BLOCKS, ctx::get, 2))
+            .item()
+            .model((ctx, prov) -> prov.withExistingParent(ctx.getName(),
+                prov.modLoc("block/industrial_copper_block")))
             .build()
             .register();
 

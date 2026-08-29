@@ -19,6 +19,7 @@
   "block.fluidlogistics.horizontal_multi_fluid_tank": "横向多流体储罐",
   "block.fluidlogistics.infinite_fluid_tank": "无限流体储罐",
   "block.fluidlogistics.infinite_fluid_tank.tooltip.summary": "存入 _%s_ 流体以无限供应",
+  "block.fluidlogistics.industrial_copper_block": "工业铜块",
   "block.fluidlogistics.mechanical_fluid_gun": "动力注液枪",
   "block.fluidlogistics.multi_fluid_access_port": "多流体存取端口",
   "block.fluidlogistics.multi_fluid_access_port.filter_back": "后流体过滤器",

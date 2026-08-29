@@ -19,6 +19,7 @@
   "block.fluidlogistics.horizontal_multi_fluid_tank": "Horizontal Multi-Fluid Tank",
   "block.fluidlogistics.infinite_fluid_tank": "Infinite Fluid Tank",
   "block.fluidlogistics.infinite_fluid_tank.tooltip.summary": "Stores _%s_ of one fluid for infinite supply",
+  "block.fluidlogistics.industrial_copper_block": "Block of Industrial Copper",
   "block.fluidlogistics.mechanical_fluid_gun": "Mechanical Fluid Gun",
   "block.fluidlogistics.multi_fluid_access_port": "Multi-Fluid Access Port",
   "block.fluidlogistics.multi_fluid_access_port.filter_back": "Back Fluid Filter",

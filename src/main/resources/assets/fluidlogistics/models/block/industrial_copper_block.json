@@ -1,0 +1,7 @@
+{
+  "parent": "create:block/industrial_iron_block",
+  "textures": {
+    "end": "fluidlogistics:block/industrial_copper_block_top",
+    "side": "fluidlogistics:block/industrial_copper_block"
+  }
+}
