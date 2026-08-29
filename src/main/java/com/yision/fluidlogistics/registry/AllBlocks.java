@@ -3,7 +3,6 @@ package com.yision.fluidlogistics.registry;
 import com.simibubi.create.content.fluids.PipeAttachmentModel;
 import com.simibubi.create.AllTags.AllBlockTags;
 import com.simibubi.create.foundation.data.AssetLookup;
-import com.simibubi.create.foundation.data.BlockStateGen;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.data.SharedProperties;
 import com.tterrag.registrate.providers.ProviderType;
@@ -56,7 +55,6 @@ import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.Mechanical
 import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidTankBlock;
 import com.yision.fluidlogistics.content.fluids.waterContainingCopperCasing.WaterContainingCopperCasingBlock;
 import com.yision.fluidlogistics.content.processing.copperBasin.CopperBasinBlock;
-import com.yision.fluidlogistics.content.materials.WaterproofCardboardBlock;
 import com.yision.fluidlogistics.content.fluids.fluidHatch.FluidHatchBlock;
 import com.yision.fluidlogistics.content.fluids.horizontalMultiFluidTank.HorizontalMultiFluidTankGenerator;
 import com.simibubi.create.content.processing.basin.BasinGenerator;
@@ -69,7 +67,6 @@ import com.yision.fluidlogistics.content.fluids.waterContainingCopperCasing.Wate
 import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonBlock;
 
 import static com.simibubi.create.api.contraption.storage.fluid.MountedFluidStorageType.mountedFluidStorage;
-import static com.simibubi.create.foundation.data.TagGen.axeOnly;
 import static com.simibubi.create.foundation.data.TagGen.pickaxeOnly;
 import static com.yision.fluidlogistics.FluidLogistics.REGISTRATE;
 
@@ -218,20 +215,6 @@ public class AllBlocks {
                 .transform(ItemDisplayContext.FIXED)
                 .translation(0, 0, -2)
                 .scale(0.5f))
-            .build()
-            .register();
-
-    public static final BlockEntry<WaterproofCardboardBlock> WATERPROOF_CARDBOARD_BLOCK = REGISTRATE.block("waterproof_cardboard_block", WaterproofCardboardBlock::new)
-            .initialProperties(() -> Blocks.MUSHROOM_STEM)
-            .properties(p -> p.mapColor(MapColor.COLOR_BROWN)
-                    .sound(SoundType.CHISELED_BOOKSHELF))
-            .transform(axeOnly())
-            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
-            .blockstate((ctx, prov) -> BlockStateGen.horizontalAxisBlock(ctx, prov,
-                    $ -> prov.models().getExistingFile(prov.modLoc("block/waterproof_cardboard_block/block"))))
-            .item()
-            .model((ctx, prov) -> prov.withExistingParent(ctx.getName(),
-                    prov.modLoc("block/waterproof_cardboard_block/block")))
             .build()
             .register();
 

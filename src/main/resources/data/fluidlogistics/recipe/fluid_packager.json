@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "A": {
-      "item": "fluidlogistics:waterproof_cardboard_block"
+      "item": "create:cardboard_block"
     },
     "C": {
       "tag": "c:ingots/copper"
