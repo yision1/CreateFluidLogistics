@@ -29,6 +29,7 @@ import net.createmod.ponder.foundation.ui.PonderTagScreen;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
@@ -149,8 +150,14 @@ public class HandPointerThresholdSwitchScreen extends AbstractSimiScreen {
 	}
 
 	private EditBox createThresholdBox(int x, int y, boolean upper) {
-		EditBox box = new EditBox(font, x, y, ITEM_INPUT_WIDTH, INPUT_HEIGHT,
-			CreateLang.translateDirect(upper ? "gui.threshold_switch.upper_threshold" : "gui.threshold_switch.lower_threshold"));
+		Component title = CreateLang.translateDirect(
+			upper ? "gui.threshold_switch.upper_threshold" : "gui.threshold_switch.lower_threshold");
+		EditBox box = new EditBox(font, x, y, ITEM_INPUT_WIDTH, INPUT_HEIGHT, title);
+		box.setTooltip(Tooltip.create(title.copy()
+			.withStyle(style -> style.withColor(AbstractSimiWidget.HEADER_RGB.getRGB()))
+			.append("\n")
+			.append(CreateLang.translateDirect("gui.schedule.lmb_edit")
+				.withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC))));
 		box.setBordered(false);
 		box.setTextShadow(true);
 		box.setTextColor(VALUE_TEXT_COLOR);
