@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "fluidlogistics:fluid_inventory_access_port"
+            "items": "fluidlogistics:fluid_hatch"
           }
         ]
       },
@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "fluidlogistics:multi_fluid_access_port"
+        "recipe": "fluidlogistics:fluid_inventory_access_port"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "fluidlogistics:multi_fluid_access_port"
+      "fluidlogistics:fluid_inventory_access_port"
     ]
   }
 }

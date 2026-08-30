@@ -16,6 +16,7 @@ public class Config {
     private static final boolean MULTI_FLUID_TANK_ENABLED_DEFAULT = true;
     private static final boolean HORIZONTAL_MULTI_FLUID_TANK_ENABLED_DEFAULT = true;
     private static final boolean MULTI_FLUID_ACCESS_PORT_ENABLED_DEFAULT = true;
+    private static final boolean FLUID_INVENTORY_ACCESS_PORT_ENABLED_DEFAULT = true;
     private static final boolean SMART_HOPPER_ENABLED_DEFAULT = true;
     private static final boolean FLUID_PUMP_ENABLED_DEFAULT = true;
     private static final boolean INFINITE_FLUID_TANK_ENABLED_DEFAULT = true;
@@ -87,6 +88,10 @@ public class Config {
     public static final ModConfigSpec.BooleanValue MULTI_FLUID_ACCESS_PORT_ENABLED = BUILDER
             .translation("block.fluidlogistics.multi_fluid_access_port")
             .define("multiFluidAccessPortEnabled", MULTI_FLUID_ACCESS_PORT_ENABLED_DEFAULT);
+
+    public static final ModConfigSpec.BooleanValue FLUID_INVENTORY_ACCESS_PORT_ENABLED = BUILDER
+            .translation("block.fluidlogistics.fluid_inventory_access_port")
+            .define("fluidInventoryAccessPortEnabled", FLUID_INVENTORY_ACCESS_PORT_ENABLED_DEFAULT);
 
     public static final ModConfigSpec.BooleanValue SMART_HOPPER_ENABLED = BUILDER
             .translation("block.fluidlogistics.smart_hopper")
@@ -235,6 +240,7 @@ public class Config {
     private static boolean multiFluidTankEnabled = MULTI_FLUID_TANK_ENABLED_DEFAULT;
     private static boolean horizontalMultiFluidTankEnabled = HORIZONTAL_MULTI_FLUID_TANK_ENABLED_DEFAULT;
     private static boolean multiFluidAccessPortEnabled = MULTI_FLUID_ACCESS_PORT_ENABLED_DEFAULT;
+    private static boolean fluidInventoryAccessPortEnabled = FLUID_INVENTORY_ACCESS_PORT_ENABLED_DEFAULT;
     private static boolean smartHopperEnabled = SMART_HOPPER_ENABLED_DEFAULT;
     private static boolean fluidPumpEnabled = FLUID_PUMP_ENABLED_DEFAULT;
     private static boolean infiniteFluidTankEnabled = INFINITE_FLUID_TANK_ENABLED_DEFAULT;
@@ -292,6 +298,7 @@ public class Config {
         multiFluidTankEnabled = MULTI_FLUID_TANK_ENABLED.get();
         horizontalMultiFluidTankEnabled = HORIZONTAL_MULTI_FLUID_TANK_ENABLED.get();
         multiFluidAccessPortEnabled = MULTI_FLUID_ACCESS_PORT_ENABLED.get();
+        fluidInventoryAccessPortEnabled = FLUID_INVENTORY_ACCESS_PORT_ENABLED.get();
         smartHopperEnabled = SMART_HOPPER_ENABLED.get();
         fluidPumpEnabled = FLUID_PUMP_ENABLED.get();
         infiniteFluidTankEnabled = INFINITE_FLUID_TANK_ENABLED.get();
@@ -326,6 +333,7 @@ public class Config {
     public static boolean isMultiFluidTankEnabled() { return multiFluidTankEnabled; }
     public static boolean isHorizontalMultiFluidTankEnabled() { return horizontalMultiFluidTankEnabled; }
     public static boolean isMultiFluidAccessPortEnabled() { return multiFluidAccessPortEnabled; }
+    public static boolean isFluidInventoryAccessPortEnabled() { return fluidInventoryAccessPortEnabled; }
     public static boolean isSmartHopperEnabled() { return smartHopperEnabled; }
     public static boolean isFluidPumpEnabled() { return fluidPumpEnabled; }
     public static boolean isInfiniteFluidTankEnabled() { return infiniteFluidTankEnabled; }

@@ -17,6 +17,8 @@ public final class FeatureToggle {
     public static final ResourceLocation MULTI_FLUID_TANK = FluidLogistics.asResource("multi_fluid_tank");
     public static final ResourceLocation HORIZONTAL_MULTI_FLUID_TANK = FluidLogistics.asResource("horizontal_multi_fluid_tank");
     public static final ResourceLocation MULTI_FLUID_ACCESS_PORT = FluidLogistics.asResource("multi_fluid_access_port");
+    public static final ResourceLocation FLUID_INVENTORY_ACCESS_PORT =
+        FluidLogistics.asResource("fluid_inventory_access_port");
     public static final ResourceLocation SMART_HOPPER = FluidLogistics.asResource("smart_hopper");
     public static final ResourceLocation FLUID_PUMP = FluidLogistics.asResource("fluid_pump");
     public static final ResourceLocation INFINITE_FLUID_TANK = FluidLogistics.asResource("infinite_fluid_tank");
@@ -43,6 +45,7 @@ public final class FeatureToggle {
         map.put(MULTI_FLUID_TANK, Config::isMultiFluidTankEnabled);
         map.put(HORIZONTAL_MULTI_FLUID_TANK, Config::isHorizontalMultiFluidTankEnabled);
         map.put(MULTI_FLUID_ACCESS_PORT, Config::isMultiFluidAccessPortEnabled);
+        map.put(FLUID_INVENTORY_ACCESS_PORT, Config::isFluidInventoryAccessPortEnabled);
         map.put(SMART_HOPPER, Config::isSmartHopperEnabled);
         map.put(FLUID_PUMP, Config::isFluidPumpEnabled);
         map.put(INFINITE_FLUID_TANK, Config::isInfiniteFluidTankEnabled);

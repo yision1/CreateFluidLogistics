@@ -37,8 +37,10 @@ import com.yision.fluidlogistics.content.logistics.fluidTransporter.FluidTranspo
 import com.yision.fluidlogistics.content.logistics.fluidTransporter.FluidTransporterGenerator;
 import com.yision.fluidlogistics.content.fluids.horizontalMultiFluidTank.HorizontalMultiFluidTankBlock;
 import com.yision.fluidlogistics.content.fluids.horizontalMultiFluidTank.HorizontalMultiFluidTankModel;
-import com.yision.fluidlogistics.content.fluids.multiFluidAccessPort.MultiFluidAccessPortBlock;
-import com.yision.fluidlogistics.content.fluids.multiFluidAccessPort.MultiFluidAccessPortGenerator;
+import com.yision.fluidlogistics.content.fluids.fluidPort.FluidInventoryAccessPortBlock;
+import com.yision.fluidlogistics.content.fluids.fluidPort.FluidInventoryAccessPortGenerator;
+import com.yision.fluidlogistics.content.fluids.fluidPort.MultiFluidAccessPortBlock;
+import com.yision.fluidlogistics.content.fluids.fluidPort.MultiFluidAccessPortGenerator;
 import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankBlock;
 import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankGenerator;
 import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankModel;
@@ -357,6 +359,20 @@ public class AllBlocks {
             .blockstate(MechanicalFluidGunGenerator::generate)
             .item(MechanicalFluidGunItem::new)
             .model(AssetLookup::customItemModel)
+            .build()
+            .register();
+
+    public static final BlockEntry<FluidInventoryAccessPortBlock> FLUID_INVENTORY_ACCESS_PORT =
+        REGISTRATE.block("fluid_inventory_access_port", FluidInventoryAccessPortBlock::new)
+            .initialProperties(SharedProperties::softMetal)
+            .properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
+            .properties(p -> p.mapColor(MapColor.TERRACOTTA_ORANGE).sound(SoundType.NETHERITE_BLOCK))
+            .transform(pickaxeOnly())
+            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
+            .addLayer(() -> RenderType::cutoutMipped)
+            .blockstate(new FluidInventoryAccessPortGenerator()::generate)
+            .item()
+            .model(AssetLookup.customBlockItemModel("fluid_inventory_access_port", "block_wall_on"))
             .build()
             .register();
 

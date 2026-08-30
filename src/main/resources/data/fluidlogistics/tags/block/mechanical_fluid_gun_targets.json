@@ -3,7 +3,6 @@
     "create:basin",
     "fluidlogistics:smart_hopper",
     "fluidlogistics:copper_basin",
-    "fluidlogistics:multi_fluid_access_port",
     "create:belt",
     "create:depot",
     "create:blaze_burner",

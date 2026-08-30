@@ -22,8 +22,9 @@ import com.yision.fluidlogistics.content.fluids.horizontalMultiFluidTank.Horizon
 import com.yision.fluidlogistics.content.fluids.horizontalMultiFluidTank.HorizontalMultiFluidTankRenderer;
 import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidTankBlockEntity;
 import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidTankRenderer;
-import com.yision.fluidlogistics.content.fluids.multiFluidAccessPort.MultiFluidAccessPortBlockEntity;
-import com.yision.fluidlogistics.content.fluids.multiFluidAccessPort.MultiFluidAccessPortRenderer;
+import com.yision.fluidlogistics.content.fluids.fluidPort.FluidInventoryAccessPortBlockEntity;
+import com.yision.fluidlogistics.content.fluids.fluidPort.MultiFluidAccessPortBlockEntity;
+import com.yision.fluidlogistics.content.fluids.fluidPort.MultiFluidAccessPortRenderer;
 import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankBlockEntity;
 import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankRenderer;
 import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperBlockEntity;
@@ -98,6 +99,11 @@ public class AllBlockEntities {
             .blockEntity("multi_fluid_access_port", MultiFluidAccessPortBlockEntity::new)
             .validBlocks(AllBlocks.MULTI_FLUID_ACCESS_PORT)
             .renderer(() -> MultiFluidAccessPortRenderer::new)
+            .register();
+
+    public static final BlockEntityEntry<FluidInventoryAccessPortBlockEntity> FLUID_INVENTORY_ACCESS_PORT = REGISTRATE
+            .blockEntity("fluid_inventory_access_port", FluidInventoryAccessPortBlockEntity::new)
+            .validBlocks(AllBlocks.FLUID_INVENTORY_ACCESS_PORT)
             .register();
 
     public static final BlockEntityEntry<SmartHopperBlockEntity> SMART_HOPPER = REGISTRATE

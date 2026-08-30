@@ -7,9 +7,9 @@ import org.jetbrains.annotations.Nullable;
 
 import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.MechanicalFluidGunBlockEntity;
+import com.yision.fluidlogistics.content.fluids.fluidPort.FluidPort;
 import com.yision.fluidlogistics.content.fluids.faucet.FaucetBlockEntity;
 import com.yision.fluidlogistics.content.fluids.fluidHatch.FluidHatchBlockEntity;
-import com.yision.fluidlogistics.content.fluids.multiFluidAccessPort.MultiFluidAccessPortBlockEntity;
 import com.yision.fluidlogistics.util.MergedFluidDisplayHandler;
 
 import net.minecraft.nbt.CompoundTag;
@@ -82,7 +82,7 @@ public enum ConnectedFluidSourceProvider
 			return withoutEmptyCapacity(mergedNonEmpty(gun.sourceHandler()));
 		}
 
-		if (blockAccessor.getBlockEntity() instanceof MultiFluidAccessPortBlockEntity port) {
+		if (blockAccessor.getBlockEntity() instanceof FluidPort port) {
 			IFluidHandler handler = port.getFluidDisplayCapability(blockAccessor.getSide());
 			return handler == null ? null : new DisplaySource(handler, false);
 		}

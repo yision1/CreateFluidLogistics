@@ -30,7 +30,8 @@ import com.yision.fluidlogistics.content.logistics.fluidPackager.repackager.Flui
 import com.yision.fluidlogistics.content.logistics.fluidTransporter.FluidTransporterBlockEntity;
 import com.yision.fluidlogistics.content.fluids.horizontalMultiFluidTank.HorizontalMultiFluidTankBlockEntity;
 import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidTankBlockEntity;
-import com.yision.fluidlogistics.content.fluids.multiFluidAccessPort.MultiFluidAccessPortBlockEntity;
+import com.yision.fluidlogistics.content.fluids.fluidPort.FluidInventoryAccessPortBlockEntity;
+import com.yision.fluidlogistics.content.fluids.fluidPort.MultiFluidAccessPortBlockEntity;
 import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankBlockEntity;
 import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperBlockEntity;
 import com.yision.fluidlogistics.content.processing.copperBasin.CopperBasinBlockEntity;
@@ -176,6 +177,7 @@ public class FluidLogistics {
         MultiFluidTankBlockEntity.registerCapabilities(event);
         HorizontalMultiFluidTankBlockEntity.registerCapabilities(event);
         MultiFluidAccessPortBlockEntity.registerCapabilities(event);
+        FluidInventoryAccessPortBlockEntity.registerCapabilities(event);
         SmartHopperBlockEntity.registerCapabilities(event);
         InfiniteFluidTankBlockEntity.registerCapabilities(event);
         CopperBasinBlockEntity.registerCapabilities(event);
@@ -242,6 +244,7 @@ public class FluidLogistics {
             new FeatureItem(FeatureToggle.MULTI_FLUID_TANK, AllBlocks.MULTI_FLUID_TANK),
             new FeatureItem(FeatureToggle.HORIZONTAL_MULTI_FLUID_TANK, AllBlocks.HORIZONTAL_MULTI_FLUID_TANK),
             new FeatureItem(FeatureToggle.MULTI_FLUID_ACCESS_PORT, AllBlocks.MULTI_FLUID_ACCESS_PORT),
+            new FeatureItem(FeatureToggle.FLUID_INVENTORY_ACCESS_PORT, AllBlocks.FLUID_INVENTORY_ACCESS_PORT),
             new FeatureItem(FeatureToggle.SMART_HOPPER, AllBlocks.SMART_HOPPER),
             new FeatureItem(FeatureToggle.FLUID_PUMP, AllBlocks.FLUID_PUMP),
             new FeatureItem(FeatureToggle.INFINITE_FLUID_TANK, AllBlocks.INFINITE_FLUID_TANK),

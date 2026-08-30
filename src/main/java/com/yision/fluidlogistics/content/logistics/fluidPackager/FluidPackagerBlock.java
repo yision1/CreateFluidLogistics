@@ -8,7 +8,7 @@ import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.logistics.packager.PackagerBlock;
 import com.simibubi.create.content.logistics.packager.PackagerBlockEntity;
 import com.simibubi.create.foundation.utility.CreateLang;
-import com.yision.fluidlogistics.content.fluids.multiFluidAccessPort.MultiFluidAccessPortBlockEntity;
+import com.yision.fluidlogistics.content.fluids.fluidPort.FluidPort;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -65,7 +65,7 @@ public class FluidPackagerBlock extends PackagerBlock {
                     .sendStatus(player);
                 return null;
             }
-            if (level.getBlockEntity(targetPos) instanceof MultiFluidAccessPortBlockEntity port
+            if (level.getBlockEntity(targetPos) instanceof FluidPort port
                 && port.blocksFluidPackagerPlacement(preferredFacing)) {
                 CreateLang.translate("fluid_packager.no_portable_fluid_interface")
                     .sendStatus(player);

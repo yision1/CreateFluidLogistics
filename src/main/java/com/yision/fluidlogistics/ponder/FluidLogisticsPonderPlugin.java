@@ -50,6 +50,10 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
                 .addStoryBoard(MultiFluidAccessPortScenes.MULTI_FLUID_ACCESS_PORT,
                         MultiFluidAccessPortScenes::multiFluidAccessPort);
 
+        registration.forComponents(AllBlocks.FLUID_INVENTORY_ACCESS_PORT)
+                .addStoryBoard(FluidInventoryAccessPortScenes.FLUID_INVENTORY_ACCESS_PORT,
+                        FluidInventoryAccessPortScenes::fluidInventoryAccessPort);
+
         registration.forComponents(AllBlocks.MULTI_FLUID_TANK, AllBlocks.HORIZONTAL_MULTI_FLUID_TANK)
                 .addStoryBoard(MultiFluidTankScenes.STORAGE, MultiFluidTankScenes::storage, FLUIDS)
                 .addStoryBoard(MultiFluidTankScenes.SIZES, MultiFluidTankScenes::sizes);
@@ -85,6 +89,7 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
                 .add(AllBlocks.SMART_FAUCET)
                 .add(AllBlocks.FAUCET)
                 .add(AllBlocks.MULTI_FLUID_ACCESS_PORT)
+                .add(AllBlocks.FLUID_INVENTORY_ACCESS_PORT)
                 .add(AllBlocks.MULTI_FLUID_TANK)
                 .add(AllBlocks.HORIZONTAL_MULTI_FLUID_TANK)
                 .add(AllBlocks.SMART_HOPPER)

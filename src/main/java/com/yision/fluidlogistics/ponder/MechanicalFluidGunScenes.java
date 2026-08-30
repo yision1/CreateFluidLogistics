@@ -53,7 +53,6 @@ public class MechanicalFluidGunScenes {
 		BlockPos hatch = util.grid().at(4, 2, 2);
 		BlockPos hatchTank = util.grid().at(4, 2, 3);
 		BlockPos hatchSupport = util.grid().at(4, 1, 3);
-		BlockPos port = util.grid().at(0, 3, 3);
 		BlockPos portTank = util.grid().at(0, 2, 3);
 		BlockPos portSupport = util.grid().at(0, 1, 3);
 
@@ -86,8 +85,7 @@ public class MechanicalFluidGunScenes {
 			.add(util.select().position(hatchSupport))
 			.add(util.select().position(portTank))
 			.add(util.select().position(portSupport));
-		Selection accessorsS = util.select().position(hatch)
-			.add(util.select().position(port));
+		Selection accessorsS = util.select().position(hatch);
 
 		AABB depotBounds = AllShapes.CASING_13PX.get(Direction.UP).bounds();
 		AABB hatchBounds = AllShapes.ITEM_HATCH.get(Direction.NORTH).bounds();
@@ -247,20 +245,17 @@ public class MechanicalFluidGunScenes {
 		scene.world().showSection(accessorsS, Direction.DOWN);
 		scene.idle(15);
 		Object hatchKey = new Object();
-		Object portKey = new Object();
 		scene.overlay().chaseBoundingBoxOutline(PonderPalette.OUTPUT, hatchKey, hatchBounds.move(4, 2, 2), 80);
-		scene.overlay().chaseBoundingBoxOutline(PonderPalette.OUTPUT, portKey, fullBlockBounds.move(0, 3, 3), 80);
 		scene.overlay().showText(80)
 			.attachKeyFrame()
 			.colored(PonderPalette.INPUT)
-			.text("In this situation, Fluid Hatches and Multi-Fluid Access Ports can expose them as targets")
+			.text("In this situation, Fluid Hatches can expose these containers as targets")
 			.pointAt(util.vector().of(4.5, 2.5, 2.12))
 			.placeNearTarget();
 		scene.idle(80);
 
 		scene.world().modifyBlockEntity(gunPos, MechanicalFluidGunBlockEntity.class, be -> be.setTargets(List.of(
-			MechanicalFluidGunTargetConfig.fromAbsolute(gunPos, hatch, Direction.NORTH),
-			MechanicalFluidGunTargetConfig.fromAbsolute(gunPos, port, Direction.EAST)
+			MechanicalFluidGunTargetConfig.fromAbsolute(gunPos, hatch, Direction.NORTH)
 		)));
 		startSpray(scene, gunS, 0, water);
 		scene.idle(30);

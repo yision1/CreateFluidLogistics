@@ -5,8 +5,8 @@ import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
 import com.simibubi.create.content.logistics.box.PackageEntity;
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.MechanicalFluidGunBlockEntity;
 import com.yision.fluidlogistics.content.fluids.faucet.FaucetBlockEntity;
-import com.yision.fluidlogistics.content.fluids.fluidHatch.FluidHatchBlockEntity;
-import com.yision.fluidlogistics.content.fluids.multiFluidAccessPort.MultiFluidAccessPortBlockEntity;
+import com.yision.fluidlogistics.content.fluids.fluidPort.FluidInventoryAccessPortBlockEntity;
+import com.yision.fluidlogistics.content.fluids.fluidPort.MultiFluidAccessPortBlockEntity;
 
 import net.minecraft.world.level.block.Block;
 import snownee.jade.api.IWailaClientRegistration;
@@ -25,8 +25,9 @@ public class FluidLogisticsJadePlugin implements IWailaPlugin {
         registration.registerFluidStorage(ContraptionMultiFluidTankProvider.INSTANCE, AbstractContraptionEntity.class);
         registration.registerFluidStorage(ConnectedFluidSourceProvider.INSTANCE, MechanicalFluidGunBlockEntity.class);
         registration.registerFluidStorage(ConnectedFluidSourceProvider.INSTANCE, FaucetBlockEntity.class);
-        registration.registerFluidStorage(ConnectedFluidSourceProvider.INSTANCE, FluidHatchBlockEntity.class);
         registration.registerFluidStorage(ConnectedFluidSourceProvider.INSTANCE, MultiFluidAccessPortBlockEntity.class);
+        registration.registerFluidStorage(ConnectedFluidSourceProvider.INSTANCE,
+            FluidInventoryAccessPortBlockEntity.class);
     }
 
     @Override

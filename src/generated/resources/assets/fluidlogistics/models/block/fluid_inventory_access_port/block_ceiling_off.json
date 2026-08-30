@@ -1,0 +1,6 @@
+{
+  "parent": "fluidlogistics:block/fluid_inventory_access_port/block_ceiling",
+  "textures": {
+    "side": "fluidlogistics:block/fluid_inventory_access_port/fluid_inventory_access_port_side"
+  }
+}
