@@ -1,62 +1,214 @@
 {
   "variants": {
-    "facing=east,open=false,waterlogged=false": {
+    "facing=east,open=false,target=ceiling,waterlogged=false": {
+      "model": "fluidlogistics:block/fluid_hatch/block_closed",
+      "x": 270,
+      "y": 270
+    },
+    "facing=east,open=false,target=ceiling,waterlogged=true": {
+      "model": "fluidlogistics:block/fluid_hatch/block_closed",
+      "x": 270,
+      "y": 270
+    },
+    "facing=east,open=false,target=floor,waterlogged=false": {
+      "model": "fluidlogistics:block/fluid_hatch/block_closed",
+      "x": 90,
+      "y": 90
+    },
+    "facing=east,open=false,target=floor,waterlogged=true": {
+      "model": "fluidlogistics:block/fluid_hatch/block_closed",
+      "x": 90,
+      "y": 90
+    },
+    "facing=east,open=false,target=wall,waterlogged=false": {
       "model": "fluidlogistics:block/fluid_hatch/block_closed",
       "y": 90
     },
-    "facing=east,open=false,waterlogged=true": {
+    "facing=east,open=false,target=wall,waterlogged=true": {
       "model": "fluidlogistics:block/fluid_hatch/block_closed",
       "y": 90
     },
-    "facing=east,open=true,waterlogged=false": {
+    "facing=east,open=true,target=ceiling,waterlogged=false": {
+      "model": "fluidlogistics:block/fluid_hatch/block_open",
+      "x": 270,
+      "y": 270
+    },
+    "facing=east,open=true,target=ceiling,waterlogged=true": {
+      "model": "fluidlogistics:block/fluid_hatch/block_open",
+      "x": 270,
+      "y": 270
+    },
+    "facing=east,open=true,target=floor,waterlogged=false": {
+      "model": "fluidlogistics:block/fluid_hatch/block_open",
+      "x": 90,
+      "y": 90
+    },
+    "facing=east,open=true,target=floor,waterlogged=true": {
+      "model": "fluidlogistics:block/fluid_hatch/block_open",
+      "x": 90,
+      "y": 90
+    },
+    "facing=east,open=true,target=wall,waterlogged=false": {
       "model": "fluidlogistics:block/fluid_hatch/block_open",
       "y": 90
     },
-    "facing=east,open=true,waterlogged=true": {
+    "facing=east,open=true,target=wall,waterlogged=true": {
       "model": "fluidlogistics:block/fluid_hatch/block_open",
       "y": 90
     },
-    "facing=north,open=false,waterlogged=false": {
+    "facing=north,open=false,target=ceiling,waterlogged=false": {
+      "model": "fluidlogistics:block/fluid_hatch/block_closed",
+      "x": 270,
+      "y": 180
+    },
+    "facing=north,open=false,target=ceiling,waterlogged=true": {
+      "model": "fluidlogistics:block/fluid_hatch/block_closed",
+      "x": 270,
+      "y": 180
+    },
+    "facing=north,open=false,target=floor,waterlogged=false": {
+      "model": "fluidlogistics:block/fluid_hatch/block_closed",
+      "x": 90
+    },
+    "facing=north,open=false,target=floor,waterlogged=true": {
+      "model": "fluidlogistics:block/fluid_hatch/block_closed",
+      "x": 90
+    },
+    "facing=north,open=false,target=wall,waterlogged=false": {
       "model": "fluidlogistics:block/fluid_hatch/block_closed"
     },
-    "facing=north,open=false,waterlogged=true": {
+    "facing=north,open=false,target=wall,waterlogged=true": {
       "model": "fluidlogistics:block/fluid_hatch/block_closed"
     },
-    "facing=north,open=true,waterlogged=false": {
+    "facing=north,open=true,target=ceiling,waterlogged=false": {
+      "model": "fluidlogistics:block/fluid_hatch/block_open",
+      "x": 270,
+      "y": 180
+    },
+    "facing=north,open=true,target=ceiling,waterlogged=true": {
+      "model": "fluidlogistics:block/fluid_hatch/block_open",
+      "x": 270,
+      "y": 180
+    },
+    "facing=north,open=true,target=floor,waterlogged=false": {
+      "model": "fluidlogistics:block/fluid_hatch/block_open",
+      "x": 90
+    },
+    "facing=north,open=true,target=floor,waterlogged=true": {
+      "model": "fluidlogistics:block/fluid_hatch/block_open",
+      "x": 90
+    },
+    "facing=north,open=true,target=wall,waterlogged=false": {
       "model": "fluidlogistics:block/fluid_hatch/block_open"
     },
-    "facing=north,open=true,waterlogged=true": {
+    "facing=north,open=true,target=wall,waterlogged=true": {
       "model": "fluidlogistics:block/fluid_hatch/block_open"
     },
-    "facing=south,open=false,waterlogged=false": {
+    "facing=south,open=false,target=ceiling,waterlogged=false": {
+      "model": "fluidlogistics:block/fluid_hatch/block_closed",
+      "x": 270
+    },
+    "facing=south,open=false,target=ceiling,waterlogged=true": {
+      "model": "fluidlogistics:block/fluid_hatch/block_closed",
+      "x": 270
+    },
+    "facing=south,open=false,target=floor,waterlogged=false": {
+      "model": "fluidlogistics:block/fluid_hatch/block_closed",
+      "x": 90,
+      "y": 180
+    },
+    "facing=south,open=false,target=floor,waterlogged=true": {
+      "model": "fluidlogistics:block/fluid_hatch/block_closed",
+      "x": 90,
+      "y": 180
+    },
+    "facing=south,open=false,target=wall,waterlogged=false": {
       "model": "fluidlogistics:block/fluid_hatch/block_closed",
       "y": 180
     },
-    "facing=south,open=false,waterlogged=true": {
+    "facing=south,open=false,target=wall,waterlogged=true": {
       "model": "fluidlogistics:block/fluid_hatch/block_closed",
       "y": 180
     },
-    "facing=south,open=true,waterlogged=false": {
+    "facing=south,open=true,target=ceiling,waterlogged=false": {
+      "model": "fluidlogistics:block/fluid_hatch/block_open",
+      "x": 270
+    },
+    "facing=south,open=true,target=ceiling,waterlogged=true": {
+      "model": "fluidlogistics:block/fluid_hatch/block_open",
+      "x": 270
+    },
+    "facing=south,open=true,target=floor,waterlogged=false": {
+      "model": "fluidlogistics:block/fluid_hatch/block_open",
+      "x": 90,
+      "y": 180
+    },
+    "facing=south,open=true,target=floor,waterlogged=true": {
+      "model": "fluidlogistics:block/fluid_hatch/block_open",
+      "x": 90,
+      "y": 180
+    },
+    "facing=south,open=true,target=wall,waterlogged=false": {
       "model": "fluidlogistics:block/fluid_hatch/block_open",
       "y": 180
     },
-    "facing=south,open=true,waterlogged=true": {
+    "facing=south,open=true,target=wall,waterlogged=true": {
       "model": "fluidlogistics:block/fluid_hatch/block_open",
       "y": 180
     },
-    "facing=west,open=false,waterlogged=false": {
+    "facing=west,open=false,target=ceiling,waterlogged=false": {
+      "model": "fluidlogistics:block/fluid_hatch/block_closed",
+      "x": 270,
+      "y": 90
+    },
+    "facing=west,open=false,target=ceiling,waterlogged=true": {
+      "model": "fluidlogistics:block/fluid_hatch/block_closed",
+      "x": 270,
+      "y": 90
+    },
+    "facing=west,open=false,target=floor,waterlogged=false": {
+      "model": "fluidlogistics:block/fluid_hatch/block_closed",
+      "x": 90,
+      "y": 270
+    },
+    "facing=west,open=false,target=floor,waterlogged=true": {
+      "model": "fluidlogistics:block/fluid_hatch/block_closed",
+      "x": 90,
+      "y": 270
+    },
+    "facing=west,open=false,target=wall,waterlogged=false": {
       "model": "fluidlogistics:block/fluid_hatch/block_closed",
       "y": 270
     },
-    "facing=west,open=false,waterlogged=true": {
+    "facing=west,open=false,target=wall,waterlogged=true": {
       "model": "fluidlogistics:block/fluid_hatch/block_closed",
       "y": 270
     },
-    "facing=west,open=true,waterlogged=false": {
+    "facing=west,open=true,target=ceiling,waterlogged=false": {
+      "model": "fluidlogistics:block/fluid_hatch/block_open",
+      "x": 270,
+      "y": 90
+    },
+    "facing=west,open=true,target=ceiling,waterlogged=true": {
+      "model": "fluidlogistics:block/fluid_hatch/block_open",
+      "x": 270,
+      "y": 90
+    },
+    "facing=west,open=true,target=floor,waterlogged=false": {
+      "model": "fluidlogistics:block/fluid_hatch/block_open",
+      "x": 90,
+      "y": 270
+    },
+    "facing=west,open=true,target=floor,waterlogged=true": {
+      "model": "fluidlogistics:block/fluid_hatch/block_open",
+      "x": 90,
+      "y": 270
+    },
+    "facing=west,open=true,target=wall,waterlogged=false": {
       "model": "fluidlogistics:block/fluid_hatch/block_open",
       "y": 270
     },
-    "facing=west,open=true,waterlogged=true": {
+    "facing=west,open=true,target=wall,waterlogged=true": {
       "model": "fluidlogistics:block/fluid_hatch/block_open",
       "y": 270
     }

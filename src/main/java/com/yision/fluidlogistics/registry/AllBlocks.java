@@ -18,6 +18,7 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -424,8 +425,29 @@ public class AllBlocks {
             .transform(pickaxeOnly())
             .setData(ProviderType.LANG, NonNullBiConsumer.noop())
             .addLayer(() -> RenderType::cutoutMipped)
-            .blockstate((c, p) -> p.horizontalBlock(c.get(),
-                s -> AssetLookup.partialBaseModel(c, p, s.getValue(FluidHatchBlock.OPEN) ? "open" : "closed")))
+            .blockstate((c, p) -> p.getVariantBuilder(c.get()).forAllStates(state -> {
+                Direction facing = state.getValue(FluidHatchBlock.FACING);
+                AttachFace target = state.getValue(FluidHatchBlock.TARGET);
+                int rotationX = switch (target) {
+                    case FLOOR -> 90;
+                    case CEILING -> 270;
+                    case WALL -> 0;
+                };
+                int rotationY = switch (facing) {
+                    case EAST -> 90;
+                    case SOUTH -> 180;
+                    case WEST -> 270;
+                    default -> 0;
+                };
+                if (target == AttachFace.CEILING)
+                    rotationY = (rotationY + 180) % 360;
+                return ConfiguredModel.builder()
+                    .modelFile(AssetLookup.partialBaseModel(c, p,
+                        state.getValue(FluidHatchBlock.OPEN) ? "open" : "closed"))
+                    .rotationX(rotationX)
+                    .rotationY(rotationY)
+                    .build();
+            }))
             .item()
             .model((ctx, prov) -> prov.withExistingParent(ctx.getName(), prov.modLoc("block/fluid_hatch/block_closed")))
             .build()

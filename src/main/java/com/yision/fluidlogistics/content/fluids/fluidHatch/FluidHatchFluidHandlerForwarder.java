@@ -4,7 +4,6 @@ import com.yision.fluidlogistics.registry.AllBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -26,10 +25,10 @@ public final class FluidHatchFluidHandlerForwarder {
     }
 
     public static @Nullable Direction getExposedSide(BlockState state) {
-        if (!isSupportedHatch(state) || !state.hasProperty(HorizontalDirectionalBlock.FACING)) {
+        if (!isSupportedHatch(state)) {
             return null;
         }
-        return state.getValue(HorizontalDirectionalBlock.FACING).getOpposite();
+        return FluidHatchBlock.getTargetDirection(state).getOpposite();
     }
 
     private static boolean isSupportedHatch(BlockState state) {
