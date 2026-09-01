@@ -1,0 +1,30 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:mechanical_fluid_gun"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "create:copper_casing"
+    },
+    "P": {
+      "item": "create:precision_mechanism"
+    },
+    "S": {
+      "item": "create:spout"
+    }
+  },
+  "pattern": [
+    " S ",
+    " P ",
+    " C "
+  ],
+  "result": {
+    "count": 1,
+    "id": "fluidlogistics:mechanical_fluid_gun"
+  }
+}

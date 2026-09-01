@@ -1,0 +1,24 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:copper_bucket"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "minecraft:copper_ingot"
+    }
+  },
+  "pattern": [
+    "C C",
+    "C C",
+    " C "
+  ],
+  "result": {
+    "count": 1,
+    "id": "fluidlogistics:copper_bucket"
+  }
+}

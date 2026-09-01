@@ -1,0 +1,24 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "fluidlogistics:fluid_hatch_advertised"
+    }
+  ],
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "tag": "c:ingots/copper"
+    },
+    {
+      "item": "create:andesite_alloy"
+    },
+    {
+      "item": "minecraft:iron_trapdoor"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "fluidlogistics:fluid_hatch"
+  }
+}

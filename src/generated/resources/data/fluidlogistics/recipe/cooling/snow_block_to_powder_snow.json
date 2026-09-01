@@ -1,0 +1,20 @@
+{
+  "type": "fluidlogistics:cooling_mixing",
+  "ingredients": [
+    {
+      "item": "minecraft:snow_block"
+    },
+    {
+      "type": "fluid_stack",
+      "amount": 500,
+      "fluid": "minecraft:water"
+    }
+  ],
+  "results": [
+    {
+      "amount": 1000,
+      "id": "fluidlogistics:powder_snow"
+    }
+  ],
+  "supercooled": false
+}

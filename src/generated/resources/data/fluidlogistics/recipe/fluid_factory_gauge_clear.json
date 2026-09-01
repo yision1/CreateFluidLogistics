@@ -1,0 +1,19 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:fluid_factory_gauge"
+    }
+  ],
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "fluidlogistics:fluid_factory_gauge"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "fluidlogistics:fluid_factory_gauge"
+  }
+}
