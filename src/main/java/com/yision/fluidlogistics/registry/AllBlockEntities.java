@@ -39,10 +39,18 @@ import com.yision.fluidlogistics.content.fluids.fluidHatch.FluidHatchBlockEntity
 import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonBlockEntity;
 import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonRenderer;
 import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonVisual;
+import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerBlockEntity;
+import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerRenderer;
 
 import static com.yision.fluidlogistics.FluidLogistics.REGISTRATE;
 
 public class AllBlockEntities {
+
+    public static final BlockEntityEntry<BlazeCoolerBlockEntity> BLAZE_COOLER = REGISTRATE
+            .blockEntity("blaze_cooler", BlazeCoolerBlockEntity::new)
+            .validBlocks(AllBlocks.BLAZE_COOLER)
+            .renderer(() -> BlazeCoolerRenderer::new)
+            .register();
 
     public static final BlockEntityEntry<CopperFrogportBlockEntity> COPPER_FROGPORT = REGISTRATE
             .blockEntity("copper_frogport", CopperFrogportBlockEntity::new)

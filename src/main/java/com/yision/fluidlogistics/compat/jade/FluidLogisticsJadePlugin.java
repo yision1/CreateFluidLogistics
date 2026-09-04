@@ -7,6 +7,7 @@ import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.Mechanical
 import com.yision.fluidlogistics.content.fluids.faucet.FaucetBlockEntity;
 import com.yision.fluidlogistics.content.fluids.fluidPort.FluidInventoryAccessPortBlockEntity;
 import com.yision.fluidlogistics.content.fluids.fluidPort.MultiFluidAccessPortBlockEntity;
+import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerBlock;
 
 import net.minecraft.world.level.block.Block;
 import snownee.jade.api.IWailaClientRegistration;
@@ -37,6 +38,7 @@ public class FluidLogisticsJadePlugin implements IWailaPlugin {
         registration.registerFluidStorageClient(MultiFluidTankProvider.INSTANCE);
         registration.registerFluidStorageClient(ContraptionMultiFluidTankProvider.INSTANCE);
         registration.registerFluidStorageClient(ConnectedFluidSourceProvider.INSTANCE);
+        registration.registerBlockComponent(BlazeCoolerIconProvider.INSTANCE, BlazeCoolerBlock.class);
         registration.usePickedResult(AllBlocks.FACTORY_GAUGE.get());
     }
 }

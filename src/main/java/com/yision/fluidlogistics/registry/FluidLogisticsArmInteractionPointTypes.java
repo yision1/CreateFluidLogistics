@@ -1,6 +1,7 @@
 package com.yision.fluidlogistics.registry;
 
 import com.simibubi.create.api.registry.CreateBuiltInRegistries;
+import com.simibubi.create.content.kinetics.mechanicalArm.AllArmInteractionPointTypes;
 import com.simibubi.create.content.kinetics.mechanicalArm.ArmInteractionPoint;
 import com.simibubi.create.content.kinetics.mechanicalArm.ArmInteractionPointType;
 import com.yision.fluidlogistics.FluidLogistics;
@@ -22,6 +23,8 @@ public class FluidLogisticsArmInteractionPointTypes {
 		ARM_INTERACTION_POINT_TYPES.register("fluid_packager", FluidPackagerType::new);
 	public static final DeferredHolder<ArmInteractionPointType, ArmInteractionPointType> SMART_HOPPER =
 		ARM_INTERACTION_POINT_TYPES.register("smart_hopper", SmartHopperType::new);
+	public static final DeferredHolder<ArmInteractionPointType, ArmInteractionPointType> BLAZE_COOLER =
+		ARM_INTERACTION_POINT_TYPES.register("blaze_cooler", BlazeCoolerType::new);
 
 	private static class FluidPackagerType extends ArmInteractionPointType {
 		@Override
@@ -44,6 +47,18 @@ public class FluidLogisticsArmInteractionPointTypes {
 		@Override
 		public @Nullable ArmInteractionPoint createPoint(Level level, BlockPos pos, BlockState state) {
 			return new ArmInteractionPoint(this, level, pos, state);
+		}
+	}
+
+	private static class BlazeCoolerType extends ArmInteractionPointType {
+		@Override
+		public boolean canCreatePoint(Level level, BlockPos pos, BlockState state) {
+			return AllBlocks.BLAZE_COOLER.has(state);
+		}
+
+		@Override
+		public @Nullable ArmInteractionPoint createPoint(Level level, BlockPos pos, BlockState state) {
+			return new AllArmInteractionPointTypes.BlazeBurnerPoint(this, level, pos, state);
 		}
 	}
 }

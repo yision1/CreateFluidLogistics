@@ -1,0 +1,7 @@
+{
+  "parent": "create:block/blaze_burner/blaze/idle",
+  "textures": {
+    "2": "fluidlogistics:block/blaze_cooler/blaze_cooler_idle",
+    "particle": "fluidlogistics:block/blaze_cooler/blaze_cooler_idle"
+  }
+}

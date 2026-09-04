@@ -62,18 +62,42 @@ import com.yision.fluidlogistics.content.fluids.fluidHatch.FluidHatchBlock;
 import com.yision.fluidlogistics.content.fluids.horizontalMultiFluidTank.HorizontalMultiFluidTankGenerator;
 import com.simibubi.create.content.processing.basin.BasinGenerator;
 import com.simibubi.create.content.processing.basin.BasinMovementBehaviour;
+import com.simibubi.create.content.processing.burner.BlazeBurnerBlockItem;
+import com.simibubi.create.api.behaviour.interaction.ConductorBlockInteractionBehavior;
 import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
 import com.yision.fluidlogistics.content.fluids.horizontalMultiFluidTank.HorizontalMultiFluidTankItem;
 import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidTankItem;
 import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankItem;
 import com.yision.fluidlogistics.content.fluids.waterContainingCopperCasing.WaterContainingCopperCasingItem;
 import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonBlock;
+import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerBlock;
+import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerMovementBehaviour;
 
+import static com.simibubi.create.api.behaviour.interaction.MovingInteractionBehaviour.interactionBehaviour;
 import static com.simibubi.create.api.contraption.storage.fluid.MountedFluidStorageType.mountedFluidStorage;
 import static com.simibubi.create.foundation.data.TagGen.pickaxeOnly;
 import static com.yision.fluidlogistics.FluidLogistics.REGISTRATE;
 
 public class AllBlocks {
+
+    public static final BlockEntry<BlazeCoolerBlock> BLAZE_COOLER =
+        REGISTRATE.block("blaze_cooler", BlazeCoolerBlock::new)
+            .initialProperties(SharedProperties::softMetal)
+            .properties(p -> p.mapColor(MapColor.ICE).lightLevel(state -> 0))
+            .transform(pickaxeOnly())
+            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
+            .addLayer(() -> RenderType::cutoutMipped)
+            .tag(AllBlockTags.FAN_TRANSPARENT.tag)
+            .loot((loot, block) -> loot.dropSelf(block))
+            .blockstate((context, provider) -> provider.simpleBlock(context.getEntry(),
+                provider.models().getExistingFile(provider.modLoc("block/blaze_cooler/block"))))
+            .onRegister(b -> MovementBehaviour.REGISTRY.register(b, new BlazeCoolerMovementBehaviour()))
+            .onRegister(interactionBehaviour(new ConductorBlockInteractionBehavior.BlazeBurner()))
+            .item(BlazeBurnerBlockItem::withBlaze)
+            .model((context, provider) -> provider.withExistingParent(context.getName(),
+                provider.modLoc("block/blaze_cooler/item")))
+            .build()
+            .register();
 
     public static final BlockEntry<CopperFrogportBlock> COPPER_FROGPORT =
         REGISTRATE.block("copper_frogport", CopperFrogportBlock::new)

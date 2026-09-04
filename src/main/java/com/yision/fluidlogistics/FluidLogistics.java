@@ -11,6 +11,8 @@ import com.simibubi.create.foundation.item.KineticStats;
 import com.simibubi.create.foundation.item.TooltipModifier;
 import net.createmod.catnip.lang.FontHelper;
 import com.yision.fluidlogistics.config.Config;
+import com.yision.fluidlogistics.infrastructure.data.FluidLogisticsDatagen;
+import com.yision.fluidlogistics.infrastructure.data.FluidLogisticsRegistrate;
 import com.yision.fluidlogistics.api.factorygauge.FactoryGauges;
 import com.yision.fluidlogistics.api.factorygauge.FactoryGaugeType;
 import com.yision.fluidlogistics.api.packager.PackageResources;
@@ -19,6 +21,7 @@ import com.yision.fluidlogistics.api.handpointer.PackagerAddresses;
 import com.yision.fluidlogistics.api.handpointer.crafter.HandPointerCrafterAdapters;
 import com.yision.fluidlogistics.content.equipment.handPointer.CreateMechanicalCrafterAdapter;
 import com.yision.fluidlogistics.content.fluids.copperBucket.CopperBucketItem;
+import com.yision.fluidlogistics.content.fluids.powderSnow.PowderSnowBucketFluidHandler;
 import com.yision.fluidlogistics.content.fluids.waterContainingCopperCasing.WaterContainingCopperCasingFluidHandler;
 import com.yision.fluidlogistics.content.fluids.fluidPump.FluidPumpNetworkUpdater;
 import com.yision.fluidlogistics.content.logistics.factoryGauge.FactoryGaugeBehaviourAttachment;
@@ -35,6 +38,8 @@ import com.yision.fluidlogistics.content.fluids.fluidPort.MultiFluidAccessPortBl
 import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankBlockEntity;
 import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperBlockEntity;
 import com.yision.fluidlogistics.content.processing.copperBasin.CopperBasinBlockEntity;
+import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerBlockEntity;
+import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerFuelManager;
 import com.yision.fluidlogistics.network.FluidLogisticsPackets;
 import com.yision.fluidlogistics.registry.FluidLogisticsArmInteractionPointTypes;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
@@ -53,6 +58,9 @@ import com.yision.fluidlogistics.registry.AllConditionCodecs;
 import com.yision.fluidlogistics.registry.AllFluidAttributeTypes;
 import com.yision.fluidlogistics.registry.FluidLogisticsUnpackingHandlers;
 import com.yision.fluidlogistics.registry.AllFluidLogisticsParticleTypes;
+import com.yision.fluidlogistics.registry.AllFluidLogisticsFluids;
+import com.yision.fluidlogistics.registry.AllFluidLogisticsFanProcessingTypes;
+import com.yision.fluidlogistics.registry.AllFluidLogisticsRecipeTypes;
 import com.yision.fluidlogistics.registry.FluidLogisticsPackagePortTargetTypes;
 import com.yision.fluidlogistics.config.FeatureToggle;
 import net.minecraft.network.chat.Component;
@@ -74,6 +82,7 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.fluids.capability.templates.FluidHandlerItemStack;
@@ -104,7 +113,7 @@ public class FluidLogistics {
     private static final DeferredRegister<com.mojang.serialization.MapCodec<? extends net.neoforged.neoforge.common.loot.IGlobalLootModifier>>
             LOOT_MODIFIERS = DeferredRegister.create(NeoForgeRegistries.GLOBAL_LOOT_MODIFIER_SERIALIZERS, MODID);
 
-    public static final CreateRegistrate REGISTRATE = CreateRegistrate.create(MODID)
+    public static final CreateRegistrate REGISTRATE = FluidLogisticsRegistrate.create(MODID)
             .setTooltipModifierFactory(item -> {
                 TooltipModifier base = item instanceof InfiniteFluidTankItem
                         ? new InfiniteFluidTankItem.TooltipModifier(item, FontHelper.Palette.STANDARD_CREATE)
@@ -120,11 +129,15 @@ public class FluidLogistics {
         LOOT_MODIFIERS.register("factory_gauge_drops", () -> FactoryGaugeLootModifier.CODEC);
         LOOT_MODIFIERS.register(modEventBus);
         REGISTRATE.registerEventListeners(modEventBus);
+        modEventBus.addListener(FluidLogisticsDatagen::gatherData);
 
         AllConditionCodecs.register(modEventBus);
         AllDataComponents.register(modEventBus);
         AllFluidAttributeTypes.REGISTER.register(modEventBus);
         AllFluidLogisticsParticleTypes.register(modEventBus);
+        AllFluidLogisticsFluids.register();
+        AllFluidLogisticsFanProcessingTypes.register(modEventBus);
+        AllFluidLogisticsRecipeTypes.register(modEventBus);
         FluidLogisticsPackagePortTargetTypes.register(modEventBus);
         AllBlocks.register();
         PackagerAddresses.register(com.simibubi.create.AllBlocks.PACKAGER);
@@ -151,6 +164,7 @@ public class FluidLogistics {
         modEventBus.addListener(AllItems::registerAliases);
 
         NeoForge.EVENT_BUS.register(this);
+        NeoForge.EVENT_BUS.addListener(this::addReloadListeners);
         NeoForge.EVENT_BUS.addListener(FactoryGaugeBehaviourAttachment::onAttachBehaviours);
         LOGGER.info("FluidLogistics initialized!");
     }
@@ -181,6 +195,7 @@ public class FluidLogistics {
         SmartHopperBlockEntity.registerCapabilities(event);
         InfiniteFluidTankBlockEntity.registerCapabilities(event);
         CopperBasinBlockEntity.registerCapabilities(event);
+        BlazeCoolerBlockEntity.registerCapabilities(event);
         event.registerBlock(Capabilities.FluidHandler.BLOCK,
                 (level, pos, state, blockEntity, side) -> WaterContainingCopperCasingFluidHandler.INSTANCE,
                 AllBlocks.WATER_CONTAINING_COPPER_CASING.get());
@@ -197,7 +212,14 @@ public class FluidLogistics {
                 AllItems.FLUID_PACKAGE_EXPOSED.get(),
                 AllItems.FLUID_PACKAGE_OXIDIZED.get(),
                 AllItems.FLUID_PACKAGE_WEATHERED.get());
+        event.registerItem(Capabilities.FluidHandler.ITEM,
+                (stack, context) -> new PowderSnowBucketFluidHandler(stack),
+                net.minecraft.world.item.Items.POWDER_SNOW_BUCKET);
 
+    }
+
+    private void addReloadListeners(final AddReloadListenerEvent event) {
+        event.addListener(BlazeCoolerFuelManager.INSTANCE);
     }
 
     private void hideDisabledItems(final BuildCreativeModeTabContentsEvent event) {

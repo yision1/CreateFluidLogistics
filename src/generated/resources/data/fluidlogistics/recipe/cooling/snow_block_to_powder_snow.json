@@ -5,14 +5,23 @@
       "item": "minecraft:snow_block"
     },
     {
+      "item": "minecraft:snow_block"
+    },
+    {
+      "item": "minecraft:snow_block"
+    },
+    {
+      "item": "minecraft:snow_block"
+    },
+    {
       "type": "fluid_stack",
-      "amount": 500,
+      "amount": 250,
       "fluid": "minecraft:water"
     }
   ],
   "results": [
     {
-      "amount": 1000,
+      "amount": 250,
       "id": "fluidlogistics:powder_snow"
     }
   ],

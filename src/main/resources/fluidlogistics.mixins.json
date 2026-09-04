@@ -16,6 +16,8 @@
         "kinetics.ChainConveyorBlockMixin",
         "kinetics.ChainConveyorConnectionPacketMixin",
         "kinetics.SawBlockEntityMixin",
+        "processing.BasinRecipeMixin",
+        "processing.BlazeBurnerBlockEntityMixin",
         "logistics.AttributeFilterItemStackMixin",
         "logistics.FilterItemStackFluidMixin",
         "logistics.FactoryPanelConfigurationPacketMixin",
@@ -26,13 +28,15 @@
         "logistics.PackageEntityMixin",
         "logistics.PackagerBlockEntityMixin",
         "logistics.PackagerBlockMixin",
-        "logistics.RequestPromiseQueueMixin"
+        "logistics.RequestPromiseQueueMixin",
+        "logistics.StockTickerBlockEntityMixin"
     ],
     "client": [
         "accessor.FrogportChainConveyorOBBAccessor",
         "client.ChainConveyorRendererMixin",
         "client.ChainConveyorInteractionHandlerMixin",
         "client.BlueprintOverlayRendererMixin",
+        "client.BasinCategoryMixin",
         "client.ClipboardScreenMixin",
         "client.CreativeModeInventoryScreenAccessor",
         "client.CreativeModeItemPickerMenuAccessor",

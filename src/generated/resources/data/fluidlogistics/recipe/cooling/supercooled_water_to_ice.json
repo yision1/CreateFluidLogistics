@@ -1,10 +1,9 @@
 {
   "type": "fluidlogistics:cooling_mixing",
-  "supercooled": true,
   "ingredients": [
     {
       "type": "fluid_stack",
-      "amount": 250,
+      "amount": 500,
       "fluid": "minecraft:water"
     }
   ],
@@ -12,5 +11,6 @@
     {
       "id": "minecraft:ice"
     }
-  ]
+  ],
+  "supercooled": true
 }

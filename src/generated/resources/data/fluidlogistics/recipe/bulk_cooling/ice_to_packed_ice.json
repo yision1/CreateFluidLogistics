@@ -1,0 +1,13 @@
+{
+  "type": "fluidlogistics:bulk_cooling",
+  "ingredients": [
+    {
+      "item": "minecraft:ice"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:packed_ice"
+    }
+  ]
+}

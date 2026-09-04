@@ -1,5 +1,6 @@
 {
   "values": [
+    "fluidlogistics:blaze_cooler",
     "fluidlogistics:copper_frogport",
     "fluidlogistics:fluid_transporter",
     "fluidlogistics:fluid_packager",

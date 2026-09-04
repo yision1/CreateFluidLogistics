@@ -1,6 +1,5 @@
 {
   "type": "fluidlogistics:cooling_compacting",
-  "supercooled": false,
   "ingredients": [
     {
       "tag": "c:eggs"
@@ -21,5 +20,6 @@
     {
       "id": "fluidlogistics:frost_cake"
     }
-  ]
+  ],
+  "supercooled": false
 }
