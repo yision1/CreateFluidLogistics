@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(BlazeBurnerBlockEntity.class)
 public abstract class BlazeBurnerBlockEntityMixin {
 
-    @Inject(method = "tick", at = @At("TAIL"), remap = false)
+    @Inject(method = "tick", at = @At("HEAD"), remap = false)
     private void fluidlogistics$tickCoolerConversion(CallbackInfo ci) {
         BlazeBurnerBlockEntity burner = (BlazeBurnerBlockEntity) (Object) this;
         if (burner instanceof BlazeCoolerBlockEntity)
