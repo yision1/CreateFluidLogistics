@@ -1,4 +1,10 @@
 {
+  "neoforge:conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:frost_cake"
+    }
+  ],
   "type": "fluidlogistics:cooling_compacting",
   "ingredients": [
     {
