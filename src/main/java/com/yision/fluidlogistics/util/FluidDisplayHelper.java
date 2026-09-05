@@ -19,11 +19,11 @@ public final class FluidDisplayHelper {
     }
 
     public static boolean shouldDisplayAsFluidInPackage(ItemStack stack) {
-        return CompressedTankItem.isFluidStack(stack);
+        return shouldDisplayAsFluid(stack);
     }
 
     public static FluidStack getPackageDisplayFluid(ItemStack stack) {
-        return shouldDisplayAsFluidInPackage(stack) ? CompressedTankItem.getFluid(stack).copy() : FluidStack.EMPTY;
+        return getDisplayFluid(stack);
     }
 
     public static ItemStack getPackageDisplayStack(ItemStack stack) {

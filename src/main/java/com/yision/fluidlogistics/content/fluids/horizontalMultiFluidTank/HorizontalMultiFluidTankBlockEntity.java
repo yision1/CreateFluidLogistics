@@ -301,12 +301,6 @@ public class HorizontalMultiFluidTankBlockEntity extends AbstractMultiFluidTankB
     }
 
     @Override
-    protected void writeWindowStateSafe(CompoundTag compound) {
-        compound.putBoolean("Window", window);
-        compound.putString("WindowType", windowType.name());
-    }
-
-    @Override
     protected BlockState applyRemoveControllerShape(BlockState state) {
         return state.setValue(HorizontalMultiFluidTankBlock.POSITIVE, true)
             .setValue(HorizontalMultiFluidTankBlock.NEGATIVE, true)

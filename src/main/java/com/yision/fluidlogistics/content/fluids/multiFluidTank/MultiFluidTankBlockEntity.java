@@ -222,11 +222,6 @@ public class MultiFluidTankBlockEntity extends AbstractMultiFluidTankBlockEntity
     }
 
     @Override
-    protected void writeWindowStateSafe(CompoundTag compound) {
-        compound.putString("WindowStyle", windowStyle.getSerializedName());
-    }
-
-    @Override
     protected BlockState applyRemoveControllerShape(BlockState state) {
         MultiFluidTankBlock.Shape shape = getShapeForWindowStyle(windowStyle, 0, 0);
         return state.setValue(MultiFluidTankBlock.BOTTOM, true)

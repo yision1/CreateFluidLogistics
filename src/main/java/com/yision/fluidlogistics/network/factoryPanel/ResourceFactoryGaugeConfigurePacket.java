@@ -15,7 +15,6 @@ import com.yision.fluidlogistics.api.packager.PackageResourceDisplay;
 import com.yision.fluidlogistics.api.packager.PackageResources;
 import com.yision.fluidlogistics.content.logistics.factoryGauge.ResourceFactoryPanelBehaviour;
 import com.yision.fluidlogistics.network.FluidLogisticsPackets;
-import com.yision.fluidlogistics.util.ResourceGaugeHelper;
 
 import net.createmod.catnip.codecs.stream.CatnipLargerStreamCodecs;
 import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;

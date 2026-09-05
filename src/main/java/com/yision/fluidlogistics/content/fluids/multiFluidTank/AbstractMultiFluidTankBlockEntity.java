@@ -2,7 +2,6 @@ package com.yision.fluidlogistics.content.fluids.multiFluidTank;
 
 import java.util.List;
 
-import org.jetbrains.annotations.Nullable;
 
 import com.simibubi.create.api.connectivity.ConnectivityHandler;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
@@ -14,7 +13,6 @@ import net.createmod.catnip.animation.LerpedFloat;
 import net.createmod.catnip.nbt.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
@@ -72,7 +70,9 @@ public abstract class AbstractMultiFluidTankBlockEntity<T extends AbstractMultiF
 
 	protected abstract void writeWindowState(CompoundTag compound);
 
-	protected abstract void writeWindowStateSafe(CompoundTag compound);
+	protected void writeWindowStateSafe(CompoundTag compound) {
+		writeWindowState(compound);
+	}
 
 	@Override
 	public void removeController(boolean keepContents) {

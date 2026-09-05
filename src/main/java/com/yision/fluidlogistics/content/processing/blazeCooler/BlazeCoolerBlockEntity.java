@@ -1,6 +1,5 @@
 package com.yision.fluidlogistics.content.processing.blazeCooler;
 
-import com.simibubi.create.AllItems;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock.HeatLevel;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlockEntity;
@@ -148,11 +147,6 @@ public class BlazeCoolerBlockEntity extends BlazeBurnerBlockEntity {
             level.setBlockAndUpdate(worldPosition,
                 state.setValue(BlazeBurnerBlock.HEAT_LEVEL, HeatLevel.SMOULDERING));
         notifyUpdate();
-    }
-
-    @Override
-    public boolean isCreativeFuel(ItemStack stack) {
-        return stack.is(AllItems.CREATIVE_BLAZE_CAKE.get());
     }
 
     @Override

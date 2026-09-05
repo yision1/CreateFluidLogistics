@@ -4,7 +4,6 @@ import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.api.event.BlockEntityBehaviourEvent;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBehaviour;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlock.PanelSlot;
-import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlockEntity;
 
 public final class FactoryGaugeBehaviourAttachment {
 

@@ -3,7 +3,6 @@ package com.yision.fluidlogistics;
 import com.mojang.logging.LogUtils;
 import com.simibubi.create.AllFluids;
 import com.simibubi.create.content.kinetics.mechanicalArm.ArmInteractionPointType;
-import com.simibubi.create.api.event.BlockEntityBehaviourEvent;
 import com.simibubi.create.api.stress.BlockStressValues;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.item.ItemDescription;

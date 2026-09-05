@@ -1,6 +1,9 @@
 package com.yision.fluidlogistics.content.logistics.fluidPackager;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.simibubi.create.content.logistics.packager.PackagerBlock;
+import com.simibubi.create.content.logistics.packager.PackagerBlockEntity;
+import com.simibubi.create.content.logistics.packager.PackagerRenderer;
 import com.simibubi.create.foundation.blockEntity.renderer.SmartBlockEntityRenderer;
 import com.yision.fluidlogistics.registry.AllPartialModels;
 
@@ -20,25 +23,34 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-public class FluidPackagerRenderer extends SmartBlockEntityRenderer<FluidPackagerBlockEntity> {
+public class FluidPackagerRenderer<T extends PackagerBlockEntity> extends SmartBlockEntityRenderer<T> {
+
+    private final PartialModel trayModel;
+    private final boolean hideTrayAfterHalfway;
 
     public FluidPackagerRenderer(Context context) {
+        this(context, AllPartialModels.FLUID_PACKAGER_TRAY, true);
+    }
+
+    protected FluidPackagerRenderer(Context context, PartialModel trayModel, boolean hideTrayAfterHalfway) {
         super(context);
+        this.trayModel = trayModel;
+        this.hideTrayAfterHalfway = hideTrayAfterHalfway;
     }
 
     @Override
-    protected void renderSafe(FluidPackagerBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer,
+    protected void renderSafe(T be, float partialTicks, PoseStack ms, MultiBufferSource buffer,
                               int light, int overlay) {
         super.renderSafe(be, partialTicks, ms, buffer, light, overlay);
 
         ItemStack renderedBox = be.getRenderedBox();
         float trayOffset = be.getTrayOffset(partialTicks);
         BlockState blockState = be.getBlockState();
-        Direction facing = blockState.getValue(FluidPackagerBlock.FACING)
+        Direction facing = blockState.getValue(PackagerBlock.FACING)
                 .getOpposite();
 
         if (!VisualizationManager.supportsVisualization(be.getLevel())) {
-            var hatchModel = getHatchModel(be);
+            var hatchModel = getSharedHatchModel(be);
 
             SuperByteBuffer sbb = CachedBuffers.partial(hatchModel, blockState);
             sbb.translate(Vec3.atLowerCornerOf(facing.getNormal())
@@ -48,8 +60,8 @@ public class FluidPackagerRenderer extends SmartBlockEntityRenderer<FluidPackage
                     .light(light)
                     .renderInto(ms, buffer.getBuffer(RenderType.solid()));
 
-            if (trayOffset <= 0.5f) {
-                sbb = CachedBuffers.partial(getTrayModel(), blockState);
+            if (!hideTrayAfterHalfway || trayOffset <= 0.5f) {
+                sbb = CachedBuffers.partial(trayModel, blockState);
                 sbb.translate(Vec3.atLowerCornerOf(facing.getNormal())
                                 .scale(trayOffset))
                         .rotateYCenteredDegrees(facing.toYRot())
@@ -58,7 +70,7 @@ public class FluidPackagerRenderer extends SmartBlockEntityRenderer<FluidPackage
             }
         }
 
-        if (!renderedBox.isEmpty() && trayOffset <= 0.5f) {
+        if (!renderedBox.isEmpty() && (!hideTrayAfterHalfway || trayOffset <= 0.5f)) {
             ms.pushPose();
             var msr = TransformStack.of(ms);
             msr.translate(Vec3.atLowerCornerOf(facing.getNormal())
@@ -80,11 +92,16 @@ public class FluidPackagerRenderer extends SmartBlockEntityRenderer<FluidPackage
     }
 
     public static PartialModel getHatchModel(FluidPackagerBlockEntity be) {
-        return isHatchOpen(be) ? AllPartialModels.FLUID_PACKAGER_HATCH_OPEN : AllPartialModels.FLUID_PACKAGER_HATCH_CLOSED;
+        return getSharedHatchModel(be);
     }
 
     public static boolean isHatchOpen(FluidPackagerBlockEntity be) {
-        return be.animationTicks > (be.animationInward ? 1 : 5)
-                && be.animationTicks < FluidPackagerBlockEntity.CYCLE - (be.animationInward ? 5 : 1);
+        return PackagerRenderer.isHatchOpen(be);
+    }
+
+    protected static PartialModel getSharedHatchModel(PackagerBlockEntity be) {
+        return PackagerRenderer.isHatchOpen(be)
+                ? AllPartialModels.FLUID_PACKAGER_HATCH_OPEN
+                : AllPartialModels.FLUID_PACKAGER_HATCH_CLOSED;
     }
 }

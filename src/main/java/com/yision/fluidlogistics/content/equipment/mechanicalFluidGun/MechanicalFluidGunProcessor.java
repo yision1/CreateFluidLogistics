@@ -1,7 +1,6 @@
 package com.yision.fluidlogistics.content.equipment.mechanicalFluidGun;
 
 import com.simibubi.create.content.kinetics.belt.BeltBlockEntity;
-import com.simibubi.create.content.kinetics.belt.transport.TransportedItemStack;
 import com.yision.fluidlogistics.content.fluids.faucet.FaucetFilling;
 import com.yision.fluidlogistics.foundation.fluid.DepotFills;
 
