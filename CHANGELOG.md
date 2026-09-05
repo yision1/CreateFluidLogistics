@@ -1,1 +1,5 @@
-- Add Fluid Factory Gauge
+- Add Blaze Cooler
+- Add Fluid Inventory Access Port
+- Allow fluid hatch to be placed on any face of a block
+- Update some recipes
+- Fix fluid factory gauges "Some links are not loaded" error
