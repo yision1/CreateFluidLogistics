@@ -75,7 +75,9 @@ public abstract class AbstractMultiFluidTankBlockEntity<T extends AbstractMultiF
 
     protected abstract void writeWindowState(CompoundTag compound);
 
-    protected abstract void writeWindowStateSafe(CompoundTag compound);
+    protected void writeWindowStateSafe(CompoundTag compound) {
+        writeWindowState(compound);
+    }
 
     protected abstract BlockState applyRemoveControllerShape(BlockState state);
 

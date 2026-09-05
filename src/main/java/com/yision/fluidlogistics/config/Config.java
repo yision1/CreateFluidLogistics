@@ -16,6 +16,7 @@ public class Config {
     private static final boolean MULTI_FLUID_TANK_ENABLED_DEFAULT = true;
     private static final boolean HORIZONTAL_MULTI_FLUID_TANK_ENABLED_DEFAULT = true;
     private static final boolean MULTI_FLUID_ACCESS_PORT_ENABLED_DEFAULT = true;
+    private static final boolean FLUID_INVENTORY_ACCESS_PORT_ENABLED_DEFAULT = true;
     private static final boolean SMART_HOPPER_ENABLED_DEFAULT = true;
     private static final boolean FLUID_PUMP_ENABLED_DEFAULT = true;
     private static final boolean INFINITE_FLUID_TANK_ENABLED_DEFAULT = true;
@@ -30,6 +31,11 @@ public class Config {
     private static final boolean PHANTOM_CHAIN_ENABLED_DEFAULT = true;
     private static final boolean FLUID_HATCH_ENABLED_DEFAULT = true;
     private static final boolean FLUID_FACTORY_GAUGE_ENABLED_DEFAULT = true;
+    private static final boolean BLAZE_COOLER_ENABLED_DEFAULT = true;
+    private static final boolean COPPER_SCHEMATICANNON_ENABLED_DEFAULT = true;
+    private static final boolean INDUSTRIAL_COPPER_BLOCK_ENABLED_DEFAULT = true;
+    private static final boolean FLUID_SCHEMATIC_ENABLED_DEFAULT = true;
+    private static final boolean FROST_CAKE_ENABLED_DEFAULT = true;
 
     private static final int FLUID_PACKAGE_CAPACITY_DEFAULT = 10000;
     private static final int FLUID_PACKAGE_CAPACITY_MIN = 1;
@@ -88,6 +94,10 @@ public class Config {
             .translation("block.fluidlogistics.multi_fluid_access_port")
             .define("multiFluidAccessPortEnabled", MULTI_FLUID_ACCESS_PORT_ENABLED_DEFAULT);
 
+    public static final ForgeConfigSpec.BooleanValue FLUID_INVENTORY_ACCESS_PORT_ENABLED = BUILDER
+            .translation("block.fluidlogistics.fluid_inventory_access_port")
+            .define("fluidInventoryAccessPortEnabled", FLUID_INVENTORY_ACCESS_PORT_ENABLED_DEFAULT);
+
     public static final ForgeConfigSpec.BooleanValue SMART_HOPPER_ENABLED = BUILDER
             .translation("block.fluidlogistics.smart_hopper")
             .define("smartHopperEnabled", SMART_HOPPER_ENABLED_DEFAULT);
@@ -143,6 +153,26 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue FLUID_FACTORY_GAUGE_ENABLED = BUILDER
             .translation("item.fluidlogistics.fluid_factory_gauge")
             .define("fluidFactoryGaugeEnabled", FLUID_FACTORY_GAUGE_ENABLED_DEFAULT);
+
+    public static final ForgeConfigSpec.BooleanValue BLAZE_COOLER_ENABLED = BUILDER
+            .translation("block.fluidlogistics.blaze_cooler")
+            .define("blazeCoolerEnabled", BLAZE_COOLER_ENABLED_DEFAULT);
+
+    public static final ForgeConfigSpec.BooleanValue COPPER_SCHEMATICANNON_ENABLED = BUILDER
+            .translation("block.fluidlogistics.copper_schematicannon")
+            .define("copperSchematicannonEnabled", COPPER_SCHEMATICANNON_ENABLED_DEFAULT);
+
+    public static final ForgeConfigSpec.BooleanValue INDUSTRIAL_COPPER_BLOCK_ENABLED = BUILDER
+            .translation("block.fluidlogistics.industrial_copper_block")
+            .define("industrialCopperBlockEnabled", INDUSTRIAL_COPPER_BLOCK_ENABLED_DEFAULT);
+
+    public static final ForgeConfigSpec.BooleanValue FLUID_SCHEMATIC_ENABLED = BUILDER
+            .translation("item.fluidlogistics.empty_fluid_schematic")
+            .define("fluidSchematicEnabled", FLUID_SCHEMATIC_ENABLED_DEFAULT);
+
+    public static final ForgeConfigSpec.BooleanValue FROST_CAKE_ENABLED = BUILDER
+            .translation("item.fluidlogistics.frost_cake")
+            .define("frostCakeEnabled", FROST_CAKE_ENABLED_DEFAULT);
 
     static {
         BUILDER.pop();
@@ -235,6 +265,7 @@ public class Config {
     private static boolean multiFluidTankEnabled = MULTI_FLUID_TANK_ENABLED_DEFAULT;
     private static boolean horizontalMultiFluidTankEnabled = HORIZONTAL_MULTI_FLUID_TANK_ENABLED_DEFAULT;
     private static boolean multiFluidAccessPortEnabled = MULTI_FLUID_ACCESS_PORT_ENABLED_DEFAULT;
+    private static boolean fluidInventoryAccessPortEnabled = FLUID_INVENTORY_ACCESS_PORT_ENABLED_DEFAULT;
     private static boolean smartHopperEnabled = SMART_HOPPER_ENABLED_DEFAULT;
     private static boolean fluidPumpEnabled = FLUID_PUMP_ENABLED_DEFAULT;
     private static boolean infiniteFluidTankEnabled = INFINITE_FLUID_TANK_ENABLED_DEFAULT;
@@ -249,6 +280,11 @@ public class Config {
     private static boolean phantomChainEnabled = PHANTOM_CHAIN_ENABLED_DEFAULT;
     private static boolean fluidHatchEnabled = FLUID_HATCH_ENABLED_DEFAULT;
     private static boolean fluidFactoryGaugeEnabled = FLUID_FACTORY_GAUGE_ENABLED_DEFAULT;
+    private static boolean blazeCoolerEnabled = BLAZE_COOLER_ENABLED_DEFAULT;
+    private static boolean copperSchematicannonEnabled = COPPER_SCHEMATICANNON_ENABLED_DEFAULT;
+    private static boolean industrialCopperBlockEnabled = INDUSTRIAL_COPPER_BLOCK_ENABLED_DEFAULT;
+    private static boolean fluidSchematicEnabled = FLUID_SCHEMATIC_ENABLED_DEFAULT;
+    private static boolean frostCakeEnabled = FROST_CAKE_ENABLED_DEFAULT;
     private static int fluidPackageCapacity = FLUID_PACKAGE_CAPACITY_DEFAULT;
     private static int fluidPumpRange = FLUID_PUMP_RANGE_DEFAULT;
     private static int handPointerMaxArms = HAND_POINTER_MAX_ARMS_DEFAULT;
@@ -292,6 +328,7 @@ public class Config {
         multiFluidTankEnabled = MULTI_FLUID_TANK_ENABLED.get();
         horizontalMultiFluidTankEnabled = HORIZONTAL_MULTI_FLUID_TANK_ENABLED.get();
         multiFluidAccessPortEnabled = MULTI_FLUID_ACCESS_PORT_ENABLED.get();
+        fluidInventoryAccessPortEnabled = FLUID_INVENTORY_ACCESS_PORT_ENABLED.get();
         smartHopperEnabled = SMART_HOPPER_ENABLED.get();
         fluidPumpEnabled = FLUID_PUMP_ENABLED.get();
         infiniteFluidTankEnabled = INFINITE_FLUID_TANK_ENABLED.get();
@@ -306,6 +343,11 @@ public class Config {
         phantomChainEnabled = PHANTOM_CHAIN_ENABLED.get();
         fluidHatchEnabled = FLUID_HATCH_ENABLED.get();
         fluidFactoryGaugeEnabled = FLUID_FACTORY_GAUGE_ENABLED.get();
+        blazeCoolerEnabled = BLAZE_COOLER_ENABLED.get();
+        copperSchematicannonEnabled = COPPER_SCHEMATICANNON_ENABLED.get();
+        industrialCopperBlockEnabled = INDUSTRIAL_COPPER_BLOCK_ENABLED.get();
+        fluidSchematicEnabled = FLUID_SCHEMATIC_ENABLED.get();
+        frostCakeEnabled = FROST_CAKE_ENABLED.get();
         fluidPackageCapacity = FLUID_PACKAGE_CAPACITY.get();
         fluidPumpRange = FLUID_PUMP_RANGE.get();
         handPointerMaxArms = HAND_POINTER_MAX_ARMS.get();
@@ -326,6 +368,7 @@ public class Config {
     public static boolean isMultiFluidTankEnabled() { return multiFluidTankEnabled; }
     public static boolean isHorizontalMultiFluidTankEnabled() { return horizontalMultiFluidTankEnabled; }
     public static boolean isMultiFluidAccessPortEnabled() { return multiFluidAccessPortEnabled; }
+    public static boolean isFluidInventoryAccessPortEnabled() { return fluidInventoryAccessPortEnabled; }
     public static boolean isSmartHopperEnabled() { return smartHopperEnabled; }
     public static boolean isFluidPumpEnabled() { return fluidPumpEnabled; }
     public static boolean isInfiniteFluidTankEnabled() { return infiniteFluidTankEnabled; }
@@ -340,6 +383,11 @@ public class Config {
     public static boolean isPhantomChainEnabled() { return phantomChainEnabled; }
     public static boolean isFluidHatchEnabled() { return fluidHatchEnabled; }
     public static boolean isFluidFactoryGaugeEnabled() { return fluidFactoryGaugeEnabled; }
+    public static boolean isBlazeCoolerEnabled() { return blazeCoolerEnabled; }
+    public static boolean isCopperSchematicannonEnabled() { return copperSchematicannonEnabled; }
+    public static boolean isIndustrialCopperBlockEnabled() { return industrialCopperBlockEnabled; }
+    public static boolean isFluidSchematicEnabled() { return fluidSchematicEnabled; }
+    public static boolean isFrostCakeEnabled() { return frostCakeEnabled; }
 
     public static int getFluidPumpRange() { return fluidPumpRange; }
 

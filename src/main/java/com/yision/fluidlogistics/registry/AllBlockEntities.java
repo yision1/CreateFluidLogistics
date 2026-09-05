@@ -27,6 +27,7 @@ import com.yision.fluidlogistics.content.fluids.fluidPump.FluidPumpBlockEntity;
 import com.yision.fluidlogistics.content.fluids.fluidPump.FluidPumpRenderer;
 import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidTankBlockEntity;
 import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidTankRenderer;
+import com.yision.fluidlogistics.content.fluids.fluidInventoryAccessPort.FluidInventoryAccessPortBlockEntity;
 import com.yision.fluidlogistics.content.fluids.waterContainingCopperCasing.WaterContainingCopperCasingBlock;
 import com.yision.fluidlogistics.content.fluids.multiFluidAccessPort.MultiFluidAccessPortBlockEntity;
 import com.yision.fluidlogistics.content.fluids.multiFluidAccessPort.MultiFluidAccessPortRenderer;
@@ -37,10 +38,18 @@ import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperRender
 import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonBlockEntity;
 import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonRenderer;
 import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonVisual;
+import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerBlockEntity;
+import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerRenderer;
 
 import static com.yision.fluidlogistics.FluidLogistics.REGISTRATE;
 
 public class AllBlockEntities {
+
+    public static final BlockEntityEntry<BlazeCoolerBlockEntity> BLAZE_COOLER = REGISTRATE
+            .blockEntity("blaze_cooler", BlazeCoolerBlockEntity::new)
+            .validBlocks(AllBlocks.BLAZE_COOLER)
+            .renderer(() -> BlazeCoolerRenderer::new)
+            .register();
 
     public static final BlockEntityEntry<CopperFrogportBlockEntity> COPPER_FROGPORT = REGISTRATE
             .blockEntity("copper_frogport", CopperFrogportBlockEntity::new)
@@ -103,6 +112,11 @@ public class AllBlockEntities {
             .blockEntity("multi_fluid_access_port", MultiFluidAccessPortBlockEntity::new)
             .validBlocks(AllBlocks.MULTI_FLUID_ACCESS_PORT)
             .renderer(() -> MultiFluidAccessPortRenderer::new)
+            .register();
+
+    public static final BlockEntityEntry<FluidInventoryAccessPortBlockEntity> FLUID_INVENTORY_ACCESS_PORT = REGISTRATE
+            .blockEntity("fluid_inventory_access_port", FluidInventoryAccessPortBlockEntity::new)
+            .validBlocks(AllBlocks.FLUID_INVENTORY_ACCESS_PORT)
             .register();
 
     public static final BlockEntityEntry<FluidPumpBlockEntity> FLUID_PUMP = REGISTRATE

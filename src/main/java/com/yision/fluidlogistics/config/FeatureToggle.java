@@ -18,6 +18,8 @@ public final class FeatureToggle {
     public static final ResourceLocation MULTI_FLUID_TANK = FluidLogistics.asResource("multi_fluid_tank");
     public static final ResourceLocation HORIZONTAL_MULTI_FLUID_TANK = FluidLogistics.asResource("horizontal_multi_fluid_tank");
     public static final ResourceLocation MULTI_FLUID_ACCESS_PORT = FluidLogistics.asResource("multi_fluid_access_port");
+    public static final ResourceLocation FLUID_INVENTORY_ACCESS_PORT =
+            FluidLogistics.asResource("fluid_inventory_access_port");
     public static final ResourceLocation SMART_HOPPER = FluidLogistics.asResource("smart_hopper");
     public static final ResourceLocation FLUID_PUMP = FluidLogistics.asResource("fluid_pump");
     public static final ResourceLocation INFINITE_FLUID_TANK = FluidLogistics.asResource("infinite_fluid_tank");
@@ -33,6 +35,11 @@ public final class FeatureToggle {
 
     public static final ResourceLocation FLUID_HATCH = FluidLogistics.asResource("fluid_hatch");
     public static final ResourceLocation FLUID_FACTORY_GAUGE = FluidLogistics.asResource("fluid_factory_gauge");
+    public static final ResourceLocation BLAZE_COOLER = FluidLogistics.asResource("blaze_cooler");
+    public static final ResourceLocation COPPER_SCHEMATICANNON = FluidLogistics.asResource("copper_schematicannon");
+    public static final ResourceLocation INDUSTRIAL_COPPER_BLOCK = FluidLogistics.asResource("industrial_copper_block");
+    public static final ResourceLocation FLUID_SCHEMATIC = FluidLogistics.asResource("fluid_schematic");
+    public static final ResourceLocation FROST_CAKE = FluidLogistics.asResource("frost_cake");
 
     private static final Map<ResourceLocation, BooleanSupplier> FEATURE_MAP;
 
@@ -44,6 +51,7 @@ public final class FeatureToggle {
         map.put(MULTI_FLUID_TANK, Config::isMultiFluidTankEnabled);
         map.put(HORIZONTAL_MULTI_FLUID_TANK, Config::isHorizontalMultiFluidTankEnabled);
         map.put(MULTI_FLUID_ACCESS_PORT, Config::isMultiFluidAccessPortEnabled);
+        map.put(FLUID_INVENTORY_ACCESS_PORT, Config::isFluidInventoryAccessPortEnabled);
         map.put(SMART_HOPPER, Config::isSmartHopperEnabled);
         map.put(FLUID_PUMP, Config::isFluidPumpEnabled);
         map.put(INFINITE_FLUID_TANK, Config::isInfiniteFluidTankEnabled);
@@ -58,6 +66,11 @@ public final class FeatureToggle {
         map.put(PHANTOM_CHAIN, Config::isPhantomChainEnabled);
         map.put(FLUID_HATCH, Config::isFluidHatchEnabled);
         map.put(FLUID_FACTORY_GAUGE, Config::isFluidFactoryGaugeEnabled);
+        map.put(BLAZE_COOLER, Config::isBlazeCoolerEnabled);
+        map.put(COPPER_SCHEMATICANNON, Config::isCopperSchematicannonEnabled);
+        map.put(INDUSTRIAL_COPPER_BLOCK, Config::isIndustrialCopperBlockEnabled);
+        map.put(FLUID_SCHEMATIC, Config::isFluidSchematicEnabled);
+        map.put(FROST_CAKE, Config::isFrostCakeEnabled);
         FEATURE_MAP = Collections.unmodifiableMap(map);
     }
 

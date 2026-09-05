@@ -22,8 +22,11 @@ import com.yision.fluidlogistics.api.packager.PackageResourceTypes;
 import com.yision.fluidlogistics.api.packager.client.PackageResourceClient;
 import com.yision.fluidlogistics.client.FluidLogisticsGuiTextures;
 import com.yision.fluidlogistics.client.ResourceAmountScrollInput;
+import com.yision.fluidlogistics.config.Config;
 import com.yision.fluidlogistics.content.logistics.factoryGauge.ResourceFactoryPanelBehaviour;
+import com.yision.fluidlogistics.content.logistics.packageResource.client.TableClothResourceDisplay;
 import com.yision.fluidlogistics.network.factoryPanel.ResourceFactoryGaugeConfigurePacket;
+import com.yision.fluidlogistics.registry.AllItems;
 import com.yision.fluidlogistics.util.ResourceGaugeHelper;
 
 import net.createmod.catnip.gui.AbstractSimiScreen;
@@ -512,7 +515,10 @@ public class ResourceFactoryGaugeScreen extends AbstractSimiScreen {
                 .component(),
             promiseExpiration.getX() + 3, promiseExpiration.getY() + 4, 0xffeeeeee, true);
 
-        ItemStack packageStack = com.simibubi.create.content.logistics.box.PackageStyles.getDefaultBox();
+        ItemStack packageStack = isFluidGauge()
+            ? TableClothResourceDisplay.createPackage(behaviour.getFilter(), Config.getFluidPerPackage())
+                .orElseGet(AllItems.FLUID_PACKAGE::asStack)
+            : com.simibubi.create.content.logistics.box.PackageStyles.getDefaultBox();
         int promiseX = x + 68;
         int promiseY = y + baseWindowHeight() - 24;
         graphics.renderItem(packageStack, promiseX, promiseY);
@@ -550,7 +556,9 @@ public class ResourceFactoryGaugeScreen extends AbstractSimiScreen {
                     PackageResourceDisplay.Format.PRECISE)
                     .orElse(Integer.toString(promised));
                 promiseTip = List.of(
-                    CreateLang.translate("gui.factory_panel.promised_items")
+                    CreateLang.translate(isFluidGauge()
+                        ? "fluidlogistics.gauge.promised_fluid"
+                        : "gui.factory_panel.promised_items")
                         .color(ScrollInput.HEADER_RGB)
                         .component(),
                     Component.literal(resourceName.getString() + " x" + amountText),

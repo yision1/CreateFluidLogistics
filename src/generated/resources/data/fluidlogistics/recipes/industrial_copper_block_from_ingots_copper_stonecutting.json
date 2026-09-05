@@ -1,0 +1,14 @@
+{
+  "conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:industrial_copper_block"
+    }
+  ],
+  "type": "minecraft:stonecutting",
+  "count": 2,
+  "ingredient": {
+    "tag": "forge:ingots/copper"
+  },
+  "result": "fluidlogistics:industrial_copper_block"
+}

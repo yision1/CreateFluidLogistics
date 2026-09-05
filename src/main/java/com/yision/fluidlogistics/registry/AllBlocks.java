@@ -1,10 +1,12 @@
 package com.yision.fluidlogistics.registry;
 
+import com.simibubi.create.AllTags.AllBlockTags;
 import com.simibubi.create.content.fluids.PipeAttachmentModel;
 import com.simibubi.create.content.processing.basin.BasinGenerator;
 import com.simibubi.create.content.processing.basin.BasinMovementBehaviour;
+import com.simibubi.create.content.processing.burner.BlazeBurnerBlockItem;
+import com.simibubi.create.api.behaviour.interaction.ConductorBlockInteractionBehavior;
 import com.simibubi.create.foundation.data.AssetLookup;
-import com.simibubi.create.foundation.data.BlockStateGen;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.data.SharedProperties;
 import com.tterrag.registrate.providers.ProviderType;
@@ -14,8 +16,10 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -39,6 +43,8 @@ import com.yision.fluidlogistics.content.logistics.fluidTransporter.FluidTranspo
 import com.yision.fluidlogistics.content.fluids.horizontalMultiFluidTank.HorizontalMultiFluidTankBlock;
 import com.yision.fluidlogistics.content.fluids.horizontalMultiFluidTank.HorizontalMultiFluidTankGenerator;
 import com.yision.fluidlogistics.content.fluids.horizontalMultiFluidTank.HorizontalMultiFluidTankModel;
+import com.yision.fluidlogistics.content.fluids.fluidInventoryAccessPort.FluidInventoryAccessPortBlock;
+import com.yision.fluidlogistics.content.fluids.fluidInventoryAccessPort.FluidInventoryAccessPortGenerator;
 import com.yision.fluidlogistics.content.fluids.multiFluidAccessPort.MultiFluidAccessPortBlock;
 import com.yision.fluidlogistics.content.fluids.multiFluidAccessPort.MultiFluidAccessPortGenerator;
 import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankBlock;
@@ -56,20 +62,40 @@ import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidT
 import com.yision.fluidlogistics.content.fluids.waterContainingCopperCasing.WaterContainingCopperCasingBlock;
 import com.yision.fluidlogistics.content.fluids.waterContainingCopperCasing.WaterContainingCopperCasingItem;
 import com.yision.fluidlogistics.content.fluids.fluidHatch.FluidHatchBlock;
-import com.yision.fluidlogistics.content.materials.WaterproofCardboardBlock;
 import com.yision.fluidlogistics.content.fluids.horizontalMultiFluidTank.HorizontalMultiFluidTankItem;
 import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidTankItem;
 import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankItem;
 import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonBlock;
+import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerBlock;
+import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerMovementBehaviour;
 
+import static com.simibubi.create.api.behaviour.interaction.MovingInteractionBehaviour.interactionBehaviour;
 import static com.simibubi.create.api.behaviour.movement.MovementBehaviour.movementBehaviour;
 import static com.simibubi.create.api.contraption.storage.fluid.MountedFluidStorageType.mountedFluidStorage;
-import static com.simibubi.create.foundation.data.TagGen.axeOnly;
 import static com.simibubi.create.foundation.data.TagGen.pickaxeOnly;
 import static com.yision.fluidlogistics.FluidLogistics.REGISTRATE;
 
 @SuppressWarnings("removal")
 public class AllBlocks {
+
+    public static final BlockEntry<BlazeCoolerBlock> BLAZE_COOLER =
+        REGISTRATE.block("blaze_cooler", BlazeCoolerBlock::new)
+            .initialProperties(SharedProperties::softMetal)
+            .properties(p -> p.mapColor(MapColor.ICE).lightLevel(state -> 0))
+            .transform(pickaxeOnly())
+            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
+            .addLayer(() -> RenderType::cutoutMipped)
+            .tag(AllBlockTags.FAN_TRANSPARENT.tag)
+            .loot((loot, block) -> loot.dropSelf(block))
+            .blockstate((context, provider) -> provider.simpleBlock(context.getEntry(),
+                provider.models().getExistingFile(provider.modLoc("block/blaze_cooler/block"))))
+            .onRegister(movementBehaviour(new BlazeCoolerMovementBehaviour()))
+            .onRegister(interactionBehaviour(new ConductorBlockInteractionBehavior.BlazeBurner()))
+            .item(BlazeBurnerBlockItem::withBlaze)
+            .model((context, provider) -> provider.withExistingParent(context.getName(),
+                provider.modLoc("block/blaze_cooler/item")))
+            .build()
+            .register();
 
     public static final BlockEntry<CopperFrogportBlock> COPPER_FROGPORT =
         REGISTRATE.block("copper_frogport", CopperFrogportBlock::new)
@@ -217,20 +243,6 @@ public class AllBlocks {
             .build()
             .register();
 
-    public static final BlockEntry<WaterproofCardboardBlock> WATERPROOF_CARDBOARD_BLOCK = REGISTRATE.block("waterproof_cardboard_block", WaterproofCardboardBlock::new)
-            .initialProperties(() -> Blocks.MUSHROOM_STEM)
-            .properties(p -> p.mapColor(MapColor.COLOR_BROWN)
-                    .sound(SoundType.CHISELED_BOOKSHELF))
-            .transform(axeOnly())
-            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
-            .blockstate((ctx, prov) -> BlockStateGen.horizontalAxisBlock(ctx, prov,
-                    $ -> prov.models().getExistingFile(prov.modLoc("block/waterproof_cardboard_block/block"))))
-            .item()
-            .model((ctx, prov) -> prov.withExistingParent(ctx.getName(),
-                    prov.modLoc("block/waterproof_cardboard_block/block")))
-            .build()
-            .register();
-
     public static final BlockEntry<MultiFluidTankBlock> MULTI_FLUID_TANK = REGISTRATE
             .block("multi_fluid_tank", MultiFluidTankBlock::regular)
             .initialProperties(SharedProperties::copperMetal)
@@ -286,6 +298,20 @@ public class AllBlocks {
             .blockstate(new MultiFluidAccessPortGenerator()::generate)
             .item()
             .model(AssetLookup.customBlockItemModel("multi_fluid_access_port", "block_wall_off"))
+            .build()
+            .register();
+
+    public static final BlockEntry<FluidInventoryAccessPortBlock> FLUID_INVENTORY_ACCESS_PORT = REGISTRATE
+            .block("fluid_inventory_access_port", FluidInventoryAccessPortBlock::new)
+            .initialProperties(SharedProperties::softMetal)
+            .properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
+            .properties(p -> p.mapColor(MapColor.TERRACOTTA_ORANGE).sound(SoundType.NETHERITE_BLOCK))
+            .transform(pickaxeOnly())
+            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
+            .addLayer(() -> RenderType::cutoutMipped)
+            .blockstate(new FluidInventoryAccessPortGenerator()::generate)
+            .item()
+            .model(AssetLookup.customBlockItemModel("fluid_inventory_access_port", "block_wall_on"))
             .build()
             .register();
 
@@ -394,6 +420,23 @@ public class AllBlocks {
             .build()
             .register();
 
+    public static final BlockEntry<Block> INDUSTRIAL_COPPER_BLOCK =
+        REGISTRATE.block("industrial_copper_block", Block::new)
+            .initialProperties(SharedProperties::copperMetal)
+            .properties(p -> p.mapColor(MapColor.COLOR_ORANGE)
+                .sound(SoundType.COPPER)
+                .requiresCorrectToolForDrops())
+            .transform(pickaxeOnly())
+            .tag(AllBlockTags.WRENCH_PICKUP.tag)
+            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
+            .blockstate((ctx, prov) -> prov.simpleBlock(ctx.get(),
+                prov.models().getExistingFile(prov.modLoc("block/industrial_copper_block"))))
+            .item()
+            .model((ctx, prov) -> prov.withExistingParent(ctx.getName(),
+                prov.modLoc("block/industrial_copper_block")))
+            .build()
+            .register();
+
     public static final BlockEntry<FluidHatchBlock> FLUID_HATCH = REGISTRATE
             .block("fluid_hatch", FluidHatchBlock::new)
             .initialProperties(SharedProperties::copperMetal)
@@ -402,9 +445,29 @@ public class AllBlocks {
             .transform(pickaxeOnly())
             .setData(ProviderType.LANG, NonNullBiConsumer.noop())
             .addLayer(() -> RenderType::cutoutMipped)
-            .blockstate((ctx, prov) -> prov.horizontalBlock(ctx.get(),
-                state -> prov.models().getExistingFile(prov.modLoc(
-                    "block/fluid_hatch/block_" + (state.getValue(FluidHatchBlock.OPEN) ? "open" : "closed")))))
+            .blockstate((ctx, prov) -> prov.getVariantBuilder(ctx.getEntry()).forAllStates(state -> {
+                Direction facing = state.getValue(FluidHatchBlock.FACING);
+                AttachFace target = state.getValue(FluidHatchBlock.TARGET);
+                int rotationX = switch (target) {
+                    case FLOOR -> 90;
+                    case CEILING -> 270;
+                    case WALL -> 0;
+                };
+                int rotationY = switch (facing) {
+                    case EAST -> 90;
+                    case SOUTH -> 180;
+                    case WEST -> 270;
+                    default -> 0;
+                };
+                if (target == AttachFace.CEILING)
+                    rotationY = (rotationY + 180) % 360;
+                return ConfiguredModel.builder()
+                    .modelFile(prov.models().getExistingFile(prov.modLoc(
+                        "block/fluid_hatch/block_" + (state.getValue(FluidHatchBlock.OPEN) ? "open" : "closed"))))
+                    .rotationX(rotationX)
+                    .rotationY(rotationY)
+                    .build();
+            }))
             .item()
             .model((ctx, prov) -> prov.withExistingParent(ctx.getName(), prov.modLoc("block/fluid_hatch/block_closed")))
             .build()

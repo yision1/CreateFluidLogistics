@@ -1,0 +1,37 @@
+{
+  "type": "create:mechanical_crafting",
+  "acceptMirrored": true,
+  "conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:hand_pointer"
+    }
+  ],
+  "key": {
+    "B": {
+      "item": "create:brass_hand"
+    },
+    "E": {
+      "item": "create:electron_tube"
+    },
+    "G": {
+      "item": "create:brass_ingot"
+    },
+    "O": {
+      "tag": "forge:obsidian"
+    },
+    "P": {
+      "item": "create:precision_mechanism"
+    }
+  },
+  "pattern": [
+    " B ",
+    " E ",
+    " P ",
+    " G ",
+    " O "
+  ],
+  "result": {
+    "item": "fluidlogistics:hand_pointer"
+  }
+}

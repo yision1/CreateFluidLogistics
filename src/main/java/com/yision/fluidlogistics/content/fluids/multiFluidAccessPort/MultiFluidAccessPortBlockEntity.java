@@ -1,21 +1,14 @@
 package com.yision.fluidlogistics.content.fluids.multiFluidAccessPort;
 
-import static com.yision.fluidlogistics.content.fluids.multiFluidAccessPort.MultiFluidAccessPortBlock.ATTACHED;
-
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
-import com.simibubi.create.content.contraptions.actors.psi.PortableFluidInterfaceBlockEntity;
-import com.simibubi.create.content.fluids.tank.CreativeFluidTankBlockEntity;
-import com.simibubi.create.content.redstone.DirectedDirectionalBlock;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
@@ -23,8 +16,9 @@ import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.yision.fluidlogistics.api.packager.ResourcePackagers;
+import com.yision.fluidlogistics.content.fluids.AbstractFluidPortBlockEntity;
+import com.yision.fluidlogistics.content.fluids.AbstractFluidPortHandler;
 import com.yision.fluidlogistics.content.fluids.multiFluidTank.SharedCapacityFluidHandler;
-import com.yision.fluidlogistics.util.SidedCapabilityCache;
 
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.math.VecHelper;
@@ -35,7 +29,6 @@ import net.minecraft.core.Direction.Axis;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -48,32 +41,14 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
-public class MultiFluidAccessPortBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation {
+public class MultiFluidAccessPortBlockEntity extends AbstractFluidPortBlockEntity {
 
     private final Map<Direction, LazyOptional<IFluidHandler>> sideCapabilities;
-    private final SidedCapabilityCache<IFluidHandler> connectedCache =
-        new SidedCapabilityCache<>(ForgeCapabilities.FLUID_HANDLER);
     private Map<Direction, FilteringBehaviour> filters;
-    private boolean powered;
 
     public MultiFluidAccessPortBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         sideCapabilities = new EnumMap<>(Direction.class);
-    }
-
-    @Override
-    public void initialize() {
-        super.initialize();
-        updateConnectedStorage();
-    }
-
-    @Override
-    public void lazyTick() {
-        super.lazyTick();
-        if (level == null || level.isClientSide) {
-            return;
-        }
-        updateConnectedStorage();
     }
 
     @Override
@@ -92,7 +67,6 @@ public class MultiFluidAccessPortBlockEntity extends SmartBlockEntity implements
         super.invalidateCaps();
         sideCapabilities.values().forEach(LazyOptional::invalidate);
         sideCapabilities.clear();
-        connectedCache.clear();
     }
 
     private void addFilterBehaviour(List<BlockEntityBehaviour> behaviours, OutputSlot slot, Direction side) {
@@ -135,79 +109,10 @@ public class MultiFluidAccessPortBlockEntity extends SmartBlockEntity implements
         return sideCapabilities.computeIfAbsent(side, output -> LazyOptional.of(() -> new PortFluidHandler(this, output)));
     }
 
-    public void updateConnectedStorage() {
-        boolean previouslyPowered = powered;
-        Level level = getLevel();
-        if (level == null) {
-            return;
-        }
-
-        powered = level.hasNeighborSignal(worldPosition);
-        boolean attached = !powered && getConnectedFluidHandler() != null;
-        if (previouslyPowered != powered || getBlockState().getValue(ATTACHED) != attached) {
-            level.setBlockAndUpdate(worldPosition, getBlockState().setValue(ATTACHED, attached));
-            notifyUpdate();
-        }
-    }
-
-    private @Nullable IFluidHandler getCachedConnectedFluidHandler() {
-        if (level == null) {
-            return null;
-        }
-        Direction targetDirection = DirectedDirectionalBlock.getTargetDirection(getBlockState());
-        BlockPos targetPos = worldPosition.relative(targetDirection);
-        IFluidHandler handler = connectedCache.get(level, targetPos, targetDirection);
-        if (handler == null) {
-            handler = getBlockFluidHandler(targetPos, null);
-        }
-        return handler;
-    }
-
-    private @Nullable IFluidHandler getConnectedFluidHandler() {
-        if (level == null || powered) {
-            return null;
-        }
-
-        IFluidHandler handler = getCachedConnectedFluidHandler();
-        if (handler instanceof WrappedPortFluidHandler) {
-            return null;
-        }
-        return handler;
-    }
-
-    public boolean blocksFluidPackagerPlacement(Direction side) {
-        if (!isOutputSide(side) || level == null) {
-            return false;
-        }
-        Direction targetDirection = DirectedDirectionalBlock.getTargetDirection(getBlockState());
-        BlockPos targetPos = worldPosition.relative(targetDirection);
-        return level.getBlockEntity(targetPos) instanceof PortableFluidInterfaceBlockEntity;
-    }
-
-    boolean isConnectedTankCreative() {
-        if (level == null) {
-            return false;
-        }
-        Direction targetDirection = DirectedDirectionalBlock.getTargetDirection(getBlockState());
-        BlockPos targetPos = worldPosition.relative(targetDirection);
-        return level.getBlockEntity(targetPos) instanceof CreativeFluidTankBlockEntity;
-    }
-
-    private @Nullable IFluidHandler getConnectedFluidHandlerForDisplay() {
-        if (level == null) {
-            return null;
-        }
-
-        IFluidHandler handler = getCachedConnectedFluidHandler();
-        if (handler instanceof WrappedPortFluidHandler) {
-            return null;
-        }
-        return handler;
-    }
-
     @Nullable
+    @Override
     public IFluidHandler getFluidDisplayCapability(@Nullable Direction hitSide) {
-        IFluidHandler handler = getConnectedFluidHandlerForDisplay();
+        IFluidHandler handler = getConnectedFluidHandlerIgnoringPower();
         if (handler == null) {
             return null;
         }
@@ -219,7 +124,7 @@ public class MultiFluidAccessPortBlockEntity extends SmartBlockEntity implements
         List<Direction> filterSides;
         boolean respectFilters;
 
-        if (!powered && hitSide != null && isOutputSide(hitSide)) {
+        if (!isPowered() && hitSide != null && isOutputSide(hitSide)) {
             filterSides = List.of(hitSide);
             respectFilters = hasFilter(hitSide);
         } else {
@@ -271,7 +176,7 @@ public class MultiFluidAccessPortBlockEntity extends SmartBlockEntity implements
 
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-        if (powered) {
+        if (isPowered()) {
             return false;
         }
 
@@ -364,12 +269,13 @@ public class MultiFluidAccessPortBlockEntity extends SmartBlockEntity implements
         return false;
     }
 
-    private boolean isOutputSide(Direction side) {
+    @Override
+    protected boolean isOutputSide(@Nullable Direction side) {
         return side == getLeftOutputDirection() || side == getRightOutputDirection() || side == getBackOutputDirection();
     }
 
     Direction getBackOutputDirection() {
-        return DirectedDirectionalBlock.getTargetDirection(getBlockState()).getOpposite();
+        return getTargetDirection().getOpposite();
     }
 
     Direction getLeftOutputDirection() {
@@ -453,36 +359,6 @@ public class MultiFluidAccessPortBlockEntity extends SmartBlockEntity implements
             }
         }
         return FluidStack.EMPTY;
-    }
-
-    @Override
-    protected void read(CompoundTag tag, boolean clientPacket) {
-        super.read(tag, clientPacket);
-        powered = tag.getBoolean("Powered");
-    }
-
-    @Override
-    protected void write(CompoundTag tag, boolean clientPacket) {
-        super.write(tag, clientPacket);
-        tag.putBoolean("Powered", powered);
-    }
-
-    private @Nullable IFluidHandler getBlockFluidHandler(BlockPos pos, @Nullable Direction side) {
-        if (level == null) {
-            return null;
-        }
-
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity == null) {
-            return null;
-        }
-
-        IFluidHandler sidedHandler = blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, side).orElse(null);
-        if (sidedHandler != null || side == null) {
-            return sidedHandler;
-        }
-
-        return blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, null).orElse(null);
     }
 
     private static boolean sameFluid(FluidStack first, FluidStack second) {
@@ -582,37 +458,18 @@ public class MultiFluidAccessPortBlockEntity extends SmartBlockEntity implements
         }
     }
 
-    private interface WrappedPortFluidHandler {
-    }
-
-    private static class PortFluidHandler implements IFluidHandler, WrappedPortFluidHandler, SharedCapacityFluidHandler {
+    private static class PortFluidHandler extends AbstractFluidPortHandler {
         private final MultiFluidAccessPortBlockEntity blockEntity;
         private final Direction side;
-        private final ThreadLocal<Boolean> recursionGuard = ThreadLocal.withInitial(() -> false);
 
         private PortFluidHandler(MultiFluidAccessPortBlockEntity blockEntity, Direction side) {
             this.blockEntity = blockEntity;
             this.side = side;
         }
 
-        private <T> T preventRecursion(Supplier<T> value, T fallback) {
-            if (recursionGuard.get()) {
-                return fallback;
-            }
-            recursionGuard.set(true);
-            try {
-                return value.get();
-            } finally {
-                recursionGuard.set(false);
-            }
-        }
-
         @Override
-        public int getTanks() {
-            return preventRecursion(() -> {
-                IFluidHandler handler = blockEntity.getConnectedFluidHandler();
-                return handler == null ? 0 : handler.getTanks();
-            }, 0);
+        protected IFluidHandler getSourceHandler() {
+            return blockEntity.getConnectedFluidHandler();
         }
 
         @Override

@@ -1,0 +1,31 @@
+{
+  "conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:frost_cake"
+    }
+  ],
+  "type": "fluidlogistics:cooling_compacting",
+  "ingredients": [
+    {
+      "tag": "forge:eggs"
+    },
+    {
+      "item": "minecraft:sugar"
+    },
+    {
+      "item": "minecraft:snowball"
+    },
+    {
+      "amount": 250,
+      "fluid": "fluidlogistics:powder_snow",
+      "nbt": {}
+    }
+  ],
+  "results": [
+    {
+      "item": "fluidlogistics:frost_cake"
+    }
+  ],
+  "supercooled": false
+}

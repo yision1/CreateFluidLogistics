@@ -110,6 +110,12 @@ public class AllItems {
             .setData(ProviderType.LANG, NonNullBiConsumer.noop())
             .register();
 
+    public static final ItemEntry<Item> FROST_CAKE = REGISTRATE
+            .item("frost_cake", Item::new)
+            .model(AssetLookup.existingItemModel())
+            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
+            .register();
+
     public static ItemStack createFluidPackage() {
         int roll = ThreadLocalRandom.current().nextInt(100);
         Item fluidPackage = roll < 40 ? FLUID_PACKAGE.get()

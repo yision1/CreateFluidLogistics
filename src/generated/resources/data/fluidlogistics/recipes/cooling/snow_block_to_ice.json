@@ -1,0 +1,14 @@
+{
+  "type": "fluidlogistics:cooling_compacting",
+  "ingredients": [
+    {
+      "item": "minecraft:snow_block"
+    }
+  ],
+  "results": [
+    {
+      "item": "minecraft:ice"
+    }
+  ],
+  "supercooled": false
+}

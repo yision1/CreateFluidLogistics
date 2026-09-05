@@ -2,7 +2,6 @@ package com.yision.fluidlogistics.filter.attribute;
 
 import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttribute;
 import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttributeType;
-import com.yision.fluidlogistics.registry.AllFluidAttributeTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;

@@ -14,6 +14,7 @@ public enum FluidLogisticsGuiTextures implements ScreenElement, TextureSheetSegm
     FACTORY_GAUGE_RECIPE("factory_gauge", 32, 0, 192, 96, 256, 256),
     FACTORY_GAUGE_RESTOCK("factory_gauge", 32, 112, 192, 40, 256, 256),
     FACTORY_GAUGE_BOTTOM("factory_gauge", 32, 176, 200, 64, 256, 256),
+    FACTORY_GAUGE_SET_FILTER("requester", 16, 160, 184, 88, 256, 256),
     FLUID_THRESHOLD_RESTOCK("fluid_threshold_restock", 0, 0, 192, 28, 192, 32),
     FLUID_THRESHOLD_RECIPE("fluid_threshold_recipe", 0, 0, 192, 28, 192, 32),
 

@@ -12,9 +12,11 @@ import com.simibubi.create.content.logistics.box.PackageItem;
 import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.api.packager.PackageResources;
 import com.yision.fluidlogistics.content.fluids.faucet.FaucetBlockEntity;
+import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerBlock;
+import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerBlockEntity;
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.MechanicalFluidGunBlockEntity;
-import com.yision.fluidlogistics.content.fluids.fluidHatch.FluidHatchBlockEntity;
 import com.yision.fluidlogistics.content.fluids.horizontalMultiFluidTank.HorizontalMultiFluidTankBlockEntity;
+import com.yision.fluidlogistics.content.fluids.fluidInventoryAccessPort.FluidInventoryAccessPortBlockEntity;
 import com.yision.fluidlogistics.content.fluids.multiFluidAccessPort.MultiFluidAccessPortBlockEntity;
 import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankBlockEntity;
 import com.yision.fluidlogistics.config.Config;
@@ -57,8 +59,9 @@ public class FluidLogisticsJadePlugin implements IWailaPlugin {
         registration.registerFluidStorage(ContraptionMultiFluidTankProvider.INSTANCE, AbstractContraptionEntity.class);
         registration.registerBlockDataProvider(ConnectedFluidSourceProvider.INSTANCE, MechanicalFluidGunBlockEntity.class);
         registration.registerBlockDataProvider(ConnectedFluidSourceProvider.INSTANCE, FaucetBlockEntity.class);
-        registration.registerBlockDataProvider(ConnectedFluidSourceProvider.INSTANCE, FluidHatchBlockEntity.class);
         registration.registerBlockDataProvider(ConnectedFluidSourceProvider.INSTANCE, MultiFluidAccessPortBlockEntity.class);
+        registration.registerBlockDataProvider(ConnectedFluidSourceProvider.INSTANCE, FluidInventoryAccessPortBlockEntity.class);
+        registration.registerBlockDataProvider(BlazeCoolerIconProvider.INSTANCE, BlazeCoolerBlockEntity.class);
     }
 
     @Override
@@ -68,6 +71,7 @@ public class FluidLogisticsJadePlugin implements IWailaPlugin {
         registration.registerFluidStorageClient(MultiFluidTankProvider.INSTANCE);
         registration.registerFluidStorageClient(ContraptionMultiFluidTankProvider.INSTANCE);
         registration.registerFluidStorageClient(ConnectedFluidSourceProvider.INSTANCE);
+        registration.registerBlockComponent(BlazeCoolerIconProvider.INSTANCE, BlazeCoolerBlock.class);
         registration.usePickedResult(AllBlocks.FACTORY_GAUGE.get());
     }
 

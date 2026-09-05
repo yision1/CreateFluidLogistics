@@ -1,6 +1,5 @@
 package com.yision.fluidlogistics.content.fluids.horizontalMultiFluidTank;
 
-import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.yision.fluidlogistics.content.fluids.multiFluidTank.AbstractMultiFluidTankBlock;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
 

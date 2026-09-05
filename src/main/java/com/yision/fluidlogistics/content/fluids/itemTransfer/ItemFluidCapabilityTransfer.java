@@ -8,7 +8,7 @@
 package com.yision.fluidlogistics.content.fluids.itemTransfer;
 
 import com.simibubi.create.content.fluids.transfer.GenericItemFilling;
-import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
+import java.util.function.Predicate;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
@@ -17,7 +17,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 
 public class ItemFluidCapabilityTransfer {
-    public static TransferResult tryDrainItemToTank(ItemStack stack, IFluidHandler tankCapability, FilteringBehaviour filter) {
+    public static TransferResult tryDrainItemToTank(ItemStack stack, IFluidHandler tankCapability, Predicate<FluidStack> filter) {
         IFluidHandlerItem itemCapability = getItemFluidHandler(stack, false);
         if (itemCapability == null)
             return TransferResult.EMPTY;
@@ -47,7 +47,7 @@ public class ItemFluidCapabilityTransfer {
         return TransferResult.EMPTY;
     }
 
-    public static TransferResult tryFillItemFromTank(ItemStack stack, IFluidHandler tankCapability, FilteringBehaviour filter) {
+    public static TransferResult tryFillItemFromTank(ItemStack stack, IFluidHandler tankCapability, Predicate<FluidStack> filter) {
         IFluidHandlerItem itemCapability = getItemFluidHandler(stack, true);
         if (itemCapability == null)
             return TransferResult.EMPTY;

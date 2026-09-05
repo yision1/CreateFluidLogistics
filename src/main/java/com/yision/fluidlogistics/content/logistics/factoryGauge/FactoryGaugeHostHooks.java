@@ -17,7 +17,6 @@ import com.simibubi.create.foundation.utility.CreateLang;
 import com.yision.fluidlogistics.api.factorygauge.FactoryGaugeType;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;

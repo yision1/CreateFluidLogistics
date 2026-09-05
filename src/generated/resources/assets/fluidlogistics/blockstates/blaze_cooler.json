@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "fluidlogistics:block/blaze_cooler/block"
+    }
+  }
+}

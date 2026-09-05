@@ -3,11 +3,13 @@ package com.yision.fluidlogistics.mixin.client;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.content.logistics.BigItemStack;
 import com.simibubi.create.content.logistics.packager.InventorySummary;
 import com.simibubi.create.content.logistics.stockTicker.CraftableBigItemStack;
 import com.simibubi.create.content.logistics.stockTicker.StockKeeperRequestScreen;
 import com.simibubi.create.content.logistics.stockTicker.StockTickerBlockEntity;
+import com.simibubi.create.content.processing.burner.BlazeBurnerBlock.HeatLevel;
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.yision.fluidlogistics.api.packager.PackageResources;
 import com.yision.fluidlogistics.api.packager.PackageResourceCrafting;
@@ -15,15 +17,21 @@ import com.yision.fluidlogistics.api.packager.PackageResourceCraftingData;
 import com.yision.fluidlogistics.api.packager.PackageResourceDisplay;
 import com.yision.fluidlogistics.api.packager.client.StockKeeperAmountRenderer;
 import com.yision.fluidlogistics.content.logistics.packageResource.client.PackageResourceClientRegistry;
+import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerRenderer;
+import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import net.createmod.catnip.data.Couple;
 import net.createmod.catnip.data.Pair;
+import net.createmod.catnip.render.SuperByteBuffer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -74,6 +82,52 @@ public abstract class StockKeeperRequestScreenMixin {
 
     @Unique
     private StockKeeperAmountRenderer fluidlogistics$customAmountRenderer;
+
+    @WrapOperation(
+        method = "renderBg",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/createmod/catnip/render/CachedBuffers;partial(" +
+                     "Ldev/engine_room/flywheel/lib/model/baked/PartialModel;" +
+                     "Lnet/minecraft/world/level/block/state/BlockState;)" +
+                     "Lnet/createmod/catnip/render/SuperByteBuffer;",
+            remap = false
+        ),
+        remap = true
+    )
+    private SuperByteBuffer fluidlogistics$useCoolerCageInWarehouse(PartialModel model, BlockState state,
+            Operation<SuperByteBuffer> original) {
+        if (com.yision.fluidlogistics.registry.AllBlocks.BLAZE_COOLER.has(state))
+            model = com.yision.fluidlogistics.registry.AllPartialModels.BLAZE_COOLER_CAGE;
+        return original.call(model, state);
+    }
+
+    @WrapOperation(
+        method = "renderBg",
+        at = @At(
+            value = "INVOKE",
+            target = "Lcom/simibubi/create/content/processing/burner/BlazeBurnerRenderer;renderShared(" +
+                     "Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/PoseStack;" +
+                     "Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/level/Level;" +
+                     "Lnet/minecraft/world/level/block/state/BlockState;" +
+                     "Lcom/simibubi/create/content/processing/burner/BlazeBurnerBlock$HeatLevel;FFZZ" +
+                     "Ldev/engine_room/flywheel/lib/model/baked/PartialModel;I)V",
+            remap = false
+        ),
+        remap = true
+    )
+    private void fluidlogistics$renderCoolerInWarehouse(PoseStack poseStack, PoseStack modelTransform,
+            MultiBufferSource bufferSource, Level level, BlockState state, HeatLevel heatLevel, float animation,
+            float horizontalAngle, boolean canDrawFlame, boolean drawGoggles, PartialModel drawHat, int hashCode,
+            Operation<Void> original) {
+        if (com.yision.fluidlogistics.registry.AllBlocks.BLAZE_COOLER.has(state)) {
+            BlazeCoolerRenderer.renderShared(poseStack, bufferSource, level, state, heatLevel, animation,
+                horizontalAngle, canDrawFlame, drawGoggles, drawHat, hashCode);
+            return;
+        }
+        original.call(poseStack, modelTransform, bufferSource, level, state, heatLevel, animation, horizontalAngle,
+            canDrawFlame, drawGoggles, drawHat, hashCode);
+    }
 
     @Inject(
         method = "renderItemEntry",

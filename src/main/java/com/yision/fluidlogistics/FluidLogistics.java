@@ -18,6 +18,9 @@ import com.yision.fluidlogistics.content.logistics.factoryGauge.FactoryGaugeBeha
 import com.yision.fluidlogistics.content.logistics.factoryGauge.FactoryGaugeLootModifier;
 import com.yision.fluidlogistics.content.logistics.factoryGauge.builtin.FluidContainerProbe;
 import com.yision.fluidlogistics.config.Config;
+import com.yision.fluidlogistics.infrastructure.data.FluidLogisticsDatagen;
+import com.yision.fluidlogistics.content.fluids.powderSnow.PowderSnowBucketFluidHandler;
+import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerFuelManager;
 import com.yision.fluidlogistics.api.handpointer.PackagerAddresses;
 import com.yision.fluidlogistics.api.handpointer.crafter.HandPointerCrafterAdapters;
 import com.yision.fluidlogistics.api.packager.PackageResources;
@@ -39,6 +42,9 @@ import com.yision.fluidlogistics.registry.AllMenuTypes;
 import com.yision.fluidlogistics.registry.AllFluidAttributeTypes;
 import com.yision.fluidlogistics.registry.AllMountedStorageTypes;
 import com.yision.fluidlogistics.registry.AllFluidLogisticsParticleTypes;
+import com.yision.fluidlogistics.registry.AllFluidLogisticsFluids;
+import com.yision.fluidlogistics.registry.AllFluidLogisticsFanProcessingTypes;
+import com.yision.fluidlogistics.registry.AllFluidLogisticsRecipeTypes;
 import com.yision.fluidlogistics.registry.FluidLogisticsArmInteractionPointTypes;
 import net.createmod.catnip.lang.FontHelper;
 import net.minecraft.core.registries.Registries;
@@ -57,12 +63,19 @@ import net.minecraftforge.common.loot.IGlobalLootModifier;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.registries.RegisterEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -80,6 +93,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
+import org.jetbrains.annotations.Nullable;
+import net.minecraft.core.Direction;
 
 @Mod(FluidLogistics.MODID)
 public class FluidLogistics
@@ -120,6 +135,7 @@ public class FluidLogistics
         CREATIVE_TABS.register(modEventBus);
         LOOT_MODIFIERS.register(modEventBus);
         REGISTRATE.registerEventListeners(modEventBus);
+        modEventBus.addListener(FluidLogisticsDatagen::gatherData);
 
         AllBlocks.register();
         PackagerAddresses.register(com.simibubi.create.AllBlocks.PACKAGER);
@@ -134,11 +150,12 @@ public class FluidLogistics
             PackageResourceTypes.FLUID,
             AllItems.FLUID_FACTORY_GAUGE,
             FluidContainerProbe.INSTANCE));
-        // Forge 1.20.1 can start its initial model reload before FMLClientSetupEvent completes.
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> FluidLogisticsClient::registerFactoryGaugeModels);
         AllMenuTypes.register();
         AllMountedStorageTypes.register();
         AllFluidLogisticsParticleTypes.register(modEventBus);
+        AllFluidLogisticsFluids.register();
+        AllFluidLogisticsRecipeTypes.register(modEventBus);
         FluidLogisticsArmInteractionPointTypes.ARM_INTERACTION_POINT_TYPES.register(modEventBus);
         FluidLogisticsPackets.register();
 
@@ -154,6 +171,7 @@ public class FluidLogistics
         modEventBus.addListener(this::hideDisabledItems);
 
         MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.addListener(this::addReloadListeners);
         MinecraftForge.EVENT_BUS.addGenericListener(FactoryPanelBlockEntity.class,
             FactoryGaugeBehaviourAttachment::onAttachBehaviours);
         
@@ -174,12 +192,33 @@ public class FluidLogistics
     }
 
     private void onRegister(final RegisterEvent event) {
+        AllFluidLogisticsFanProcessingTypes.register();
         AllFluidAttributeTypes.init();
     }
 
     private void registerCapabilities(final RegisterCapabilitiesEvent event)
     {
         FluidPackagerBlockEntity.registerCapabilities(event);
+    }
+
+    private void addReloadListeners(final AddReloadListenerEvent event) {
+        event.addListener(BlazeCoolerFuelManager.INSTANCE);
+    }
+
+    @SubscribeEvent
+    public void attachItemCapabilities(AttachCapabilitiesEvent<ItemStack> event) {
+        if (!event.getObject().is(net.minecraft.world.item.Items.POWDER_SNOW_BUCKET))
+            return;
+
+        PowderSnowBucketFluidHandler handler = new PowderSnowBucketFluidHandler(event.getObject());
+        LazyOptional<IFluidHandlerItem> optional = LazyOptional.of(() -> handler);
+        event.addCapability(asResource("powder_snow_bucket_fluid"), new ICapabilityProvider() {
+            @Override
+            public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction side) {
+                return capability == ForgeCapabilities.FLUID_HANDLER_ITEM ? optional.cast() : LazyOptional.empty();
+            }
+        });
+        event.addListener(optional::invalidate);
     }
 
     public static ResourceLocation asResource(String path) {
@@ -234,6 +273,7 @@ public class FluidLogistics
             new FeatureItem(FeatureToggle.MULTI_FLUID_TANK, AllBlocks.MULTI_FLUID_TANK),
             new FeatureItem(FeatureToggle.HORIZONTAL_MULTI_FLUID_TANK, AllBlocks.HORIZONTAL_MULTI_FLUID_TANK),
             new FeatureItem(FeatureToggle.MULTI_FLUID_ACCESS_PORT, AllBlocks.MULTI_FLUID_ACCESS_PORT),
+            new FeatureItem(FeatureToggle.FLUID_INVENTORY_ACCESS_PORT, AllBlocks.FLUID_INVENTORY_ACCESS_PORT),
             new FeatureItem(FeatureToggle.SMART_HOPPER, AllBlocks.SMART_HOPPER),
             new FeatureItem(FeatureToggle.FLUID_PUMP, AllBlocks.FLUID_PUMP),
             new FeatureItem(FeatureToggle.INFINITE_FLUID_TANK, AllBlocks.INFINITE_FLUID_TANK),
@@ -244,11 +284,20 @@ public class FluidLogistics
             new FeatureItem(FeatureToggle.COPPER_FROGPORT, AllBlocks.COPPER_FROGPORT),
             new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllBlocks.FLUID_PACKAGER),
             new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllItems.FLUID_PACKAGE),
+            new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllItems.FLUID_PACKAGE_EXPOSED),
+            new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllItems.FLUID_PACKAGE_WEATHERED),
+            new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllItems.FLUID_PACKAGE_OXIDIZED),
             new FeatureItem(FeatureToggle.FLUID_REPACKAGER, AllBlocks.FLUID_REPACKAGER),
             new FeatureItem(FeatureToggle.COPPER_BUCKET, AllItems.COPPER_BUCKET),
             new FeatureItem(FeatureToggle.PHANTOM_CHAIN, AllItems.PHANTOM_CHAIN),
             new FeatureItem(FeatureToggle.FLUID_HATCH, AllBlocks.FLUID_HATCH),
             new FeatureItem(FeatureToggle.FLUID_FACTORY_GAUGE, AllItems.FLUID_FACTORY_GAUGE),
+            new FeatureItem(FeatureToggle.BLAZE_COOLER, AllBlocks.BLAZE_COOLER),
+            new FeatureItem(FeatureToggle.COPPER_SCHEMATICANNON, AllBlocks.COPPER_SCHEMATICANNON),
+            new FeatureItem(FeatureToggle.INDUSTRIAL_COPPER_BLOCK, AllBlocks.INDUSTRIAL_COPPER_BLOCK),
+            new FeatureItem(FeatureToggle.FLUID_SCHEMATIC, AllItems.EMPTY_FLUID_SCHEMATIC),
+            new FeatureItem(FeatureToggle.FROST_CAKE, AllItems.FROST_CAKE),
+            new FeatureItem(FeatureToggle.FLUID_SCHEMATIC, AllItems.FLUID_SCHEMATIC),
     };
 
     @SubscribeEvent

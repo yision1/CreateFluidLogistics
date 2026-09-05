@@ -12,6 +12,7 @@ import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.content.fluids.tank.CreativeFluidTankBlockEntity;
 import com.simibubi.create.content.fluids.tank.FluidTankBlockEntity;
+import com.simibubi.create.content.redstone.DirectedDirectionalBlock;
 import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.block.ProperWaterloggedBlock;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
@@ -23,6 +24,7 @@ import com.yision.fluidlogistics.registry.AllBlockEntities;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.createmod.catnip.math.VoxelShaper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -37,11 +39,11 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.pathfinder.PathComputationType;
@@ -54,9 +56,24 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
 @SuppressWarnings("deprecation")
-public class FluidHatchBlock extends HorizontalDirectionalBlock
+public class FluidHatchBlock extends DirectedDirectionalBlock
         implements IBE<FluidHatchBlockEntity>, IWrenchable, ProperWaterloggedBlock {
     private static final int OPEN_TICKS = 10;
+    private static final VoxelShaper WALL_SHAPE = new AllShapes.Builder(Block.box(1, 0, 0, 15, 16, 2))
+            .add(2, 2, 0, 14, 13, 3.8)
+            .add(2, 4, 0, 14, 11, 5.8)
+            .add(2, 6, 0, 14, 9, 7.8)
+            .forHorizontal(Direction.NORTH);
+    private static final VoxelShaper FLOOR_SHAPE = new AllShapes.Builder(Block.box(1, 0, 0, 15, 2, 16))
+            .add(2, 0, 3, 14, 3.8, 14)
+            .add(2, 0, 5, 14, 5.8, 12)
+            .add(2, 0, 7, 14, 7.8, 10)
+            .forHorizontal(Direction.NORTH);
+    private static final VoxelShaper CEILING_SHAPE = new AllShapes.Builder(Block.box(1, 14, 0, 15, 16, 16))
+            .add(2, 12.2, 2, 14, 16, 13)
+            .add(2, 10.2, 4, 14, 16, 11)
+            .add(2, 8.2, 6, 14, 16, 9)
+            .forHorizontal(Direction.SOUTH);
 
     public static final BooleanProperty OPEN = BooleanProperty.create("open");
 
@@ -64,22 +81,27 @@ public class FluidHatchBlock extends HorizontalDirectionalBlock
         super(properties);
         registerDefaultState(defaultBlockState()
                 .setValue(FACING, Direction.NORTH)
+                .setValue(TARGET, AttachFace.WALL)
                 .setValue(OPEN, false)
                 .setValue(WATERLOGGED, false));
     }
 
     @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
-        super.createBlockStateDefinition(builder.add(FACING, OPEN, WATERLOGGED));
+        super.createBlockStateDefinition(builder.add(OPEN, WATERLOGGED));
     }
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        if (context.getClickedFace().getAxis().isVertical())
-            return null;
-
+        Direction clickedFace = context.getClickedFace();
+        AttachFace target = clickedFace == Direction.UP ? AttachFace.FLOOR
+                : clickedFace == Direction.DOWN ? AttachFace.CEILING : AttachFace.WALL;
+        Direction facing = clickedFace.getAxis().isVertical()
+                ? context.getHorizontalDirection()
+                : clickedFace.getOpposite();
         return withWater(defaultBlockState()
-                .setValue(FACING, context.getClickedFace().getOpposite())
+                .setValue(FACING, facing)
+                .setValue(TARGET, target)
                 .setValue(OPEN, false), context);
     }
 
@@ -160,7 +182,7 @@ public class FluidHatchBlock extends HorizontalDirectionalBlock
 
         ItemStack stack = player.getItemInHand(hand);
 
-        BlockEntity blockEntity = level.getBlockEntity(pos.relative(state.getValue(FACING)));
+        BlockEntity blockEntity = level.getBlockEntity(pos.relative(getTargetDirection(state)));
         if (blockEntity == null)
             return InteractionResult.FAIL;
 
@@ -222,7 +244,12 @@ public class FluidHatchBlock extends HorizontalDirectionalBlock
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return AllShapes.ITEM_HATCH.get(state.getValue(FACING).getOpposite());
+        VoxelShaper shape = switch (state.getValue(TARGET)) {
+            case FLOOR -> FLOOR_SHAPE;
+            case CEILING -> CEILING_SHAPE;
+            case WALL -> WALL_SHAPE;
+        };
+        return shape.get(state.getValue(FACING));
     }
 
     @Override

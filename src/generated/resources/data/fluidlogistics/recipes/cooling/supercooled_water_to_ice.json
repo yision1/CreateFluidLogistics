@@ -1,0 +1,16 @@
+{
+  "type": "fluidlogistics:cooling_mixing",
+  "ingredients": [
+    {
+      "amount": 500,
+      "fluid": "minecraft:water",
+      "nbt": {}
+    }
+  ],
+  "results": [
+    {
+      "item": "minecraft:ice"
+    }
+  ],
+  "supercooled": true
+}

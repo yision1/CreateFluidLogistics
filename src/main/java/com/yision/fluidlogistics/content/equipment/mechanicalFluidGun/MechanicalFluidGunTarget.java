@@ -4,7 +4,6 @@ import com.yision.fluidlogistics.content.fluids.fluidHatch.FluidHatchBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -75,12 +74,12 @@ public class MechanicalFluidGunTarget {
 
 	public static Vec3 getTargetCenter(Level level, BlockPos targetPos) {
 		BlockState state = level.getBlockState(targetPos);
-		if (state.getBlock() instanceof FluidHatchBlock && state.hasProperty(DirectionalBlock.FACING)) {
+		if (state.getBlock() instanceof FluidHatchBlock) {
 			VoxelShape shape = state.getShape(level, targetPos);
 			if (!shape.isEmpty()) {
 				AABB bounds = shape.bounds();
 				Vec3 center = bounds.getCenter();
-				Direction exposedSide = state.getValue(DirectionalBlock.FACING).getOpposite();
+				Direction exposedSide = FluidHatchBlock.getTargetDirection(state).getOpposite();
 				Vec3 surfaceCenter = switch (exposedSide) {
 					case DOWN -> new Vec3(center.x, bounds.minY, center.z);
 					case UP -> new Vec3(center.x, bounds.maxY, center.z);

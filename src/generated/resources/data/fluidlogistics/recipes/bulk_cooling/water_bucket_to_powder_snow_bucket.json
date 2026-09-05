@@ -1,0 +1,13 @@
+{
+  "type": "fluidlogistics:bulk_cooling",
+  "ingredients": [
+    {
+      "item": "minecraft:water_bucket"
+    }
+  ],
+  "results": [
+    {
+      "item": "minecraft:powder_snow_bucket"
+    }
+  ]
+}

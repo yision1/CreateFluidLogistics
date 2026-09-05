@@ -1,0 +1,14 @@
+{
+  "type": "fluidlogistics:cooling_compacting",
+  "ingredients": [
+    {
+      "item": "minecraft:packed_ice"
+    }
+  ],
+  "results": [
+    {
+      "item": "minecraft:blue_ice"
+    }
+  ],
+  "supercooled": false
+}

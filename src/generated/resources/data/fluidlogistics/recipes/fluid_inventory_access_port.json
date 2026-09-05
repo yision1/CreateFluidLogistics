@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:fluid_inventory_access_port"
+    }
+  ],
+  "key": {
+    "C": {
+      "item": "create:copper_casing"
+    },
+    "E": {
+      "item": "create:electron_tube"
+    },
+    "H": {
+      "item": "fluidlogistics:fluid_hatch"
+    }
+  },
+  "pattern": [
+    " C ",
+    " H ",
+    " E "
+  ],
+  "result": {
+    "count": 1,
+    "item": "fluidlogistics:fluid_inventory_access_port"
+  }
+}

@@ -3,6 +3,7 @@ package com.yision.fluidlogistics.registry;
 import com.simibubi.create.api.registry.CreateRegistries;
 import com.simibubi.create.content.kinetics.mechanicalArm.ArmInteractionPoint;
 import com.simibubi.create.content.kinetics.mechanicalArm.ArmInteractionPointType;
+import com.simibubi.create.content.kinetics.mechanicalArm.AllArmInteractionPointTypes;
 import com.yision.fluidlogistics.FluidLogistics;
 
 import net.minecraft.core.BlockPos;
@@ -22,6 +23,9 @@ public class FluidLogisticsArmInteractionPointTypes {
 
     public static final RegistryObject<ArmInteractionPointType> SMART_HOPPER =
         ARM_INTERACTION_POINT_TYPES.register("smart_hopper", SmartHopperType::new);
+
+    public static final RegistryObject<ArmInteractionPointType> BLAZE_COOLER =
+        ARM_INTERACTION_POINT_TYPES.register("blaze_cooler", BlazeCoolerType::new);
 
     private static class FluidPackagerType extends ArmInteractionPointType {
         @Override
@@ -44,6 +48,18 @@ public class FluidLogisticsArmInteractionPointTypes {
         @Override
         public @Nullable ArmInteractionPoint createPoint(Level level, BlockPos pos, BlockState state) {
             return new ArmInteractionPoint(this, level, pos, state);
+        }
+    }
+
+    private static class BlazeCoolerType extends ArmInteractionPointType {
+        @Override
+        public boolean canCreatePoint(Level level, BlockPos pos, BlockState state) {
+            return AllBlocks.BLAZE_COOLER.has(state);
+        }
+
+        @Override
+        public @Nullable ArmInteractionPoint createPoint(Level level, BlockPos pos, BlockState state) {
+            return new AllArmInteractionPointTypes.BlazeBurnerPoint(this, level, pos, state);
         }
     }
 }

@@ -1,0 +1,33 @@
+{
+  "conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:copper_schematicannon"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "D": {
+      "item": "minecraft:dispenser"
+    },
+    "I": {
+      "item": "minecraft:copper_block"
+    },
+    "L": {
+      "item": "create:copper_casing"
+    },
+    "S": {
+      "item": "minecraft:smooth_stone"
+    }
+  },
+  "pattern": [
+    " I ",
+    "LIL",
+    "SDS"
+  ],
+  "result": {
+    "count": 1,
+    "item": "fluidlogistics:copper_schematicannon"
+  }
+}

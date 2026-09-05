@@ -50,6 +50,10 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
 			.addStoryBoard(MultiFluidAccessPortScenes.MULTI_FLUID_ACCESS_PORT,
 				MultiFluidAccessPortScenes::multiFluidAccessPort);
 
+		registration.forComponents(AllBlocks.FLUID_INVENTORY_ACCESS_PORT)
+			.addStoryBoard(FluidInventoryAccessPortScenes.FLUID_INVENTORY_ACCESS_PORT,
+				FluidInventoryAccessPortScenes::fluidInventoryAccessPort);
+
 		registration.forComponents(AllBlocks.MULTI_FLUID_TANK, AllBlocks.HORIZONTAL_MULTI_FLUID_TANK)
 			.addStoryBoard(MultiFluidTankScenes.STORAGE, MultiFluidTankScenes::storage, FLUIDS)
 			.addStoryBoard(MultiFluidTankScenes.SIZES, MultiFluidTankScenes::sizes);
@@ -65,9 +69,13 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
 			.addStoryBoard(FluidPumpScenes.PUMP_FLOW, FluidPumpScenes::flow, FLUIDS, KINETIC_APPLIANCES)
 			.addStoryBoard(FluidPumpScenes.PUMP_SPEED, FluidPumpScenes::speed);
 
-		registration.forComponents(AllBlocks.MECHANICAL_FLUID_GUN)
-			.addStoryBoard(MechanicalFluidGunScenes.MECHANICAL_FLUID_GUN_SETUP,
-				MechanicalFluidGunScenes::setup, FLUIDS, KINETIC_APPLIANCES);
+        registration.forComponents(AllBlocks.MECHANICAL_FLUID_GUN)
+                .addStoryBoard(MechanicalFluidGunScenes.MECHANICAL_FLUID_GUN_SETUP,
+                        MechanicalFluidGunScenes::setup, FLUIDS, KINETIC_APPLIANCES);
+
+        registration.forComponents(AllBlocks.BLAZE_COOLER)
+                .addStoryBoard(BlazeCoolerScenes.CONVERSION, BlazeCoolerScenes::blazeCooler)
+                .addStoryBoard(BlazeCoolerScenes.FUELING, BlazeCoolerScenes::fueling);
 	}
 
 	@Override
@@ -85,6 +93,7 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
 			.add(AllBlocks.SMART_FAUCET)
 			.add(AllBlocks.FAUCET)
 			.add(AllBlocks.MULTI_FLUID_ACCESS_PORT)
+			.add(AllBlocks.FLUID_INVENTORY_ACCESS_PORT)
 			.add(AllBlocks.MULTI_FLUID_TANK)
 			.add(AllBlocks.HORIZONTAL_MULTI_FLUID_TANK)
 			.add(AllBlocks.SMART_HOPPER)
@@ -96,7 +105,8 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
 			.add(AllBlocks.FLUID_PUMP)
 			.add(AllBlocks.MECHANICAL_FLUID_GUN);
 
-		registration.addToTag(ARM_TARGETS)
-			.add(AllBlocks.SMART_HOPPER);
+        registration.addToTag(ARM_TARGETS)
+                .add(AllBlocks.SMART_HOPPER)
+                .add(AllBlocks.BLAZE_COOLER);
 	}
 }

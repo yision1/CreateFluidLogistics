@@ -4,6 +4,7 @@ import com.simibubi.create.content.fluids.transfer.GenericItemEmptying;
 import com.simibubi.create.content.fluids.transfer.GenericItemFilling;
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
 import com.yision.fluidlogistics.content.fluids.itemTransfer.ItemFluidCapabilityTransfer.TransferResult;
+import java.util.function.Predicate;
 import net.createmod.catnip.data.Pair;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -19,6 +20,11 @@ public final class HatchStyleItemTransfer {
 
     public static FluidStack tryEmptyItem(Level level, Player player, InteractionHand hand, ItemStack stack,
             IFluidHandler tank, FilteringBehaviour filter, boolean tankIsCreative, Runnable onChanged) {
+        return tryEmptyItem(level, player, hand, stack, tank, filter::test, tankIsCreative, onChanged);
+    }
+
+    public static FluidStack tryEmptyItem(Level level, Player player, InteractionHand hand, ItemStack stack,
+            IFluidHandler tank, Predicate<FluidStack> filter, boolean tankIsCreative, Runnable onChanged) {
         ItemStack transferredStack = stack.copy();
         TransferResult transfer = ItemFluidCapabilityTransfer.tryDrainItemToTank(transferredStack, tank, filter);
         if (!transfer.isEmpty()) {
@@ -59,6 +65,11 @@ public final class HatchStyleItemTransfer {
 
     public static FluidStack tryFillItem(Level level, Player player, InteractionHand hand, ItemStack stack,
             IFluidHandler tank, FilteringBehaviour filter, boolean tankIsCreative, Runnable onChanged) {
+        return tryFillItem(level, player, hand, stack, tank, filter::test, tankIsCreative, onChanged);
+    }
+
+    public static FluidStack tryFillItem(Level level, Player player, InteractionHand hand, ItemStack stack,
+            IFluidHandler tank, Predicate<FluidStack> filter, boolean tankIsCreative, Runnable onChanged) {
         FluidStack fluidStack = tryFillItemWithExtraHandler(level, player, hand, stack, tank, filter, tankIsCreative, onChanged);
         if (!fluidStack.isEmpty())
             return fluidStack;
@@ -117,7 +128,7 @@ public final class HatchStyleItemTransfer {
     }
 
     private static FluidStack tryFillItemWithFillingRecipe(Level level, Player player, InteractionHand hand,
-            ItemStack stack, IFluidHandler tank, FilteringBehaviour filter, boolean tankIsCreative, Runnable onChanged) {
+            ItemStack stack, IFluidHandler tank, Predicate<FluidStack> filter, boolean tankIsCreative, Runnable onChanged) {
         for (int i = 0; i < tank.getTanks(); i++) {
             FluidStack fluidStack = tank.getFluidInTank(i);
             if (fluidStack.isEmpty() || !filter.test(fluidStack))
@@ -158,7 +169,7 @@ public final class HatchStyleItemTransfer {
     }
 
     private static FluidStack tryFillItemWithExtraHandler(Level level, Player player, InteractionHand hand,
-            ItemStack stack, IFluidHandler tank, FilteringBehaviour filter, boolean tankIsCreative, Runnable onChanged) {
+            ItemStack stack, IFluidHandler tank, Predicate<FluidStack> filter, boolean tankIsCreative, Runnable onChanged) {
         for (int i = 0; i < tank.getTanks(); i++) {
             FluidStack fluidStack = tank.getFluidInTank(i);
             if (fluidStack.isEmpty() || !filter.test(fluidStack))

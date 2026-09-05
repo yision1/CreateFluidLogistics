@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.WeakHashMap;
 
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -20,13 +19,11 @@ import com.simibubi.create.Create;
 import com.simibubi.create.content.logistics.BigItemStack;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBehaviour;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelConnection;
-import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelPosition;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelSupportBehaviour;
 import com.simibubi.create.content.logistics.packager.IdentifiedInventory;
 import com.simibubi.create.content.logistics.packager.InventorySummary;
 import com.simibubi.create.content.logistics.packager.PackagerBlockEntity;
 import com.simibubi.create.content.logistics.packager.PackagingRequest;
-import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBehaviour;
 import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBehaviour.RequestType;
 import com.simibubi.create.content.logistics.packagerLink.LogisticsManager;
 import com.simibubi.create.content.logistics.packagerLink.RequestPromise;
@@ -53,7 +50,6 @@ public final class ResourceFactoryGaugeEnvironment {
     public static final ResourceFactoryGaugeEnvironment INSTANCE = new ResourceFactoryGaugeEnvironment();
 
     private static final ItemStackHandler EMPTY_RESOURCE_HANDLER = new ItemStackHandler(0);
-    private static final Map<UUID, ResourceLinkAvailability> RESOURCE_LINK_AVAILABILITY = new WeakHashMap<>();
 
     private ResourceFactoryGaugeEnvironment() {
     }
@@ -76,40 +72,12 @@ public final class ResourceFactoryGaugeEnvironment {
     }
 
     public int unloadedLinks(ResourceFactoryPanelBehaviour behaviour) {
-        if (!behaviour.panelBE().restocker) {
-            int unavailable = com.simibubi.create.Create.LOGISTICS
-                .getUnloadedLinkCount(behaviour.network);
-            return unavailable + unavailableResourceLinks(behaviour);
-        }
+        if (!behaviour.panelBE().restocker)
+            return Create.LOGISTICS.getUnloadedLinkCount(behaviour.network);
 
         PackagerBlockEntity owner = behaviour.panelBE()
             .getRestockedPackager();
-        if (owner == null)
-            return 1;
-        ResourcePackager packager = ResourcePackagers.ownerOf(owner)
-            .orElse(null);
-        return packager != null && ResourcePackagers.storageIdentity(packager) == null ? 1 : 0;
-    }
-
-    private int unavailableResourceLinks(ResourceFactoryPanelBehaviour behaviour) {
-        long gameTime = behaviour.getWorld()
-            .getGameTime();
-        ResourceLinkAvailability cached = RESOURCE_LINK_AVAILABILITY.get(behaviour.network);
-        if (cached != null && cached.gameTime() == gameTime)
-            return cached.unavailableLinks();
-
-        int unavailable = 0;
-        for (LogisticallyLinkedBehaviour link : LogisticallyLinkedBehaviour.getAllPresent(behaviour.network,
-            false)) {
-            ResourcePackager packager = ResourcePackagers.fromLink(link)
-                .orElse(null);
-            if (packager != null && ResourcePackagers.storageIdentity(packager) == null)
-                unavailable++;
-        }
-
-        RESOURCE_LINK_AVAILABILITY.put(behaviour.network,
-            new ResourceLinkAvailability(gameTime, unavailable));
-        return unavailable;
+        return owner == null ? 1 : 0;
     }
 
     public ResourceGaugeSnapshot captureMonitor(ResourceFactoryPanelBehaviour behaviour,
@@ -306,8 +274,4 @@ public final class ResourceFactoryGaugeEnvironment {
         PackageResourceType type = resourceTypeOf(behaviour);
         return type == null ? ItemStack.EMPTY : type.normalizeKey(filter.copy());
     }
-
-    private record ResourceLinkAvailability(long gameTime, int unavailableLinks) {
-    }
 }
-

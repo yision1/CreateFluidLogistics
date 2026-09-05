@@ -1,0 +1,21 @@
+{
+  "parent": "block/block",
+  "loader": "forge:obj",
+  "flip_v": true,
+  "model": "create:models/block/blaze_burner/item.obj",
+  "textures": {
+    "0": "fluidlogistics:block/blaze_cooler/blaze_cooler_brazier",
+    "1": "fluidlogistics:block/blaze_cooler/blaze_cooler_idle",
+    "particle": "fluidlogistics:block/blaze_cooler/blaze_cooler_brazier"
+  },
+  "display": {
+    "gui": {
+      "rotation": [30, 315, 0],
+      "scale": [0.7, 0.7, 0.7]
+    },
+    "fixed": {
+      "rotation": [0, 180, 0],
+      "scale": [0.5, 0.5, 0.5]
+    }
+  }
+}

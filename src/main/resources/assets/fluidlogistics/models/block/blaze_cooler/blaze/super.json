@@ -1,0 +1,7 @@
+{
+  "parent": "create:block/blaze_burner/blaze/super",
+  "textures": {
+    "1": "fluidlogistics:block/blaze_cooler/blaze_cooler_super",
+    "particle": "fluidlogistics:block/blaze_cooler/blaze_cooler_super"
+  }
+}

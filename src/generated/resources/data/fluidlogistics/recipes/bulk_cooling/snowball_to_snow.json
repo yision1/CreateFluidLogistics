@@ -1,0 +1,13 @@
+{
+  "type": "fluidlogistics:inactive_bulk_cooling",
+  "ingredients": [
+    {
+      "item": "minecraft:snowball"
+    }
+  ],
+  "results": [
+    {
+      "item": "minecraft:snow"
+    }
+  ]
+}
