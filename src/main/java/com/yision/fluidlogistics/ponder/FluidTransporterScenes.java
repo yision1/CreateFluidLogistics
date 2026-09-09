@@ -25,7 +25,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
 
 public class FluidTransporterScenes {
 
-    public static final String FLUID_TRANSPORTER = "fluid_transporter";
+    public static final String FLUID_TRANSPORTER = "fluid_transporter/fluid_transporter";
 
     public static void fluidTransporter(SceneBuilder builder, SceneBuildingUtil util) {
         CreateSceneBuilder scene = new CreateSceneBuilder(builder);

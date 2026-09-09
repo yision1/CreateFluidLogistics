@@ -25,7 +25,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 
 public final class CopperFrogportScenes {
 
-    public static final String PLACEMENT = "copper_frogport_placement";
+    public static final String PLACEMENT = "copper_frogport/copper_frogport_placement";
 
     private CopperFrogportScenes() {
     }

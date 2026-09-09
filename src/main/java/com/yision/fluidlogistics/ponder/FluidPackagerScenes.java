@@ -21,8 +21,8 @@ import net.neoforged.neoforge.fluids.FluidStack;
 
 public class FluidPackagerScenes {
 
-    public static final String FLUID_PACKAGER = "fluid_packager";
-    public static final String FLUID_PACKAGER_ADDRESS = "fluid_packager_address";
+    public static final String FLUID_PACKAGER = "fluid_packager/fluid_packager";
+    public static final String FLUID_PACKAGER_ADDRESS = "fluid_packager/fluid_packager_address";
 
     public static void fluidPackager(SceneBuilder builder, SceneBuildingUtil util) {
         CreateSceneBuilder scene = new CreateSceneBuilder(builder);

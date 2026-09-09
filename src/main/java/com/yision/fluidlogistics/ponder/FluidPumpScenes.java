@@ -29,8 +29,8 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
 
 public class FluidPumpScenes {
 
-    public static final String PUMP_FLOW = "pump_flow";
-    public static final String PUMP_SPEED = "pump_speed";
+    public static final String PUMP_FLOW = "fluid_pump/pump_flow";
+    public static final String PUMP_SPEED = "fluid_pump/pump_speed";
 
     public static void flow(SceneBuilder builder, SceneBuildingUtil util) {
         CreateSceneBuilder scene = new CreateSceneBuilder(builder);

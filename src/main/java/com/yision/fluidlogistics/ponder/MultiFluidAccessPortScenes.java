@@ -25,7 +25,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
 
 public class MultiFluidAccessPortScenes {
 
-	public static final String MULTI_FLUID_ACCESS_PORT = "multi_fluid_access_port";
+	public static final String MULTI_FLUID_ACCESS_PORT = "multi_fluid_access_port/multi_fluid_access_port";
 
 	public static void multiFluidAccessPort(SceneBuilder builder, SceneBuildingUtil util) {
 		CreateSceneBuilder scene = new CreateSceneBuilder(builder);

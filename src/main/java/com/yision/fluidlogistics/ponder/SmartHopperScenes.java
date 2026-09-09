@@ -27,7 +27,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
 
 public class SmartHopperScenes {
 
-	public static final String SMART_HOPPER = "smart_hopper";
+	public static final String SMART_HOPPER = "smart_hopper/smart_hopper";
 
 	public static void smartHopper(SceneBuilder builder, SceneBuildingUtil util) {
 		CreateSceneBuilder scene = new CreateSceneBuilder(builder);

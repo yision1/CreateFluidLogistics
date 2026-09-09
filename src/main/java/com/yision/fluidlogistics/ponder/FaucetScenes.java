@@ -24,7 +24,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
 
 public class FaucetScenes {
 
-    public static final String FAUCET = "faucet";
+    public static final String FAUCET = "faucet/faucet";
 
     public static void faucet(SceneBuilder builder, SceneBuildingUtil util) {
         CreateSceneBuilder scene = new CreateSceneBuilder(builder);

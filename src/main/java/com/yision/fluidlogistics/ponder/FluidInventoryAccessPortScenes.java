@@ -21,7 +21,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
 
 public class FluidInventoryAccessPortScenes {
 
-	public static final String FLUID_INVENTORY_ACCESS_PORT = "fluid_inventory_access_port";
+	public static final String FLUID_INVENTORY_ACCESS_PORT = "fluid_inventory_access_port/fluid_inventory_access_port";
 
 	public static void fluidInventoryAccessPort(SceneBuilder builder, SceneBuildingUtil util) {
 		CreateSceneBuilder scene = new CreateSceneBuilder(builder);
