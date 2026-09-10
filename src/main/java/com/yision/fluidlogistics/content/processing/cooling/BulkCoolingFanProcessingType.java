@@ -50,7 +50,7 @@ public class BulkCoolingFanProcessingType implements FanProcessingType {
     public List<ItemStack> process(ItemStack stack, Level level) {
         return findRecipe(stack, level)
             .map(RecipeHolder::value)
-            .map(recipe -> RecipeApplier.applyRecipeOn(level, stack, recipe, true))
+            .map(recipe -> RecipeApplier.applyRecipeOn(level, stack, recipe, false))
             .orElse(null);
     }
 
