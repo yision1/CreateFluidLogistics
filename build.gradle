@@ -2,7 +2,7 @@ plugins {
     id 'java-library'
     id 'net.neoforged.moddev' version '2.0.116'
     id 'idea'
-    id 'com.hypherionmc.modutils.modpublisher' version '2.1.7'
+    id 'com.hypherionmc.modutils.modpublisher' version '2.2.2+snapshot.1'
 }
 
 tasks.named('wrapper', Wrapper).configure {
@@ -185,6 +185,7 @@ publisher {
     addAdditionalFile {
         artifact sourcesJarTask
         displayName "Create: FluidLogistic ${project.mod_version} Sources"
+        fileType "sources-jar"
     }
 
     modrinthDepends {
