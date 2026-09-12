@@ -66,15 +66,45 @@ public class FluidPackageItemRenderer extends CustomRenderedItemModelRenderer {
     private static void renderFluidContents(ItemStack box, float fluidLevel, PoseStack ms,
                                             MultiBufferSource buffer, int light, CoordinateMode mode,
                                             ItemDisplayContext displayContext) {
+        if (mode == CoordinateMode.ITEM_MODEL) {
+            ms.pushPose();
+            ms.translate(-0.5f, -0.5f, -0.5f);
+        }
+        renderFluidContentsLocal(getFluidDisplayData(box, fluidLevel), ms, buffer, light, displayContext,
+            mode == CoordinateMode.CENTERED_ENTITY ? -0.5f : 0);
+        if (mode == CoordinateMode.ITEM_MODEL) {
+            ms.popPose();
+        }
+    }
+
+    public static void renderFluidContentsLocal(ItemStack box, PoseStack ms, MultiBufferSource buffer, int light) {
+        renderFluidContentsLocal(getFluidDisplayData(box, -1), ms, buffer, light, null, 0);
+    }
+
+    private static void renderFluidContentsLocal(FluidDisplayData data, PoseStack ms,
+                                                 MultiBufferSource buffer, int light,
+                                                 ItemDisplayContext displayContext, float offsetXZ) {
+        if (data == null) return;
+
+        NeoForgeCatnipServices.FLUID_RENDERER.renderFluidBox(
+            data.fluid(),
+            FLUID_MIN_XZ + offsetXZ, data.minY(), FLUID_MIN_XZ + offsetXZ,
+            FLUID_MAX_XZ + offsetXZ, data.maxY(), FLUID_MAX_XZ + offsetXZ,
+            FluidItemRenderHelper.getFluidBuilder(buffer, displayContext), ms, light,
+            true, false
+        );
+    }
+
+    public static FluidDisplayData getFluidDisplayData(ItemStack box, float fluidLevel) {
         List<FluidStack> fluids = getContainedFluids(box);
-        if (fluids.isEmpty()) return;
+        if (fluids.isEmpty()) return null;
 
         float totalFluid = 0;
         for (FluidStack fluid : fluids) {
             totalFluid += fluid.getAmount();
         }
 
-        if (totalFluid <= 0) return;
+        if (totalFluid <= 0) return null;
 
         if (fluidLevel < 0) {
             fluidLevel = totalFluid;
@@ -84,11 +114,12 @@ public class FluidPackageItemRenderer extends CustomRenderedItemModelRenderer {
 
         float fillFactor = Mth.clamp(fluidLevel / Config.getFluidPerPackage(), 0f, 1f);
         float renderedHeight = FLUID_HEIGHT * fillFactor;
-        if (renderedHeight <= 0) return;
+        if (renderedHeight <= 0) return null;
 
         float yMin;
         float yMax;
-        if (primaryFluid.getFluid().getFluidType().isLighterThanAir()) {
+        boolean gas = primaryFluid.getFluid().getFluidType().isLighterThanAir();
+        if (gas) {
             yMax = FLUID_MAX_Y;
             yMin = yMax - renderedHeight;
         } else {
@@ -96,40 +127,10 @@ public class FluidPackageItemRenderer extends CustomRenderedItemModelRenderer {
             yMax = yMin + renderedHeight;
         }
 
-        if (yMax <= yMin) return;
+        return yMax > yMin ? new FluidDisplayData(primaryFluid, yMin, yMax, gas) : null;
+    }
 
-        float xMin;
-        float xMax;
-        float zMin;
-        float zMax;
-        if (mode == CoordinateMode.ITEM_MODEL) {
-            xMin = FLUID_MIN_XZ;
-            xMax = FLUID_MAX_XZ;
-            zMin = FLUID_MIN_XZ;
-            zMax = FLUID_MAX_XZ;
-        } else {
-            xMin = FLUID_MIN_XZ - 0.5f;
-            xMax = FLUID_MAX_XZ - 0.5f;
-            zMin = FLUID_MIN_XZ - 0.5f;
-            zMax = FLUID_MAX_XZ - 0.5f;
-        }
-
-        if (mode == CoordinateMode.ITEM_MODEL) {
-            ms.pushPose();
-            ms.translate(-0.5f, -0.5f, -0.5f);
-        }
-
-        NeoForgeCatnipServices.FLUID_RENDERER.renderFluidBox(
-            primaryFluid,
-            xMin, yMin, zMin,
-            xMax, yMax, zMax,
-            FluidItemRenderHelper.getFluidBuilder(buffer, displayContext), ms, light,
-            true, false
-        );
-
-        if (mode == CoordinateMode.ITEM_MODEL) {
-            ms.popPose();
-        }
+    public record FluidDisplayData(FluidStack fluid, float minY, float maxY, boolean gas) {
     }
 
     public static FluidStack getPrimaryContainedFluid(ItemStack box) {

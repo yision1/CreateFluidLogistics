@@ -1,121 +1,82 @@
 package com.yision.fluidlogistics.render;
 
-import com.simibubi.create.content.fluids.FluidMesh;
+import com.yision.fluidlogistics.content.logistics.fluidPackage.client.FluidPackageItemRenderer.FluidDisplayData;
 import dev.engine_room.flywheel.api.visualization.VisualizationContext;
 import dev.engine_room.flywheel.lib.instance.InstanceTypes;
 import dev.engine_room.flywheel.lib.instance.TransformedInstance;
-import dev.engine_room.flywheel.lib.visual.util.SmartRecycler;
+import dev.engine_room.flywheel.lib.visual.util.InstanceRecycler;
 import net.createmod.catnip.data.Iterate;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
-import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.neoforged.neoforge.fluids.FluidStack;
+
+import org.joml.Matrix4fc;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class FluidVisual {
-    private final SmartRecycler<TextureAtlasSprite, TransformedInstance> surface;
-    private final Direction[] sides;
-    private final boolean renderGasesFromTop;
+    private final VisualizationContext context;
+    private final Map<FluidPackageFluidMesh, InstanceRecycler<TransformedInstance>> surfaces = new HashMap<>();
+    private final Set<FluidPackageFluidMesh> usedSurfaces = new HashSet<>();
+    private final Direction[] sides = Arrays.copyOfRange(Iterate.directions, 1, Iterate.directions.length);
 
-    public FluidVisual(VisualizationContext context, boolean renderBottom, boolean renderGasesFromTop) {
-        surface = new SmartRecycler<>(key ->
-                context.instancerProvider()
-                        .instancer(InstanceTypes.TRANSFORMED, FluidMesh.surface(key, 1))
-                        .createInstance());
-        sides = renderBottom ? Iterate.directions : Arrays.copyOfRange(Iterate.directions, 1, Iterate.directions.length);
-        this.renderGasesFromTop = renderGasesFromTop;
+    public FluidVisual(VisualizationContext context) {
+        this.context = context;
     }
 
-    public TransformedInstance[] setupBuffers(FluidStack fluidStack, int start) {
-        if (fluidStack.isEmpty()) return null;
+    public void update(FluidDisplayData data, Matrix4fc pose, int light) {
+        if (data == null) return;
 
-        TransformedInstance[] buffers = new TransformedInstance[start + sides.length];
-
+        var fluidStack = data.fluid();
         IClientFluidTypeExtensions clientFluid = IClientFluidTypeExtensions.of(fluidStack.getFluid());
         var atlas = Minecraft.getInstance()
                 .getTextureAtlas(InventoryMenu.BLOCK_ATLAS);
         TextureAtlasSprite stillTexture = atlas.apply(clientFluid.getStillTexture(fluidStack));
+        int color = clientFluid.getTintColor(fluidStack);
+        int fluidLight = LightTexture.pack(
+            Math.max(LightTexture.block(light), fluidStack.getFluidType().getLightLevel(fluidStack)),
+            LightTexture.sky(light));
 
-        for (int i = 0; i < sides.length; i++) {
-            buffers[start + i] = surface.get(stillTexture);
-            buffers[start + i].colorArgb(clientFluid.getTintColor(fluidStack));
-        }
-
-        return buffers;
-    }
-
-    public void setupBuffer(FluidStack fluidStack, int capacity, TransformedInstance buffer, int index,
-                            float minXZ, float maxXZ, float minY, float maxY) {
-        Direction side = sides[index];
-
-        float fill = Mth.clamp((float) fluidStack.getAmount() / capacity, 0f, 1f);
-        float width = maxXZ - minXZ;
-        float height = (maxY - minY) * fill;
-
-        boolean gas = renderGasesFromTop
-            && fluidStack.getFluid().getFluidType().isLighterThanAir();
-
-        float fluidMinY = gas ? maxY - height : minY;
-        float fluidMaxY = gas ? maxY : minY + height;
-
-        float centerXZ = (minXZ + maxXZ) / 2f;
-
-        float halfWidth = width / 2f;
-        float halfHeight = height / 2f;
-
-        Direction renderedSide = gas && side == Direction.UP ? Direction.DOWN : side;
-
-        switch (renderedSide) {
-            case UP -> {
-                buffer.translateX(centerXZ);
-                buffer.translateY(fluidMaxY);
-                buffer.translateZ(centerXZ);
-                buffer.rotateTo(Direction.UP, renderedSide);
-                buffer.scaleX(halfWidth);
-                buffer.scaleZ(halfWidth);
-            }
-            case DOWN -> {
-                buffer.translateX(centerXZ);
-                buffer.translateY(fluidMinY);
-                buffer.translateZ(centerXZ);
-                buffer.rotateTo(Direction.UP, renderedSide);
-                buffer.scaleX(halfWidth);
-                buffer.scaleZ(halfWidth);
-            }
-            case NORTH, SOUTH -> {
-                float z = renderedSide == Direction.SOUTH ? maxXZ : minXZ;
-                buffer.translateX(centerXZ);
-                buffer.translateY((fluidMinY + fluidMaxY) / 2f);
-                buffer.translateZ(z);
-                buffer.rotateTo(Direction.UP, renderedSide);
-                buffer.scaleX(halfWidth);
-                buffer.scaleZ(halfHeight);
-            }
-            case WEST, EAST -> {
-                float x = renderedSide == Direction.EAST ? maxXZ : minXZ;
-                buffer.translateX(x);
-                buffer.translateY((fluidMinY + fluidMaxY) / 2f);
-                buffer.translateZ(centerXZ);
-                buffer.rotateTo(Direction.UP, renderedSide);
-                buffer.scaleX(halfHeight);
-                buffer.scaleZ(halfWidth);
-            }
+        for (Direction side : sides) {
+            Direction renderedSide = data.gas() && side == Direction.UP ? Direction.DOWN : side;
+            var mesh = new FluidPackageFluidMesh(stillTexture, renderedSide, data.minY(), data.maxY());
+            usedSurfaces.add(mesh);
+            TransformedInstance buffer = surfaces.computeIfAbsent(mesh, key -> {
+                var instancer = context.instancerProvider().instancer(InstanceTypes.TRANSFORMED, key.model());
+                return new InstanceRecycler<>(instancer::createInstance);
+            }).get();
+            buffer.setTransform(pose);
+            buffer.colorArgb(color).light(fluidLight);
+            buffer.setChanged();
         }
     }
 
     public void begin() {
-        surface.resetCount();
+        usedSurfaces.clear();
+        surfaces.values().forEach(InstanceRecycler::resetCount);
     }
 
     public void end() {
-        surface.discardExtra();
+        surfaces.entrySet().removeIf(entry -> {
+            if (!usedSurfaces.contains(entry.getKey())) {
+                entry.getValue().delete();
+                return true;
+            }
+            entry.getValue().discardExtra();
+            return false;
+        });
     }
 
     public void delete() {
-        surface.delete();
+        surfaces.values().forEach(InstanceRecycler::delete);
+        surfaces.clear();
+        usedSurfaces.clear();
     }
 }

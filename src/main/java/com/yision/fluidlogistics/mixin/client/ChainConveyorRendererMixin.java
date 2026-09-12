@@ -8,35 +8,27 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.simibubi.create.content.kinetics.chainConveyor.ChainConveyorBlockEntity;
 import com.simibubi.create.content.kinetics.chainConveyor.ChainConveyorPackage;
 import com.simibubi.create.content.kinetics.chainConveyor.ChainConveyorRenderer;
-import com.simibubi.create.content.logistics.box.PackageItem;
 import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.client.phantomChain.PhantomChainVisibility;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageItem;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.client.FluidPackageItemRenderer;
 import com.yision.fluidlogistics.util.PhantomChainConveyorAccess;
 
-import net.createmod.catnip.math.AngleHelper;
-import net.createmod.catnip.math.VecHelper;
-import net.minecraft.client.renderer.LightTexture;
+import net.createmod.catnip.render.SuperByteBuffer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.phys.Vec3;
 
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Slice;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ChainConveyorRenderer.class)
 public class ChainConveyorRendererMixin {
@@ -111,49 +103,32 @@ public class ChainConveyorRendererMixin {
         original.call(instance, be, ms, buffer, overlay, pos, box, partialTicks);
     }
 
-    @Inject(
+    @WrapOperation(
             method = "renderBox",
-            at = @At("TAIL")
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/createmod/catnip/render/SuperByteBuffer;renderInto(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;)V"
+            )
     )
-    private void fluidlogistics$renderFluid(ChainConveyorBlockEntity be, PoseStack ms, MultiBufferSource buffer,
-                                            int overlay, BlockPos pos, ChainConveyorPackage box, float partialTicks,
-                                            CallbackInfo ci) {
-        if (!(box.item.getItem() instanceof FluidPackageItem)) {
+    private void fluidlogistics$renderFluid(SuperByteBuffer instance, PoseStack ms, VertexConsumer consumer,
+                                            Operation<Void> original,
+                                            @Local(name = "boxBuffer") SuperByteBuffer boxBuffer,
+                                            @Local(argsOnly = true) ChainConveyorPackage box,
+                                            @Local(argsOnly = true) MultiBufferSource buffer,
+                                            @Local(name = "light") int light) {
+        if (instance != boxBuffer || !(box.item.getItem() instanceof FluidPackageItem)) {
+            original.call(instance, ms, consumer);
             return;
         }
 
-        ChainConveyorPackage.ChainConveyorPackagePhysicsData physicsData = box.physicsData(be.getLevel());
-        if (physicsData.prevPos == null) {
-            return;
-        }
-
-        Vec3 position = physicsData.prevPos.lerp(physicsData.pos, partialTicks);
-        Vec3 targetPosition = physicsData.prevTargetPos.lerp(physicsData.targetPos, partialTicks);
-        float yaw = AngleHelper.angleLerp(partialTicks, physicsData.prevYaw, physicsData.yaw);
-        Vec3 offset =
-            new Vec3(targetPosition.x - pos.getX(), targetPosition.y - pos.getY(), targetPosition.z - pos.getZ());
-
-        BlockPos containingPos = BlockPos.containing(position);
-        Level level = be.getLevel();
-        int light = LightTexture.pack(level.getBrightness(LightLayer.BLOCK, containingPos),
-            level.getBrightness(LightLayer.SKY, containingPos));
-
-        Vec3 dangleDiff = VecHelper.rotate(targetPosition.add(0, 0.5, 0).subtract(position), -yaw, Direction.Axis.Y);
-        float zRot = Mth.wrapDegrees((float) Mth.atan2(-dangleDiff.x, dangleDiff.y) * Mth.RAD_TO_DEG) / 2;
-        float xRot = Mth.wrapDegrees((float) Mth.atan2(dangleDiff.z, dangleDiff.y) * Mth.RAD_TO_DEG) / 2;
-        zRot = Mth.clamp(zRot, -25, 25);
-        xRot = Mth.clamp(xRot, -25, 25);
+        Matrix4f pose = new Matrix4f(boxBuffer.getTransforms().last().pose());
+        Matrix3f normal = new Matrix3f(boxBuffer.getTransforms().last().normal());
+        original.call(instance, ms, consumer);
 
         ms.pushPose();
-        ms.translate(offset.x, offset.y + 10 / 16f, offset.z);
-        ms.mulPose(Axis.YP.rotationDegrees(yaw));
-        ms.mulPose(Axis.ZP.rotationDegrees(zRot));
-        ms.mulPose(Axis.XP.rotationDegrees(xRot));
-        ms.translate(0, -PackageItem.getHookDistance(box.item) + 7 / 16f, 0);
-        ms.translate(0, -0.5f, 0);
-
-        FluidPackageItemRenderer.renderFluidContentsForEntity(box.item, -1, ms, buffer, light);
-
+        ms.last().pose().mul(pose);
+        ms.last().normal().mul(normal);
+        FluidPackageItemRenderer.renderFluidContentsLocal(box.item, ms, buffer, light);
         ms.popPose();
     }
 }
