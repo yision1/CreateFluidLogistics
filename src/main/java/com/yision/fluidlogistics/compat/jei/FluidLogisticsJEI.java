@@ -13,6 +13,7 @@ import com.simibubi.create.compat.jei.category.ProcessingViaFanCategory;
 import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.client.RedstoneRequesterAmountsAccess;
 import com.yision.fluidlogistics.compat.CompatMods;
+import com.yision.fluidlogistics.config.Config;
 import com.yision.fluidlogistics.content.processing.cooling.BulkCoolingRecipe;
 import com.yision.fluidlogistics.content.equipment.handPointer.filter.HandPointerFilterScreen;
 import com.yision.fluidlogistics.content.logistics.factoryGauge.client.ResourceFactoryGaugeSetFilterScreen;
@@ -81,6 +82,8 @@ public class FluidLogisticsJEI implements IModPlugin {
 
     @Override
     public void registerCategories(IRecipeCategoryRegistration registration) {
+        if (!Config.isBlazeCoolerEnabled())
+            return;
         bulkCooling = new CreateRecipeCategory.Builder<>(BulkCoolingRecipe.class)
             .addTypedRecipes(AllFluidLogisticsRecipeTypes.BULK_COOLING)
             .addTypedRecipes(AllFluidLogisticsRecipeTypes.INACTIVE_BULK_COOLING)
@@ -94,6 +97,8 @@ public class FluidLogisticsJEI implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
+        if (!Config.isBlazeCoolerEnabled())
+            return;
         bulkCooling.registerRecipes(registration);
         registration.addRecipes(MYSTERY_CONVERSION, List.of(
             ConversionRecipe.create(com.simibubi.create.AllBlocks.BLAZE_BURNER.asStack(),
@@ -105,7 +110,8 @@ public class FluidLogisticsJEI implements IModPlugin {
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        bulkCooling.registerCatalysts(registration);
+        if (Config.isBlazeCoolerEnabled())
+            bulkCooling.registerCatalysts(registration);
         for (RecipeType<RecipeHolder<BasinRecipe>> recipeType : BASIN_RECIPE_TYPES)
             registration.addRecipeCatalyst(AllBlocks.COPPER_BASIN.asStack(), recipeType);
     }

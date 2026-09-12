@@ -1,8 +1,13 @@
 package com.yision.fluidlogistics.config;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.config.ModConfigEvent;
+import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 @EventBusSubscriber(modid = "fluidlogistics", bus = EventBusSubscriber.Bus.MOD)
@@ -62,6 +67,10 @@ public class Config {
             .translation("fluidlogistics.configuration.useItemRenderingForFluidFactoryGaugeFluid")
             .define("useItemRenderingForFluidFactoryGaugeFluid",
                     USE_ITEM_RENDERING_FOR_FLUID_FACTORY_GAUGE_FLUID_DEFAULT);
+
+    public static final ModConfigSpec.BooleanValue DISABLE_BLAZE_COOLER_PARTICLES = CLIENT_BUILDER
+            .translation("fluidlogistics.configuration.disableBlazeCoolerParticles")
+            .define("disableBlazeCoolerParticles", false);
 
     public static final ModConfigSpec CLIENT_SPEC = CLIENT_BUILDER.build();
 
@@ -156,6 +165,7 @@ public class Config {
 
     public static final ModConfigSpec.BooleanValue BLAZE_COOLER_ENABLED = BUILDER
             .translation("block.fluidlogistics.blaze_cooler")
+            .worldRestart()
             .define("blazeCoolerEnabled", BLAZE_COOLER_ENABLED_DEFAULT);
 
     public static final ModConfigSpec.BooleanValue COPPER_SCHEMATICANNON_ENABLED = BUILDER
@@ -298,6 +308,7 @@ public class Config {
     private static InfiniteTankFluidMode infiniteFluidTankAllowedFluids = InfiniteTankFluidMode.FOLLOW_CREATE;
     private static boolean useItemRenderingForFluidFactoryGaugeFluid =
             USE_ITEM_RENDERING_FOR_FLUID_FACTORY_GAUGE_FLUID_DEFAULT;
+    private static boolean disableBlazeCoolerParticles = false;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent.Loading event) {
@@ -319,6 +330,19 @@ public class Config {
 
     private static void reloadClientValues() {
         useItemRenderingForFluidFactoryGaugeFluid = USE_ITEM_RENDERING_FOR_FLUID_FACTORY_GAUGE_FLUID.get();
+        disableBlazeCoolerParticles = DISABLE_BLAZE_COOLER_PARTICLES.get();
+    }
+
+    public static void loadStartupValues() {
+        Path path = FMLPaths.CONFIGDIR.get().resolve("fluidlogistics-server.toml");
+        if (Files.exists(path)) {
+            try (CommentedFileConfig config = CommentedFileConfig.of(path)) {
+                config.load();
+                Object value = config.get(BLAZE_COOLER_ENABLED.getPath());
+                blazeCoolerEnabled = value instanceof Boolean enabled ? enabled : BLAZE_COOLER_ENABLED_DEFAULT;
+            }
+        }
+        FeatureToggle.reload();
     }
 
     private static void reloadValues() {
@@ -343,7 +367,6 @@ public class Config {
         phantomChainEnabled = PHANTOM_CHAIN_ENABLED.get();
         fluidHatchEnabled = FLUID_HATCH_ENABLED.get();
         fluidFactoryGaugeEnabled = FLUID_FACTORY_GAUGE_ENABLED.get();
-        blazeCoolerEnabled = BLAZE_COOLER_ENABLED.get();
         copperSchematicannonEnabled = COPPER_SCHEMATICANNON_ENABLED.get();
         industrialCopperBlockEnabled = INDUSTRIAL_COPPER_BLOCK_ENABLED.get();
         fluidSchematicEnabled = FLUID_SCHEMATIC_ENABLED.get();
@@ -404,6 +427,10 @@ public class Config {
     public static boolean isSmartHopperInfiniteWaterEnabled() { return smartHopperInfiniteWaterEnabled; }
     public static int getInfiniteFluidTankCapacity() { return infiniteFluidTankCapacity; }
     public static InfiniteTankFluidMode getInfiniteFluidTankAllowedFluids() { return infiniteFluidTankAllowedFluids; }
+    public static boolean areBlazeCoolerParticlesDisabled() {
+        return disableBlazeCoolerParticles;
+    }
+
     public static boolean useItemRenderingForFluidFactoryGaugeFluid() {
         return useItemRenderingForFluidFactoryGaugeFluid;
     }

@@ -5,6 +5,7 @@ import com.simibubi.create.content.processing.burner.BlazeBurnerBlock.HeatLevel;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlockEntity;
 import com.simibubi.create.foundation.fluid.SmartFluidTank;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
+import com.yision.fluidlogistics.config.Config;
 
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import net.createmod.catnip.animation.LerpedFloat.Chaser;
@@ -151,7 +152,7 @@ public class BlazeCoolerBlockEntity extends BlazeBurnerBlockEntity {
 
     @Override
     protected void spawnParticles(HeatLevel heatLevel, double burstMult) {
-        if (level == null || heatLevel == HeatLevel.NONE)
+        if (Config.areBlazeCoolerParticlesDisabled() || level == null || heatLevel == HeatLevel.NONE)
             return;
 
         RandomSource random = level.getRandom();
@@ -167,6 +168,8 @@ public class BlazeCoolerBlockEntity extends BlazeBurnerBlockEntity {
 
     @Override
     public void spawnParticleBurst(boolean ignored) {
+        if (Config.areBlazeCoolerParticlesDisabled())
+            return;
         Vec3 center = VecHelper.getCenterOf(worldPosition);
         RandomSource random = level.random;
         for (int i = 0; i < 20; i++) {

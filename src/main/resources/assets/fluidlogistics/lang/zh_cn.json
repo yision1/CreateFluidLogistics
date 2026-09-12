@@ -154,6 +154,7 @@
   "fluidlogistics.configuration.title": "流体包裹配置",
   "fluidlogistics.configuration.useItemRenderingForFluidFactoryGaugeFluid": "使用物品形式渲染流体工厂仪表中的流体",
   "fluidlogistics.fluid_material_checklist": "流体材料清单",
+  "fluidlogistics.configuration.disableBlazeCoolerParticles": "禁用烈焰人冷却室粒子效果",
   "fluidlogistics.fluid_pump.direction.forward": "正向",
   "fluidlogistics.fluid_pump.direction.reverse": "反向",
   "fluidlogistics.fluid_pump.transfer_direction": "传输方向",

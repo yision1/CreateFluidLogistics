@@ -2,6 +2,10 @@
   "neoforge:conditions": [
     {
       "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:blaze_cooler"
+    },
+    {
+      "type": "fluidlogistics:feature_enabled",
       "feature": "fluidlogistics:frost_cake"
     }
   ],

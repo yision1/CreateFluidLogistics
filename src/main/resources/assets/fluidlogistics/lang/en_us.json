@@ -153,6 +153,7 @@
   "fluidlogistics.configuration.smartHopperInfiniteWater.tooltip": "Allow the smart hopper to extract infinite water from waterlogged leaves",
   "fluidlogistics.configuration.title": "Fluid Package Configuration",
   "fluidlogistics.configuration.useItemRenderingForFluidFactoryGaugeFluid": "Render Fluid Factory Gauge Fluids as Items",
+  "fluidlogistics.configuration.disableBlazeCoolerParticles": "Disable Blaze Cooler Particles",
   "fluidlogistics.fluid_material_checklist": "Fluid Material Checklist",
   "fluidlogistics.fluid_pump.direction.forward": "Forward",
   "fluidlogistics.fluid_pump.direction.reverse": "Reverse",

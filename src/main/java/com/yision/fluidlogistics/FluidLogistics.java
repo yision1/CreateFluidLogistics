@@ -124,6 +124,7 @@ public class FluidLogistics {
             .defaultCreativeTab(FLUID_LOGISTICS_TAB);
 
     public FluidLogistics(IEventBus modEventBus, ModContainer modContainer) {
+        Config.loadStartupValues();
         CREATIVE_TABS.register(modEventBus);
         LOOT_MODIFIERS.register("factory_gauge_drops", () -> FactoryGaugeLootModifier.CODEC);
         LOOT_MODIFIERS.register(modEventBus);
@@ -135,8 +136,10 @@ public class FluidLogistics {
         AllFluidAttributeTypes.REGISTER.register(modEventBus);
         AllFluidLogisticsParticleTypes.register(modEventBus);
         AllFluidLogisticsFluids.register();
-        AllFluidLogisticsFanProcessingTypes.register(modEventBus);
-        AllFluidLogisticsRecipeTypes.register(modEventBus);
+        if (Config.isBlazeCoolerEnabled()) {
+            AllFluidLogisticsFanProcessingTypes.register(modEventBus);
+            AllFluidLogisticsRecipeTypes.register(modEventBus);
+        }
         FluidLogisticsPackagePortTargetTypes.register(modEventBus);
         AllBlocks.register();
         PackagerAddresses.register(com.simibubi.create.AllBlocks.PACKAGER);
