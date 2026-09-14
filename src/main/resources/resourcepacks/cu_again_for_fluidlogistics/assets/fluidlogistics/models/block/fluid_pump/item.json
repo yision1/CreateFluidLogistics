@@ -2,8 +2,8 @@
 	"credit": "Made with Blockbench",
 	"textures": {
 		"2": "fluidlogistics:block/fluid_pump/fluid_valve",
-		"1_0": "fluidlogistics:block/fluid_pump/axis",
-		"1_1": "fluidlogistics:block/fluid_pump/axis_top",
+		"1_0": "create:block/axis",
+		"1_1": "create:block/axis_top",
 		"particle": "fluidlogistics:block/fluid_pump/fluid_valve"
 	},
 	"elements": [

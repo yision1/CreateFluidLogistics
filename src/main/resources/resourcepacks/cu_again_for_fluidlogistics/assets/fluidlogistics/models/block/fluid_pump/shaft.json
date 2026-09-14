@@ -1,8 +1,8 @@
 {
 	"parent": "minecraft:block/block",
 	"textures": {
-		"0": "fluidlogistics:block/fluid_pump/axis",
-		"1": "fluidlogistics:block/fluid_pump/axis_top"
+		"0": "create:block/axis",
+		"1": "create:block/axis_top"
 	},
 	"elements": [
 		{
