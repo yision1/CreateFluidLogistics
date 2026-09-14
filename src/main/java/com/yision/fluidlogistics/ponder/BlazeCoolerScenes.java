@@ -41,6 +41,10 @@ public class BlazeCoolerScenes {
             .pointAt(util.vector().centerOf(burnerPos));
         scene.idle(80);
 
+        scene.overlay().showControls(util.vector().topOf(burnerPos), Pointing.DOWN, 40).rightClick()
+            .withItem(new ItemStack(Items.POWDER_SNOW_BUCKET));
+        scene.idle(50);
+
         scene.overlay()
             .showText(40)
             .text("After some time")
