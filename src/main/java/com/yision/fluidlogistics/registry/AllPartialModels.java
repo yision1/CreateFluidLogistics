@@ -50,8 +50,12 @@ public class AllPartialModels {
     public static final PartialModel FLUID_PACKAGE_EXPOSED = item("fluid_package_exposed");
     public static final PartialModel FLUID_PACKAGE_OXIDIZED = item("fluid_package_oxidized");
     public static final PartialModel FLUID_PACKAGE_WEATHERED = item("fluid_package_weathered");
+    public static final PartialModel RARE_PIG_PACKAGE = item("rare_pig_package");
+    public static final PartialModel RARE_FOX_PACKAGE = item("rare_fox_package");
     public static final PartialModel FLUID_PACKAGE_RIGGING =
         PartialModel.of(FluidPackageItem.FLUID_STYLE.getRiggingModel());
+    public static final PartialModel RARE_FLUID_PACKAGE_RIGGING =
+        PartialModel.of(FluidPackageItem.RARE_PIG_STYLE.getRiggingModel());
 
     private static final ResourceLocation FLUID_PACKAGE_ID =
         FluidLogistics.asResource("fluid_package");
@@ -61,6 +65,10 @@ public class AllPartialModels {
         FluidLogistics.asResource("fluid_package_oxidized");
     private static final ResourceLocation FLUID_PACKAGE_WEATHERED_ID =
         FluidLogistics.asResource("fluid_package_weathered");
+    private static final ResourceLocation RARE_PIG_PACKAGE_ID =
+        FluidLogistics.asResource("rare_pig_package");
+    private static final ResourceLocation RARE_FOX_PACKAGE_ID =
+        FluidLogistics.asResource("rare_fox_package");
 
     private static boolean registered = false;
 
@@ -93,6 +101,8 @@ public class AllPartialModels {
                 FLUID_PACKAGE_EXPOSED.modelLocation(),
                 FLUID_PACKAGE_OXIDIZED.modelLocation(),
                 FLUID_PACKAGE_WEATHERED.modelLocation(),
+                RARE_PIG_PACKAGE.modelLocation(),
+                RARE_FOX_PACKAGE.modelLocation(),
                 FAUCET_SOURCE_INTERFACE.get(Direction.NORTH).modelLocation(),
                 FAUCET_SOURCE_INTERFACE.get(Direction.SOUTH).modelLocation(),
                 FAUCET_SOURCE_INTERFACE.get(Direction.EAST).modelLocation(),
@@ -132,6 +142,10 @@ public class AllPartialModels {
         com.simibubi.create.AllPartialModels.PACKAGE_RIGGING.put(FLUID_PACKAGE_OXIDIZED_ID, FLUID_PACKAGE_RIGGING);
         com.simibubi.create.AllPartialModels.PACKAGES.put(FLUID_PACKAGE_WEATHERED_ID, FLUID_PACKAGE_WEATHERED);
         com.simibubi.create.AllPartialModels.PACKAGE_RIGGING.put(FLUID_PACKAGE_WEATHERED_ID, FLUID_PACKAGE_RIGGING);
+        com.simibubi.create.AllPartialModels.PACKAGES.put(RARE_PIG_PACKAGE_ID, RARE_PIG_PACKAGE);
+        com.simibubi.create.AllPartialModels.PACKAGE_RIGGING.put(RARE_PIG_PACKAGE_ID, RARE_FLUID_PACKAGE_RIGGING);
+        com.simibubi.create.AllPartialModels.PACKAGES.put(RARE_FOX_PACKAGE_ID, RARE_FOX_PACKAGE);
+        com.simibubi.create.AllPartialModels.PACKAGE_RIGGING.put(RARE_FOX_PACKAGE_ID, RARE_FLUID_PACKAGE_RIGGING);
     }
 
     public static PartialModel getFluidPackageModel(ItemStack stack) {

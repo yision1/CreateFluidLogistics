@@ -213,7 +213,9 @@ public class FluidLogistics {
                 AllItems.FLUID_PACKAGE.get(),
                 AllItems.FLUID_PACKAGE_EXPOSED.get(),
                 AllItems.FLUID_PACKAGE_OXIDIZED.get(),
-                AllItems.FLUID_PACKAGE_WEATHERED.get());
+                AllItems.FLUID_PACKAGE_WEATHERED.get(),
+                AllItems.RARE_PIG_PACKAGE.get(),
+                AllItems.RARE_FOX_PACKAGE.get());
         event.registerItem(Capabilities.FluidHandler.ITEM,
                 (stack, context) -> new PowderSnowBucketFluidHandler(stack),
                 net.minecraft.world.item.Items.POWDER_SNOW_BUCKET);
@@ -279,11 +281,20 @@ public class FluidLogistics {
             new FeatureItem(FeatureToggle.COPPER_FROGPORT, AllBlocks.COPPER_FROGPORT),
             new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllBlocks.FLUID_PACKAGER),
             new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllItems.FLUID_PACKAGE),
+            new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllItems.FLUID_PACKAGE_EXPOSED),
+            new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllItems.FLUID_PACKAGE_WEATHERED),
+            new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllItems.FLUID_PACKAGE_OXIDIZED),
             new FeatureItem(FeatureToggle.FLUID_REPACKAGER, AllBlocks.FLUID_REPACKAGER),
             new FeatureItem(FeatureToggle.COPPER_BUCKET, AllItems.COPPER_BUCKET),
             new FeatureItem(FeatureToggle.PHANTOM_CHAIN, AllItems.PHANTOM_CHAIN),
             new FeatureItem(FeatureToggle.FLUID_HATCH, AllBlocks.FLUID_HATCH),
             new FeatureItem(FeatureToggle.FLUID_FACTORY_GAUGE, AllItems.FLUID_FACTORY_GAUGE),
+            new FeatureItem(FeatureToggle.BLAZE_COOLER, AllBlocks.BLAZE_COOLER),
+            new FeatureItem(FeatureToggle.COPPER_SCHEMATICANNON, AllBlocks.COPPER_SCHEMATICANNON),
+            new FeatureItem(FeatureToggle.INDUSTRIAL_COPPER_BLOCK, AllBlocks.INDUSTRIAL_COPPER_BLOCK),
+            new FeatureItem(FeatureToggle.FLUID_SCHEMATIC, AllItems.EMPTY_FLUID_SCHEMATIC),
+            new FeatureItem(FeatureToggle.FROST_CAKE, AllItems.FROST_CAKE),
+            new FeatureItem(FeatureToggle.FLUID_SCHEMATIC, AllItems.FLUID_SCHEMATIC),
     };
 
     public static ResourceLocation asResource(String path) {

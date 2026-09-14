@@ -96,6 +96,8 @@ public class FluidPackageItemRenderer extends CustomRenderedItemModelRenderer {
     }
 
     public static FluidDisplayData getFluidDisplayData(ItemStack box, float fluidLevel) {
+        if (!FluidPackageItem.rendersFluidContents(box)) return null;
+
         List<FluidStack> fluids = getContainedFluids(box);
         if (fluids.isEmpty()) return null;
 

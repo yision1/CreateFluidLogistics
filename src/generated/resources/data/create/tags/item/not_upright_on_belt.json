@@ -3,6 +3,8 @@
     "fluidlogistics:fluid_package",
     "fluidlogistics:fluid_package_exposed",
     "fluidlogistics:fluid_package_oxidized",
-    "fluidlogistics:fluid_package_weathered"
+    "fluidlogistics:fluid_package_weathered",
+    "fluidlogistics:rare_pig_package",
+    "fluidlogistics:rare_fox_package"
   ]
 }
