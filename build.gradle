@@ -35,6 +35,10 @@ base {
     archivesName = mod_id
 }
 
+tasks.withType(AbstractArchiveTask).configureEach {
+    archiveVersion = "${mod_version}-mc${minecraft_version}"
+}
+
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(21)
     withSourcesJar()
@@ -172,8 +176,8 @@ publisher {
     setDebug(false)
     setModrinthID("g4AWLVIr")
     setCurseID("1475079")
-    setVersionType("beta")
-    setVersion("${project.mod_version}")
+    setVersionType("release")
+    setVersion("${project.mod_version}-mc${project.minecraft_version}")
     setDisplayName("Create: FluidLogistic ${project.mod_version}")
     setChangelog(latestChangelogForPublisher)
     setGameVersions("${project.minecraft_version}")
