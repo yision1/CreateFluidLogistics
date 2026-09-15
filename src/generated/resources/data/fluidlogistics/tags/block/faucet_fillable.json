@@ -4,6 +4,26 @@
     "fluidlogistics:smart_hopper",
     "fluidlogistics:copper_basin",
     {
+      "id": "createmoremachines:brass_basin",
+      "required": false
+    },
+    {
+      "id": "createmoremachines:netherite_basin",
+      "required": false
+    },
+    {
+      "id": "createmoremachines:end_basin",
+      "required": false
+    },
+    {
+      "id": "createmoremachines:beyond_basin",
+      "required": false
+    },
+    {
+      "id": "createmoremachines:creative_basin",
+      "required": false
+    },
+    {
       "id": "createmetallurgy:casting_basin",
       "required": false
     },
