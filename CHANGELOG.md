@@ -1,5 +1,5 @@
-- Add Blaze Cooler
-- Add Fluid Inventory Access Port
-- Allow fluid hatch to be placed on any face of a block
-- Update some recipes
+- Optimize package fluid rendering
+- Allow mechanical fluid gun to process items in parallel
+- Fix disable blaze cooler convertion doesn't work
+- Fix bulk cooling produces an extra empty bucket
 - Fix fluid factory gauges "Some links are not loaded" error
