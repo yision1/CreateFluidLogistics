@@ -9,5 +9,11 @@
     {
       "item": "minecraft:snow"
     }
+  ],
+  "conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:blaze_cooler"
+    }
   ]
 }

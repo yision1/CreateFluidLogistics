@@ -26,7 +26,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 
 public class SmartFaucetScenes {
 
-	public static final String SMART_FAUCET = "smart_faucet";
+	public static final String SMART_FAUCET = "smart_faucet/smart_faucet";
 
 	public static void smartFaucet(SceneBuilder builder, SceneBuildingUtil util) {
 		CreateSceneBuilder scene = new CreateSceneBuilder(builder);

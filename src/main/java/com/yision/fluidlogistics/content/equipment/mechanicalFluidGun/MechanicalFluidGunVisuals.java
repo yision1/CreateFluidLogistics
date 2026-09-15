@@ -154,7 +154,7 @@ class MechanicalFluidGunVisuals {
 	}
 
 	boolean tickTransientSpray(boolean isFillingItem, Runnable onSprayComplete) {
-		if (!spraying || isFillingItem) return false;
+		if (!spraying || isFillingItem || !advanceTargetAfterSpray) return false;
 		if (sprayTicks > 0) sprayTicks--;
 		if (sprayTicks <= 0) {
 			boolean shouldAdvance = advanceTargetAfterSpray;
@@ -194,7 +194,10 @@ class MechanicalFluidGunVisuals {
 
 	void updateTargetAngles(BlockPos gunPos, BlockState blockState,
 							@Nullable Vec3 aimPoint, boolean isCycleActive, boolean isFillingItem, float speed) {
-		if (aimPoint != null && (isCycleActive || spraying || isFillingItem)) {
+		if (aimPoint != null && isCycleActive && speed == 0) {
+			yaw.chase(yaw.getValue(), 0, LerpedFloat.Chaser.EXP);
+			pitch.chase(pitch.getValue(), 0, LerpedFloat.Chaser.EXP);
+		} else if (aimPoint != null && (isCycleActive || spraying || isFillingItem)) {
 			float targetYaw = MechanicalFluidGunTarget.computeYaw(gunPos, blockState, aimPoint);
 			float targetPitch = MechanicalFluidGunTarget.computePitch(gunPos, blockState, aimPoint);
 			float chaseSpeed = getActiveChaseSpeed(speed);

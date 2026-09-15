@@ -4,14 +4,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-@ApiStatus.Experimental
 public interface PackageResourceType {
     enum SawAction {
         DEFAULT,

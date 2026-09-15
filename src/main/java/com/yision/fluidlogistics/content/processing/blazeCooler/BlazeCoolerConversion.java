@@ -3,21 +3,62 @@ package com.yision.fluidlogistics.content.processing.blazeCooler;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock.HeatLevel;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlockEntity;
+import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.config.Config;
 import com.yision.fluidlogistics.registry.AllBlocks;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUtils;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
+@Mod.EventBusSubscriber(modid = FluidLogistics.MODID)
 public final class BlazeCoolerConversion {
 
     public static final int CONVERSION_TICKS = 20 * 30;
     public static final String TIMER_TAG = "CFLBlazeCoolerConversionTime";
-    public static final String ACTIVATED_TAG = "CFLBlazeCoolerActivated";
 
     private BlazeCoolerConversion() {
+    }
+
+    @SubscribeEvent
+    public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
+        ItemStack stack = event.getItemStack();
+        boolean cooling = stack.is(Items.POWDER_SNOW_BUCKET);
+        if (!cooling && !stack.is(Items.LAVA_BUCKET))
+            return;
+
+        Level level = event.getLevel();
+        BlockPos pos = event.getPos();
+        if (!(level.getBlockEntity(pos) instanceof BlazeBurnerBlockEntity burner))
+            return;
+        if (cooling ? !canStartCooling(burner)
+            : !(burner instanceof BlazeCoolerBlockEntity cooler) || !canStartWarming(cooler))
+            return;
+
+        if (!level.isClientSide) {
+            startConversion(burner);
+            Player player = event.getEntity();
+            player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
+            player.setItemInHand(event.getHand(),
+                ItemUtils.createFilledResult(stack, player, new ItemStack(Items.BUCKET)));
+            level.playSound(null, pos,
+                cooling ? SoundEvents.BUCKET_EMPTY_POWDER_SNOW : SoundEvents.BUCKET_EMPTY_LAVA,
+                SoundSource.BLOCKS, 1, 1);
+        }
+        event.setCanceled(true);
+        event.setCancellationResult(InteractionResult.SUCCESS);
     }
 
     public static boolean shouldCool(BlazeBurnerBlockEntity burner) {
@@ -25,11 +66,26 @@ public final class BlazeCoolerConversion {
             return false;
 
         Level level = burner.getLevel();
-        if (level == null || level.isClientSide || burner.isVirtual())
+        return level != null
+            && !level.isClientSide
+            && burner.getPersistentData().contains(TIMER_TAG)
+            && isIdleInColdBiome(burner);
+    }
+
+    public static boolean canStartCooling(BlazeBurnerBlockEntity burner) {
+        return !burner.getPersistentData().contains(TIMER_TAG) && isIdleInColdBiome(burner);
+    }
+
+    private static boolean isIdleInColdBiome(BlazeBurnerBlockEntity burner) {
+        if (!Config.isBlazeCoolerEnabled())
+            return false;
+
+        Level level = burner.getLevel();
+        if (level == null || burner.isVirtual())
             return false;
 
         BlockState state = burner.getBlockState();
-        if (!com.simibubi.create.AllBlocks.BLAZE_BURNER.has(state) || isConversionLocked(burner))
+        if (!com.simibubi.create.AllBlocks.BLAZE_BURNER.has(state))
             return false;
 
         BlockPos pos = burner.getBlockPos();
@@ -38,12 +94,28 @@ public final class BlazeCoolerConversion {
             && level.getBiome(pos).value().coldEnoughToSnow(pos);
     }
 
+    public static void startConversion(BlazeBurnerBlockEntity burner) {
+        burner.getPersistentData().putInt(TIMER_TAG, 0);
+        burner.setChanged();
+    }
+
     public static boolean shouldWarm(BlazeCoolerBlockEntity cooler) {
         Level level = cooler.getLevel();
         return level != null
             && !level.isClientSide
+            && cooler.getPersistentData().contains(TIMER_TAG)
+            && isIdleCooler(cooler);
+    }
+
+    public static boolean canStartWarming(BlazeCoolerBlockEntity cooler) {
+        return !cooler.getPersistentData().contains(TIMER_TAG) && isIdleCooler(cooler);
+    }
+
+    private static boolean isIdleCooler(BlazeCoolerBlockEntity cooler) {
+        Level level = cooler.getLevel();
+        return level != null
             && !cooler.isVirtual()
-            && !isConversionLocked(cooler)
+            && AllBlocks.BLAZE_COOLER.has(cooler.getBlockState())
             && !cooler.isCreative()
             && cooler.getFuelInput().getFluidInTank(0).isEmpty()
             && level.dimension() == Level.NETHER
@@ -66,18 +138,6 @@ public final class BlazeCoolerConversion {
             burner.setChanged();
         if (conversionTime >= CONVERSION_TICKS)
             convert(burner);
-    }
-
-    public static boolean isConversionLocked(BlazeBurnerBlockEntity burner) {
-        CompoundTag persistentData = burner.getPersistentData();
-        if (persistentData.getBoolean(ACTIVATED_TAG))
-            return true;
-        if (!burner.getHeatLevelFromBlock().isAtLeast(HeatLevel.FADING))
-            return false;
-
-        persistentData.putBoolean(ACTIVATED_TAG, true);
-        burner.setChanged();
-        return true;
     }
 
     public static void convert(BlazeBurnerBlockEntity burner) {

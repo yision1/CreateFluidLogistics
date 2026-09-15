@@ -2,7 +2,6 @@ package com.yision.fluidlogistics.api.packager;
 
 import java.util.Objects;
 
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import com.simibubi.create.content.logistics.packager.InventorySummary;
@@ -11,7 +10,6 @@ import com.simibubi.create.content.logistics.packager.PackagerBlockEntity;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
-@ApiStatus.Experimental
 public interface ResourcePackager {
     record Snapshot(@Nullable Object storageIdentity, InventorySummary resources) {
         public Snapshot {

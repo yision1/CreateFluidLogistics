@@ -26,5 +26,11 @@
       "nbt": {}
     }
   ],
-  "supercooled": false
+  "supercooled": false,
+  "conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:blaze_cooler"
+    }
+  ]
 }

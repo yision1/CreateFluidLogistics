@@ -3,15 +3,12 @@ package com.yision.fluidlogistics.api.packager;
 import java.util.List;
 import java.util.Objects;
 
-import org.jetbrains.annotations.ApiStatus;
-
 import com.simibubi.create.content.logistics.BigItemStack;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
-@ApiStatus.Experimental
 public interface PackageResourceDisplay {
     record FactoryPanelUnit(String label, int amountPerStep, int displayedPerStep) {
         public FactoryPanelUnit(String label, int amountPerStep) {

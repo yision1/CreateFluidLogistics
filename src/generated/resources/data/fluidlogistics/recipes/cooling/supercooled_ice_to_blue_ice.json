@@ -10,5 +10,11 @@
       "item": "minecraft:blue_ice"
     }
   ],
-  "supercooled": true
+  "supercooled": true,
+  "conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:blaze_cooler"
+    }
+  ]
 }

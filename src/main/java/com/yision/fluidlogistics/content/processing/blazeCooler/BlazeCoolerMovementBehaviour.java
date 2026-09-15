@@ -7,6 +7,7 @@ import com.simibubi.create.content.contraptions.render.ContraptionMatrices;
 import com.simibubi.create.content.trains.entity.CarriageContraption;
 import com.simibubi.create.content.trains.entity.CarriageContraptionEntity;
 import com.simibubi.create.foundation.virtualWorld.VirtualRenderWorld;
+import com.yision.fluidlogistics.config.Config;
 
 import net.createmod.catnip.animation.LerpedFloat;
 import net.createmod.catnip.animation.LerpedFloat.Chaser;
@@ -42,7 +43,7 @@ public class BlazeCoolerMovementBehaviour implements MovementBehaviour {
         RandomSource random = context.world.getRandom();
         Vec3 particlePos = context.position.add(VecHelper.offsetRandomly(Vec3.ZERO, random, .125f)
             .multiply(1, 0, 1));
-        if (random.nextInt(3) == 0 && context.motion.length() < 1 / 64f)
+        if (!Config.areBlazeCoolerParticlesDisabled() && random.nextInt(3) == 0 && context.motion.length() < 1 / 64f)
             context.world.addParticle(ParticleTypes.SNOWFLAKE, particlePos.x, particlePos.y, particlePos.z, 0, 0, 0);
 
         LerpedFloat headAngle = getHeadAngle(context);

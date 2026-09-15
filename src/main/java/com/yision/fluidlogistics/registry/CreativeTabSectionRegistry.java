@@ -11,14 +11,38 @@ import java.util.function.Supplier;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.yision.fluidlogistics.FluidLogistics;
+
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
+import net.minecraftforge.registries.ForgeRegistries;
 
 @ApiStatus.Internal
 public final class CreativeTabSectionRegistry {
     private static final int ROW_SIZE = 9;
+    private static final List<String> CREATIVE_BLOCK_ORDER = List.of(
+            "copper_schematicannon",
+            "copper_basin",
+            "smart_hopper",
+            "fluid_pump",
+            "fluid_transporter",
+            "multi_fluid_tank",
+            "horizontal_multi_fluid_tank",
+            "infinite_fluid_tank",
+            "multi_fluid_access_port",
+            "fluid_inventory_access_port",
+            "fluid_hatch",
+            "faucet",
+            "smart_faucet",
+            "mechanical_fluid_gun",
+            "water_containing_copper_casing",
+            "fluid_packager",
+            "fluid_repackager",
+            "copper_frogport",
+            "industrial_copper_block",
+            "blaze_cooler");
     private static final CreativeTabSectionRegistry INSTANCE = new CreativeTabSectionRegistry();
 
     private final Map<ResourceLocation, Registration> registrations = new LinkedHashMap<>();
@@ -69,9 +93,11 @@ public final class CreativeTabSectionRegistry {
         Objects.requireNonNull(baseItems, "baseItems");
         Objects.requireNonNull(searchItems, "searchItems");
 
+        List<ItemStack> orderedBaseItems = new ArrayList<>(baseItems);
+        orderedBaseItems.sort((first, second) -> Integer.compare(creativeOrder(first), creativeOrder(second)));
         List<ItemStack> displayItems = new ArrayList<>(baseItems.size() + ROW_SIZE * (registrations.size() + 1));
         addEmptyRow(displayItems);
-        displayItems.addAll(baseItems);
+        displayItems.addAll(orderedBaseItems);
 
         List<PositionedSection> positions = new ArrayList<>(registrations.size());
         for (Registration registration : registrations.values()) {
@@ -94,6 +120,15 @@ public final class CreativeTabSectionRegistry {
         }
         positionedSections = List.copyOf(positions);
         return displayItems;
+    }
+
+    private static int creativeOrder(ItemStack stack) {
+        ResourceLocation id = ForgeRegistries.ITEMS.getKey(stack.getItem());
+        if (!id.getNamespace().equals(FluidLogistics.MODID)) {
+            return CREATIVE_BLOCK_ORDER.size();
+        }
+        int index = CREATIVE_BLOCK_ORDER.indexOf(id.getPath());
+        return index < 0 ? CREATIVE_BLOCK_ORDER.size() : index;
     }
 
     public List<PositionedSection> positionedSections() {
@@ -134,5 +169,3 @@ public final class CreativeTabSectionRegistry {
             int bannerRow) {
     }
 }
-
-

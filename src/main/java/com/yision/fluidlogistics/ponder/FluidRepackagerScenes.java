@@ -42,7 +42,7 @@ import net.minecraftforge.items.ItemStackHandler;
 
 public final class FluidRepackagerScenes {
 
-	public static final String FLUID_REPACKAGER = "fluid_repackager";
+	public static final String FLUID_REPACKAGER = "fluid_repackager/fluid_repackager";
 
 	private FluidRepackagerScenes() {
 	}

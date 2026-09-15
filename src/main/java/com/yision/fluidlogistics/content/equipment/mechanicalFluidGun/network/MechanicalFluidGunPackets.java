@@ -301,6 +301,14 @@ public final class MechanicalFluidGunPackets {
 			this.fillingItem = fillingItem;
 		}
 
+		public boolean hasSameVisualState(@Nullable VisualStatePacket other) {
+			return other != null && activeTargetIndex == other.activeTargetIndex
+				&& cycleActive == other.cycleActive
+				&& java.util.Objects.equals(dynamicAimPoint, other.dynamicAimPoint)
+				&& spraying == other.spraying && fillingItem == other.fillingItem
+				&& renderingFluid.isFluidStackIdentical(other.renderingFluid);
+		}
+
 		public VisualStatePacket(FriendlyByteBuf buf) {
 			gunPos = buf.readBlockPos();
 			activeTargetIndex = buf.readVarInt() - 1;

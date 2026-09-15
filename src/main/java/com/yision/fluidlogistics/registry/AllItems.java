@@ -25,6 +25,7 @@ import static com.yision.fluidlogistics.FluidLogistics.REGISTRATE;
 public class AllItems {
 
     public static final ResourceLocation FLUID_GAUGE_TYPE_ID = FluidLogistics.asResource("fluid");
+    private static final int CREATE_RARE_PACKAGE_CHANCE = 7500;
 
     public static final ItemEntry<Item> FLUID_FACTORY_GAUGE = REGISTRATE
             .item("fluid_factory_gauge", properties ->
@@ -97,6 +98,24 @@ public class AllItems {
             .setData(ProviderType.LANG, NonNullBiConsumer.noop())
             .register();
 
+    public static final ItemEntry<FluidPackageItem> RARE_PIG_PACKAGE = REGISTRATE
+            .item("rare_pig_package", properties -> new FluidPackageItem(properties, FluidPackageItem.RARE_PIG_STYLE, false))
+            .removeTab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, FluidLogistics.asResource("fluidlogistics_tab")))
+            .properties(p -> p.stacksTo(1))
+            .tag(AllItemTags.PACKAGES.tag, AllItemTags.NOT_UPRIGHT_ON_BELT.tag)
+            .model(AssetLookup.existingItemModel())
+            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
+            .register();
+
+    public static final ItemEntry<FluidPackageItem> RARE_FOX_PACKAGE = REGISTRATE
+            .item("rare_fox_package", properties -> new FluidPackageItem(properties, FluidPackageItem.RARE_FOX_STYLE, false))
+            .removeTab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, FluidLogistics.asResource("fluidlogistics_tab")))
+            .properties(p -> p.stacksTo(1))
+            .tag(AllItemTags.PACKAGES.tag, AllItemTags.NOT_UPRIGHT_ON_BELT.tag)
+            .model(AssetLookup.existingItemModel())
+            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
+            .register();
+
     public static final ItemEntry<HandPointerItem> HAND_POINTER = REGISTRATE
             .item("hand_pointer", HandPointerItem::new)
             .properties(p -> p.stacksTo(1))
@@ -117,10 +136,16 @@ public class AllItems {
             .register();
 
     public static ItemStack createFluidPackage() {
-        int roll = ThreadLocalRandom.current().nextInt(100);
-        Item fluidPackage = roll < 40 ? FLUID_PACKAGE.get()
-            : roll < 70 ? FLUID_PACKAGE_EXPOSED.get()
-            : roll < 90 ? FLUID_PACKAGE_WEATHERED.get()
+        if (ThreadLocalRandom.current().nextInt(CREATE_RARE_PACKAGE_CHANCE) == 0) {
+            return new ItemStack(ThreadLocalRandom.current().nextBoolean()
+                ? RARE_PIG_PACKAGE.get()
+                : RARE_FOX_PACKAGE.get());
+        }
+
+        int roll = ThreadLocalRandom.current().nextInt(200);
+        Item fluidPackage = roll < 180 ? FLUID_PACKAGE.get()
+            : roll < 190 ? FLUID_PACKAGE_EXPOSED.get()
+            : roll < 195 ? FLUID_PACKAGE_WEATHERED.get()
             : FLUID_PACKAGE_OXIDIZED.get();
         return new ItemStack(fluidPackage);
     }

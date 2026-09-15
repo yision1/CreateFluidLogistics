@@ -28,7 +28,7 @@ import java.util.List;
 
 public class MechanicalFluidGunScenes {
 
-	public static final String MECHANICAL_FLUID_GUN_SETUP = "mechanical_fluid_gun_setup";
+	public static final String MECHANICAL_FLUID_GUN_SETUP = "mechanical_fluid_gun/mechanical_fluid_gun_setup";
 
 	public static void setup(SceneBuilder builder, SceneBuildingUtil util) {
 		CreateSceneBuilder scene = new CreateSceneBuilder(builder);

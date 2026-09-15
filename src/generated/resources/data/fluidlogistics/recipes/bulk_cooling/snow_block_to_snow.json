@@ -10,5 +10,11 @@
       "count": 4,
       "item": "minecraft:snowball"
     }
+  ],
+  "conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:blaze_cooler"
+    }
   ]
 }

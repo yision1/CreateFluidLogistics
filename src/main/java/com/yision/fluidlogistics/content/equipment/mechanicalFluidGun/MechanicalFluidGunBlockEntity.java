@@ -58,6 +58,8 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 
 	private ScrollOptionBehaviour<MechanicalFluidGunScheduleMode> scheduleMode;
 	BeltProcessingBehaviour beltProcessing;
+	private MechanicalFluidGunPackets.VisualStatePacket lastVisualState;
+
 	private final Set<BlockPos> indexedTargets = new HashSet<>();
 
 	public MechanicalFluidGunBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -106,8 +108,8 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 		behaviours.add(scheduleMode);
 
 		beltProcessing = new BeltProcessingBehaviour(this)
-			.whenItemEnters(beltHandler::onBeltItemReceived)
-			.whileItemHeld(beltHandler::whenBeltItemHeld);
+			.whenItemEnters(MechanicalFluidGunBeltDispatcher::received)
+			.whileItemHeld(MechanicalFluidGunBeltDispatcher::held);
 		behaviours.add(beltProcessing);
 	}
 
@@ -157,6 +159,7 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 		if (level == null) return;
 
 		if (level.isClientSide) {
+			updateVisuals();
 			visuals.tickClient();
 			MechanicalFluidGunTargetConfig activeTarget = targets.getActiveTarget();
 			Vec3 aimPoint = getTargetAimPoint(activeTarget);
@@ -197,13 +200,13 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 	@Override
 	public void notifyGunUpdate() {
 		setChanged();
-		if (level != null && !level.isClientSide) {
-			Vec3 dynamicAimPoint = aimState.getAimPoint(targets.getActiveTargetIndex());
-			FluidLogisticsPackets.sendToNear(level, worldPosition, 64,
-				new MechanicalFluidGunPackets.VisualStatePacket(worldPosition, targets.getActiveTargetIndex(),
-					cycle.isActive(), dynamicAimPoint, visuals.isSpraying(), visuals.getRenderingFluid().copy(),
-					itemFilling.isFilling()));
-		}
+		if (level == null || level.isClientSide) return;
+		Vec3 point = aimState.getAimPoint(targets.getActiveTargetIndex());
+		var state = new MechanicalFluidGunPackets.VisualStatePacket(worldPosition, targets.getActiveTargetIndex(),
+			cycle.isActive(), point, visuals.isSpraying(), visuals.getRenderingFluid().copy(), itemFilling.isFilling());
+		if (state.hasSameVisualState(lastVisualState)) return;
+		lastVisualState = state;
+		FluidLogisticsPackets.sendToNear(level, worldPosition, 64, state);
 	}
 
 	public void applyVisualState(int activeTargetIndex, boolean cycleActive, @Nullable Vec3 dynamicAimPoint,
@@ -262,6 +265,10 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 		return itemFilling;
 	}
 
+	MechanicalFluidGunProcessor getProcessorHelper() {
+		return processor;
+	}
+
 	MechanicalFluidGunBeltHandler getBeltHandlerHelper() {
 		return beltHandler;
 	}
@@ -300,6 +307,8 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 	}
 
 	void endWorkCycle() {
+		itemFilling.clear();
+		beltHandler.clearBeltState();
 		processor.clearPendingTarget();
 		if (!cycle.isActive() && !visuals.isSpraying()) {
 			return;
@@ -343,7 +352,7 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 		MechanicalFluidGunTargetConfig activeTarget = targets.getActiveTarget();
 		Vec3 aimPoint = getTargetAimPoint(activeTarget);
 		visuals.updateTargetAngles(worldPosition, getBlockState(), aimPoint,
-			cycle.isActive(), itemFilling.isFilling(), Math.abs(getSpeed()));
+			cycle.isActive(), itemFilling.isFilling(), redstoneLocked && !itemFilling.isFilling() ? 0 : Math.abs(getSpeed()));
 	}
 
 	Vec3 getTargetAimPoint(@Nullable MechanicalFluidGunTargetConfig target) {
@@ -377,6 +386,8 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 
 
 	public void setTargets(List<MechanicalFluidGunTargetConfig> newTargets) {
+		itemFilling.clear();
+		visuals.clearSpray();
 		targets.setTargets(newTargets);
 		refreshTargetIndex();
 		cycle.reset();
@@ -392,6 +403,7 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 	}
 
 	public void clearTarget() {
+		itemFilling.clear();
 		targets.clear();
 		refreshTargetIndex();
 		cycle.reset();
@@ -481,6 +493,13 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 		aimState.read(tag, targets.getActiveTargetIndex());
 		visuals.read(tag);
 		itemFilling.read(tag);
+		if (!clientPacket) {
+			itemFilling.clear();
+			beltHandler.clearBeltState();
+			visuals.clearSpray();
+			cycle.reset();
+			targets.resetActive();
+		}
 		dynamicAimUpdatePending = false;
 		updateVisuals();
 	}

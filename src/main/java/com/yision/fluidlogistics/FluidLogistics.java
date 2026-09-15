@@ -131,6 +131,7 @@ public class FluidLogistics
     public FluidLogistics(FMLJavaModLoadingContext context)
     {
         IEventBus modEventBus = context.getModEventBus();
+        Config.loadStartupValues();
 
         CREATIVE_TABS.register(modEventBus);
         LOOT_MODIFIERS.register(modEventBus);
@@ -155,11 +156,14 @@ public class FluidLogistics
         AllMountedStorageTypes.register();
         AllFluidLogisticsParticleTypes.register(modEventBus);
         AllFluidLogisticsFluids.register();
-        AllFluidLogisticsRecipeTypes.register(modEventBus);
+        if (Config.isBlazeCoolerEnabled()) {
+            AllFluidLogisticsRecipeTypes.register(modEventBus);
+        }
         FluidLogisticsArmInteractionPointTypes.ARM_INTERACTION_POINT_TYPES.register(modEventBus);
         FluidLogisticsPackets.register();
 
-        context.registerConfig(ModConfig.Type.SERVER, Config.SERVER_SPEC);
+        context.registerConfig(ModConfig.Type.SERVER, Config.SERVER_SPEC,
+            net.minecraftforge.fml.loading.FMLPaths.CONFIGDIR.get().resolve("fluidlogistics-server.toml").toString());
         context.registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_SPEC);
 
         CraftingHelper.register(FeatureEnabledCondition.Serializer.INSTANCE);
@@ -192,7 +196,9 @@ public class FluidLogistics
     }
 
     private void onRegister(final RegisterEvent event) {
-        AllFluidLogisticsFanProcessingTypes.register();
+        if (Config.isBlazeCoolerEnabled()) {
+            AllFluidLogisticsFanProcessingTypes.register();
+        }
         AllFluidAttributeTypes.init();
     }
 
