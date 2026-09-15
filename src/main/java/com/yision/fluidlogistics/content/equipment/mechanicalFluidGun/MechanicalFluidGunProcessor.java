@@ -1,9 +1,9 @@
 package com.yision.fluidlogistics.content.equipment.mechanicalFluidGun;
 
 import com.simibubi.create.content.kinetics.belt.BeltBlockEntity;
+import com.simibubi.create.content.kinetics.belt.transport.TransportedItemStack;
 import com.yision.fluidlogistics.content.fluids.faucet.FaucetFilling;
 import com.yision.fluidlogistics.foundation.fluid.DepotFills;
-
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
@@ -14,7 +14,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.Nullable;
@@ -23,163 +22,189 @@ class MechanicalFluidGunProcessor {
 
 	static final int TRANSFER_INTERVAL = 10;
 	private static final int IDLE_RECHECK_INTERVAL = 20;
-
 	private final MechanicalFluidGunBlockEntity be;
 	private PendingTarget pendingTarget;
 
-	MechanicalFluidGunProcessor(MechanicalFluidGunBlockEntity be) {
-		this.be = be;
-	}
+	MechanicalFluidGunProcessor(MechanicalFluidGunBlockEntity be) { this.be = be; }
 
 	void tickServer() {
-		MechanicalFluidGunTargets targets = be.getTargetsHelper();
-		MechanicalFluidGunCycle cycle = be.getCycleHelper();
-		MechanicalFluidGunVisuals visuals = be.getVisualsHelper();
-		MechanicalFluidGunItemFilling itemFilling = be.getItemFillingHelper();
-		MechanicalFluidGunBeltHandler beltHandler = be.getBeltHandlerHelper();
-
+		var filling = be.getItemFillingHelper();
 		if (be.getSpeed() == 0) {
-			be.endWorkCycle();
+			pause();
 			return;
 		}
-
-		if (itemFilling.isFilling()) {
-			if (itemFilling.isFillingBelt()) {
-				beltHandler.tickActiveBeltFillingFallback();
-				return;
-			}
-			if (itemFilling.getProcessingTicks() <= 0) {
-				finishDepotItemFilling();
-				if (be.isRedstoneLocked()) {
-					be.endWorkCycle();
-				}
-				return;
-			}
-			itemFilling.decrementTicks();
+		if (filling.isFillingBelt()) {
+			be.getBeltHandlerHelper().tickActiveBeltFillingFallback();
 			return;
 		}
-
-		boolean sprayCompleted = visuals.tickTransientSpray(itemFilling.isFilling(), () -> {
-			if (visuals.shouldAdvanceAfterSpray()) {
-				if (be.isRedstoneLocked()) {
-					be.endWorkCycle();
-				} else {
-					advanceToProcessableTargetOrIdle();
-				}
+		if (filling.isFillingDepot()) {
+			BlockPos pos = be.getTargetsHelper().getAbsoluteTarget(be.gunPos());
+			if (pos == null || !be.getTargetsHelper().isTargetValid(be.getLevel(), be.gunPos(), pos)
+				|| !filling.refreshAssembly(be, getItemOnDepot(be.getLevel().getBlockEntity(pos)))
+				|| !filling.hasPendingFluid(be.sourceHandler())) {
+				filling.clear();
+				afterItem(null, null);
+			} else if (filling.tick(be)) {
+				finishDepotItemFilling(pos);
 			}
-		});
-		if (sprayCompleted) {
+			return;
+		}
+		if (be.isRedstoneLocked()) {
+			pause();
+			return;
+		}
+		if (be.getVisualsHelper().tickTransientSpray(false, this::advanceToProcessableTargetOrIdle)) {
 			be.notifyGunUpdate();
-		}
-
-		if (beltHandler.shouldWaitForBeltCallback()) {
-			beltHandler.tickKeepAlive();
-			cycle.tickCooldown();
 			return;
 		}
-
-		if (cycle.tickCooldown()) {
-			return;
-		}
-
-		if (be.isRedstoneLocked() && !cycle.isActive()) {
-			return;
-		}
-
-		if (targets.isEmpty()) {
-			return;
-		}
-
-		tryInject();
-	}
-
-	private void tryInject() {
-		MechanicalFluidGunTargets targets = be.getTargetsHelper();
-		MechanicalFluidGunCycle cycle = be.getCycleHelper();
-
-		if (!targets.hasValidTarget(be.getLevel(), be.gunPos())) {
-			cycle.setTransferCooldown(MechanicalFluidGunCycle.getSpeedAdjustedInterval(IDLE_RECHECK_INTERVAL, Math.abs(be.getSpeed())));
-			cycle.resetScheduledTarget();
-			be.endWorkCycle();
-			return;
-		}
-
-		IFluidHandler sourceHandler = be.sourceHandler();
-		if (sourceHandler == null) {
-			cycle.setTransferCooldown(MechanicalFluidGunCycle.getSpeedAdjustedInterval(IDLE_RECHECK_INTERVAL, Math.abs(be.getSpeed())));
-			return;
-		}
-
-		MechanicalFluidGunScheduleMode mode = be.getScheduleMode();
-		List<Integer> candidateIndices = getCandidateIndices(mode, targets.size());
-		List<FluidStack> sourceFluids = null;
-		int attemptedIndex = -1;
-
+		if (be.getCycleHelper().tickCooldown()) return;
+		Candidate next = null;
 		if (pendingTarget != null) {
-			PendingTarget pending = pendingTarget;
-			pendingTarget = null;
-			int index = pending.index();
-			if (index >= 0 && index < targets.size()) {
-				MechanicalFluidGunTargetConfig target = targets.get(index);
-				BlockPos absTarget = target.absoluteFrom(be.gunPos());
-				if (absTarget.equals(pending.pos())
-					&& targets.isTargetValid(be.getLevel(), be.gunPos(), absTarget)
-					&& !be.getBeltHandlerHelper().isBeltTarget(absTarget)) {
-					if (!be.aimAtTarget(index)) {
-						pendingTarget = pending;
-						cycle.setTransferCooldown(1);
-						return;
-					}
-					sourceFluids = snapshotSource(sourceHandler);
-					BlockState targetState = be.getLevel().getBlockState(absTarget);
-					ResolvedProcess process = resolveProcess(sourceFluids, target, targetState, absTarget);
-					if (process.kind() != ProcessKind.NONE
-						&& tryProcess(sourceHandler, target, absTarget, process)) {
-						cycle.markScheduledTarget(index);
-						cycle.setTransferCooldown(MechanicalFluidGunCycle.getSpeedAdjustedInterval(TRANSFER_INTERVAL, Math.abs(be.getSpeed())));
-						return;
-					}
-					attemptedIndex = index;
-				}
+			var targets = be.getTargetsHelper();
+			if (pendingTarget.index() < targets.size()
+				&& targets.get(pendingTarget.index()).absoluteFrom(be.gunPos()).equals(pendingTarget.pos())) {
+				next = candidateAt(pendingTarget.index(), null, null);
 			}
 		}
-
-		if (sourceFluids == null) {
-			sourceFluids = snapshotSource(sourceHandler);
-		}
-
-		for (int index : candidateIndices) {
-			if (index == attemptedIndex) continue;
-			MechanicalFluidGunTargetConfig target = targets.get(index);
-			BlockPos absTarget = target.absoluteFrom(be.gunPos());
-			if (!targets.isTargetValid(be.getLevel(), be.gunPos(), absTarget)) continue;
-			if (be.getBeltHandlerHelper().isBeltTarget(absTarget)) continue;
-
-			BlockState targetState = be.getLevel().getBlockState(absTarget);
-			ResolvedProcess process = resolveProcess(sourceFluids, target, targetState, absTarget);
-			if (process.kind() == ProcessKind.NONE) continue;
-
-			if (!be.aimAtTarget(index)) {
-				pendingTarget = new PendingTarget(index, absTarget);
-				cycle.setTransferCooldown(1);
-				return;
-			}
-			if (tryProcess(sourceHandler, target, absTarget, process)) {
-				cycle.markScheduledTarget(index);
-				cycle.setTransferCooldown(MechanicalFluidGunCycle.getSpeedAdjustedInterval(TRANSFER_INTERVAL, Math.abs(be.getSpeed())));
-				return;
-			}
-		}
-
-		if (mode == MechanicalFluidGunScheduleMode.ROUND_ROBIN) {
-			cycle.resetScheduledTarget();
-		}
-		cycle.setTransferCooldown(MechanicalFluidGunCycle.getSpeedAdjustedInterval(IDLE_RECHECK_INTERVAL, Math.abs(be.getSpeed())));
-		be.endWorkCycle();
+		if (next == null) next = findNext(null, null);
+		if (next == null || !begin(next)) idle();
 	}
 
-	void clearPendingTarget() {
+	void clearPendingTarget() { pendingTarget = null; }
+
+	void stopSpray() {
+		if (!be.getVisualsHelper().isSpraying()) return;
+		be.getVisualsHelper().clearSpray();
+		be.notifyGunUpdate();
+	}
+
+	private void pause() {
+		be.getItemFillingHelper().clear();
+		be.getBeltHandlerHelper().clearBeltState();
+		stopSpray();
+		BlockPos pos = be.getTargetsHelper().getAbsoluteTarget(be.gunPos());
+		boolean hasInput = pos != null && be.getTargetsHelper().isTargetValid(be.getLevel(), be.gunPos(), pos)
+			&& candidateAt(be.getTargetsHelper().getActiveTargetIndex(), null, null) != null;
+		if (!hasInput) be.endWorkCycle();
+		be.updateVisuals();
+	}
+
+	private void idle() {
+		be.endWorkCycle();
+		be.getCycleHelper().setTransferCooldown(MechanicalFluidGunCycle.getSpeedAdjustedInterval(IDLE_RECHECK_INTERVAL, Math.abs(be.getSpeed())));
+	}
+
+	int nextTarget(@Nullable BlockPos knownPos, @Nullable TransportedItemStack knownItem) {
+		Candidate candidate = findNext(knownPos, knownItem);
+		return candidate == null ? -1 : candidate.index();
+	}
+
+	boolean advanceToProcessableTargetOrIdle() {
+		return afterItem(null, null);
+	}
+
+	boolean afterItem(@Nullable BlockPos knownPos, @Nullable TransportedItemStack knownItem) {
+		if (be.getSpeed() == 0 || be.isRedstoneLocked()) {
+			pause();
+			return false;
+		}
+		Candidate next = findNext(knownPos, knownItem);
+		if (next != null && begin(next)) return true;
+		idle();
+		return false;
+	}
+
+	private Candidate findNext(@Nullable BlockPos knownPos, @Nullable TransportedItemStack knownItem) {
+		var source = be.sourceHandler();
+		if (source == null) return null;
+		List<FluidStack> fluids = snapshotSource(source);
+		for (int index : getCandidateIndices(be.getScheduleMode(), be.getTargetsHelper().size())) {
+			Candidate candidate = candidateAt(index, knownPos, knownItem, fluids);
+			if (candidate != null) return candidate;
+		}
+		return null;
+	}
+
+	private Candidate candidateAt(int index, @Nullable BlockPos knownPos, @Nullable TransportedItemStack knownItem) {
+		var source = be.sourceHandler();
+		return source == null ? null : candidateAt(index, knownPos, knownItem, snapshotSource(source));
+	}
+
+	private Candidate candidateAt(int index, @Nullable BlockPos knownPos, @Nullable TransportedItemStack knownItem,
+		List<FluidStack> fluids) {
+		if (index < 0 || index >= be.getTargetsHelper().size()) return null;
+		var target = be.getTargetsHelper().get(index);
+		BlockPos pos = target.absoluteFrom(be.gunPos());
+		if (!be.getTargetsHelper().isTargetValid(be.getLevel(), be.gunPos(), pos)
+			|| !be.getLevel().getBlockState(pos).is(MechanicalFluidGunBlock.TARGETS)) return null;
+		var source = be.sourceHandler();
+		if (source == null) return null;
+		if (be.getBeltHandlerHelper().isBeltTarget(pos)) {
+			if (!MechanicalFluidGunBeltHandler.canProcessAt(be.getLevel(), pos)) return null;
+			TransportedItemStack item = pos.equals(knownPos) ? knownItem : be.getBeltHandlerHelper().findItem(pos);
+			if (item == null) return null;
+			FluidStack fluid = MechanicalFluidGunFillOperations.findFillableFluidForItem(be, fluids, item.stack);
+			return fluid.isEmpty() ? null : new Candidate(index,
+				new ResolvedProcess(ProcessKind.BELT, null, item.stack, fluid), item);
+		}
+		var process = resolveProcess(fluids, target, be.getLevel().getBlockState(pos), pos);
+		return process.kind() == ProcessKind.NONE ? null : new Candidate(index, process, null);
+	}
+
+	private boolean begin(Candidate candidate) {
+		int index = candidate.index();
+		BlockPos pos = be.getTargetsHelper().get(index).absoluteFrom(be.gunPos());
+		if (be.getTargetsHelper().getActiveTargetIndex() != index) {
+			be.getVisualsHelper().clearSpray();
+			be.clearDynamicAimPoint();
+		}
+		be.setActiveTarget(index);
+		be.getCycleHelper().setTransferCooldown(0);
+		if (candidate.process().kind() == ProcessKind.BELT) {
+			var handler = MechanicalFluidGunBeltHandler.handlerAt(be.getLevel(), pos);
+			return handler != null && be.getBeltHandlerHelper().start(candidate.beltItem(), handler, index);
+		}
+		be.clearDynamicAimPoint();
+		if (candidate.process().kind() != ProcessKind.DEPOT && !be.aimAtTarget(index)) {
+			pendingTarget = new PendingTarget(index, pos);
+			be.getCycleHelper().setTransferCooldown(1);
+			return true;
+		}
 		pendingTarget = null;
+		var source = be.sourceHandler();
+		if (source == null || !tryProcess(source, be.getTargetsHelper().get(index), pos, candidate.process())) return false;
+		be.getCycleHelper().markScheduledTarget(index);
+		if (candidate.process().kind() != ProcessKind.DEPOT) {
+			be.getCycleHelper().setTransferCooldown(MechanicalFluidGunCycle.getSpeedAdjustedInterval(TRANSFER_INTERVAL, Math.abs(be.getSpeed())));
+		}
+		return true;
+	}
+
+	private void finishDepotItemFilling(BlockPos pos) {
+		var entity = be.getLevel().getBlockEntity(pos);
+		var handler = DepotFills.getTransportedHandler(be.getLevel(), entity);
+		var source = be.sourceHandler();
+		var filling = be.getItemFillingHelper();
+		boolean completed = handler != null && source != null && DepotFills.fillFirstMatchingItem(handler,
+			item -> filling.canCommit(item.stack), stack -> {
+				if (filling.drainPendingFluid(source).isEmpty()) return ItemStack.EMPTY;
+				stack.shrink(1);
+				return filling.getPreparedResult().copy();
+			});
+		if (completed) {
+			entity.setChanged();
+			DepotFills.notifyTargetUpdate(be.getLevel(), entity);
+			playCompletion();
+		}
+		filling.clear();
+		afterItem(null, null);
+	}
+
+	void playCompletion() {
+		be.getVisualsHelper().spawnServerSprayParticles(be.getLevel(), be.gunPos(),
+			be.getTargetAimPoint(be.getTargetsHelper().getActiveTarget()));
+		be.getLevel().playSound(null, be.gunPos(), SoundEvents.BOTTLE_FILL, SoundSource.BLOCKS, .5f,
+			1 + be.getLevel().random.nextFloat() * .2f);
 	}
 
 	private List<FluidStack> snapshotSource(IFluidHandler sourceHandler) {
@@ -270,7 +295,8 @@ class MechanicalFluidGunProcessor {
 		if (!targetState.is(MechanicalFluidGunBlock.TARGETS)) return false;
 
 		if (process.kind() == ProcessKind.DEPOT) {
-			return startDepotItemFilling(sourceHandler, process.item(), process.fluid());
+			return MechanicalFluidGunItemFilling.startFilling(be, sourceHandler, process.item(), process.fluid(),
+				MechanicalFluidGunItemFilling.ProcessingTarget.DEPOT, null);
 		}
 
 		if (process.kind() == ProcessKind.CAULDRON) {
@@ -293,164 +319,14 @@ class MechanicalFluidGunProcessor {
 		return false;
 	}
 
-	private boolean startDepotItemFilling(IFluidHandler sourceHandler, ItemStack item, FluidStack availableFluid) {
-		return MechanicalFluidGunItemFilling.startFilling(
-			be, sourceHandler, item, availableFluid,
-			MechanicalFluidGunItemFilling.ProcessingTarget.DEPOT, null);
+	boolean isDepot(BlockEntity entity) { return DepotFills.isDepot(entity); }
+	ItemStack getItemOnDepot(BlockEntity depot) { return DepotFills.getItemOnDepot(depot); }
+	private boolean isBelt(BlockEntity entity) { return entity instanceof BeltBlockEntity; }
+
+	private record Candidate(int index, ResolvedProcess process, @Nullable TransportedItemStack beltItem) {}
+	private record PendingTarget(int index, BlockPos pos) {}
+	private record ResolvedProcess(ProcessKind kind, @Nullable IFluidHandler targetHandler, ItemStack item, FluidStack fluid) {
+		private static final ResolvedProcess NONE = new ResolvedProcess(ProcessKind.NONE, null, ItemStack.EMPTY, FluidStack.EMPTY);
 	}
-
-	private void abortFilling() {
-		be.getItemFillingHelper().clear();
-		be.endWorkCycle();
-	}
-
-	private void finishDepotItemFilling() {
-		MechanicalFluidGunTargets targets = be.getTargetsHelper();
-		MechanicalFluidGunItemFilling itemFilling = be.getItemFillingHelper();
-		MechanicalFluidGunVisuals visuals = be.getVisualsHelper();
-		MechanicalFluidGunCycle cycle = be.getCycleHelper();
-
-		if (!itemFilling.isFillingDepot()) {
-			abortFilling();
-			return;
-		}
-
-		BlockPos absTarget = targets.getAbsoluteTarget(be.gunPos());
-		if (absTarget == null) {
-			abortFilling();
-			return;
-		}
-
-		BlockEntity targetEntity = be.getLevel().getBlockEntity(absTarget);
-		if (!isDepot(targetEntity)) {
-			abortFilling();
-			return;
-		}
-
-		ItemStack currentItem = getItemOnDepot(targetEntity);
-		if (!itemFilling.canCommit(currentItem)) {
-			abortFilling();
-			return;
-		}
-
-		var transportedHandler = DepotFills.getTransportedHandler(be.getLevel(), targetEntity);
-		if (transportedHandler == null) {
-			abortFilling();
-			return;
-		}
-
-		IFluidHandler sourceHandler = be.sourceHandler();
-		if (sourceHandler == null) {
-			abortFilling();
-			return;
-		}
-
-		FluidStack drained = itemFilling.drainPendingFluid(sourceHandler);
-		if (drained.isEmpty()) {
-			abortFilling();
-			return;
-		}
-
-		boolean completed = DepotFills.fillFirstMatchingItem(transportedHandler,
-			transported -> itemFilling.canCommit(transported.stack),
-			stack -> {
-				stack.shrink(1);
-				return itemFilling.getPreparedResult().copy();
-			});
-		if (!completed) {
-			MechanicalFluidGunFillOperations.restoreToSource(sourceHandler, drained);
-			abortFilling();
-			return;
-		}
-
-		targetEntity.setChanged();
-		DepotFills.notifyTargetUpdate(be.getLevel(), targetEntity);
-		be.getLevel().playSound(null, absTarget, SoundEvents.BOTTLE_FILL, SoundSource.BLOCKS, 0.5f, 1.0f + be.getLevel().random.nextFloat() * 0.2f);
-
-		MechanicalFluidGunTargetConfig activeTarget = targets.getActiveTarget();
-		Vec3 aimPoint = be.getTargetAimPoint(activeTarget);
-		visuals.spawnServerSprayParticles(be.getLevel(), be.gunPos(), aimPoint);
-
-		itemFilling.clear();
-		cycle.setTransferCooldown(MechanicalFluidGunCycle.getSpeedAdjustedInterval(TRANSFER_INTERVAL, Math.abs(be.getSpeed())));
-		be.notifyGunUpdate();
-	}
-
-	boolean advanceToProcessableTargetOrIdle() {
-		int processableTarget = findNextProcessableTarget();
-		MechanicalFluidGunTargets targets = be.getTargetsHelper();
-		MechanicalFluidGunCycle cycle = be.getCycleHelper();
-
-		be.clearDynamicAimPoint();
-		if (processableTarget == -1) {
-			targets.resetActive();
-			cycle.setActive(false);
-			cycle.setTargetProgress(1);
-		} else {
-			if (targets.getActiveTargetIndex() != processableTarget || !cycle.isActive()) {
-				cycle.setTargetProgress(0);
-			}
-			targets.setActiveTargetIndex(processableTarget);
-			cycle.setActive(true);
-			cycle.setTransferCooldown(0);
-			pendingTarget = new PendingTarget(processableTarget,
-				targets.get(processableTarget).absoluteFrom(be.gunPos()));
-		}
-
-		be.updateVisuals();
-		return processableTarget != -1;
-	}
-
-	private int findNextProcessableTarget() {
-		MechanicalFluidGunTargets targets = be.getTargetsHelper();
-		IFluidHandler sourceHandler = be.sourceHandler();
-		if (sourceHandler == null) return -1;
-
-		int size = targets.size();
-		if (size == 0) return -1;
-		MechanicalFluidGunScheduleMode mode = be.getScheduleMode();
-		List<FluidStack> sourceFluids = snapshotSource(sourceHandler);
-
-		for (int index : getCandidateIndices(mode, size)) {
-			MechanicalFluidGunTargetConfig target = targets.get(index);
-			BlockPos absTarget = target.absoluteFrom(be.gunPos());
-			if (!targets.isTargetValid(be.getLevel(), be.gunPos(), absTarget)) continue;
-
-			BlockState targetState = be.getLevel().getBlockState(absTarget);
-			if (resolveProcess(sourceFluids, target, targetState, absTarget).kind() != ProcessKind.NONE) {
-				return index;
-			}
-		}
-		return -1;
-	}
-
-	boolean isDepot(BlockEntity entity) {
-		return DepotFills.isDepot(entity);
-	}
-
-	ItemStack getItemOnDepot(BlockEntity depot) {
-		return DepotFills.getItemOnDepot(depot);
-	}
-
-	private boolean isBelt(BlockEntity entity) {
-		return entity instanceof BeltBlockEntity;
-	}
-
-	private record ResolvedProcess(ProcessKind kind, @Nullable IFluidHandler targetHandler,
-		ItemStack item, FluidStack fluid) {
-
-		private static final ResolvedProcess NONE = new ResolvedProcess(ProcessKind.NONE, null,
-			ItemStack.EMPTY, FluidStack.EMPTY);
-	}
-
-	private record PendingTarget(int index, BlockPos pos) {
-	}
-
-	private enum ProcessKind {
-		NONE,
-		DEPOT,
-		CAULDRON,
-		CONTAINER,
-		FUEL
-	}
+	private enum ProcessKind { NONE, DEPOT, BELT, CAULDRON, CONTAINER, FUEL }
 }

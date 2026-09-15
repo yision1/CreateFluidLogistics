@@ -1,487 +1,182 @@
 package com.yision.fluidlogistics.content.equipment.mechanicalFluidGun;
 
-import com.simibubi.create.content.kinetics.belt.BeltBlockEntity;
 import com.simibubi.create.content.kinetics.belt.BeltBlock;
+import com.simibubi.create.content.kinetics.belt.BeltBlockEntity;
 import com.simibubi.create.content.kinetics.belt.behaviour.BeltProcessingBehaviour;
 import com.simibubi.create.content.kinetics.belt.behaviour.TransportedItemStackHandlerBehaviour;
 import com.simibubi.create.content.kinetics.belt.behaviour.TransportedItemStackHandlerBehaviour.TransportedResult;
 import com.simibubi.create.content.kinetics.belt.transport.TransportedItemStack;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
-import com.yision.fluidlogistics.content.fluids.faucet.FaucetFilling;
-import com.yision.fluidlogistics.foundation.fluid.DepotFills;
-import com.yision.fluidlogistics.foundation.fluid.FluidSourceScans;
-
+import com.yision.fluidlogistics.content.fluids.faucet.SmartFaucetBlock;
 import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
-
-import static com.simibubi.create.content.kinetics.belt.behaviour.BeltProcessingBehaviour.ProcessingResult.HOLD;
-import static com.simibubi.create.content.kinetics.belt.behaviour.BeltProcessingBehaviour.ProcessingResult.PASS;
 
 class MechanicalFluidGunBeltHandler {
 
-	private static final int BELT_KEEP_ALIVE_TICKS = 8;
-	private static final int BELT_RETRY_COOLDOWN = 4;
-	private static final double BELT_ITEM_RENDER_HEIGHT = 7.0 / 16.0;
-
 	private final MechanicalFluidGunBlockEntity be;
-	private int beltKeepAliveTicks;
-	private int beltRetryCooldown;
-
-	@Nullable
-	private TransportedItemStack activeBeltItem;
-	@Nullable
-	private BlockPos activeBeltPos;
+	@Nullable private TransportedItemStack activeBeltItem;
+	@Nullable private BlockPos activeBeltPos;
+	private long boundAt;
 
 	MechanicalFluidGunBeltHandler(MechanicalFluidGunBlockEntity be) {
 		this.be = be;
 	}
 
-	private boolean hasActiveBeltSession() {
-		return activeBeltItem != null;
+	boolean accept(TransportedItemStack item, TransportedItemStackHandlerBehaviour handler) {
+		if (activeBeltItem != null) return matches(item, handler);
+		if (be.getItemFillingHelper().isFilling() || be.getSpeed() == 0 || be.isRedstoneLocked()) return false;
+		int index = be.getTargetsHelper().getTargetIndexFor(be.gunPos(), handler.blockEntity.getBlockPos());
+		if (index < 0 || be.getProcessorHelper().nextTarget(handler.blockEntity.getBlockPos(), item) != index) return false;
+		return start(item, handler, index);
 	}
 
-	private boolean isActiveBeltItem(TransportedItemStack transported,
-									 TransportedItemStackHandlerBehaviour handler) {
-		return transported == activeBeltItem
-			&& activeBeltPos != null
-			&& handler.blockEntity != null
-			&& activeBeltPos.equals(handler.blockEntity.getBlockPos());
-	}
-
-	private void bindActiveBeltSession(TransportedItemStack transported,
-									  TransportedItemStackHandlerBehaviour handler, int targetIndex) {
-		activeBeltItem = transported;
+	boolean start(TransportedItemStack item, TransportedItemStackHandlerBehaviour handler, int index) {
+		var source = be.sourceHandler();
+		if (source == null || be.getSpeed() == 0 || be.isRedstoneLocked()) return false;
+		FluidStack fluid = MechanicalFluidGunFillOperations.findFillableFluidForItem(be, source, item.stack);
+		if (fluid.isEmpty()) return false;
+		if (be.getTargetsHelper().getActiveTargetIndex() != index) be.getVisualsHelper().clearSpray();
+		activeBeltItem = item;
 		activeBeltPos = handler.blockEntity.getBlockPos().immutable();
-		be.setDynamicAimPoint(targetIndex, getBeltItemAimPoint(transported, handler));
+		boundAt = be.getLevel().getGameTime();
+		be.setDynamicAimPoint(index, getBeltItemAimPoint(item, handler));
+		be.setActiveTarget(index);
+		if (!MechanicalFluidGunItemFilling.startFilling(be, source, item.stack, fluid,
+			MechanicalFluidGunItemFilling.ProcessingTarget.BELT, activeBeltPos)) {
+			clearBeltState();
+			return false;
+		}
+		be.getCycleHelper().markScheduledTarget(index);
+		item.locked = true;
+		handler.blockEntity.notifyUpdate();
+		return true;
 	}
 
-	private void clearActiveBeltSession() {
-		activeBeltItem = null;
-		activeBeltPos = null;
-		be.clearDynamicAimPoint();
+	boolean matches(TransportedItemStack item, TransportedItemStackHandlerBehaviour handler) {
+		return item == activeBeltItem && handler.blockEntity.getBlockPos().equals(activeBeltPos);
 	}
 
-	private boolean isImmediateDownstreamBeltPos(BlockPos currentPos, BlockPos candidatePos) {
-		Level level = be.getLevel();
-		if (!(level.getBlockEntity(currentPos) instanceof BeltBlockEntity currentBelt)) {
+	boolean tick(TransportedItemStack item, TransportedItemStackHandlerBehaviour handler) {
+		if (!matches(item, handler)) return false;
+		if (be.getSpeed() == 0 || !be.getItemFillingHelper().canCommit(item.stack)
+			|| !be.getItemFillingHelper().hasPendingFluid(be.sourceHandler())) {
+			be.getItemFillingHelper().clear();
+			clearBeltState();
+			be.getProcessorHelper().afterItem(null, null);
 			return false;
 		}
-		if (!(level.getBlockEntity(candidatePos) instanceof BeltBlockEntity candidateBelt)) {
-			return false;
-		}
-		if (!currentBelt.getController().equals(candidateBelt.getController())) {
-			return false;
-		}
-
-		BeltBlockEntity controller = currentBelt.getControllerBE();
-		if (controller == null) {
-			return false;
-		}
-
-		int step = controller.getDirectionAwareBeltMovementSpeed() > 0 ? 1 : -1;
-		return candidateBelt.index == currentBelt.index + step;
+		return be.getItemFillingHelper().tick(be);
 	}
 
-	private boolean canPreemptWithNextBeltItem(TransportedItemStack candidate,
-											   TransportedItemStackHandlerBehaviour handler,
-											   FluidStack fillableFluid) {
-		MechanicalFluidGunItemFilling itemFilling = be.getItemFillingHelper();
-		if (!itemFilling.isFillingBelt() || activeBeltItem == null || activeBeltPos == null) {
-			return false;
+	void replace(TransportedItemStack previous, @Nullable TransportedItemStack replacement, boolean sameInput,
+		TransportedItemStackHandlerBehaviour handler) {
+		if (activeBeltItem != previous) return;
+		if (!sameInput && (replacement == null || !be.getItemFillingHelper().refreshAssembly(be, replacement.stack)))
+			be.getItemFillingHelper().clear();
+		activeBeltItem = replacement;
+		boundAt = be.getLevel().getGameTime();
+		if (replacement == null || !be.getItemFillingHelper().isFilling()) {
+			clearBeltState();
+			be.getProcessorHelper().afterItem(handler.blockEntity.getBlockPos(), replacement);
+		} else {
+			int index = be.getTargetsHelper().getTargetIndexFor(be.gunPos(), activeBeltPos);
+			be.setDynamicAimPoint(index, getBeltItemAimPoint(replacement, handler));
+			be.updateVisuals();
+			be.notifyGunUpdate();
 		}
-		if (handler.blockEntity == null) {
-			return false;
-		}
-		BlockPos candidatePos = handler.blockEntity.getBlockPos();
-		if (!isImmediateDownstreamBeltPos(activeBeltPos, candidatePos)) {
-			return false;
-		}
-		if (itemFilling.getProcessingItem().isEmpty()
-			|| !ItemStack.isSameItemSameComponents(candidate.stack.copyWithCount(1),
-				itemFilling.getProcessingItem())) {
-			return false;
-		}
-		return !fillableFluid.isEmpty();
-	}
-
-	BeltProcessingBehaviour.ProcessingResult onBeltItemReceived(TransportedItemStack transported,
-																	TransportedItemStackHandlerBehaviour handler) {
-		if (handler.blockEntity.isVirtual()) return PASS;
-		if (be.getSpeed() == 0 || be.isRedstoneLocked()) return PASS;
-
-		MechanicalFluidGunTargets targets = be.getTargetsHelper();
-		int targetIndex = targets.getTargetIndexFor(be.gunPos(), handler.blockEntity.getBlockPos());
-		if (targetIndex == -1) return PASS;
-
-		if (!FaucetFilling.canItemBeFilled(be.getLevel(), transported.stack)) return PASS;
-
-		IFluidHandler source = be.sourceHandler();
-		if (source == null) return PASS;
-
-		FluidStack fillable = MechanicalFluidGunFillOperations.findFillableFluidForItem(be, source, transported.stack);
-		if (fillable.isEmpty()) return PASS;
-
-		MechanicalFluidGunItemFilling itemFilling = be.getItemFillingHelper();
-
-		if (itemFilling.isFillingDepot()) {
-			return HOLD;
-		}
-
-		if (itemFilling.isFillingBelt()) {
-			if (canPreemptWithNextBeltItem(transported, handler, fillable)) {
-				cancelBeltItemFilling();
-				bindActiveBeltSession(transported, handler, targetIndex);
-				be.setActiveTarget(targetIndex);
-				keepBeltTargetAlive();
-				return HOLD;
-			}
-			return PASS;
-		}
-
-		bindActiveBeltSession(transported, handler, targetIndex);
-		be.setActiveTarget(targetIndex);
-		keepBeltTargetAlive();
-		return HOLD;
-	}
-
-	BeltProcessingBehaviour.ProcessingResult whenBeltItemHeld(TransportedItemStack transported,
-															  TransportedItemStackHandlerBehaviour handler) {
-		if (be.getSpeed() == 0) return PASS;
-
-		MechanicalFluidGunTargets targets = be.getTargetsHelper();
-		MechanicalFluidGunItemFilling itemFilling = be.getItemFillingHelper();
-		if (be.isRedstoneLocked() && !itemFilling.isFillingBelt() && !hasActiveBeltSession()) {
-			return PASS;
-		}
-		int targetIndex = targets.getTargetIndexFor(be.gunPos(), handler.blockEntity.getBlockPos());
-
-		if (targetIndex == -1) {
-			if (itemFilling.isFillingBelt()) {
-				cancelBeltItemFilling();
-			}
-			return PASS;
-		}
-
-		keepBeltTargetAlive();
-
-		if (hasActiveBeltSession() && !isActiveBeltItem(transported, handler)) {
-			return PASS;
-		}
-
-		if (itemFilling.isFillingDepot()) {
-			return HOLD;
-		}
-
-		if (itemFilling.isFillingBelt()) {
-			if (!hasActiveBeltSession()) {
-				cancelBeltItemFilling();
-				return PASS;
-			}
-			BlockPos beltPos = handler.blockEntity.getBlockPos();
-			if (!itemFilling.isProcessingBeltPos(beltPos)) {
-				return HOLD;
-			}
-			if (!be.aimAtTarget(targetIndex)) {
-				return HOLD;
-			}
-			if (itemFilling.getProcessingItem().isEmpty()
-				|| transported.stack.getCount() < 1
-				|| !ItemStack.isSameItemSameComponents(transported.stack.copyWithCount(1), itemFilling.getProcessingItem())) {
-				cancelBeltItemFilling();
-				return PASS;
-			}
-			if (itemFilling.getProcessingTicks() > 0) {
-				itemFilling.decrementTicks();
-				return HOLD;
-			}
-			return finishBeltItemFilling(transported, handler);
-		}
-
-		if (!be.aimAtTarget(targetIndex)) {
-			return HOLD;
-		}
-
-		if (beltRetryCooldown > 0) {
-			beltRetryCooldown--;
-			return HOLD;
-		}
-
-		if (!FaucetFilling.canItemBeFilled(be.getLevel(), transported.stack)) {
-			be.endWorkCycle();
-			return PASS;
-		}
-
-		IFluidHandler source = be.sourceHandler();
-		if (source == null) {
-			be.endWorkCycle();
-			return PASS;
-		}
-
-		FluidStack fillableFluid = MechanicalFluidGunFillOperations.findFillableFluidForItem(be, source, transported.stack);
-		if (fillableFluid.isEmpty()) {
-			if (FluidSourceScans.hasPotentialForItem(be.getLevel(), source, be::testFilter, transported.stack, false)) {
-				beltRetryCooldown = BELT_RETRY_COOLDOWN;
-				return HOLD;
-			}
-			be.endWorkCycle();
-			return PASS;
-		}
-
-		boolean started = startBeltFilling(source, transported.stack, fillableFluid,
-			handler.blockEntity.getBlockPos());
-		if (started) {
-			be.getCycleHelper().markScheduledTarget(targetIndex);
-		}
-		return started ? HOLD : PASS;
 	}
 
 	void tickActiveBeltFillingFallback() {
-		MechanicalFluidGunItemFilling itemFilling = be.getItemFillingHelper();
-		if (!itemFilling.isFillingBelt()) {
+		if (activeBeltPos == null || activeBeltItem == null
+			|| !be.getTargetsHelper().isTargetValid(be.getLevel(), be.gunPos(), activeBeltPos)
+			|| !targetsBeltPos(activeBeltPos) || !canProcessAt(be.getLevel(), activeBeltPos)) {
+			cancel();
 			return;
 		}
-
-		if (!hasActiveBeltSession()
-			|| activeBeltPos == null
-			|| !isConfiguredValidBeltTarget(activeBeltPos)) {
-			cancelBeltItemFilling();
+		if (be.getLevel().getBlockEntity(activeBeltPos) instanceof BeltBlockEntity belt && belt.getSpeed() == 0) {
+			be.getProcessorHelper().stopSpray();
 			return;
 		}
-
-		if (activeBeltItem.stack.isEmpty()
-			|| itemFilling.getProcessingItem().isEmpty()
-			|| !ItemStack.isSameItemSameComponents(activeBeltItem.stack.copyWithCount(1),
-				itemFilling.getProcessingItem())) {
-			cancelBeltItemFilling();
-		}
+		if (be.getLevel().getGameTime() <= boundAt + 1) return;
+		var handler = handlerAt(be.getLevel(), activeBeltPos);
+		boolean[] present = {false};
+		if (handler != null) handler.handleProcessingOnAllItems(item -> {
+			present[0] |= item == activeBeltItem;
+			return TransportedResult.doNothing();
+		});
+		if (!present[0] || !be.getItemFillingHelper().canCommit(activeBeltItem.stack)) cancel();
 	}
 
-	private boolean isConfiguredValidBeltTarget(BlockPos beltPos) {
-		MechanicalFluidGunTargets targets = be.getTargetsHelper();
-		return targets.getTargetIndexFor(be.gunPos(), beltPos) != -1
-			&& targets.isTargetValid(be.getLevel(), be.gunPos(), beltPos);
-	}
-
-	private boolean startBeltFilling(IFluidHandler sourceHandler, ItemStack item, FluidStack availableFluid,
-									 BlockPos beltPos) {
-		return MechanicalFluidGunItemFilling.startFilling(
-			be, sourceHandler, item, availableFluid,
-			MechanicalFluidGunItemFilling.ProcessingTarget.BELT, beltPos);
-	}
-
-	private Vec3 getBeltItemAimPoint(TransportedItemStack transported,
-									 TransportedItemStackHandlerBehaviour handler) {
-		Vec3 itemPos = handler.getWorldPositionOf(transported)
-			.add(0, BELT_ITEM_RENDER_HEIGHT, 0);
-
-		if (!(handler.blockEntity instanceof BeltBlockEntity belt)) {
-			return itemPos;
-		}
-
-		double sideOffset = transported.sideOffset;
-		return belt.getBlockState().getValue(BeltBlock.HORIZONTAL_FACING).getAxis() == net.minecraft.core.Direction.Axis.Z
-			? itemPos.add(sideOffset, 0, 0)
-			: itemPos.add(0, 0, -sideOffset);
-	}
-
-	private BeltProcessingBehaviour.ProcessingResult finishBeltItemFilling(TransportedItemStack transported,
-																		  TransportedItemStackHandlerBehaviour handler) {
-		MechanicalFluidGunItemFilling itemFilling = be.getItemFillingHelper();
-		MechanicalFluidGunVisuals visuals = be.getVisualsHelper();
-
-		if (!itemFilling.isFillingBelt()) {
-			return PASS;
-		}
-		if (!itemFilling.canCommit(transported.stack)) {
-			cancelBeltItemFilling();
-			return PASS;
-		}
-
-		IFluidHandler sourceHandler = be.sourceHandler();
-		if (sourceHandler == null) {
-			cancelItemFilling();
-			return PASS;
-		}
-
-		FluidStack drained = itemFilling.drainPendingFluid(sourceHandler);
-		if (drained.isEmpty()) {
-			cancelItemFilling();
-			return PASS;
-		}
-
-		ItemStack resultStack = itemFilling.getPreparedResult().copy();
-		transported.stack.shrink(1);
-		DepotFills.completeItemFill(handler, transported, resultStack);
-
-		MechanicalFluidGunTargetConfig activeTarget = be.getTargetsHelper().getActiveTarget();
-		Vec3 aimPoint = be.getTargetAimPoint(activeTarget);
-		visuals.spawnServerSprayParticles(be.getLevel(), be.gunPos(), aimPoint);
-		be.getLevel().playSound(null, be.gunPos(), SoundEvents.BOTTLE_FILL, SoundSource.BLOCKS, 0.5f, 1.0f + be.getLevel().random.nextFloat() * 0.2f);
-
-		clearActiveBeltSession();
-		itemFilling.clear();
-		be.endWorkCycle();
-		return HOLD;
-	}
-
-	void keepBeltTargetAlive() {
-		beltKeepAliveTicks = BELT_KEEP_ALIVE_TICKS;
-	}
-
-	boolean shouldWaitForBeltCallback() {
-		MechanicalFluidGunTargets targets = be.getTargetsHelper();
-		int activeIndex = targets.getActiveTargetIndex();
-
-		if (activeIndex < 0 || activeIndex >= targets.size()) {
-			return false;
-		}
-
-		BlockPos absTarget = targets.get(activeIndex).absoluteFrom(be.gunPos());
-		if (!isBeltTarget(absTarget)) {
-			return false;
-		}
-
-		return beltKeepAliveTicks > 0;
-	}
-
-	void tickKeepAlive() {
-		if (beltKeepAliveTicks > 0) {
-			beltKeepAliveTicks--;
-		}
+	private void cancel() {
+		be.getItemFillingHelper().clear();
+		clearBeltState();
+		be.getProcessorHelper().afterItem(null, null);
 	}
 
 	void clearBeltState() {
-		beltKeepAliveTicks = 0;
-		beltRetryCooldown = 0;
-		clearActiveBeltSession();
+		activeBeltItem = null;
+		activeBeltPos = null;
 	}
 
 	boolean resumeWaitingBeltItem() {
-		if (be.getSpeed() == 0 || be.isRedstoneLocked())
-			return false;
-		if (be.sourceHandler() == null)
-			return false;
-		if (be.getItemFillingHelper().isFilling() || hasActiveBeltSession())
-			return false;
-
-		Level level = be.getLevel();
-		MechanicalFluidGunTargets targets = be.getTargetsHelper();
-		IFluidHandler source = be.sourceHandler();
-		if (targets.isEmpty())
-			return false;
-
-		for (int i = 0; i < targets.size(); i++) {
-			MechanicalFluidGunTargetConfig target = targets.get(i);
-			BlockPos absTarget = target.absoluteFrom(be.gunPos());
-			if (!targets.isTargetValid(level, be.gunPos(), absTarget))
-				continue;
-			if (!isBeltTarget(absTarget))
-				continue;
-
-			TransportedItemStackHandlerBehaviour handler = BlockEntityBehaviour.get(
-				level, absTarget, TransportedItemStackHandlerBehaviour.TYPE);
-			if (handler == null)
-				continue;
-
-			final int targetIndex = i;
-			boolean[] found = {false};
-			handler.handleProcessingOnAllItems(transported -> {
-				if (found[0])
-					return TransportedResult.doNothing();
-
-				if (!FaucetFilling.canItemBeFilled(level, transported.stack))
-					return TransportedResult.doNothing();
-
-				FluidStack fillable = MechanicalFluidGunFillOperations
-					.findFillableFluidForItem(be, source, transported.stack);
-				if (fillable.isEmpty())
-					return TransportedResult.doNothing();
-
-				if (be.getItemFillingHelper().isFillingDepot())
-					return TransportedResult.doNothing();
-
-				found[0] = true;
-				TransportedItemStack held = transported.copy();
-				held.locked = true;
-				held.lockedExternally = false;
-
-				bindActiveBeltSession(held, handler, targetIndex);
-				be.setActiveTarget(targetIndex);
-				keepBeltTargetAlive();
-
-				return TransportedResult.convertToAndLeaveHeld(List.of(), held);
-			});
-
-			if (found[0])
-				return true;
-		}
-		return false;
+		if (be.getItemFillingHelper().isFilling() || be.getSpeed() == 0 || be.isRedstoneLocked()) return false;
+		return be.getProcessorHelper().advanceToProcessableTargetOrIdle();
 	}
 
-	boolean hasActiveBeltWorkAt(BlockPos beltPos) {
-		return activeBeltPos != null && activeBeltPos.equals(beltPos)
-			|| be.getItemFillingHelper().isProcessingBeltPos(beltPos);
+	boolean hasActiveBeltWorkAt(BlockPos pos) {
+		return pos.equals(activeBeltPos);
 	}
 
-	boolean targetsBeltPos(BlockPos beltPos) {
-		return be.getTargetsHelper().getTargetIndexFor(be.gunPos(), beltPos) != -1;
+	boolean targetsBeltPos(BlockPos pos) {
+		return be.getTargetsHelper().getTargetIndexFor(be.gunPos(), pos) >= 0;
 	}
 
-	boolean isBeltTarget(BlockPos absTarget) {
-		return be.getLevel().getBlockEntity(absTarget) instanceof BeltBlockEntity;
+	boolean isBeltTarget(BlockPos pos) {
+		return be.getLevel().getBlockEntity(pos) instanceof BeltBlockEntity;
 	}
 
 	@Nullable
-	static BeltProcessingBehaviour findProcessingAt(Level level, BlockPos beltPos) {
-		List<BlockPos> gunPositions = MechanicalFluidGunTargetIndex.getGunsTargeting(level, beltPos);
-		if (gunPositions.isEmpty()) {
-			return null;
-		}
-
-		MechanicalFluidGunBlockEntity best = null;
-		double bestDistance = Double.MAX_VALUE;
-
-		for (BlockPos gunPos : gunPositions) {
-			if (Math.abs(gunPos.getX() - beltPos.getX()) > MechanicalFluidGunBlockEntity.RANGE
-				|| Math.abs(gunPos.getY() - beltPos.getY()) > MechanicalFluidGunBlockEntity.RANGE
-				|| Math.abs(gunPos.getZ() - beltPos.getZ()) > MechanicalFluidGunBlockEntity.RANGE) {
-				continue;
-			}
-			if (!(level.getBlockEntity(gunPos) instanceof MechanicalFluidGunBlockEntity gun)) {
-				continue;
-			}
-			if (gun.getSpeed() == 0 || !gun.targetsBeltPos(beltPos) || gun.sourceHandler() == null) {
-				continue;
-			}
-			if (gun.isRedstoneLocked() && !gun.getBeltHandlerHelper().hasActiveBeltWorkAt(beltPos)) {
-				continue;
-			}
-			double distance = gunPos.distSqr(beltPos);
-			if (distance < bestDistance) {
-				best = gun;
-				bestDistance = distance;
-			}
-		}
-
-		return best == null ? null : best.beltProcessing;
+	static TransportedItemStackHandlerBehaviour handlerAt(Level level, BlockPos pos) {
+		return BlockEntityBehaviour.get(level, pos, TransportedItemStackHandlerBehaviour.TYPE);
 	}
 
-	private void cancelItemFilling() {
-		be.getItemFillingHelper().clear();
-		be.endWorkCycle();
+	static boolean canProcessAt(Level level, BlockPos pos) {
+		if (!level.isLoaded(pos) || !(level.getBlockEntity(pos) instanceof BeltBlockEntity)) return false;
+		if (level.getBlockState(pos.above()).getBlock() instanceof SmartFaucetBlock
+			|| level.getBlockState(pos.above(2)).getBlock() instanceof SmartFaucetBlock) return false;
+		var original = BlockEntityBehaviour.get(level, pos.above(2), BeltProcessingBehaviour.TYPE);
+		return (original == null || original.blockEntity instanceof MechanicalFluidGunBlockEntity)
+			&& !BeltProcessingBehaviour.isBlocked(level, pos);
 	}
 
-	private void cancelBeltItemFilling() {
-		cancelItemFilling();
-		clearBeltState();
+	@Nullable
+	TransportedItemStack findItem(BlockPos pos) {
+		if (!canProcessAt(be.getLevel(), pos)) return null;
+		var handler = handlerAt(be.getLevel(), pos);
+		var source = be.sourceHandler();
+		if (handler == null || source == null) return null;
+		TransportedItemStack[] found = {null};
+		handler.handleProcessingOnAllItems(item -> {
+			if (found[0] == null && !item.lockedExternally
+				&& !MechanicalFluidGunFillOperations.findFillableFluidForItem(be, source, item.stack).isEmpty()) found[0] = item;
+			return TransportedResult.doNothing();
+		});
+		return found[0];
+	}
+
+	private Vec3 getBeltItemAimPoint(TransportedItemStack item, TransportedItemStackHandlerBehaviour handler) {
+		Vec3 pos = handler.getWorldPositionOf(item).add(0, 7.0 / 16.0, 0);
+		if (!(handler.blockEntity instanceof BeltBlockEntity belt)) return pos;
+		return belt.getBlockState().getValue(BeltBlock.HORIZONTAL_FACING).getAxis() == net.minecraft.core.Direction.Axis.Z
+			? pos.add(item.sideOffset, 0, 0) : pos.add(0, 0, -item.sideOffset);
+	}
+
+	@Nullable
+	static BeltProcessingBehaviour findProcessingAt(Level level, BlockPos pos) {
+		var guns = MechanicalFluidGunBeltDispatcher.gunsAt(level, pos);
+		return guns.isEmpty() ? null : guns.getFirst().beltProcessing;
 	}
 }
