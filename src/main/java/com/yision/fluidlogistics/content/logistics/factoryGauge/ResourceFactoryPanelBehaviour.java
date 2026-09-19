@@ -83,6 +83,7 @@ public class ResourceFactoryPanelBehaviour extends FactoryPanelBehaviour
     public void setGaugeTypeId(ResourceLocation typeId) {
         this.gaugeTypeId = typeId;
         this.resourceRuntime.reset();
+        setFilter(ItemStack.EMPTY);
         blockEntity.setChanged();
     }
 
@@ -290,8 +291,11 @@ public class ResourceFactoryPanelBehaviour extends FactoryPanelBehaviour
         FactoryGaugeType type = registeredType().orElse(null);
         if (type == null)
             return false;
-        if (candidate.isEmpty())
-            return writeValidatedResourceFilter(type, ItemStack.EMPTY);
+        if (candidate.isEmpty()) {
+            Optional<ItemStack> resolved = resolveFilter(type, ItemStack.EMPTY);
+            return resolved != null
+                && writeValidatedResourceFilter(type, resolved.orElse(ItemStack.EMPTY));
+        }
         if (candidate.getItem() instanceof FilterItem)
             return false;
 
@@ -303,22 +307,26 @@ public class ResourceFactoryPanelBehaviour extends FactoryPanelBehaviour
             .equals(type.resourceTypeId()))
             return writeValidatedResourceFilter(type, candidateCopy);
 
-        Optional<ItemStack> resolved;
-        try {
-            resolved = type.filterResolver()
-                .resolve(getWorld(), candidateCopy);
-        } catch (RuntimeException e) {
-            FluidLogistics.LOGGER
-                .error("factory gauge filter resolver {} threw for candidate {}", type.id(),
-                    candidate.getItem(), e);
-            return false;
-        }
+        Optional<ItemStack> resolved = resolveFilter(type, candidateCopy);
         if (resolved == null || resolved.isEmpty())
             return false;
         ItemStack key = resolved.get();
         if (key == null || key.isEmpty())
             return false;
         return writeValidatedResourceFilter(type, key);
+    }
+
+    @Nullable
+    private Optional<ItemStack> resolveFilter(FactoryGaugeType type, ItemStack candidate) {
+        try {
+            return type.filterResolver()
+                .resolve(getWorld(), candidate.copy());
+        } catch (RuntimeException e) {
+            FluidLogistics.LOGGER
+                .error("factory gauge filter resolver {} threw for candidate {}", type.id(),
+                    candidate.getItem(), e);
+            return null;
+        }
     }
 
     private boolean writeValidatedResourceFilter(FactoryGaugeType gaugeType, ItemStack key) {
@@ -359,8 +367,8 @@ public class ResourceFactoryPanelBehaviour extends FactoryPanelBehaviour
             return;
         }
         if (player instanceof LocalPlayer)
-            net.createmod.catnip.gui.ScreenOpener
-                .open(new com.yision.fluidlogistics.content.logistics.factoryGauge.client.ResourceFactoryGaugeScreen(this));
+            com.yision.fluidlogistics.api.factorygauge.client.FactoryGaugeClient.createScreen(this)
+                .ifPresent(net.createmod.catnip.gui.ScreenOpener::open);
     }
 
     @Override

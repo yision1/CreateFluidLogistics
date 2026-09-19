@@ -13,6 +13,7 @@ import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelConnection
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelPosition;
 import com.yision.fluidlogistics.api.packager.PackageResourceDisplay;
 import com.yision.fluidlogistics.api.packager.PackageResources;
+import com.yision.fluidlogistics.api.factorygauge.FactoryGaugeConfiguration;
 import com.yision.fluidlogistics.content.logistics.factoryGauge.ResourceFactoryPanelBehaviour;
 import com.yision.fluidlogistics.network.FluidLogisticsPackets;
 
@@ -86,6 +87,15 @@ public class ResourceFactoryGaugeConfigurePacket
         this.redstoneReset = redstoneReset;
     }
 
+    public ResourceFactoryGaugeConfigurePacket(FactoryGaugeConfiguration configuration) {
+        this(configuration.position(), configuration.address(), configuration.inputAmounts(),
+            configuration.outputAmount(), configuration.targetAmount(),
+            configuration.promiseClearingInterval(), configuration.restockThreshold(),
+            configuration.promiseLimit(), configuration.additionalStock(),
+            configuration.enhancementsVisible(), configuration.removeConnection(),
+            configuration.clearPromises(), configuration.reset(), configuration.redstoneReset());
+    }
+
     @Override
     public PacketTypeProvider getTypeProvider() {
         return FluidLogisticsPackets.RESOURCE_FACTORY_GAUGE_CONFIGURE;
@@ -93,7 +103,15 @@ public class ResourceFactoryGaugeConfigurePacket
 
     @Override
     protected void applySettings(ServerPlayer player, FactoryPanelBlockEntity be) {
-        FactoryPanelBehaviour behaviour = be.panels.get(position.slot());
+        applySettings(player, be, new FactoryGaugeConfiguration(
+            position, address, inputAmounts, outputAmount, targetAmount, promiseClearingInterval,
+            restockThreshold, promiseLimit, additionalStock, enhancementsVisible, removeConnection,
+            clearPromises, reset, redstoneReset));
+    }
+
+    public static void applySettings(ServerPlayer player, FactoryPanelBlockEntity be,
+        FactoryGaugeConfiguration configuration) {
+        FactoryPanelBehaviour behaviour = be.panels.get(configuration.position().slot());
         if (!(behaviour instanceof ResourceFactoryPanelBehaviour resource) || !resource.isResourceGauge())
             return;
         if (resource.registeredType()
@@ -102,7 +120,7 @@ public class ResourceFactoryGaugeConfigurePacket
         if (!Create.LOGISTICS.mayInteract(resource.network, player))
             return;
 
-        if (reset) {
+        if (configuration.reset()) {
             resource.recipeAddress = "";
             resource.recipeOutput = 1;
             resource.promiseClearingInterval = -1;
@@ -125,40 +143,40 @@ public class ResourceFactoryGaugeConfigurePacket
                 : display.factoryPanelRestockPolicy(filter);
         int batchCap = policy.maxRequestPerBatch();
 
-        resource.fluidlogistics$setTargetAmount(targetAmount);
+        resource.fluidlogistics$setTargetAmount(configuration.targetAmount());
 
-        resource.recipeAddress = address == null ? "" : address;
-        resource.recipeOutput = Math.clamp(outputAmount, 1, batchCap);
-        resource.promiseClearingInterval = Math.clamp(promiseClearingInterval, -1, 30);
+        resource.recipeAddress = configuration.address();
+        resource.recipeOutput = Math.clamp(configuration.outputAmount(), 1, batchCap);
+        resource.promiseClearingInterval = Math.clamp(configuration.promiseClearingInterval(), -1, 30);
 
-        for (Map.Entry<FactoryPanelPosition, Integer> entry : inputAmounts.entrySet()) {
+        for (Map.Entry<FactoryPanelPosition, Integer> entry : configuration.inputAmounts().entrySet()) {
             FactoryPanelConnection connection = resource.targetedBy.get(entry.getKey());
             if (connection != null)
                 connection.amount = Math.clamp(entry.getValue(), 1, batchCap);
         }
 
-        if (removeConnection != null) {
-            resource.targetedBy.remove(removeConnection);
-            FactoryPanelBehaviour source = FactoryPanelBehaviour.at(be.getLevel(), removeConnection);
+        if (configuration.removeConnection() != null) {
+            resource.targetedBy.remove(configuration.removeConnection());
+            FactoryPanelBehaviour source = FactoryPanelBehaviour.at(be.getLevel(), configuration.removeConnection());
             if (source != null) {
                 source.targeting.remove(resource.getPanelPosition());
                 source.blockEntity.sendData();
             }
         }
 
-        if (clearPromises)
+        if (configuration.clearPromises())
             resource.forceClearPromises = true;
 
-        if (redstoneReset)
+        if (configuration.redstoneReset())
             resource.disconnectAllLinks();
 
         if (policy.configurableThreshold())
-            resource.fluidlogistics$setRestockThreshold(restockThreshold);
+            resource.fluidlogistics$setRestockThreshold(configuration.restockThreshold());
         if (policy.configurablePromiseLimit())
-            resource.fluidlogistics$setPromiseLimit(promiseLimit);
+            resource.fluidlogistics$setPromiseLimit(configuration.promiseLimit());
         if (policy.configurableAdditionalStock())
-            resource.fluidlogistics$setAdditionalStock(additionalStock);
-        resource.fluidlogistics$setEnhancementsVisible(enhancementsVisible);
+            resource.fluidlogistics$setAdditionalStock(configuration.additionalStock());
+        resource.fluidlogistics$setEnhancementsVisible(configuration.enhancementsVisible());
 
         resource.resetTimerSlightly();
         be.notifyUpdate();
