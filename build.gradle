@@ -2,7 +2,7 @@ plugins {
     id 'java-library'
     id 'net.neoforged.moddev' version '2.0.116'
     id 'idea'
-    id 'com.hypherionmc.modutils.modpublisher' version '2.2.2+snapshot.1'
+    id 'com.hypherionmc.modutils.modpublisher' version '2.2.3'
 }
 
 tasks.named('wrapper', Wrapper).configure {
