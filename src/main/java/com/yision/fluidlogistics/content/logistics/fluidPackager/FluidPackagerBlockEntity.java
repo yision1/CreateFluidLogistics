@@ -11,6 +11,7 @@ import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.compat.Mods;
 import com.simibubi.create.compat.computercraft.ComputerCraftProxy;
 import com.simibubi.create.content.contraptions.actors.psi.PortableFluidInterfaceBlockEntity;
+import com.simibubi.create.content.fluids.pipes.VanillaFluidTargets;
 import com.simibubi.create.content.logistics.BigItemStack;
 import com.simibubi.create.content.logistics.packager.InventorySummary;
 import com.simibubi.create.content.logistics.packager.PackagerBlockEntity;
@@ -37,9 +38,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Clearable;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -244,10 +247,63 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
             fluidTarget.findNewCapability();
             fluidHandler = fluidTarget.getInventory();
         }
+        if (fluidHandler == null && level.getBlockState(targetPos).hasProperty(BlockStateProperties.LEVEL_HONEY)) {
+            fluidHandler = new BeehiveFluidHandler(level, targetPos);
+        }
         return fluidHandler == null ? null : new FluidAccess(target, fluidHandler);
     }
 
     private record FluidAccess(BlockEntity storageIdentity, IFluidHandler handler) {
+    }
+
+    private record BeehiveFluidHandler(Level level, BlockPos pos) implements IFluidHandler {
+        private static final int HONEY_AMOUNT = 250;
+
+        @Override
+        public int getTanks() {
+            return 1;
+        }
+
+        @Override
+        public FluidStack getFluidInTank(int tank) {
+            if (tank != 0 || !level.isLoaded(pos)) {
+                return FluidStack.EMPTY;
+            }
+            BlockState state = level.getBlockState(pos);
+            return state.hasProperty(BlockStateProperties.LEVEL_HONEY)
+                    ? VanillaFluidTargets.drainBlock(level, pos, state, true) : FluidStack.EMPTY;
+        }
+
+        @Override
+        public int getTankCapacity(int tank) {
+            return tank == 0 ? HONEY_AMOUNT : 0;
+        }
+
+        @Override
+        public boolean isFluidValid(int tank, FluidStack stack) {
+            return false;
+        }
+
+        @Override
+        public int fill(FluidStack resource, FluidAction action) {
+            return 0;
+        }
+
+        @Override
+        public FluidStack drain(FluidStack resource, FluidAction action) {
+            if (!FluidStack.isSameFluidSameComponents(resource, getFluidInTank(0))) {
+                return FluidStack.EMPTY;
+            }
+            return drain(resource.getAmount(), action);
+        }
+
+        @Override
+        public FluidStack drain(int maxDrain, FluidAction action) {
+            if (maxDrain != HONEY_AMOUNT || level.isClientSide || getFluidInTank(0).isEmpty()) {
+                return FluidStack.EMPTY;
+            }
+            return VanillaFluidTargets.drainBlock(level, pos, level.getBlockState(pos), action.simulate());
+        }
     }
 
     private static int mergeFluidAmounts(int existingAmount, int addedAmount) {

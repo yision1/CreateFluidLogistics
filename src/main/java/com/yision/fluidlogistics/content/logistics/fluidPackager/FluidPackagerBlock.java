@@ -21,6 +21,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.util.FakePlayer;
@@ -45,7 +46,7 @@ public class FluidPackagerBlock extends PackagerBlock {
             var sidedHandler = level.getCapability(Capabilities.FluidHandler.BLOCK, adjacentPos, face.getOpposite());
             var unsidedHandler = sidedHandler != null ? sidedHandler
                 : level.getCapability(Capabilities.FluidHandler.BLOCK, adjacentPos, null);
-            if (unsidedHandler != null) {
+            if (unsidedHandler != null || level.getBlockState(adjacentPos).hasProperty(BlockStateProperties.LEVEL_HONEY)) {
                 preferredFacing = face.getOpposite();
                 break;
             }
