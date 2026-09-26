@@ -119,8 +119,8 @@
   "create.item_attributes.is_any_fluid": "is Fluid",
   "create.item_attributes.is_any_fluid.inverted": "is not Fluid",
   "create.item_attributes.is_fluid": "is %1$s",
-  "create.item_attributes.is_fluid_no_nbt": "is %1$s (without NBT)",
-  "create.item_attributes.is_fluid_no_nbt.inverted": "is not %1$s (without NBT)",
+  "create.item_attributes.is_fluid_no_nbt": "is %1$s (without Components)",
+  "create.item_attributes.is_fluid_no_nbt.inverted": "is not %1$s (without Components)",
   "create.item_attributes.is_fluid.inverted": "is not %1$s",
   "create.item.fluidlogistics.hand_pointer.authorized_networks": "Authorized Logistics Networks: %s",
   "create.item.fluidlogistics.hand_pointer.authorized_networks_clear": "Place in a crafting grid to reset",
@@ -154,6 +154,7 @@
   "fluidlogistics.configuration.title": "Fluid Package Configuration",
   "fluidlogistics.configuration.useItemRenderingForFluidFactoryGaugeFluid": "Render Fluid Factory Gauge Fluids as Items",
   "fluidlogistics.fluid_material_checklist": "Fluid Material Checklist",
+  "fluidlogistics.configuration.disableBlazeCoolerParticles": "Disable Blaze Cooler Particles",
   "fluidlogistics.fluid_pump.direction.forward": "Forward",
   "fluidlogistics.fluid_pump.direction.reverse": "Reverse",
   "fluidlogistics.fluid_pump.transfer_direction": "Transfer Direction",
@@ -226,7 +227,7 @@
   "fluidlogistics.ponder.mechanical_fluid_gun/mechanical_fluid_gun_setup.text_5": "Mechanical Fluid Guns use the fluid container below them as their fluid source",
   "fluidlogistics.ponder.mechanical_fluid_gun/mechanical_fluid_gun_setup.text_6": "They can manage multiple targets within range at the same time",
   "fluidlogistics.ponder.mechanical_fluid_gun/mechanical_fluid_gun_setup.text_7": "Not every fluid container can be interacted with directly",
-  "fluidlogistics.ponder.mechanical_fluid_gun/mechanical_fluid_gun_setup.text_8": "In this situation, Fluid Hatches and Multi-Fluid Access Ports can expose these containers as targets",
+  "fluidlogistics.ponder.mechanical_fluid_gun/mechanical_fluid_gun_setup.text_8": "In this situation, Fluid Hatches can expose these containers as targets",
   "fluidlogistics.ponder.multi_fluid_access_port/multi_fluid_access_port.header": "Accessing Fluids with Multi-Fluid Access Ports",
   "fluidlogistics.ponder.multi_fluid_access_port/multi_fluid_access_port.text_1": "Multi-Fluid Containers can sometimes be difficult to access",
   "fluidlogistics.ponder.multi_fluid_access_port/multi_fluid_access_port.text_2": "Multi-Fluid Access Ports extend Fluid Containers for easier access",
@@ -298,6 +299,5 @@
   "logistically_linked.protected": "Logistics Network is Protected",
   "recipe.heat_requirement.cooling": "Cooled",
   "recipe.heat_requirement.supercooling": "Super-Cooled",
-  "resourcepack.fluidlogistics.cu_again_for_fluidlogistics": "Legacy Copper Textures for Fluid Logistics",
-  "fluidlogistics.configuration.disableBlazeCoolerParticles": "Disable Blaze Cooler Particles"
+  "resourcepack.fluidlogistics.cu_again_for_fluidlogistics": "Legacy Copper Textures for Fluid Logistics"
 }
