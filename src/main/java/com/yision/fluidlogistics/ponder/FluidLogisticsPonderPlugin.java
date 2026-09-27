@@ -5,6 +5,7 @@ import com.tterrag.registrate.util.entry.ItemProviderEntry;
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.registry.AllBlocks;
+import com.yision.fluidlogistics.registry.AllItems;
 import net.createmod.ponder.api.registration.PonderPlugin;
 import net.createmod.ponder.api.registration.PonderSceneRegistrationHelper;
 import net.createmod.ponder.api.registration.PonderTagRegistrationHelper;
@@ -58,6 +59,9 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
                 .addStoryBoard(MultiFluidTankScenes.STORAGE, MultiFluidTankScenes::storage, FLUIDS)
                 .addStoryBoard(MultiFluidTankScenes.SIZES, MultiFluidTankScenes::sizes);
 
+        registration.forComponents(AllItems.COPPER_BUCKET)
+                .addStoryBoard(CopperBucketScenes.INTERACTION, CopperBucketScenes::interaction, FLUIDS);
+
         registration.forComponents(AllBlocks.SMART_HOPPER)
                 .addStoryBoard(SmartHopperScenes.SMART_HOPPER, SmartHopperScenes::smartHopper);
 
@@ -90,6 +94,7 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
                 .add(AllBlocks.SMART_HOPPER);
 
         registration.addToTag(FLUIDS)
+                .add(AllItems.COPPER_BUCKET)
                 .add(AllBlocks.SMART_FAUCET)
                 .add(AllBlocks.FAUCET)
                 .add(AllBlocks.MULTI_FLUID_ACCESS_PORT)
