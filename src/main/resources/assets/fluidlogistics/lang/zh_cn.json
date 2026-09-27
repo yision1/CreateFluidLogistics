@@ -19,7 +19,6 @@
   "block.fluidlogistics.fluid_repackager": "拆包机",
   "block.fluidlogistics.fluid_transporter": "流体传输器",
   "block.fluidlogistics.horizontal_multi_fluid_tank": "横向多流体储罐",
-  "block.fluidlogistics.industrial_copper_block": "工业铜块",
   "block.fluidlogistics.infinite_fluid_tank": "无限流体储罐",
   "block.fluidlogistics.infinite_fluid_tank.tooltip.summary": "存入 _%s_ 流体以无限供应",
   "block.fluidlogistics.mechanical_fluid_gun": "动力注液枪",

@@ -291,7 +291,6 @@ public class FluidLogistics {
             new FeatureItem(FeatureToggle.FLUID_FACTORY_GAUGE, AllItems.FLUID_FACTORY_GAUGE),
             new FeatureItem(FeatureToggle.BLAZE_COOLER, AllBlocks.BLAZE_COOLER),
             new FeatureItem(FeatureToggle.COPPER_SCHEMATICANNON, AllBlocks.COPPER_SCHEMATICANNON),
-            new FeatureItem(FeatureToggle.INDUSTRIAL_COPPER_BLOCK, AllBlocks.INDUSTRIAL_COPPER_BLOCK),
             new FeatureItem(FeatureToggle.FLUID_SCHEMATIC, AllItems.EMPTY_FLUID_SCHEMATIC),
             new FeatureItem(FeatureToggle.FROST_CAKE, AllItems.FROST_CAKE),
             new FeatureItem(FeatureToggle.FLUID_SCHEMATIC, AllItems.FLUID_SCHEMATIC),

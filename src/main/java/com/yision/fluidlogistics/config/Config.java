@@ -38,7 +38,6 @@ public class Config {
     private static final boolean FLUID_FACTORY_GAUGE_ENABLED_DEFAULT = true;
     private static final boolean BLAZE_COOLER_ENABLED_DEFAULT = true;
     private static final boolean COPPER_SCHEMATICANNON_ENABLED_DEFAULT = true;
-    private static final boolean INDUSTRIAL_COPPER_BLOCK_ENABLED_DEFAULT = true;
     private static final boolean FLUID_SCHEMATIC_ENABLED_DEFAULT = true;
     private static final boolean FROST_CAKE_ENABLED_DEFAULT = true;
 
@@ -172,10 +171,6 @@ public class Config {
             .translation("block.fluidlogistics.copper_schematicannon")
             .define("copperSchematicannonEnabled", COPPER_SCHEMATICANNON_ENABLED_DEFAULT);
 
-    public static final ModConfigSpec.BooleanValue INDUSTRIAL_COPPER_BLOCK_ENABLED = BUILDER
-            .translation("block.fluidlogistics.industrial_copper_block")
-            .define("industrialCopperBlockEnabled", INDUSTRIAL_COPPER_BLOCK_ENABLED_DEFAULT);
-
     public static final ModConfigSpec.BooleanValue FLUID_SCHEMATIC_ENABLED = BUILDER
             .translation("item.fluidlogistics.empty_fluid_schematic")
             .define("fluidSchematicEnabled", FLUID_SCHEMATIC_ENABLED_DEFAULT);
@@ -292,7 +287,6 @@ public class Config {
     private static boolean fluidFactoryGaugeEnabled = FLUID_FACTORY_GAUGE_ENABLED_DEFAULT;
     private static boolean blazeCoolerEnabled = BLAZE_COOLER_ENABLED_DEFAULT;
     private static boolean copperSchematicannonEnabled = COPPER_SCHEMATICANNON_ENABLED_DEFAULT;
-    private static boolean industrialCopperBlockEnabled = INDUSTRIAL_COPPER_BLOCK_ENABLED_DEFAULT;
     private static boolean fluidSchematicEnabled = FLUID_SCHEMATIC_ENABLED_DEFAULT;
     private static boolean frostCakeEnabled = FROST_CAKE_ENABLED_DEFAULT;
     private static int fluidPackageCapacity = FLUID_PACKAGE_CAPACITY_DEFAULT;
@@ -368,7 +362,6 @@ public class Config {
         fluidHatchEnabled = FLUID_HATCH_ENABLED.get();
         fluidFactoryGaugeEnabled = FLUID_FACTORY_GAUGE_ENABLED.get();
         copperSchematicannonEnabled = COPPER_SCHEMATICANNON_ENABLED.get();
-        industrialCopperBlockEnabled = INDUSTRIAL_COPPER_BLOCK_ENABLED.get();
         fluidSchematicEnabled = FLUID_SCHEMATIC_ENABLED.get();
         frostCakeEnabled = FROST_CAKE_ENABLED.get();
         fluidPackageCapacity = FLUID_PACKAGE_CAPACITY.get();
@@ -408,7 +401,6 @@ public class Config {
     public static boolean isFluidFactoryGaugeEnabled() { return fluidFactoryGaugeEnabled; }
     public static boolean isBlazeCoolerEnabled() { return blazeCoolerEnabled; }
     public static boolean isCopperSchematicannonEnabled() { return copperSchematicannonEnabled; }
-    public static boolean isIndustrialCopperBlockEnabled() { return industrialCopperBlockEnabled; }
     public static boolean isFluidSchematicEnabled() { return fluidSchematicEnabled; }
     public static boolean isFrostCakeEnabled() { return frostCakeEnabled; }
 

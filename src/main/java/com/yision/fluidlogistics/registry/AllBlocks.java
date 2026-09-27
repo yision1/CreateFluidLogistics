@@ -418,23 +418,6 @@ public class AllBlocks {
             .build()
             .register();
 
-    public static final BlockEntry<Block> INDUSTRIAL_COPPER_BLOCK =
-        REGISTRATE.block("industrial_copper_block", Block::new)
-            .initialProperties(SharedProperties::copperMetal)
-            .properties(p -> p.mapColor(MapColor.COLOR_ORANGE)
-                .sound(SoundType.COPPER)
-                .requiresCorrectToolForDrops())
-            .transform(pickaxeOnly())
-            .tag(AllBlockTags.WRENCH_PICKUP.tag)
-            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
-            .blockstate((ctx, prov) -> prov.simpleBlock(ctx.get(),
-                prov.models().getExistingFile(prov.modLoc("block/industrial_copper_block"))))
-            .item()
-            .model((ctx, prov) -> prov.withExistingParent(ctx.getName(),
-                prov.modLoc("block/industrial_copper_block")))
-            .build()
-            .register();
-
     public static final BlockEntry<FluidHatchBlock> FLUID_HATCH =
         REGISTRATE.block("fluid_hatch", FluidHatchBlock::new)
             .initialProperties(SharedProperties::copperMetal)

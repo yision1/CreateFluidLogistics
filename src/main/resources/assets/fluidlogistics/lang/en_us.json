@@ -19,7 +19,6 @@
   "block.fluidlogistics.fluid_repackager": "Unpackager",
   "block.fluidlogistics.fluid_transporter": "Fluid Transporter",
   "block.fluidlogistics.horizontal_multi_fluid_tank": "Horizontal Multi-Fluid Tank",
-  "block.fluidlogistics.industrial_copper_block": "Block of Industrial Copper",
   "block.fluidlogistics.infinite_fluid_tank": "Infinite Fluid Tank",
   "block.fluidlogistics.infinite_fluid_tank.tooltip.summary": "Stores _%s_ of one fluid to provide an infinite supply.",
   "block.fluidlogistics.mechanical_fluid_gun": "Mechanical Fluid Gun",
