@@ -6,8 +6,8 @@ import com.simibubi.create.content.fluids.pipes.GlassFluidPipeBlock;
 import com.simibubi.create.content.fluids.tank.FluidTankBlockEntity;
 import com.simibubi.create.foundation.gui.AllIcons;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
-import com.yision.fluidlogistics.content.fluids.fluidPump.FluidPumpBlockEntity;
-import com.yision.fluidlogistics.content.fluids.fluidPump.FluidTransferDirection;
+import com.yision.fluidlogistics.content.fluids.fluidPump.FluidPumpBlock;
+import com.simibubi.create.content.kinetics.base.DirectionalAxisKineticBlock;
 import net.createmod.catnip.math.Pointing;
 import net.createmod.ponder.api.PonderPalette;
 import net.createmod.ponder.api.element.ElementLink;
@@ -345,14 +345,9 @@ public class FluidPumpScenes {
     }
 
     private static void setPumpDirection(CreateSceneBuilder scene, Selection pumps, boolean positive) {
-        scene.world().modifyBlockEntityNBT(pumps, FluidPumpBlockEntity.class, nbt -> {
-            FluidTransferDirection direction =
-                positive ? FluidTransferDirection.POSITIVE : FluidTransferDirection.NEGATIVE;
-            nbt.putBoolean("DirectionManuallyConfigured", true);
-            nbt.putBoolean("DefaultDirectionInitialized", true);
-            nbt.putBoolean("SelectedFluidDirectionPositive", positive);
-            nbt.putInt("ScrollValue", direction.ordinal());
-        });
+        scene.world().modifyBlocks(pumps, state -> state
+            .setValue(FluidPumpBlock.FACING, positive ? Direction.EAST : Direction.WEST)
+            .setValue(DirectionalAxisKineticBlock.AXIS_ALONG_FIRST_COORDINATE, false), false);
     }
 
     private static void setTankFluid(CreateSceneBuilder scene, BlockPos pos, FluidStack stack) {

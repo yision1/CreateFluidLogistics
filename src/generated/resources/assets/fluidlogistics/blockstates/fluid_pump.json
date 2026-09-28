@@ -1,104 +1,52 @@
 {
   "variants": {
-    "axis_along_first=false,facing=down,waterlogged=false": {
-      "model": "fluidlogistics:block/fluid_pump/block_horizontal",
-      "x": 270,
-      "y": 90
-    },
-    "axis_along_first=false,facing=down,waterlogged=true": {
-      "model": "fluidlogistics:block/fluid_pump/block_horizontal",
-      "x": 270,
-      "y": 90
-    },
-    "axis_along_first=false,facing=east,waterlogged=false": {
+    "axis_along_first=false,facing=down": {
       "model": "fluidlogistics:block/fluid_pump/block_horizontal",
       "y": 270
     },
-    "axis_along_first=false,facing=east,waterlogged=true": {
-      "model": "fluidlogistics:block/fluid_pump/block_horizontal",
-      "y": 270
-    },
-    "axis_along_first=false,facing=north,waterlogged=false": {
-      "model": "fluidlogistics:block/fluid_pump/block_vertical",
-      "y": 180
-    },
-    "axis_along_first=false,facing=north,waterlogged=true": {
-      "model": "fluidlogistics:block/fluid_pump/block_vertical",
-      "y": 180
-    },
-    "axis_along_first=false,facing=south,waterlogged=false": {
-      "model": "fluidlogistics:block/fluid_pump/block_vertical"
-    },
-    "axis_along_first=false,facing=south,waterlogged=true": {
-      "model": "fluidlogistics:block/fluid_pump/block_vertical"
-    },
-    "axis_along_first=false,facing=up,waterlogged=false": {
-      "model": "fluidlogistics:block/fluid_pump/block_horizontal",
-      "x": 90,
-      "y": 90
-    },
-    "axis_along_first=false,facing=up,waterlogged=true": {
-      "model": "fluidlogistics:block/fluid_pump/block_horizontal",
-      "x": 90,
-      "y": 90
-    },
-    "axis_along_first=false,facing=west,waterlogged=false": {
-      "model": "fluidlogistics:block/fluid_pump/block_horizontal",
-      "y": 90
-    },
-    "axis_along_first=false,facing=west,waterlogged=true": {
-      "model": "fluidlogistics:block/fluid_pump/block_horizontal",
-      "y": 90
-    },
-    "axis_along_first=true,facing=down,waterlogged=false": {
-      "model": "fluidlogistics:block/fluid_pump/block_horizontal",
-      "x": 270,
-      "y": 180
-    },
-    "axis_along_first=true,facing=down,waterlogged=true": {
-      "model": "fluidlogistics:block/fluid_pump/block_horizontal",
-      "x": 270,
-      "y": 180
-    },
-    "axis_along_first=true,facing=east,waterlogged=false": {
-      "model": "fluidlogistics:block/fluid_pump/block_vertical",
-      "y": 270
-    },
-    "axis_along_first=true,facing=east,waterlogged=true": {
-      "model": "fluidlogistics:block/fluid_pump/block_vertical",
-      "y": 270
-    },
-    "axis_along_first=true,facing=north,waterlogged=false": {
-      "model": "fluidlogistics:block/fluid_pump/block_horizontal",
-      "y": 180
-    },
-    "axis_along_first=true,facing=north,waterlogged=true": {
-      "model": "fluidlogistics:block/fluid_pump/block_horizontal",
-      "y": 180
-    },
-    "axis_along_first=true,facing=south,waterlogged=false": {
+    "axis_along_first=true,facing=down": {
       "model": "fluidlogistics:block/fluid_pump/block_horizontal"
     },
-    "axis_along_first=true,facing=south,waterlogged=true": {
+    "axis_along_first=false,facing=up": {
+      "model": "fluidlogistics:block/fluid_pump/block_horizontal",
+      "y": 270
+    },
+    "axis_along_first=true,facing=up": {
       "model": "fluidlogistics:block/fluid_pump/block_horizontal"
     },
-    "axis_along_first=true,facing=up,waterlogged=false": {
+    "axis_along_first=false,facing=north": {
+      "model": "fluidlogistics:block/fluid_pump/block_vertical",
+      "y": 270
+    },
+    "axis_along_first=true,facing=north": {
       "model": "fluidlogistics:block/fluid_pump/block_horizontal",
       "x": 90,
       "y": 180
     },
-    "axis_along_first=true,facing=up,waterlogged=true": {
+    "axis_along_first=false,facing=south": {
+      "model": "fluidlogistics:block/fluid_pump/block_vertical",
+      "y": 270
+    },
+    "axis_along_first=true,facing=south": {
       "model": "fluidlogistics:block/fluid_pump/block_horizontal",
       "x": 90,
       "y": 180
     },
-    "axis_along_first=true,facing=west,waterlogged=false": {
-      "model": "fluidlogistics:block/fluid_pump/block_vertical",
+    "axis_along_first=false,facing=west": {
+      "model": "fluidlogistics:block/fluid_pump/block_horizontal",
+      "x": 90,
       "y": 90
     },
-    "axis_along_first=true,facing=west,waterlogged=true": {
-      "model": "fluidlogistics:block/fluid_pump/block_vertical",
+    "axis_along_first=true,facing=west": {
+      "model": "fluidlogistics:block/fluid_pump/block_vertical"
+    },
+    "axis_along_first=false,facing=east": {
+      "model": "fluidlogistics:block/fluid_pump/block_horizontal",
+      "x": 90,
       "y": 90
+    },
+    "axis_along_first=true,facing=east": {
+      "model": "fluidlogistics:block/fluid_pump/block_vertical"
     }
   }
 }

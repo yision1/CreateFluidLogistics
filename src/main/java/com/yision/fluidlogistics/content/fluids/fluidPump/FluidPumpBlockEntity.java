@@ -15,8 +15,6 @@ import com.simibubi.create.content.fluids.FluidTransportBehaviour;
 import com.simibubi.create.content.fluids.PipeConnection;
 import com.simibubi.create.content.fluids.pump.PumpBlock;
 import com.simibubi.create.content.fluids.pump.PumpBlockEntity;
-import com.simibubi.create.foundation.advancement.AllAdvancements;
-import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsBoard;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsFormatter.ScrollOptionSettingsFormatter;
@@ -30,13 +28,10 @@ import net.createmod.catnip.data.Pair;
 import net.createmod.catnip.math.BlockFace;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Direction.Axis;
-import net.minecraft.core.Direction.AxisDirection;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -46,15 +41,10 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 
 public class FluidPumpBlockEntity extends PumpBlockEntity {
 
-	public static final int RANGE = 24;
 	public static final float PRESSURE_MULTIPLIER = 2.0f;
 
-	private boolean directionManuallyConfigured;
-	private boolean defaultDirectionInitialized;
 	private boolean fluidPumpPressureUpdate;
-	private boolean directionReady;
 	private boolean registeredForPropagation;
-	private AxisDirection selectedFluidDirection = AxisDirection.POSITIVE;
 	private ScrollOptionBehaviour<FluidTransferDirection> directionSelector;
 
 	public FluidPumpBlockEntity(BlockEntityType<?> typeIn, BlockPos pos, BlockState state) {
@@ -68,9 +58,6 @@ public class FluidPumpBlockEntity extends PumpBlockEntity {
 	@Override
 	public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
 		super.addBehaviours(behaviours);
-		behaviours.removeIf(b -> b instanceof FluidTransportBehaviour
-			&& !(b instanceof FluidPumpFluidTransferBehaviour));
-		behaviours.add(new FluidPumpFluidTransferBehaviour(this));
 
 		directionSelector = new ScrollOptionBehaviour<>(
 			FluidTransferDirection.class,
@@ -78,23 +65,28 @@ public class FluidPumpBlockEntity extends PumpBlockEntity {
 			this, new FluidPumpDirectionSlot()) {
 			@Override
 			public ValueSettingsBoard createBoard(Player player, BlockHitResult hitResult) {
-				return new ValueSettingsBoard(label, max, 1, ImmutableList.of(Component.literal("Select")),
-					new ScrollOptionSettingsFormatter(FluidTransferDirection.guiOptions()));
+				return new ValueSettingsBoard(label, max, 1, ImmutableList.of(label),
+					new ScrollOptionSettingsFormatter(FluidTransferDirection.guiOptions(FluidPumpBlock.getFluidAxis(getBlockState()))));
+			}
+			@Override
+			public void read(CompoundTag nbt, HolderLookup.Provider registries, boolean clientPacket) {
+				syncDirectionSelectorWithBlockState();
+			}
+
+			@Override
+			public void write(CompoundTag nbt, HolderLookup.Provider registries, boolean clientPacket) {
 			}
 		};
 		directionSelector.withCallback(this::onDirectionSelected);
-		directionSelector.onlyActiveWhen(() -> directionReady);
 		syncDirectionSelectorWithBlockState();
 		behaviours.add(directionSelector);
-
-		registerAwardables(behaviours, AllAdvancements.PUMP);
 	}
 
 	@Override
 	public void initialize() {
 		super.initialize();
 		registerForPropagation();
-		initializeDefaultDirection();
+		syncDirectionSelectorWithBlockState();
 	}
 
 	private void registerForPropagation() {
@@ -117,113 +109,42 @@ public class FluidPumpBlockEntity extends PumpBlockEntity {
 		FluidPumpNetworkUpdater.onFluidPumpUnloaded(level);
 	}
 
-	private void initializeDefaultDirection() {
-		if (level == null || level.isClientSide || defaultDirectionInitialized || directionManuallyConfigured)
-			return;
-
-		defaultDirectionInitialized = true;
-		AxisDirection target = chooseDefaultOutputDirection();
-		selectedFluidDirection = target;
-		directionReady = true;
-		syncDirectionSelectorWithBlockState();
-		updatePressureChange();
-		notifyUpdate();
-	}
-
-	private AxisDirection chooseDefaultOutputDirection() {
-		return FluidPumpBlock.toSelectedDirection(getBlockState(),
-			FluidPumpBlock.getVisualOutputDirection(getBlockState()));
-	}
-
 	private void syncDirectionSelectorWithBlockState() {
-		if (directionSelector == null)
-			return;
-		FluidTransferDirection target = FluidTransferDirection.fromAxisDirection(getSelectedFluidDirection());
-		if (directionSelector.get() != target) {
-			directionSelector.value = target.ordinal();
-		}
+		if (directionSelector != null)
+			directionSelector.value = FluidTransferDirection.fromAxisDirection(getBlockState().getValue(PumpBlock.FACING).getAxisDirection()).ordinal();
+	}
+
+	@Override
+	public void setBlockState(BlockState state) {
+		super.setBlockState(state);
+		syncDirectionSelectorWithBlockState();
 	}
 
 	private void onDirectionSelected(int newOrdinal) {
-		if (level == null || level.isClientSide)
+		if (level == null || level.isClientSide || newOrdinal < 0 || newOrdinal >= FluidTransferDirection.values().length)
 			return;
-
-		FluidTransferDirection newDir = FluidTransferDirection.values()[newOrdinal];
-
-		if (newDir.getAxisDirection() == getSelectedFluidDirection())
-			return;
-
-		boolean wasManuallyConfigured = directionManuallyConfigured;
-		selectedFluidDirection = newDir.getAxisDirection();
-		directionManuallyConfigured = true;
-
-		updatePressureChange();
-
-		if (!wasManuallyConfigured && hasSource()) {
-			detachKinetics();
-			removeSource();
-			attachKinetics();
-		}
-
-		setChanged();
-		sendData();
-	}
-
-	private AxisDirection getSelectedFluidDirection() {
-		return selectedFluidDirection;
-	}
-
-	public void setInitialOutputDirection(Direction outputDirection) {
-		if (level == null || level.isClientSide || directionManuallyConfigured)
-			return;
-		if (outputDirection.getAxis() != FluidPumpBlock.getFluidAxis(getBlockState()))
-			return;
-
-		selectedFluidDirection = FluidPumpBlock.toSelectedDirection(getBlockState(), outputDirection);
-		defaultDirectionInitialized = true;
-		directionReady = true;
-		syncDirectionSelectorWithBlockState();
-		updatePressureChange();
-		notifyUpdate();
-	}
-
-	public Direction getEffectiveFront() {
-		return FluidPumpBlock.getFluidDirection(getBlockState(), getSelectedFluidDirection());
-	}
-
-	@Override
-	protected Direction getFront() {
-		return getEffectiveFront();
-	}
-
-	@Override
-	protected boolean isFront(Direction side) {
-		return side == getEffectiveFront();
-	}
-
-	@Override
-	public boolean isPullingOnSide(boolean front) {
-		return !front;
-	}
-
-	@Override
-	public boolean isSideAccessible(Direction side) {
-		BlockState blockState = getBlockState();
-		if (!(blockState.getBlock() instanceof FluidPumpBlock))
-			return false;
-		return side.getAxis() == FluidPumpBlock.getFluidAxis(blockState);
+		BlockState state = getBlockState();
+		Direction output = Direction.fromAxisAndDirection(FluidPumpBlock.getFluidAxis(state),
+			FluidTransferDirection.values()[newOrdinal].getAxisDirection());
+		if (output != state.getValue(PumpBlock.FACING))
+			level.setBlockAndUpdate(worldPosition, state.setValue(PumpBlock.FACING, output));
 	}
 
 	@Override
 	public void tick() {
-		super.tick();
-
-		if (level.isClientSide && !isVirtual())
-			return;
-
-		if (fluidPumpPressureUpdate) {
+		if ((!level.isClientSide || isVirtual()) && fluidPumpPressureUpdate) {
 			fluidPumpPressureUpdate = false;
 			updatePressureChange();
+		}
+		super.tick();
+		// Keep Create's pump behaviour for network endpoint recognition.
+		FluidTransportBehaviour transport = getBehaviour(FluidTransportBehaviour.TYPE);
+		float pumpPressure = Math.abs(getSpeed()) * PRESSURE_MULTIPLIER;
+		for (Entry<Direction, PipeConnection> entry : transport.interfaces.entrySet()) {
+			boolean pull = isPullingOnSide(isFront(entry.getKey()));
+			Couple<Float> pressure = entry.getValue().getPressure();
+			pressure.set(pull, pumpPressure);
+			pressure.set(!pull, 0f);
 		}
 	}
 
@@ -347,11 +268,9 @@ public class FluidPumpBlockEntity extends PumpBlockEntity {
 		BlockEntity blockEntity = world.getBlockEntity(connectedPos);
 		Direction face = blockFace.getFace();
 
-		if (PumpBlock.isPump(connectedState) && getPumpFluidAxis(connectedState) == face.getAxis()
+		if (PumpBlock.isPump(connectedState) && connectedState.getValue(PumpBlock.FACING).getAxis() == face.getAxis()
 			&& blockEntity instanceof PumpBlockEntity pumpBE) {
-			Direction pumpFront = blockEntity instanceof FluidPumpBlockEntity fluidPump
-				? fluidPump.getEffectiveFront()
-				: connectedState.getValue(PumpBlock.FACING);
+			Direction pumpFront = connectedState.getValue(PumpBlock.FACING);
 			boolean pumpFrontSide = blockFace.getOppositeFace() == pumpFront;
 			return pumpBE.isPullingOnSide(pumpFrontSide) != pull;
 		}
@@ -369,62 +288,4 @@ public class FluidPumpBlockEntity extends PumpBlockEntity {
 		return FluidPropagator.isOpenEnd(world, blockFace.getPos(), face);
 	}
 
-	private Axis getPumpFluidAxis(BlockState state) {
-		if (state.getBlock() instanceof FluidPumpBlock)
-			return FluidPumpBlock.getFluidAxis(state);
-		return state.getValue(PumpBlock.FACING).getAxis();
-	}
-
-	@Override
-	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-		super.read(compound, registries, clientPacket);
-		directionManuallyConfigured = compound.getBoolean("DirectionManuallyConfigured");
-		defaultDirectionInitialized = compound.getBoolean("DefaultDirectionInitialized");
-		selectedFluidDirection = compound.getBoolean("SelectedFluidDirectionPositive")
-			? AxisDirection.POSITIVE
-			: AxisDirection.NEGATIVE;
-		if (defaultDirectionInitialized || directionManuallyConfigured)
-			directionReady = true;
-		syncDirectionSelectorWithBlockState();
-	}
-
-	@Override
-	protected void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-		super.write(compound, registries, clientPacket);
-		compound.putBoolean("DirectionManuallyConfigured", directionManuallyConfigured);
-		compound.putBoolean("DefaultDirectionInitialized", defaultDirectionInitialized);
-		compound.putBoolean("SelectedFluidDirectionPositive", selectedFluidDirection == AxisDirection.POSITIVE);
-	}
-
-	class FluidPumpFluidTransferBehaviour extends FluidTransportBehaviour {
-
-		public FluidPumpFluidTransferBehaviour(SmartBlockEntity be) {
-			super(be);
-		}
-
-		@Override
-		public void tick() {
-			super.tick();
-			for (Entry<Direction, PipeConnection> entry : interfaces.entrySet()) {
-				boolean pull = isPullingOnSide(isFront(entry.getKey()));
-				Couple<Float> pressure = entry.getValue().getPressure();
-				pressure.set(pull, Math.abs(getSpeed()) * PRESSURE_MULTIPLIER);
-				pressure.set(!pull, 0f);
-			}
-		}
-
-		@Override
-		public boolean canHaveFlowToward(BlockState state, Direction direction) {
-			return isSideAccessible(direction);
-		}
-
-		@Override
-		public AttachmentTypes getRenderedRimAttachment(BlockAndTintGetter world, BlockPos pos, BlockState state,
-			Direction direction) {
-			AttachmentTypes attachment = super.getRenderedRimAttachment(world, pos, state, direction);
-			if (attachment == AttachmentTypes.RIM)
-				return AttachmentTypes.NONE;
-			return attachment;
-		}
-	}
 }
