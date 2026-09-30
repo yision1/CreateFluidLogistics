@@ -5,6 +5,7 @@ import com.tterrag.registrate.util.entry.ItemProviderEntry;
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.registry.AllBlocks;
+import com.yision.fluidlogistics.registry.AllItems;
 import net.createmod.ponder.api.registration.PonderPlugin;
 import net.createmod.ponder.api.registration.PonderSceneRegistrationHelper;
 import net.createmod.ponder.api.registration.PonderTagRegistrationHelper;
@@ -16,6 +17,7 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
 	public static final ResourceLocation LOGISTICS = Create.asResource("logistics");
 	public static final ResourceLocation FLUIDS = Create.asResource("fluids");
 	public static final ResourceLocation ARM_TARGETS = Create.asResource("arm_targets");
+	public static final ResourceLocation DISPLAY_SOURCES = Create.asResource("display_sources");
 	public static final ResourceLocation KINETIC_APPLIANCES = Create.asResource("kinetic_appliances");
 
 	@Override
@@ -58,6 +60,9 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
 			.addStoryBoard(MultiFluidTankScenes.STORAGE, MultiFluidTankScenes::storage, FLUIDS)
 			.addStoryBoard(MultiFluidTankScenes.SIZES, MultiFluidTankScenes::sizes);
 
+		registration.forComponents(AllItems.COPPER_BUCKET)
+			.addStoryBoard(CopperBucketScenes.INTERACTION, CopperBucketScenes::interaction, FLUIDS);
+
 		registration.forComponents(AllBlocks.SMART_HOPPER)
 			.addStoryBoard(SmartHopperScenes.SMART_HOPPER, SmartHopperScenes::smartHopper);
 
@@ -68,6 +73,16 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
 		registration.forComponents(AllBlocks.FLUID_PUMP)
 			.addStoryBoard(FluidPumpScenes.PUMP_FLOW, FluidPumpScenes::flow, FLUIDS, KINETIC_APPLIANCES)
 			.addStoryBoard(FluidPumpScenes.PUMP_SPEED, FluidPumpScenes::speed);
+
+        registration.forComponents(AllBlocks.FLOW_METER)
+                .addStoryBoard(FlowMeterScenes.FLOW_METER, FlowMeterScenes::flowMeter, FLUIDS);
+
+        registration.forComponents(AllBlocks.POTATO_SERVER)
+                .addStoryBoard(PotatoServerScenes.POTATO_SERVER, PotatoServerScenes::potatoServer, DISPLAY_SOURCES);
+
+        registration.forComponents(AllBlocks.REDSTONE_FLUID_VALVE)
+                .addStoryBoard(RedstoneFluidValveScenes.REDSTONE_FLUID_VALVE,
+                        RedstoneFluidValveScenes::redstoneFluidValve, FLUIDS);
 
         registration.forComponents(AllBlocks.MECHANICAL_FLUID_GUN)
                 .addStoryBoard(MechanicalFluidGunScenes.MECHANICAL_FLUID_GUN_SETUP,
@@ -90,6 +105,7 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
 			.add(AllBlocks.SMART_HOPPER);
 
 		registration.addToTag(FLUIDS)
+			.add(AllItems.COPPER_BUCKET)
 			.add(AllBlocks.SMART_FAUCET)
 			.add(AllBlocks.FAUCET)
 			.add(AllBlocks.MULTI_FLUID_ACCESS_PORT)
@@ -99,11 +115,17 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
 			.add(AllBlocks.SMART_HOPPER)
 			.add(AllBlocks.FLUID_TRANSPORTER)
 			.add(AllBlocks.FLUID_PUMP)
+			.add(AllBlocks.FLOW_METER)
+			.add(AllBlocks.REDSTONE_FLUID_VALVE)
 			.add(AllBlocks.MECHANICAL_FLUID_GUN);
 
 		registration.addToTag(KINETIC_APPLIANCES)
 			.add(AllBlocks.FLUID_PUMP)
 			.add(AllBlocks.MECHANICAL_FLUID_GUN);
+
+        registration.addToTag(DISPLAY_SOURCES)
+                .add(AllBlocks.FLOW_METER)
+                .add(AllBlocks.POTATO_SERVER);
 
         registration.addToTag(ARM_TARGETS)
                 .add(AllBlocks.SMART_HOPPER)

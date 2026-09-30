@@ -41,10 +41,3 @@ config="fluidlogistics.mixins.json"
     versionRange="[1.1.22,)"
     ordering="AFTER"
     side="CLIENT"
-
-[[dependencies.${mod_id}]]
-    modId="kaleidoscope_tavern"
-    mandatory=false
-    versionRange="${kaleidoscope_tavern_version_range}"
-    ordering="AFTER"
-    side="BOTH"

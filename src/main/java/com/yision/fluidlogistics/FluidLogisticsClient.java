@@ -11,6 +11,7 @@ import com.yision.fluidlogistics.content.fluids.copperBucket.client.CopperBucket
 import com.yision.fluidlogistics.content.fluids.copperBucket.client.CopperBucketModel;
 import com.yision.fluidlogistics.content.fluids.copperBucket.client.CopperBucketSpriteSource;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.client.FluidPackageClientRendering;
+import com.yision.fluidlogistics.content.logistics.factoryGauge.client.ResourceFactoryGaugeScreen;
 import com.yision.fluidlogistics.content.schematics.client.FluidSchematicColors;
 import com.yision.fluidlogistics.ponder.CopperBasinPonderPlugin;
 import com.yision.fluidlogistics.ponder.CopperFrogportPonderPlugin;
@@ -80,6 +81,8 @@ public class FluidLogisticsClient {
             AllItems.FLUID_GAUGE_TYPE_ID,
             com.yision.fluidlogistics.api.factorygauge.client.FactoryGaugeModelSet.fromRoot(
                 FluidLogistics.asResource("block/fluid_factory_gauge")));
+        com.yision.fluidlogistics.api.factorygauge.client.FactoryGaugeClient.registerScreenFactory(
+            AllItems.FLUID_GAUGE_TYPE_ID, ResourceFactoryGaugeScreen::new);
     }
 
     @SubscribeEvent

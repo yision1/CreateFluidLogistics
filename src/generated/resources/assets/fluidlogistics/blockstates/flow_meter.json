@@ -1,0 +1,78 @@
+{
+  "variants": {
+    "axis=x,facing=down": {
+      "model": "fluidlogistics:block/flow_meter/block",
+      "x": 180,
+      "y": 90
+    },
+    "axis=x,facing=east": {
+      "model": "fluidlogistics:block/flow_meter/block_wall"
+    },
+    "axis=x,facing=north": {
+      "model": "fluidlogistics:block/flow_meter/block_wall",
+      "y": 270
+    },
+    "axis=x,facing=south": {
+      "model": "fluidlogistics:block/flow_meter/block_wall",
+      "y": 90
+    },
+    "axis=x,facing=up": {
+      "model": "fluidlogistics:block/flow_meter/block",
+      "y": 90
+    },
+    "axis=x,facing=west": {
+      "model": "fluidlogistics:block/flow_meter/block_wall",
+      "y": 180
+    },
+    "axis=y,facing=down": {
+      "model": "fluidlogistics:block/flow_meter/block",
+      "x": 180
+    },
+    "axis=y,facing=east": {
+      "model": "fluidlogistics:block/flow_meter/block_wall",
+      "x": 90
+    },
+    "axis=y,facing=north": {
+      "model": "fluidlogistics:block/flow_meter/block_wall",
+      "x": 90,
+      "y": 270
+    },
+    "axis=y,facing=south": {
+      "model": "fluidlogistics:block/flow_meter/block_wall",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y,facing=up": {
+      "model": "fluidlogistics:block/flow_meter/block"
+    },
+    "axis=y,facing=west": {
+      "model": "fluidlogistics:block/flow_meter/block_wall",
+      "x": 90,
+      "y": 180
+    },
+    "axis=z,facing=down": {
+      "model": "fluidlogistics:block/flow_meter/block",
+      "x": 180
+    },
+    "axis=z,facing=east": {
+      "model": "fluidlogistics:block/flow_meter/block_wall"
+    },
+    "axis=z,facing=north": {
+      "model": "fluidlogistics:block/flow_meter/block_wall",
+      "x": 90,
+      "y": 270
+    },
+    "axis=z,facing=south": {
+      "model": "fluidlogistics:block/flow_meter/block_wall",
+      "x": 90,
+      "y": 90
+    },
+    "axis=z,facing=up": {
+      "model": "fluidlogistics:block/flow_meter/block"
+    },
+    "axis=z,facing=west": {
+      "model": "fluidlogistics:block/flow_meter/block_wall",
+      "y": 180
+    }
+  }
+}

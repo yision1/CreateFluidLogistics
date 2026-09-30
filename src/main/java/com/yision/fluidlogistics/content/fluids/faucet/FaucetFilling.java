@@ -3,12 +3,7 @@ package com.yision.fluidlogistics.content.fluids.faucet;
 import com.simibubi.create.content.fluids.spout.FillingBySpout;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleType;
-import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.fluids.FluidStack;
@@ -73,31 +68,5 @@ public final class FaucetFilling {
 
     static @Nullable BlockPos readBlockPos(CompoundTag tag, String key) {
         return tag.contains(key) ? BlockPos.of(tag.getLong(key)) : null;
-    }
-
-    static void writeParticleOptions(CompoundTag tag, String key, @Nullable ParticleOptions particle) {
-        if (particle == null) {
-            return;
-        }
-        ResourceLocation id = BuiltInRegistries.PARTICLE_TYPE.getKey(particle.getType());
-        if (id == null) {
-            return;
-        }
-        tag.putString(key, id.toString());
-    }
-
-    static @Nullable ParticleOptions readParticleOptions(CompoundTag tag, String key) {
-        if (!tag.contains(key)) {
-            return null;
-        }
-        ResourceLocation id = ResourceLocation.tryParse(tag.getString(key));
-        if (id == null) {
-            return null;
-        }
-        ParticleType<?> type = BuiltInRegistries.PARTICLE_TYPE.get(id);
-        if (!(type instanceof SimpleParticleType simpleParticleType)) {
-            return null;
-        }
-        return simpleParticleType;
     }
 }

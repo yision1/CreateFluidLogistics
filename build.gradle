@@ -2,7 +2,7 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'net.neoforged.moddev.legacyforge' version '2.0.107'
-    id 'com.hypherionmc.modutils.modpublisher' version '2.2.2+snapshot.1'
+    id 'com.hypherionmc.modutils.modpublisher' version '2.2.3'
 }
 
 version = mod_version
@@ -149,7 +149,6 @@ dependencies {
     modRuntimeOnly("mezz.jei:jei-${jei_minecraft_version}-forge:${jei_version}")
     modCompileOnly("dev.emi:emi-forge:${emi_version}:api")
     modImplementation("curse.maven:jade-324717:${jade_id}")
-    modCompileOnly("maven.modrinth:r9RZvhiJ:${kaleidoscope_tavern_version}")
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
@@ -170,7 +169,6 @@ tasks.named('processResources', ProcessResources).configure {
             mod_version            : mod_version,
             mod_authors            : mod_authors,
             mod_description        : mod_description,
-            kaleidoscope_tavern_version_range: kaleidoscope_tavern_version_range,
     ]
     inputs.properties replaceProperties
 
@@ -243,7 +241,7 @@ publisher {
     setGameVersions("${project.minecraft_version}")
     setLoaders("forge")
     setCurseEnvironment("both")
-    setArtifact(jar.archiveFile.get())
+    setArtifact(tasks.named("jar", Jar))
     setJavaVersions([JavaVersion.VERSION_17])
 
     addAdditionalFile {
@@ -262,12 +260,10 @@ publisher {
     }
 }
 
-tasks.named('publishMod') {
-    dependsOn 'reobfJar'
-}
-
 ["publishMod", "publishCurseforge", "publishModrinth"].each { taskName ->
     tasks.named(taskName).configure {
+        dependsOn tasks.named("build")
+        dependsOn 'reobfJar'
         dependsOn sourcesJarTask
     }
 }

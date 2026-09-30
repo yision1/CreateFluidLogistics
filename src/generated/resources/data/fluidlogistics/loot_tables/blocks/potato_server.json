@@ -11,11 +11,10 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "fluidlogistics:industrial_copper_block"
+          "name": "fluidlogistics:potato_server"
         }
       ],
       "rolls": 1.0
     }
-  ],
-  "random_sequence": "fluidlogistics:blocks/industrial_copper_block"
+  ]
 }

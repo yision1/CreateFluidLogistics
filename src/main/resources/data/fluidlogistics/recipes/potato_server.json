@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " M ",
+    " P ",
+    " C "
+  ],
+  "key": {
+    "M": {
+      "item": "create:precision_mechanism"
+    },
+    "C": {
+      "item": "create:copper_casing"
+    },
+    "P": {
+      "item": "minecraft:potato"
+    }
+  },
+  "result": {
+    "item": "fluidlogistics:potato_server"
+  }
+}

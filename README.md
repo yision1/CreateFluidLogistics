@@ -6,7 +6,7 @@
   <a href="https://modrinth.com/mod/createfluidlogistic"><img alt="Modrinth" src="https://img.shields.io/modrinth/dt/createfluidlogistic?logo=modrinth&label=&suffix=%20&style=flat&color=242629&labelColor=5ca424&logoColor=1c1c1c"></a>
   <a href="https://www.curseforge.com/minecraft/mc-mods/create-fluidlogistic"><img alt="CurseForge" src="https://img.shields.io/curseforge/dt/1475079?logo=curseforge&label=&suffix=%20&style=flat&color=242629&labelColor=e04e14&logoColor=1c1c1c"></a>
   <a href="https://crowdin.com/project/fluidlogistics"><img alt="Crowdin" src="https://badges.crowdin.net/fluidlogistics/localized.svg"></a>
-  <a href="https://github.com/yision1/CreateFluidLogistics/blob/master/LICENSE.txt"><img alt="License" src="https://img.shields.io/badge/license-All%20Rights%20Reserved-900c3f?style=flat"></a>
+  <a href="https://github.com/yision1/CreateFluidLogistics/blob/master/LICENSE.txt"><img alt="License" src="https://img.shields.io/badge/license-BSD--3--Clause-900c3f?style=flat"></a>
 </p>
 
 <p align="center">
@@ -44,7 +44,7 @@ Provide translation for this mod in [Crowdin](https://zh.crowdin.com/project/flu
 The resourcepacks by GALLIUM0202
 
 ## License
-Create FluidLogistics is licensed under the All rights reserved. See [LICENSE](LICENSE.txt) for more information.
+Create FluidLogistics is licensed under the BSD-3-Clause license. See [LICENSE](LICENSE.txt) for more information.
 
 Certain sections of the project are from the CreateDragonsPlus mod, which is licensed under the LGPL-3.0-or-later license. See [CreateDragonsPlus's license](https://github.com/DragonsPlusMinecraft/CreateDragonsPlus?tab=License-1-ov-file) for more information.
 

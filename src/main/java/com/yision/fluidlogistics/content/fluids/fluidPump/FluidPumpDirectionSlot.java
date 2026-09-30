@@ -25,13 +25,10 @@ public class FluidPumpDirectionSlot extends CenteredSideValueBoxTransform {
 	@Override
 	public void rotate(LevelAccessor level, BlockPos pos, BlockState state, PoseStack ms) {
 		super.rotate(level, pos, state, ms);
-		Direction outputDirection = level.getBlockEntity(pos) instanceof FluidPumpBlockEntity pump
-			? pump.getEffectiveFront()
-			: FluidPumpBlock.getVisualOutputDirection(state);
+		Direction outputDirection = state.getValue(FluidPumpBlock.FACING);
 		float zRot = FluidPumpBlock.getValueBoxZRotation(state, outputDirection);
 		if (zRot != 0)
-			TransformStack.of(ms)
-				.rotateZDegrees(zRot);
+			TransformStack.of(ms).rotateZDegrees(zRot);
 	}
 
 	@Override

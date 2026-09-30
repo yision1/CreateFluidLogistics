@@ -27,6 +27,9 @@ public final class CreativeTabSectionRegistry {
             "copper_basin",
             "smart_hopper",
             "fluid_pump",
+            "flow_meter",
+            "redstone_fluid_valve",
+            "potato_server",
             "fluid_transporter",
             "multi_fluid_tank",
             "horizontal_multi_fluid_tank",
@@ -41,7 +44,6 @@ public final class CreativeTabSectionRegistry {
             "fluid_packager",
             "fluid_repackager",
             "copper_frogport",
-            "industrial_copper_block",
             "blaze_cooler");
     private static final CreativeTabSectionRegistry INSTANCE = new CreativeTabSectionRegistry();
 

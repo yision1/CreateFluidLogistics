@@ -22,6 +22,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -42,8 +43,11 @@ public class FluidPackagerBlock extends PackagerBlock {
             BlockEntity be = level.getBlockEntity(context.getClickedPos().relative(face));
             if (be instanceof FluidPackagerBlockEntity)
                 continue;
-            if (be != null && be.hasLevel() &&
-                    be.getCapability(ForgeCapabilities.FLUID_HANDLER, null).isPresent()) {
+            if ((be != null && be.hasLevel()
+                    && (be.getCapability(ForgeCapabilities.FLUID_HANDLER, face.getOpposite()).isPresent()
+                        || be.getCapability(ForgeCapabilities.FLUID_HANDLER, null).isPresent()))
+                    || level.getBlockState(context.getClickedPos().relative(face))
+                        .hasProperty(BlockStateProperties.LEVEL_HONEY)) {
                 preferredFacing = face.getOpposite();
                 break;
             }

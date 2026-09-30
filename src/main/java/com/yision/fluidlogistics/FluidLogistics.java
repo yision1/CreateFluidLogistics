@@ -37,6 +37,7 @@ import com.yision.fluidlogistics.network.FluidLogisticsPackets;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
 import com.yision.fluidlogistics.registry.FluidLogisticsUnpackingHandlers;
 import com.yision.fluidlogistics.registry.AllBlocks;
+import com.yision.fluidlogistics.registry.AllFluidLogisticsDisplaySources;
 import com.yision.fluidlogistics.registry.AllItems;
 import com.yision.fluidlogistics.registry.AllMenuTypes;
 import com.yision.fluidlogistics.registry.AllFluidAttributeTypes;
@@ -138,6 +139,7 @@ public class FluidLogistics
         REGISTRATE.registerEventListeners(modEventBus);
         modEventBus.addListener(FluidLogisticsDatagen::gatherData);
 
+        AllFluidLogisticsDisplaySources.register();
         AllBlocks.register();
         PackagerAddresses.register(com.simibubi.create.AllBlocks.PACKAGER);
         PackagerAddresses.register(AllBlocks.FLUID_PACKAGER);
@@ -300,7 +302,6 @@ public class FluidLogistics
             new FeatureItem(FeatureToggle.FLUID_FACTORY_GAUGE, AllItems.FLUID_FACTORY_GAUGE),
             new FeatureItem(FeatureToggle.BLAZE_COOLER, AllBlocks.BLAZE_COOLER),
             new FeatureItem(FeatureToggle.COPPER_SCHEMATICANNON, AllBlocks.COPPER_SCHEMATICANNON),
-            new FeatureItem(FeatureToggle.INDUSTRIAL_COPPER_BLOCK, AllBlocks.INDUSTRIAL_COPPER_BLOCK),
             new FeatureItem(FeatureToggle.FLUID_SCHEMATIC, AllItems.EMPTY_FLUID_SCHEMATIC),
             new FeatureItem(FeatureToggle.FROST_CAKE, AllItems.FROST_CAKE),
             new FeatureItem(FeatureToggle.FLUID_SCHEMATIC, AllItems.FLUID_SCHEMATIC),

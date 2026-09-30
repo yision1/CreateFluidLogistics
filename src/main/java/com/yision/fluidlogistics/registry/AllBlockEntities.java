@@ -1,5 +1,9 @@
 package com.yision.fluidlogistics.registry;
 
+import com.yision.fluidlogistics.content.fluids.pressureGauge.PressureGaugeBlockEntity;
+import com.yision.fluidlogistics.content.fluids.pressureGauge.PressureGaugeRenderer;
+import com.yision.fluidlogistics.content.fluids.redstoneFluidValve.RedstoneFluidValveBlockEntity;
+import com.yision.fluidlogistics.content.fluids.redstoneFluidValve.RedstoneFluidValveRenderer;
 import com.simibubi.create.content.kinetics.base.ShaftVisual;
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import com.yision.fluidlogistics.content.fluids.fluidHatch.FluidHatchBlockEntity;
@@ -34,6 +38,7 @@ import com.yision.fluidlogistics.content.fluids.multiFluidAccessPort.MultiFluidA
 import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankBlockEntity;
 import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankRenderer;
 import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperBlockEntity;
+import com.yision.fluidlogistics.content.logistics.potatoServer.PotatoServerBlockEntity;
 import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperRenderer;
 import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonBlockEntity;
 import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonRenderer;
@@ -44,6 +49,11 @@ import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerRende
 import static com.yision.fluidlogistics.FluidLogistics.REGISTRATE;
 
 public class AllBlockEntities {
+
+    public static final BlockEntityEntry<PotatoServerBlockEntity> POTATO_SERVER = REGISTRATE
+            .blockEntity("potato_server", PotatoServerBlockEntity::new)
+            .validBlocks(AllBlocks.POTATO_SERVER)
+            .register();
 
     public static final BlockEntityEntry<BlazeCoolerBlockEntity> BLAZE_COOLER = REGISTRATE
             .blockEntity("blaze_cooler", BlazeCoolerBlockEntity::new)
@@ -118,6 +128,20 @@ public class AllBlockEntities {
             .blockEntity("fluid_inventory_access_port", FluidInventoryAccessPortBlockEntity::new)
             .validBlocks(AllBlocks.FLUID_INVENTORY_ACCESS_PORT)
             .register();
+
+    public static final BlockEntityEntry<PressureGaugeBlockEntity> FLOW_METER = REGISTRATE
+            .blockEntity("flow_meter", PressureGaugeBlockEntity::new)
+            .validBlocks(AllBlocks.FLOW_METER)
+            .renderer(() -> PressureGaugeRenderer::new)
+            .register();
+
+    public static final BlockEntityEntry<RedstoneFluidValveBlockEntity> REDSTONE_FLUID_VALVE = REGISTRATE
+            .blockEntity("redstone_fluid_valve", RedstoneFluidValveBlockEntity::new)
+            .validBlocks(AllBlocks.REDSTONE_FLUID_VALVE)
+            .renderer(() -> RedstoneFluidValveRenderer::new)
+            .register();
+
+
 
     public static final BlockEntityEntry<FluidPumpBlockEntity> FLUID_PUMP = REGISTRATE
             .blockEntity("fluid_pump", FluidPumpBlockEntity::new)

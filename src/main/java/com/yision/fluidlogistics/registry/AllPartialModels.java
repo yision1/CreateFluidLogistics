@@ -15,6 +15,10 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 public class AllPartialModels {
 
+    public static final PartialModel FLOW_METER_HEAD = block("flow_meter/head");
+    public static final PartialModel FLOW_METER_DIAL = block("flow_meter/dial");
+    public static final PartialModel REDSTONE_FLUID_VALVE_POINTER = block("redstone_fluid_valve/pointer");
+
     public static final PartialModel FLUID_PACKAGER_TRAY = block("fluid_packager/tray");
     public static final PartialModel FLUID_PACKAGER_HATCH_OPEN = block("fluid_packager/hatch_open");
     public static final PartialModel FLUID_PACKAGER_HATCH_CLOSED = block("fluid_packager/hatch_closed");
@@ -24,7 +28,6 @@ public class AllPartialModels {
     public static final PartialModel COPPER_FROGPORT_HEAD_GOGGLES = block("copper_frogport/head_goggles");
     public static final PartialModel COPPER_FROGPORT_TONGUE = block("copper_frogport/tongue");
     public static final Map<Direction, PartialModel> FAUCET_SOURCE_INTERFACE = new EnumMap<>(Direction.class);
-    public static final PartialModel FLUID_PUMP_SHAFT = block("fluid_pump/shaft");
     public static final PartialModel MECHANICAL_FLUID_GUN_BASE = block("mechanical_fluid_gun/base");
     public static final PartialModel MECHANICAL_FLUID_GUN_COG = block("mechanical_fluid_gun/cog");
     public static final PartialModel MECHANICAL_FLUID_GUN_GUN_BODY = block("mechanical_fluid_gun/gun_body");
@@ -89,6 +92,9 @@ public class AllPartialModels {
 
     public static List<ResourceLocation> customModelLocations() {
         return List.of(
+                FLOW_METER_HEAD.modelLocation(),
+                FLOW_METER_DIAL.modelLocation(),
+                REDSTONE_FLUID_VALVE_POINTER.modelLocation(),
                 FLUID_PACKAGER_TRAY.modelLocation(),
                 FLUID_PACKAGER_HATCH_OPEN.modelLocation(),
                 FLUID_PACKAGER_HATCH_CLOSED.modelLocation(),

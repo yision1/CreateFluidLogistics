@@ -1,44 +1,41 @@
 package com.yision.fluidlogistics.content.fluids.fluidPump;
 
+import com.simibubi.create.api.contraption.transformable.TransformableBlock;
+import com.simibubi.create.content.contraptions.StructureTransform;
 import com.simibubi.create.content.fluids.FluidPropagator;
+import com.simibubi.create.content.kinetics.base.IRotate;
 import com.simibubi.create.content.fluids.pipes.FluidPipeBlock;
 import com.simibubi.create.content.fluids.pump.PumpBlock;
 import com.simibubi.create.content.kinetics.base.DirectionalAxisKineticBlock;
 import com.simibubi.create.foundation.block.ProperWaterloggedBlock;
-import net.createmod.catnip.math.AngleHelper;
-import net.createmod.catnip.math.VecHelper;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
 
 import net.createmod.catnip.data.Iterate;
+import net.createmod.catnip.math.AngleHelper;
+import net.createmod.catnip.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Direction.AxisDirection;
-import net.minecraft.network.protocol.game.DebugPackets;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.ticks.TickPriority;
 
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
 
-@SuppressWarnings({ "deprecation", "unchecked" })
-public class FluidPumpBlock extends PumpBlock {
+public class FluidPumpBlock extends PumpBlock implements TransformableBlock {
+
+	public static final BooleanProperty TOP_NEGATIVE = BooleanProperty.create("top_negative");
 
 	private static final double[][] HORIZONTAL_MODEL_BOXES = {
 		{2, 2, 2, 14, 14, 14},
@@ -64,19 +61,19 @@ public class FluidPumpBlock extends PumpBlock {
 	public FluidPumpBlock(Properties p_i48415_1_) {
 		super(p_i48415_1_);
 		registerDefaultState(defaultBlockState()
-			.setValue(DirectionalAxisKineticBlock.AXIS_ALONG_FIRST_COORDINATE, false));
+			.setValue(DirectionalAxisKineticBlock.AXIS_ALONG_FIRST_COORDINATE, false)
+			.setValue(TOP_NEGATIVE, false));
 	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<net.minecraft.world.level.block.Block, BlockState> builder) {
 		super.createBlockStateDefinition(builder);
 		builder.add(DirectionalAxisKineticBlock.AXIS_ALONG_FIRST_COORDINATE);
+		builder.add(TOP_NEGATIVE);
 	}
 
 	public static Axis getFluidAxis(BlockState state) {
-		Axis topAxis = state.getValue(FACING).getAxis();
-		Axis shaftAxis = getShaftAxis(state);
-		return getRemainingAxis(topAxis, shaftAxis);
+		return state.getValue(FACING).getAxis();
 	}
 
 	public static Axis getShaftAxis(BlockState state) {
@@ -95,23 +92,37 @@ public class FluidPumpBlock extends PumpBlock {
 		throw new IllegalStateException("Unknown axis.");
 	}
 
-	public static Direction getVisualOutputDirection(BlockState state) {
-		Direction direction = state.getValue(FACING);
-		boolean alongFirst = state.getValue(DirectionalAxisKineticBlock.AXIS_ALONG_FIRST_COORDINATE);
-		boolean vertical = isVerticalModel(direction, alongFirst);
-		int xRot = getXRotation(direction);
-		int yRot = getYRotation(direction, alongFirst);
-		return rotateDirection(vertical ? Direction.EAST : Direction.UP, xRot, yRot);
+	@Override
+	public BlockState rotate(BlockState state, Rotation rotation) {
+		Direction output = rotation.rotate(state.getValue(FACING));
+		Axis shaft = rotation.rotate(Direction.fromAxisAndDirection(getShaftAxis(state), AxisDirection.POSITIVE)).getAxis();
+		return withOutputAndShaft(state, output, shaft)
+			.setValue(TOP_NEGATIVE, rotation.rotate(getModelTop(state)).getAxisDirection() == AxisDirection.NEGATIVE);
 	}
 
-	public static Direction getFluidDirection(BlockState state, AxisDirection selectedDirection) {
-		Direction positive = getVisualOutputDirection(state);
-		return selectedDirection == AxisDirection.POSITIVE ? positive : positive.getOpposite();
+	@Override
+	public BlockState mirror(BlockState state, Mirror mirror) {
+		return state.setValue(FACING, mirror.mirror(state.getValue(FACING)))
+			.setValue(TOP_NEGATIVE, mirror.mirror(getModelTop(state)).getAxisDirection() == AxisDirection.NEGATIVE);
 	}
 
-	public static AxisDirection toSelectedDirection(BlockState state, Direction worldDirection) {
-		Direction positive = getVisualOutputDirection(state);
-		return worldDirection == positive ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE;
+	@Override
+	public BlockState transform(BlockState state, StructureTransform transform) {
+		if (transform.mirror != null)
+			state = mirror(state, transform.mirror);
+		Direction output = transform.rotateFacing(state.getValue(FACING));
+		Axis shaft = transform.rotateFacing(Direction.fromAxisAndDirection(getShaftAxis(state), AxisDirection.POSITIVE)).getAxis();
+		return withOutputAndShaft(state, output, shaft)
+			.setValue(TOP_NEGATIVE, transform.rotateFacing(getModelTop(state)).getAxisDirection() == AxisDirection.NEGATIVE);
+	}
+
+	@Override
+	public BlockState getRotatedBlockState(BlockState state, Direction targetedFace) {
+		if (targetedFace.getAxis() == getFluidAxis(state)) {
+			BlockState rotated = state.cycle(DirectionalAxisKineticBlock.AXIS_ALONG_FIRST_COORDINATE);
+			return getModelTop(rotated).getAxis() == Axis.Y ? rotated.setValue(TOP_NEGATIVE, false) : rotated;
+		}
+		return super.getRotatedBlockState(state, targetedFace);
 	}
 
 	public static float getValueBoxZRotation(BlockState state, Direction outputDir) {
@@ -148,35 +159,25 @@ public class FluidPumpBlock extends PumpBlock {
 			.isVertical() ? alongFirst ? 180 : 90 : (int) direction.toYRot();
 	}
 
-	private static Direction rotateDirection(Direction direction, int xRot, int yRot) {
-		Vec3 normal = Vec3.atLowerCornerOf(direction.getNormal());
-		normal = rotateVectorX(normal, xRot);
-		normal = rotateVectorY(normal, yRot);
-		return Direction.getNearest(normal.x, normal.y, normal.z);
-	}
-
-	private static Vec3 rotateVectorX(Vec3 point, int degrees) {
-		int normalized = Math.floorMod(degrees, 360);
-		return switch (normalized) {
-			case 90 -> new Vec3(point.x, point.z, -point.y);
-			case 180 -> new Vec3(point.x, -point.y, -point.z);
-			case 270 -> new Vec3(point.x, -point.z, point.y);
-			default -> point;
-		};
-	}
-
-	private static Vec3 rotateVectorY(Vec3 point, int degrees) {
-		int normalized = Math.floorMod(degrees, 360);
-		return switch (normalized) {
-			case 90 -> new Vec3(-point.z, point.y, point.x);
-			case 180 -> new Vec3(-point.x, point.y, -point.z);
-			case 270 -> new Vec3(point.z, point.y, -point.x);
-			default -> point;
-		};
-	}
-
 	public static Direction getModelTop(BlockState state) {
-		return state.getValue(FACING);
+		return Direction.fromAxisAndDirection(getRemainingAxis(getFluidAxis(state), getShaftAxis(state)),
+			state.getValue(TOP_NEGATIVE) ? AxisDirection.NEGATIVE : AxisDirection.POSITIVE);
+	}
+
+	public static boolean isVerticalModel(BlockState state) {
+		return isVerticalModel(getModelTop(state), modelAlongFirst(state));
+	}
+
+	public static int getModelXRotation(BlockState state) {
+		return getXRotation(getModelTop(state));
+	}
+
+	public static int getModelYRotation(BlockState state) {
+		return getYRotation(getModelTop(state), modelAlongFirst(state));
+	}
+
+	private static boolean modelAlongFirst(BlockState state) {
+		return computeAlongFirst(getModelTop(state).getAxis(), getShaftAxis(state));
 	}
 
 	@Override
@@ -209,154 +210,67 @@ public class FluidPumpBlock extends PumpBlock {
 		return getModelShape(state);
 	}
 
-	public static boolean isOpenAt(BlockState state, Direction direction) {
-		return direction.getAxis() == getFluidAxis(state);
-	}
-
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
-		BlockState toPlace = ProperWaterloggedBlock.withWater(context.getLevel(), defaultBlockState(),
-			context.getClickedPos());
-		boolean isShiftKeyDown = context.getPlayer() != null && context.getPlayer()
-			.isShiftKeyDown();
-		Direction preferredShaftDirection = getPreferredFacing(context);
-		Axis preferredShaftAxis = preferredShaftDirection != null && !isShiftKeyDown
-			? preferredShaftDirection.getAxis()
-			: null;
-		Direction targetOutputDirection = getTargetFluidDirection(context, preferredShaftAxis);
-		Direction topDirection = chooseModelTop(context, targetOutputDirection.getAxis(), preferredShaftAxis);
-
-		return getPlacementStateForOutput(toPlace, targetOutputDirection, topDirection, preferredShaftAxis);
-	}
-
-	private Direction getTargetFluidDirection(BlockPlaceContext context, Axis excludedAxis) {
-		Level level = context.getLevel();
-		BlockPos pos = context.getClickedPos();
-		boolean isShiftKeyDown = context.getPlayer() != null && context.getPlayer()
-			.isShiftKeyDown();
-
-		Axis preferredAxis = getPreferredFluidConnectionAxis(level, pos, null, excludedAxis);
-		Axis placementAxis = preferredAxis != null ? preferredAxis : getPlacedFluidAxis(context, excludedAxis);
-		Direction nearestLookingDirection = getNearestLookingDirectionOnAxis(context, placementAxis);
-		Direction targetDirection = isShiftKeyDown ? nearestLookingDirection : nearestLookingDirection.getOpposite();
-
-		if (preferredAxis != null && !isShiftKeyDown)
-			return getBestConnectedDirectionOnAxis(context, preferredAxis, targetDirection);
-
-		return targetDirection;
-	}
-
-	private Axis getPlacedFluidAxis(BlockPlaceContext context, Axis excludedAxis) {
-		Axis placementAxis;
-		if (context.getClickedFace()
-			.getAxis()
-			.isHorizontal())
-			placementAxis = Axis.Y;
-		else
-			placementAxis = getNearestHorizontalLookingDirection(context).getAxis();
-		if (placementAxis != excludedAxis)
-			return placementAxis;
-		for (Direction direction : context.getNearestLookingDirections())
-			if (direction.getAxis() != excludedAxis)
-				return direction.getAxis();
-		throw new IllegalStateException("No available fluid axis.");
-	}
-
-	private Direction getNearestHorizontalLookingDirection(BlockPlaceContext context) {
-		for (Direction direction : context.getNearestLookingDirections())
-			if (direction.getAxis()
-				.isHorizontal())
-				return direction;
-		return context.getHorizontalDirection();
-	}
-
-	private Direction getNearestLookingDirectionOnAxis(BlockPlaceContext context, Axis axis) {
-		for (Direction direction : context.getNearestLookingDirections())
-			if (direction.getAxis() == axis)
-				return direction;
-		return Direction.fromAxisAndDirection(axis, AxisDirection.POSITIVE);
-	}
-
-	private Direction getBestConnectedDirectionOnAxis(BlockPlaceContext context, Axis preferredAxis,
-													 Direction targetDirection) {
-		Level level = context.getLevel();
-		BlockPos pos = context.getClickedPos();
-		Direction bestConnectedDirection = null;
-		double bestDistance = Double.MAX_VALUE;
-
-		for (Direction d : Iterate.directions) {
-			if (d.getAxis() != preferredAxis)
+		Direction output = getOutputForPlacement(context);
+		Axis fluidAxis = output.getAxis();
+		Axis shaftAxis = fluidAxis == Axis.Y ? context.getHorizontalDirection().getClockWise().getAxis()
+			: fluidAxis == Axis.X ? Axis.Z : Axis.X;
+		Axis preferred = null;
+		for (Direction side : Iterate.directions) {
+			if (side.getAxis() == fluidAxis)
 				continue;
-			BlockPos adjPos = pos.relative(d);
-			BlockState adjState = level.getBlockState(adjPos);
-			if (!canConnectFluidPortTo(level, adjPos, adjState, d))
+			BlockPos neighbourPos = context.getClickedPos().relative(side);
+			BlockState neighbour = context.getLevel().getBlockState(neighbourPos);
+			if (!(neighbour.getBlock() instanceof IRotate kinetic)
+				|| !kinetic.hasShaftTowards(context.getLevel(), neighbourPos, neighbour, side.getOpposite()))
 				continue;
-			double distance = Vec3.atLowerCornerOf(d.getNormal())
-				.distanceTo(Vec3.atLowerCornerOf(targetDirection.getNormal()));
-			if (distance > bestDistance)
-				continue;
-			bestDistance = distance;
-			bestConnectedDirection = d;
+			if (preferred != null && preferred != side.getAxis()) {
+				preferred = null;
+				break;
+			}
+			preferred = side.getAxis();
 		}
-
-		if (bestConnectedDirection != null)
-			return bestConnectedDirection;
-
-		for (Direction direction : context.getNearestLookingDirections())
-			if (direction.getAxis() == preferredAxis)
-				return direction;
-
-		return Direction.fromAxisAndDirection(preferredAxis, targetDirection.getAxisDirection());
+		BlockState state = withOutputAndShaft(ProperWaterloggedBlock.withWater(context.getLevel(), defaultBlockState(),
+			context.getClickedPos()), output, preferred == null ? shaftAxis : preferred);
+		Axis topAxis = getModelTop(state).getAxis();
+		if (topAxis == Axis.Y)
+			return state;
+		for (Direction looking : context.getNearestLookingDirections())
+			if (looking.getAxis() == topAxis)
+				return state.setValue(TOP_NEGATIVE, looking.getAxisDirection() == AxisDirection.POSITIVE);
+		return state;
 	}
 
-	private boolean canConnectFluidPortTo(Level level, BlockPos pos, BlockState state, Direction direction) {
-		if (FluidPipeBlock.canConnectTo(level, pos, state, direction))
-			return true;
-		BlockEntity be = level.getBlockEntity(pos);
-		return be != null && be.getCapability(ForgeCapabilities.FLUID_HANDLER).isPresent();
-	}
-
-	private Direction chooseModelTop(BlockPlaceContext context, Axis fluidAxis, Axis shaftAxis) {
-		if (shaftAxis != null) {
-			Axis topAxis = getRemainingAxis(fluidAxis, shaftAxis);
-			if (topAxis == Axis.Y)
-				return context.getClickedFace() == Direction.DOWN ? Direction.DOWN : Direction.UP;
-			if (context.getClickedFace()
-				.getAxis() == topAxis)
-				return context.getClickedFace();
-			return getNearestLookingDirectionOnAxis(context, topAxis).getOpposite();
+	private Direction getOutputForPlacement(BlockPlaceContext context) {
+		Direction clickedSide = context.getClickedFace().getOpposite();
+		if (!context.replacingClickedOnBlock() && canConnectFluidPortTo(context, clickedSide))
+			return clickedSide.getOpposite();
+		Direction connected = null;
+		for (Direction side : Iterate.directions) {
+			if (!canConnectFluidPortTo(context, side))
+				continue;
+			if (connected != null) {
+				connected = null;
+				break;
+			}
+			connected = side;
 		}
-		if (fluidAxis == Axis.Y)
-			return chooseVerticalModelTop(context);
-		return context.getClickedFace() == Direction.DOWN ? Direction.DOWN : Direction.UP;
+		if (connected != null)
+			return connected.getOpposite();
+		Direction looking = context.getNearestLookingDirection();
+		return context.getPlayer() != null && context.getPlayer().isShiftKeyDown() ? looking : looking.getOpposite();
 	}
 
-	private Direction chooseVerticalModelTop(BlockPlaceContext context) {
-		if (context.getClickedFace()
-			.getAxis()
-			.isHorizontal())
-			return context.getClickedFace();
-		return getNearestHorizontalLookingDirection(context).getOpposite();
+	private boolean canConnectFluidPortTo(BlockPlaceContext context, Direction side) {
+		Level level = context.getLevel();
+		BlockPos pos = context.getClickedPos().relative(side);
+		return FluidPipeBlock.canConnectTo(level, pos, level.getBlockState(pos), side);
 	}
 
-	private static BlockState getPlacementStateForOutput(BlockState state, Direction targetOutputDirection,
-												  Direction preferredTopDirection, Axis preferredShaftAxis) {
-		Axis shaftAxis = preferredShaftAxis != null
-			? preferredShaftAxis
-			: getShaftAxisForPlacement(targetOutputDirection.getAxis(), preferredTopDirection);
-		return withTopAndShaft(state, preferredTopDirection, shaftAxis);
-	}
-
-	private static BlockState withTopAndShaft(BlockState state, Direction topDirection, Axis shaftAxis) {
-		Axis topAxis = topDirection.getAxis();
-		boolean alongFirst = computeAlongFirst(topAxis, shaftAxis);
-
-		return state.setValue(FACING, topDirection)
-			.setValue(DirectionalAxisKineticBlock.AXIS_ALONG_FIRST_COORDINATE, alongFirst);
-	}
-
-	private static Axis getShaftAxisForPlacement(Axis fluidAxis, Direction topDirection) {
-		return getRemainingAxis(fluidAxis, topDirection.getAxis());
+	private static BlockState withOutputAndShaft(BlockState state, Direction output, Axis shaft) {
+		return state.setValue(FACING, output).setValue(DirectionalAxisKineticBlock.AXIS_ALONG_FIRST_COORDINATE,
+			computeAlongFirst(output.getAxis(), shaft));
 	}
 
 	private static Axis getRemainingAxis(Axis first, Axis second) {
@@ -377,8 +291,8 @@ public class FluidPumpBlock extends PumpBlock {
 	}
 
 	private static VoxelShape getModelShape(BlockState state) {
-		Direction direction = state.getValue(FACING);
-		boolean alongFirst = state.getValue(DirectionalAxisKineticBlock.AXIS_ALONG_FIRST_COORDINATE);
+		Direction direction = getModelTop(state);
+		boolean alongFirst = modelAlongFirst(state);
 		return SHAPES[alongFirst ? 1 : 0][direction.ordinal()];
 	}
 
@@ -473,127 +387,20 @@ public class FluidPumpBlock extends PumpBlock {
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block otherBlock, BlockPos neighborPos,
-								boolean isMoving) {
-		DebugPackets.sendNeighborsUpdatePacket(world, pos);
-		Direction d = FluidPropagator.validateNeighbourChange(state, world, pos, otherBlock, neighborPos, isMoving);
-		if (d == null)
-			return;
-		if (!isOpenAt(state, d))
-			return;
-		world.scheduleTick(pos, this, 1, TickPriority.HIGH);
-	}
-
-	@Override
 	public void onPlace(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean isMoving) {
 		super.onPlace(state, world, pos, oldState, isMoving);
-		if (world.isClientSide)
+		if (world.isClientSide || !oldState.is(this) || state.getValue(FACING) == oldState.getValue(FACING))
 			return;
-		if (state != oldState)
-			world.scheduleTick(pos, this, 1, TickPriority.HIGH);
-
-		if (state.getBlock() instanceof FluidPumpBlock && oldState.getBlock() instanceof FluidPumpBlock
-			&& getFluidAxis(state) == getFluidAxis(oldState)
-			&& getVisualOutputDirection(state) == getVisualOutputDirection(oldState).getOpposite()) {
-			BlockEntity blockEntity = world.getBlockEntity(pos);
-			if (blockEntity instanceof FluidPumpBlockEntity pump) {
-				pump.setPressureUpdate(true);
+		if (getFluidAxis(state) != getFluidAxis(oldState)) {
+			for (Direction side : Iterate.directions) {
+				if (side.getAxis() != getFluidAxis(oldState))
+					continue;
+				BlockPos neighbour = pos.relative(side);
+				FluidPropagator.propagateChangedPipe(world, neighbour, world.getBlockState(neighbour));
 			}
 		}
-	}
-
-	@Override
-	public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
-		super.setPlacedBy(level, pos, state, placer, stack);
-		if (level.isClientSide)
-			return;
-		BlockEntity blockEntity = level.getBlockEntity(pos);
-		if (!(blockEntity instanceof FluidPumpBlockEntity pump))
-			return;
-
-		Direction targetOutputDirection = getInitialOutputDirection(level, pos, state, placer);
-		pump.setInitialOutputDirection(targetOutputDirection);
-	}
-
-	private Direction getInitialOutputDirection(Level level, BlockPos pos, BlockState state, LivingEntity placer) {
-		Axis fluidAxis = getFluidAxis(state);
-		boolean isShiftKeyDown = placer instanceof Player player && player.isShiftKeyDown();
-		Direction targetDirection = getNearestLookingDirectionOnAxis(placer, fluidAxis);
-		targetDirection = isShiftKeyDown ? targetDirection : targetDirection.getOpposite();
-
-		Axis preferredAxis = getPreferredFluidConnectionAxis(level, pos, fluidAxis, null);
-		if (preferredAxis != null && preferredAxis != targetDirection.getAxis() && !isShiftKeyDown)
-			return getBestConnectedDirectionOnAxis(level, pos, preferredAxis, targetDirection);
-
-		return targetDirection;
-	}
-
-	private Axis getPreferredFluidConnectionAxis(Level level, BlockPos pos, Axis allowedAxis, Axis excludedAxis) {
-		Axis preferredAxis = null;
-		for (Direction d : Iterate.directions) {
-			if (allowedAxis != null && d.getAxis() != allowedAxis)
-				continue;
-			if (d.getAxis() == excludedAxis)
-				continue;
-			BlockPos adjPos = pos.relative(d);
-			BlockState adjState = level.getBlockState(adjPos);
-			if (!canConnectFluidPortTo(level, adjPos, adjState, d))
-				continue;
-			if (preferredAxis != null && preferredAxis != d.getAxis())
-				return null;
-			preferredAxis = d.getAxis();
-		}
-		return preferredAxis;
-	}
-
-	private Direction getNearestLookingDirectionOnAxis(LivingEntity placer, Axis axis) {
-		if (placer != null)
-			for (Direction direction : Direction.orderedByNearest(placer))
-				if (direction.getAxis() == axis)
-					return direction;
-		return Direction.fromAxisAndDirection(axis, AxisDirection.POSITIVE);
-	}
-
-	private Direction getBestConnectedDirectionOnAxis(Level level, BlockPos pos, Axis preferredAxis,
-													 Direction targetDirection) {
-		Direction bestConnectedDirection = null;
-		double bestDistance = Double.MAX_VALUE;
-
-		for (Direction d : Iterate.directions) {
-			if (d.getAxis() != preferredAxis)
-				continue;
-			BlockPos adjPos = pos.relative(d);
-			BlockState adjState = level.getBlockState(adjPos);
-			if (!canConnectFluidPortTo(level, adjPos, adjState, d))
-				continue;
-			double distance = Vec3.atLowerCornerOf(d.getNormal())
-				.distanceTo(Vec3.atLowerCornerOf(targetDirection.getNormal()));
-			if (distance > bestDistance)
-				continue;
-			bestDistance = distance;
-			bestConnectedDirection = d;
-		}
-
-		return bestConnectedDirection != null ? bestConnectedDirection : targetDirection;
-	}
-
-	@Override
-	public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource r) {
-		FluidPropagator.propagateChangedPipe(world, pos, state);
-	}
-
-	@Override
-	public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
-		boolean blockTypeChanged = !state.is(newState.getBlock());
-		if (blockTypeChanged && !world.isClientSide) {
-			FluidPropagator.propagateChangedPipe(world, pos, state);
-		}
-		super.onRemove(state, world, pos, newState, isMoving);
-	}
-
-	@Override
-	public boolean isPathfindable(BlockState state, BlockGetter reader, BlockPos pos, PathComputationType pathComputationType) {
-		return false;
+		if (world.getBlockEntity(pos) instanceof FluidPumpBlockEntity pump)
+			pump.setPressureUpdate(true);
 	}
 
 	@Override
@@ -604,10 +411,5 @@ public class FluidPumpBlock extends PumpBlock {
 	@Override
 	public net.minecraft.world.level.block.entity.BlockEntityType getBlockEntityType() {
 		return AllBlockEntities.FLUID_PUMP.get();
-	}
-
-	@Override
-	public BlockState getRotatedBlockState(BlockState originalState, Direction targetedFace) {
-		return originalState.setValue(FACING, originalState.getValue(FACING).getOpposite());
 	}
 }
