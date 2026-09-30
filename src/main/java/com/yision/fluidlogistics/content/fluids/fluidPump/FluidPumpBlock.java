@@ -22,9 +22,11 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -32,6 +34,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 
 public class FluidPumpBlock extends PumpBlock implements TransformableBlock {
+
+	public static final BooleanProperty TOP_NEGATIVE = BooleanProperty.create("top_negative");
 
 	private static final double[][] HORIZONTAL_MODEL_BOXES = {
 		{2, 2, 2, 14, 14, 14},
@@ -57,13 +61,15 @@ public class FluidPumpBlock extends PumpBlock implements TransformableBlock {
 	public FluidPumpBlock(Properties p_i48415_1_) {
 		super(p_i48415_1_);
 		registerDefaultState(defaultBlockState()
-			.setValue(DirectionalAxisKineticBlock.AXIS_ALONG_FIRST_COORDINATE, false));
+			.setValue(DirectionalAxisKineticBlock.AXIS_ALONG_FIRST_COORDINATE, false)
+			.setValue(TOP_NEGATIVE, false));
 	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<net.minecraft.world.level.block.Block, BlockState> builder) {
 		super.createBlockStateDefinition(builder);
 		builder.add(DirectionalAxisKineticBlock.AXIS_ALONG_FIRST_COORDINATE);
+		builder.add(TOP_NEGATIVE);
 	}
 
 	public static Axis getFluidAxis(BlockState state) {
@@ -90,7 +96,14 @@ public class FluidPumpBlock extends PumpBlock implements TransformableBlock {
 	public BlockState rotate(BlockState state, Rotation rotation) {
 		Direction output = rotation.rotate(state.getValue(FACING));
 		Axis shaft = rotation.rotate(Direction.fromAxisAndDirection(getShaftAxis(state), AxisDirection.POSITIVE)).getAxis();
-		return withOutputAndShaft(state, output, shaft);
+		return withOutputAndShaft(state, output, shaft)
+			.setValue(TOP_NEGATIVE, rotation.rotate(getModelTop(state)).getAxisDirection() == AxisDirection.NEGATIVE);
+	}
+
+	@Override
+	public BlockState mirror(BlockState state, Mirror mirror) {
+		return state.setValue(FACING, mirror.mirror(state.getValue(FACING)))
+			.setValue(TOP_NEGATIVE, mirror.mirror(getModelTop(state)).getAxisDirection() == AxisDirection.NEGATIVE);
 	}
 
 	@Override
@@ -99,13 +112,16 @@ public class FluidPumpBlock extends PumpBlock implements TransformableBlock {
 			state = mirror(state, transform.mirror);
 		Direction output = transform.rotateFacing(state.getValue(FACING));
 		Axis shaft = transform.rotateFacing(Direction.fromAxisAndDirection(getShaftAxis(state), AxisDirection.POSITIVE)).getAxis();
-		return withOutputAndShaft(state, output, shaft);
+		return withOutputAndShaft(state, output, shaft)
+			.setValue(TOP_NEGATIVE, transform.rotateFacing(getModelTop(state)).getAxisDirection() == AxisDirection.NEGATIVE);
 	}
 
 	@Override
 	public BlockState getRotatedBlockState(BlockState state, Direction targetedFace) {
-		if (targetedFace.getAxis() == getFluidAxis(state))
-			return state.cycle(DirectionalAxisKineticBlock.AXIS_ALONG_FIRST_COORDINATE);
+		if (targetedFace.getAxis() == getFluidAxis(state)) {
+			BlockState rotated = state.cycle(DirectionalAxisKineticBlock.AXIS_ALONG_FIRST_COORDINATE);
+			return getModelTop(rotated).getAxis() == Axis.Y ? rotated.setValue(TOP_NEGATIVE, false) : rotated;
+		}
 		return super.getRotatedBlockState(state, targetedFace);
 	}
 
@@ -144,7 +160,8 @@ public class FluidPumpBlock extends PumpBlock implements TransformableBlock {
 	}
 
 	public static Direction getModelTop(BlockState state) {
-		return Direction.fromAxisAndDirection(getRemainingAxis(getFluidAxis(state), getShaftAxis(state)), AxisDirection.POSITIVE);
+		return Direction.fromAxisAndDirection(getRemainingAxis(getFluidAxis(state), getShaftAxis(state)),
+			state.getValue(TOP_NEGATIVE) ? AxisDirection.NEGATIVE : AxisDirection.POSITIVE);
 	}
 
 	public static boolean isVerticalModel(BlockState state) {
@@ -197,7 +214,7 @@ public class FluidPumpBlock extends PumpBlock implements TransformableBlock {
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
 		Direction output = getOutputForPlacement(context);
 		Axis fluidAxis = output.getAxis();
-		Axis shaftAxis = fluidAxis == Axis.Y ? context.getHorizontalDirection().getAxis()
+		Axis shaftAxis = fluidAxis == Axis.Y ? context.getHorizontalDirection().getClockWise().getAxis()
 			: fluidAxis == Axis.X ? Axis.Z : Axis.X;
 		Axis preferred = null;
 		for (Direction side : Iterate.directions) {
@@ -214,8 +231,15 @@ public class FluidPumpBlock extends PumpBlock implements TransformableBlock {
 			}
 			preferred = side.getAxis();
 		}
-		return withOutputAndShaft(ProperWaterloggedBlock.withWater(context.getLevel(), defaultBlockState(),
+		BlockState state = withOutputAndShaft(ProperWaterloggedBlock.withWater(context.getLevel(), defaultBlockState(),
 			context.getClickedPos()), output, preferred == null ? shaftAxis : preferred);
+		Axis topAxis = getModelTop(state).getAxis();
+		if (topAxis == Axis.Y)
+			return state;
+		for (Direction looking : context.getNearestLookingDirections())
+			if (looking.getAxis() == topAxis)
+				return state.setValue(TOP_NEGATIVE, looking.getAxisDirection() == AxisDirection.POSITIVE);
+		return state;
 	}
 
 	private Direction getOutputForPlacement(BlockPlaceContext context) {

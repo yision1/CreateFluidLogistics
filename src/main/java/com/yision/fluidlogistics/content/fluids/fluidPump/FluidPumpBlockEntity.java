@@ -137,7 +137,6 @@ public class FluidPumpBlockEntity extends PumpBlockEntity {
 			updatePressureChange();
 		}
 		super.tick();
-		// Keep Create's pump behaviour for network endpoint recognition.
 		FluidTransportBehaviour transport = getBehaviour(FluidTransportBehaviour.TYPE);
 		float pumpPressure = Math.abs(getSpeed()) * PRESSURE_MULTIPLIER;
 		for (Entry<Direction, PipeConnection> entry : transport.interfaces.entrySet()) {

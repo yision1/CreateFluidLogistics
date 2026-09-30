@@ -14,6 +14,7 @@ import com.simibubi.create.content.fluids.PipeConnection;
 import com.simibubi.create.content.fluids.pump.PumpBlockEntity;
 import com.yision.fluidlogistics.config.Config;
 
+import net.createmod.catnip.data.Iterate;
 import net.createmod.catnip.data.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -30,7 +31,6 @@ public class FluidPumpNetworkUpdater {
 	public static final class PropagationContext {
 
 		private final int pumpRange;
-		private final boolean extendsCreateRange;
 		private final Queue<Pair<Integer, BlockPos>> frontier = new PriorityQueue<>(
 			Comparator.comparingInt(pair -> pair.getFirst()));
 		private final Map<BlockPos, Integer> bestDistances = new HashMap<>();
@@ -38,18 +38,15 @@ public class FluidPumpNetworkUpdater {
 
 		private PropagationContext(int pumpRange) {
 			this.pumpRange = pumpRange;
-			extendsCreateRange = pumpRange > FluidPropagator.getPumpRange();
 		}
 
 		public void recordCreatePipe(BlockPos pos, int distance, FluidTransportBehaviour pipe) {
-			if (!extendsCreateRange)
-				return;
 			pressureBeforeCreate.put(pos, hasAnyInitializedPressure(pipe));
 			bestDistances.merge(pos, distance, Math::min);
 		}
 
 		public boolean shouldContinueFromCreateCutoff(int distance) {
-			return extendsCreateRange && distance < pumpRange;
+			return distance < pumpRange;
 		}
 
 		public void addCutoff(BlockPos pos, int distance) {
@@ -86,10 +83,11 @@ public class FluidPumpNetworkUpdater {
 		return LOADED_FLUID_PUMPS.getOrDefault(level.dimension(), 0) > 0;
 	}
 
-	public static PropagationContext getOrCreateContext(LevelAccessor world, PropagationContext context) {
-		if (context != null)
-			return context;
-		return shouldRun(world) ? new PropagationContext(Config.getFluidPumpRange()) : null;
+	public static PropagationContext createContext(LevelAccessor world) {
+		if (!shouldRun(world))
+			return null;
+		int pumpRange = Config.getFluidPumpRange();
+		return pumpRange > FluidPropagator.getPumpRange() ? new PropagationContext(pumpRange) : null;
 	}
 
 	public static void finishPropagationForFluidPumps(LevelAccessor world, PropagationContext context) {
@@ -112,7 +110,9 @@ public class FluidPumpNetworkUpdater {
 			if (pipe == null)
 				continue;
 
-			for (Direction direction : FluidPropagator.getPipeConnections(currentState, pipe)) {
+			for (Direction direction : Iterate.directions) {
+				if (!pipe.canHaveFlowToward(currentState, direction))
+					continue;
 				BlockPos target = currentPos.relative(direction);
 				if (world instanceof Level l && !l.isLoaded(target))
 					continue;
