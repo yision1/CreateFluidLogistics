@@ -17,6 +17,7 @@ public class AllPartialModels {
 
     public static final PartialModel FLOW_METER_HEAD = block("flow_meter/head");
     public static final PartialModel FLOW_METER_DIAL = block("flow_meter/dial");
+    public static final PartialModel REDSTONE_FLUID_VALVE_POINTER = block("redstone_fluid_valve/pointer");
 
     public static final PartialModel FLUID_PACKAGER_TRAY = block("fluid_packager/tray");
     public static final PartialModel FLUID_PACKAGER_HATCH_OPEN = block("fluid_packager/hatch_open");
@@ -94,6 +95,7 @@ public class AllPartialModels {
         return List.of(
                 FLOW_METER_HEAD.modelLocation(),
                 FLOW_METER_DIAL.modelLocation(),
+                REDSTONE_FLUID_VALVE_POINTER.modelLocation(),
                 FLUID_PACKAGER_TRAY.modelLocation(),
                 FLUID_PACKAGER_HATCH_OPEN.modelLocation(),
                 FLUID_PACKAGER_HATCH_CLOSED.modelLocation(),

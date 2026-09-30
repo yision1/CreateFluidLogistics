@@ -77,6 +77,10 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
         registration.forComponents(AllBlocks.FLOW_METER)
                 .addStoryBoard(FlowMeterScenes.FLOW_METER, FlowMeterScenes::flowMeter, FLUIDS);
 
+        registration.forComponents(AllBlocks.REDSTONE_FLUID_VALVE)
+                .addStoryBoard(RedstoneFluidValveScenes.REDSTONE_FLUID_VALVE,
+                        RedstoneFluidValveScenes::redstoneFluidValve, FLUIDS);
+
         registration.forComponents(AllBlocks.MECHANICAL_FLUID_GUN)
                 .addStoryBoard(MechanicalFluidGunScenes.MECHANICAL_FLUID_GUN_SETUP,
                         MechanicalFluidGunScenes::setup, FLUIDS, KINETIC_APPLIANCES);
@@ -109,6 +113,7 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
                 .add(AllBlocks.FLUID_TRANSPORTER)
                 .add(AllBlocks.FLUID_PUMP)
                 .add(AllBlocks.FLOW_METER)
+                .add(AllBlocks.REDSTONE_FLUID_VALVE)
                 .add(AllBlocks.MECHANICAL_FLUID_GUN);
 
         registration.addToTag(KINETIC_APPLIANCES)

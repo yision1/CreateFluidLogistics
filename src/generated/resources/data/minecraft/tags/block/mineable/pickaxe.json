@@ -12,6 +12,7 @@
     "fluidlogistics:multi_fluid_access_port",
     "fluidlogistics:smart_hopper",
     "fluidlogistics:flow_meter",
+    "fluidlogistics:redstone_fluid_valve",
     "fluidlogistics:fluid_pump",
     "fluidlogistics:infinite_fluid_tank",
     "fluidlogistics:water_containing_copper_casing",

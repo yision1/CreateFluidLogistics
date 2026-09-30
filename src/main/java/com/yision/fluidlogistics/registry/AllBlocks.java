@@ -51,6 +51,7 @@ import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperGenera
 import com.yision.fluidlogistics.content.fluids.fluidPump.FluidPumpBlock;
 import com.yision.fluidlogistics.content.fluids.fluidPump.FluidPumpGenerator;
 import com.yision.fluidlogistics.content.fluids.pressureGauge.PressureGaugeBlock;
+import com.yision.fluidlogistics.content.fluids.redstoneFluidValve.RedstoneFluidValveBlock;
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.MechanicalFluidGunBlock;
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.MechanicalFluidGunGenerator;
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.MechanicalFluidGunItem;
@@ -337,6 +338,37 @@ public class AllBlocks {
             .onRegister(CreateRegistrate.blockModel(() -> PipeAttachmentModel::withAO))
             .item()
             .model(AssetLookup::customItemModel)
+            .build()
+            .register();
+
+    public static final BlockEntry<RedstoneFluidValveBlock> REDSTONE_FLUID_VALVE =
+        REGISTRATE.block("redstone_fluid_valve", RedstoneFluidValveBlock::new)
+            .initialProperties(SharedProperties::copperMetal)
+            .properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
+            .transform(pickaxeOnly())
+            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
+            .addLayer(() -> RenderType::cutoutMipped)
+            .blockstate((context, provider) -> provider.getVariantBuilder(context.getEntry())
+                .forAllStates(state -> {
+                    boolean alongFirst = state.getValue(RedstoneFluidValveBlock.AXIS_ALONG_FIRST_COORDINATE);
+                    Direction direction = state.getValue(RedstoneFluidValveBlock.FACING);
+                    boolean vertical = direction.getAxis().isHorizontal()
+                        && (direction.getAxis() == Direction.Axis.X) == alongFirst;
+                    int rotationX = direction == Direction.DOWN ? 270 : direction == Direction.UP ? 90 : 0;
+                    int rotationY = direction.getAxis().isVertical()
+                        ? alongFirst ? 0 : 90
+                        : (int) direction.toYRot();
+                    return ConfiguredModel.builder()
+                        .modelFile(AssetLookup.partialBaseModel(context, provider,
+                            vertical ? "vertical" : "horizontal",
+                            state.getValue(RedstoneFluidValveBlock.ENABLED) ? "open" : "closed"))
+                        .rotationX(rotationX)
+                        .rotationY(rotationY)
+                        .build();
+                }))
+            .onRegister(CreateRegistrate.blockModel(() -> PipeAttachmentModel::withAO))
+            .item()
+            .model((context, provider) -> {})
             .build()
             .register();
 
