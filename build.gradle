@@ -181,7 +181,7 @@ publisher {
     setGameVersions("${project.minecraft_version}")
     setLoaders("neoforge")
     setCurseEnvironment("both")
-    setArtifact(jar.archiveFile.get())
+    setArtifact(tasks.named("jar", Jar))
     setJavaVersions([JavaVersion.VERSION_21])
 
     addAdditionalFile {
@@ -202,6 +202,7 @@ publisher {
 
 ["publishMod", "publishCurseforge", "publishModrinth"].each { taskName ->
     tasks.named(taskName).configure {
+        dependsOn tasks.named("build")
         dependsOn sourcesJarTask
     }
 }
