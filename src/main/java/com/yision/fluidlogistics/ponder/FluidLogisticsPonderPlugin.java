@@ -77,6 +77,9 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
         registration.forComponents(AllBlocks.FLOW_METER)
                 .addStoryBoard(FlowMeterScenes.FLOW_METER, FlowMeterScenes::flowMeter, FLUIDS);
 
+        registration.forComponents(AllBlocks.POTATO_SERVER)
+                .addStoryBoard(PotatoServerScenes.POTATO_SERVER, PotatoServerScenes::potatoServer, DISPLAY_SOURCES);
+
         registration.forComponents(AllBlocks.REDSTONE_FLUID_VALVE)
                 .addStoryBoard(RedstoneFluidValveScenes.REDSTONE_FLUID_VALVE,
                         RedstoneFluidValveScenes::redstoneFluidValve, FLUIDS);
@@ -121,7 +124,8 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
                 .add(AllBlocks.MECHANICAL_FLUID_GUN);
 
         registration.addToTag(DISPLAY_SOURCES)
-                .add(AllBlocks.FLOW_METER);
+                .add(AllBlocks.FLOW_METER)
+                .add(AllBlocks.POTATO_SERVER);
 
         registration.addToTag(ARM_TARGETS)
                 .add(AllBlocks.SMART_HOPPER)

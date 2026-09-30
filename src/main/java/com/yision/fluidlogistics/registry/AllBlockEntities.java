@@ -32,6 +32,7 @@ import com.yision.fluidlogistics.content.fluids.fluidPort.MultiFluidAccessPortRe
 import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankBlockEntity;
 import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankRenderer;
 import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperBlockEntity;
+import com.yision.fluidlogistics.content.logistics.potatoServer.PotatoServerBlockEntity;
 import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperRenderer;
 import com.yision.fluidlogistics.content.fluids.waterContainingCopperCasing.WaterContainingCopperCasingBlock;
 import com.yision.fluidlogistics.content.processing.copperBasin.CopperBasinBlockEntity;
@@ -49,6 +50,11 @@ import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerRende
 import static com.yision.fluidlogistics.FluidLogistics.REGISTRATE;
 
 public class AllBlockEntities {
+
+    public static final BlockEntityEntry<PotatoServerBlockEntity> POTATO_SERVER = REGISTRATE
+            .blockEntity("potato_server", PotatoServerBlockEntity::new)
+            .validBlocks(AllBlocks.POTATO_SERVER)
+            .register();
 
     public static final BlockEntityEntry<BlazeCoolerBlockEntity> BLAZE_COOLER = REGISTRATE
             .blockEntity("blaze_cooler", BlazeCoolerBlockEntity::new)

@@ -3,6 +3,7 @@ package com.yision.fluidlogistics.registry;
 import com.simibubi.create.content.fluids.PipeAttachmentModel;
 import com.simibubi.create.AllTags.AllBlockTags;
 import com.simibubi.create.api.behaviour.display.DisplaySource;
+import com.simibubi.create.api.registry.CreateRegistries;
 import com.simibubi.create.foundation.data.AssetLookup;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.data.SharedProperties;
@@ -72,6 +73,7 @@ import com.yision.fluidlogistics.content.fluids.waterContainingCopperCasing.Wate
 import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonBlock;
 import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerBlock;
 import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerMovementBehaviour;
+import com.yision.fluidlogistics.content.logistics.potatoServer.PotatoServerBlock;
 
 import static com.simibubi.create.api.behaviour.interaction.MovingInteractionBehaviour.interactionBehaviour;
 import static com.simibubi.create.api.contraption.storage.fluid.MountedFluidStorageType.mountedFluidStorage;
@@ -79,6 +81,45 @@ import static com.simibubi.create.foundation.data.TagGen.pickaxeOnly;
 import static com.yision.fluidlogistics.FluidLogistics.REGISTRATE;
 
 public class AllBlocks {
+
+    public static final BlockEntry<PotatoServerBlock> POTATO_SERVER =
+        REGISTRATE.block("potato_server", PotatoServerBlock::new)
+            .initialProperties(SharedProperties::copperMetal)
+            .properties(p -> p.noOcclusion())
+            .transform(pickaxeOnly())
+            .onRegisterAfter(CreateRegistries.DISPLAY_SOURCE, block -> {
+                DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_TPS.get());
+                DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_MSPT.get());
+                DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_MEMORY.get());
+                DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_CPU.get());
+                DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_UPLOAD.get());
+                DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_DOWNLOAD.get());
+                DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_TIME.get());
+                DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_ENTITIES.get());
+                DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_DROPPED_ITEMS.get());
+                DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_LOADED_CHUNKS.get());
+                DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_GC_COUNT.get());
+                DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_GC_TIME.get());
+            })
+            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
+            .addLayer(() -> RenderType::cutoutMipped)
+            .loot((loot, block) -> loot.dropSelf(block))
+            .blockstate((context, provider) -> provider.getVariantBuilder(context.getEntry())
+                .forAllStates(state -> ConfiguredModel.builder()
+                    .modelFile(provider.models().getExistingFile(provider.modLoc("block/potato_server"
+                        + (state.getValue(PotatoServerBlock.PART) == PotatoServerBlock.Part.SINGLE ? ""
+                        : "_" + state.getValue(PotatoServerBlock.PART).getSerializedName()))))
+                    .rotationY(((int) state.getValue(PotatoServerBlock.FACING).toYRot() + 180) % 360)
+                    .build()))
+            .item()
+            .model((context, provider) -> provider.withExistingParent(context.getName(),
+                    provider.modLoc("block/potato_server"))
+                .transforms()
+                .transform(ItemDisplayContext.GUI)
+                .rotation(30, -135, 0)
+                .scale(0.625f))
+            .build()
+            .register();
 
     public static final BlockEntry<BlazeCoolerBlock> BLAZE_COOLER =
         REGISTRATE.block("blaze_cooler", BlazeCoolerBlock::new)

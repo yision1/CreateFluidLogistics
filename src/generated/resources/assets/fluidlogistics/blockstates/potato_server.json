@@ -1,0 +1,49 @@
+{
+  "variants": {
+    "facing=east,part=lower": {
+      "model": "fluidlogistics:block/potato_server_lower",
+      "y": 90
+    },
+    "facing=east,part=single": {
+      "model": "fluidlogistics:block/potato_server",
+      "y": 90
+    },
+    "facing=east,part=upper": {
+      "model": "fluidlogistics:block/potato_server_upper",
+      "y": 90
+    },
+    "facing=north,part=lower": {
+      "model": "fluidlogistics:block/potato_server_lower"
+    },
+    "facing=north,part=single": {
+      "model": "fluidlogistics:block/potato_server"
+    },
+    "facing=north,part=upper": {
+      "model": "fluidlogistics:block/potato_server_upper"
+    },
+    "facing=south,part=lower": {
+      "model": "fluidlogistics:block/potato_server_lower",
+      "y": 180
+    },
+    "facing=south,part=single": {
+      "model": "fluidlogistics:block/potato_server",
+      "y": 180
+    },
+    "facing=south,part=upper": {
+      "model": "fluidlogistics:block/potato_server_upper",
+      "y": 180
+    },
+    "facing=west,part=lower": {
+      "model": "fluidlogistics:block/potato_server_lower",
+      "y": 270
+    },
+    "facing=west,part=single": {
+      "model": "fluidlogistics:block/potato_server",
+      "y": 270
+    },
+    "facing=west,part=upper": {
+      "model": "fluidlogistics:block/potato_server_upper",
+      "y": 270
+    }
+  }
+}
