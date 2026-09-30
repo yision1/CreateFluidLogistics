@@ -7,8 +7,6 @@ import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.yision.fluidlogistics.compat.CompatMods;
-import com.yision.fluidlogistics.compat.kaleidoscopetavern.KaleidoscopeTavernCompat;
 import com.yision.fluidlogistics.content.fluids.infiniteWater.InfiniteWaterSource;
 import com.yision.fluidlogistics.foundation.fluid.CachedFluidInterface;
 import com.yision.fluidlogistics.foundation.fluid.CauldronFills;
@@ -24,9 +22,7 @@ import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
@@ -49,10 +45,6 @@ public class FaucetBlockEntity extends SmartBlockEntity {
     static final int SUCCESS_COOLDOWN = 5;
     private static final int TRANSFER_RATE = 250;
     private static final int IDLE_RECHECK_INTERVAL = 20;
-    private static final int KALEIDOSCOPE_TAP_TIME = 30;
-    private static final int KALEIDOSCOPE_TAP_PARTICLE_TIME = 5;
-    private static final String TAG_KALEIDOSCOPE_TAP_TICKS = "KaleidoscopeTapTicks";
-    private static final String TAG_KALEIDOSCOPE_TAP_PARTICLE = "KaleidoscopeTapParticle";
     private static final String TAG_RENDERING_FLUID = "RenderingFluid";
     private static final String TAG_TRANSFER_COOLDOWN = "TransferCooldown";
     protected BeltProcessingBehaviour beltProcessing;
@@ -60,8 +52,6 @@ public class FaucetBlockEntity extends SmartBlockEntity {
     protected FluidStack renderingFluid = FluidStack.EMPTY;
     private int transferCooldown;
     private boolean visualStateCleared;
-    private int kaleidoscopeTapTicks;
-    private @Nullable ParticleOptions kaleidoscopeTapParticle;
     private final CachedFluidInterface sourceCache = new CachedFluidInterface();
     private final CachedFluidInterface targetTankCache = new CachedFluidInterface();
     private FaucetItemFilling itemFilling;
@@ -121,9 +111,6 @@ public class FaucetBlockEntity extends SmartBlockEntity {
         visualStateCleared = false;
 
         tickCooldown();
-        if (tickKaleidoscopeTap()) {
-            return;
-        }
         if (itemFilling.tickActiveFill()) {
             return;
         }
@@ -197,7 +184,6 @@ public class FaucetBlockEntity extends SmartBlockEntity {
         if (itemFilling.isFilling()) {
             itemFilling.cancel();
         }
-        clearKaleidoscopeTapState();
         transferCooldown = 0;
         itemFilling.resetRetryCooldown();
         targetTankCache.invalidate();
@@ -249,10 +235,6 @@ public class FaucetBlockEntity extends SmartBlockEntity {
         Direction facing = getBlockState().getValue(FaucetBlock.FACING);
         BlockPos sourcePos = worldPosition.relative(facing.getOpposite());
 
-        if (tryStartKaleidoscopeTap()) {
-            return;
-        }
-
         ResolvedTarget target = resolveTarget(targetPos);
         IFluidHandler source = sourceHandler(sourcePos, facing);
 
@@ -287,35 +269,7 @@ public class FaucetBlockEntity extends SmartBlockEntity {
         drips.update(source);
     }
 
-    private boolean tryStartKaleidoscopeTap() {
-        if (!CompatMods.kaleidoscopeTavernLoaded()) {
-            return false;
-        }
-        KaleidoscopeTavernCompat.TapOperation operation = KaleidoscopeTavernCompat.prepare(
-            level, worldPosition, getBlockState(), this::testFluidFilter);
-        if (operation == null) {
-            return false;
-        }
-
-        kaleidoscopeTapTicks = KALEIDOSCOPE_TAP_TIME;
-        kaleidoscopeTapParticle = operation.particle();
-        FluidStack mappedFluid = operation.mappedFluid();
-        if (!mappedFluid.isEmpty()) {
-            renderingFluid = mappedFluid.copyWithAmount(250);
-        } else {
-            renderingFluid = FluidStack.EMPTY;
-        }
-        AllSoundEvents.SPOUTING.playOnServer(level, worldPosition, 0.75f, 0.9f + 0.2f * level.random.nextFloat());
-        notifyUpdate();
-        return true;
-    }
-
     private ResolvedTarget resolveTarget(BlockPos targetPos) {
-        if (CompatMods.kaleidoscopeTavernLoaded()
-            && KaleidoscopeTavernCompat.canStart(level, worldPosition, getBlockState(), this::testFluidFilter)) {
-            return new ResolvedTarget(TargetKind.KALEIDOSCOPE, worldPosition, getBlockState(), null, false);
-        }
-
         BlockState directState = level.getBlockState(targetPos);
         if (isCauldronTarget(directState)) {
             return new ResolvedTarget(TargetKind.CAULDRON, targetPos, directState, null, false);
@@ -459,25 +413,19 @@ public class FaucetBlockEntity extends SmartBlockEntity {
 
     private void resetVisualState() {
         boolean needsUpdate = !renderingFluid.isEmpty() || itemFilling.hasPending() || drips.isDripping()
-            || itemFilling.isFilling() || kaleidoscopeTapTicks > 0;
+            || itemFilling.isFilling();
         if (visualStateCleared && !needsUpdate) {
             return;
         }
         renderingFluid = FluidStack.EMPTY;
         itemFilling.clearState();
         transferCooldown = 0;
-        clearKaleidoscopeTapState();
         drips.clear();
         drips.clearCache();
         visualStateCleared = true;
         if (needsUpdate) {
             notifyUpdate();
         }
-    }
-
-    private void clearKaleidoscopeTapState() {
-        kaleidoscopeTapTicks = 0;
-        kaleidoscopeTapParticle = null;
     }
 
     void clearFlowVisuals() {
@@ -495,8 +443,6 @@ public class FaucetBlockEntity extends SmartBlockEntity {
         itemFilling.write(tag, registries);
         drips.write(tag, registries);
         tag.putInt(TAG_TRANSFER_COOLDOWN, transferCooldown);
-        tag.putInt(TAG_KALEIDOSCOPE_TAP_TICKS, kaleidoscopeTapTicks);
-        FaucetFilling.writeParticleOptions(tag, TAG_KALEIDOSCOPE_TAP_PARTICLE, kaleidoscopeTapParticle);
     }
 
     @Override
@@ -507,8 +453,6 @@ public class FaucetBlockEntity extends SmartBlockEntity {
         itemFilling.read(tag, registries);
         drips.read(tag, registries);
         transferCooldown = tag.getInt(TAG_TRANSFER_COOLDOWN);
-        kaleidoscopeTapTicks = tag.getInt(TAG_KALEIDOSCOPE_TAP_TICKS);
-        kaleidoscopeTapParticle = FaucetFilling.readParticleOptions(tag, TAG_KALEIDOSCOPE_TAP_PARTICLE);
     }
 
     private boolean isOpen() {
@@ -519,35 +463,6 @@ public class FaucetBlockEntity extends SmartBlockEntity {
         if (transferCooldown > 0) {
             transferCooldown--;
         }
-    }
-
-    private boolean tickKaleidoscopeTap() {
-        if (kaleidoscopeTapTicks <= 0) {
-            return false;
-        }
-
-        int elapsed = KALEIDOSCOPE_TAP_TIME - kaleidoscopeTapTicks + 1;
-        kaleidoscopeTapTicks--;
-
-        if (elapsed <= KALEIDOSCOPE_TAP_PARTICLE_TIME
-            && kaleidoscopeTapParticle != null
-            && level instanceof ServerLevel serverLevel) {
-            serverLevel.sendParticles(kaleidoscopeTapParticle,
-                worldPosition.getX() + 0.5, worldPosition.getY() + 0.25, worldPosition.getZ() + 0.5,
-                1, 0, 0, 0, 0);
-        }
-
-        if (kaleidoscopeTapTicks > 0) {
-            return true;
-        }
-
-        if (CompatMods.kaleidoscopeTavernLoaded()) {
-            KaleidoscopeTavernCompat.finish(level, worldPosition, getBlockState());
-        }
-        kaleidoscopeTapParticle = null;
-        renderingFluid = FluidStack.EMPTY;
-        notifyUpdate();
-        return true;
     }
 
     private record ResolvedTarget(TargetKind kind, BlockPos pos, BlockState state,
@@ -561,8 +476,7 @@ public class FaucetBlockEntity extends SmartBlockEntity {
         NONE,
         DEPOT,
         CAULDRON,
-        TANK,
-        KALEIDOSCOPE
+        TANK
     }
 
     private static class FilterSlotPositioning extends ValueBoxTransform {

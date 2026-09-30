@@ -7,7 +7,6 @@ public final class CompatMods {
     public static final String CREATE_DRAGONS_PLUS = "create_dragons_plus";
     public static final String JEI = "jei";
     public static final String EMI = "emi";
-    public static final String KALEIDOSCOPE_TAVERN = "kaleidoscope_tavern";
 
     private CompatMods() {
     }
@@ -26,9 +25,5 @@ public final class CompatMods {
 
     public static boolean emiLoaded() {
         return ModList.get().isLoaded(EMI);
-    }
-
-    public static boolean kaleidoscopeTavernLoaded() {
-        return ModList.get().isLoaded(KALEIDOSCOPE_TAVERN);
     }
 }

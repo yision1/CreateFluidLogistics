@@ -111,7 +111,6 @@ dependencies {
     compileOnly("maven.modrinth:jade:${jade_version}+neoforge")
     compileOnly("maven.modrinth:create-enchantment-industry:${create_enchantment_industry_version}")
     compileOnly("plus.dragons.createdragonsplus:create-dragons-plus-${minecraft_version}:1.10.0")
-    compileOnly("maven.modrinth:r9RZvhiJ:${kaleidoscope_tavern_version}")
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
@@ -127,7 +126,6 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             mod_authors            : mod_authors,
             mod_description        : mod_description,
             create_version_range   : create_version_range,
-            kaleidoscope_tavern_version_range: kaleidoscope_tavern_version_range,
     ]
     inputs.properties replaceProperties
     expand replaceProperties

@@ -6,8 +6,6 @@ import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.foundation.block.IBE;
 import com.mojang.serialization.MapCodec;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
-import com.yision.fluidlogistics.compat.CompatMods;
-import com.yision.fluidlogistics.compat.kaleidoscopetavern.KaleidoscopeTavernCompat;
 import com.yision.fluidlogistics.content.fluids.infiniteWater.InfiniteWaterSource;
 import java.util.EnumMap;
 import net.minecraft.core.BlockPos;
@@ -241,11 +239,6 @@ public class FaucetBlock extends HorizontalDirectionalBlock implements IBE<Fauce
     private boolean hasFluidSource(LevelReader level, BlockPos sourcePos, Direction side) {
         BlockState sourceState = level.getBlockState(sourcePos);
         if (InfiniteWaterSource.isWaterSourceBlock(sourceState)) {
-            return true;
-        }
-
-        if (CompatMods.kaleidoscopeTavernLoaded()
-            && KaleidoscopeTavernCompat.hasTapBehavior(sourceState)) {
             return true;
         }
 
