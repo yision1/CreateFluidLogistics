@@ -1,0 +1,25 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made with Blockbench",
+	"parent": "block/block",
+	"textures": {
+		"2": "fluidlogistics:block/flow_meter/gauge",
+		"particle": "fluidlogistics:block/flow_meter/gauge"
+	},
+	"elements": [
+		{
+			"name": "GaugeDial",
+			"from": [15.75, 5.75, 5.25],
+			"to": [16.45, 10.75, 6.25],
+			"rotation": {"angle": 0, "axis": "x", "origin": [16, 5.75, 5.75]},
+			"faces": {
+				"north": {"uv": [13.5, 4, 16, 4.5], "rotation": 270, "texture": "#2"},
+				"east": {"uv": [13.5, 4, 16, 4.5], "rotation": 270, "texture": "#2"},
+				"south": {"uv": [13.5, 4, 16, 4.5], "rotation": 270, "texture": "#2"},
+				"west": {"uv": [13.5, 4, 16, 4.5], "rotation": 270, "texture": "#2"},
+				"up": {"uv": [15.5, 4, 16, 4.5], "rotation": 180, "texture": "#2"},
+				"down": {"uv": [13.5, 4, 14, 4.5], "texture": "#2"}
+			}
+		}
+	]
+}

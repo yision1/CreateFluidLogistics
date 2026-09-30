@@ -14,6 +14,8 @@ import com.yision.fluidlogistics.content.logistics.fluidPackager.repackager.Flui
 import com.yision.fluidlogistics.content.logistics.fluidPackager.repackager.FluidRepackagerVisual;
 import com.yision.fluidlogistics.content.fluids.fluidPump.FluidPumpBlockEntity;
 import com.yision.fluidlogistics.content.fluids.fluidPump.FluidPumpRenderer;
+import com.yision.fluidlogistics.content.fluids.pressureGauge.PressureGaugeBlockEntity;
+import com.yision.fluidlogistics.content.fluids.pressureGauge.PressureGaugeRenderer;
 import com.yision.fluidlogistics.content.logistics.fluidTransporter.FluidTransporterBlockEntity;
 import com.yision.fluidlogistics.content.logistics.fluidTransporter.FluidTransporterRenderer;
 import com.yision.fluidlogistics.content.fluids.faucet.FaucetBlockEntity;
@@ -118,6 +120,12 @@ public class AllBlockEntities {
             .blockEntity("smart_hopper", SmartHopperBlockEntity::new)
             .validBlocks(AllBlocks.SMART_HOPPER)
             .renderer(() -> SmartHopperRenderer::new)
+            .register();
+
+    public static final BlockEntityEntry<PressureGaugeBlockEntity> FLOW_METER = REGISTRATE
+            .blockEntity("flow_meter", PressureGaugeBlockEntity::new)
+            .validBlocks(AllBlocks.FLOW_METER)
+            .renderer(() -> PressureGaugeRenderer::new)
             .register();
 
     public static final BlockEntityEntry<FluidPumpBlockEntity> FLUID_PUMP = REGISTRATE

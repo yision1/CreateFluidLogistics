@@ -43,6 +43,7 @@ import com.yision.fluidlogistics.network.FluidLogisticsPackets;
 import com.yision.fluidlogistics.registry.FluidLogisticsArmInteractionPointTypes;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
 import com.yision.fluidlogistics.registry.AllBlocks;
+import com.yision.fluidlogistics.registry.AllFluidLogisticsDisplaySources;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.CompressedTankFluidHandler;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.CompressedTankItem;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.CompressedTankTooltipModifier;
@@ -141,6 +142,7 @@ public class FluidLogistics {
             AllFluidLogisticsRecipeTypes.register(modEventBus);
         }
         FluidLogisticsPackagePortTargetTypes.register(modEventBus);
+        AllFluidLogisticsDisplaySources.register();
         AllBlocks.register();
         PackagerAddresses.register(com.simibubi.create.AllBlocks.PACKAGER);
         PackagerAddresses.register(AllBlocks.FLUID_PACKAGER);

@@ -2,6 +2,7 @@ package com.yision.fluidlogistics.registry;
 
 import com.simibubi.create.content.fluids.PipeAttachmentModel;
 import com.simibubi.create.AllTags.AllBlockTags;
+import com.simibubi.create.api.behaviour.display.DisplaySource;
 import com.simibubi.create.foundation.data.AssetLookup;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.data.SharedProperties;
@@ -49,6 +50,7 @@ import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperBlock;
 import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperGenerator;
 import com.yision.fluidlogistics.content.fluids.fluidPump.FluidPumpBlock;
 import com.yision.fluidlogistics.content.fluids.fluidPump.FluidPumpGenerator;
+import com.yision.fluidlogistics.content.fluids.pressureGauge.PressureGaugeBlock;
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.MechanicalFluidGunBlock;
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.MechanicalFluidGunGenerator;
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.MechanicalFluidGunItem;
@@ -297,6 +299,44 @@ public class AllBlocks {
             .blockstate(new SmartHopperGenerator()::generate)
             .item()
             .model(AssetLookup.customBlockItemModel("smart_hopper", "fluid_hopper_side"))
+            .build()
+            .register();
+
+    public static final BlockEntry<PressureGaugeBlock> FLOW_METER =
+        REGISTRATE.block("flow_meter", PressureGaugeBlock::new)
+            .initialProperties(SharedProperties::copperMetal)
+            .properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
+            .transform(pickaxeOnly())
+            .transform(DisplaySource.displaySource(AllFluidLogisticsDisplaySources.FLOW_RATE))
+            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
+            .addLayer(() -> RenderType::cutoutMipped)
+            .blockstate((context, provider) -> provider.getVariantBuilder(context.getEntry())
+                .forAllStatesExcept(state -> {
+                    Direction facing = state.getValue(PressureGaugeBlock.FACING);
+                    boolean along = PressureGaugeBlock.isAxisAlongFirstCoordinate(state);
+                    int rotationX = switch (facing) {
+                        case DOWN -> 180;
+                        case NORTH, SOUTH -> along ? 0 : 90;
+                        case EAST, WEST -> along ? 90 : 0;
+                        default -> 0;
+                    };
+                    int rotationY = switch (facing) {
+                        case NORTH -> 270;
+                        case SOUTH -> 90;
+                        case WEST -> 180;
+                        case DOWN, UP -> along ? 90 : 0;
+                        default -> 0;
+                    };
+                    String model = facing.getAxis().isVertical() ? "block" : "block_wall";
+                    return ConfiguredModel.builder()
+                        .modelFile(provider.models().getExistingFile(provider.modLoc("block/flow_meter/" + model)))
+                        .rotationX(rotationX)
+                        .rotationY(rotationY)
+                        .build();
+                }, PressureGaugeBlock.WATERLOGGED))
+            .onRegister(CreateRegistrate.blockModel(() -> PipeAttachmentModel::withAO))
+            .item()
+            .model(AssetLookup::customItemModel)
             .build()
             .register();
 

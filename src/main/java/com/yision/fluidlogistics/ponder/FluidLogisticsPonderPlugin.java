@@ -18,6 +18,7 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
     public static final ResourceLocation FLUIDS = Create.asResource("fluids");
     public static final ResourceLocation ARM_TARGETS = Create.asResource("arm_targets");
     public static final ResourceLocation KINETIC_APPLIANCES = Create.asResource("kinetic_appliances");
+    public static final ResourceLocation DISPLAY_SOURCES = Create.asResource("display_sources");
 
     @Override
     public String getModId() {
@@ -73,6 +74,9 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
                 .addStoryBoard(FluidPumpScenes.PUMP_FLOW, FluidPumpScenes::flow, FLUIDS, KINETIC_APPLIANCES)
                 .addStoryBoard(FluidPumpScenes.PUMP_SPEED, FluidPumpScenes::speed);
 
+        registration.forComponents(AllBlocks.FLOW_METER)
+                .addStoryBoard(FlowMeterScenes.FLOW_METER, FlowMeterScenes::flowMeter, FLUIDS);
+
         registration.forComponents(AllBlocks.MECHANICAL_FLUID_GUN)
                 .addStoryBoard(MechanicalFluidGunScenes.MECHANICAL_FLUID_GUN_SETUP,
                         MechanicalFluidGunScenes::setup, FLUIDS, KINETIC_APPLIANCES);
@@ -104,11 +108,15 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
                 .add(AllBlocks.SMART_HOPPER)
                 .add(AllBlocks.FLUID_TRANSPORTER)
                 .add(AllBlocks.FLUID_PUMP)
+                .add(AllBlocks.FLOW_METER)
                 .add(AllBlocks.MECHANICAL_FLUID_GUN);
 
         registration.addToTag(KINETIC_APPLIANCES)
                 .add(AllBlocks.FLUID_PUMP)
                 .add(AllBlocks.MECHANICAL_FLUID_GUN);
+
+        registration.addToTag(DISPLAY_SOURCES)
+                .add(AllBlocks.FLOW_METER);
 
         registration.addToTag(ARM_TARGETS)
                 .add(AllBlocks.SMART_HOPPER)
