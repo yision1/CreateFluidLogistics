@@ -5,6 +5,7 @@ import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 import com.simibubi.create.infrastructure.ponder.scenes.highLogistics.FrogAndConveyorScenes;
 import com.yision.fluidlogistics.content.logistics.copperFrogport.CopperFrogportBlockEntity;
+import com.yision.fluidlogistics.config.Config;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageContentHelper;
 import com.yision.fluidlogistics.registry.AllBlocks;
 import com.yision.fluidlogistics.registry.AllItems;
@@ -113,7 +114,7 @@ public final class CopperFrogportScenes {
 
         ItemStack fluidPackage = AllItems.FLUID_PACKAGE.asStack();
         FluidPackageContentHelper.setCanonicalContents(
-                fluidPackage, new FluidStack(Fluids.LAVA.getSource(), 5000));
+                fluidPackage, new FluidStack(Fluids.LAVA.getSource(), Math.min(5000, Config.getFluidPerPackage())));
         scene.world()
                 .createItemOnBelt(beltStart, Direction.EAST, fluidPackage);
         scene.idle(22);

@@ -10,6 +10,7 @@ import com.simibubi.create.content.processing.burner.BlazeBurnerBlock.HeatLevel;
 import com.simibubi.create.foundation.recipe.RecipeApplier;
 import com.simibubi.create.foundation.recipe.IRecipeTypeInfo;
 import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerBlockEntity;
+import com.yision.fluidlogistics.config.Config;
 import com.yision.fluidlogistics.registry.AllBlocks;
 import com.yision.fluidlogistics.registry.AllFluidLogisticsRecipeTypes;
 
@@ -30,7 +31,7 @@ public class BulkCoolingFanProcessingType implements FanProcessingType {
 
     @Override
     public boolean isValidAt(Level level, BlockPos pos) {
-        return AllBlocks.BLAZE_COOLER.has(level.getBlockState(pos))
+        return Config.isBlazeCoolerEnabled() && AllBlocks.BLAZE_COOLER.has(level.getBlockState(pos))
             && level.getBlockEntity(pos) instanceof BlazeCoolerBlockEntity cooler
             && isValidHeatLevel(cooler.getHeatLevelFromBlock());
     }

@@ -12,6 +12,7 @@ import com.simibubi.create.foundation.ponder.element.BeltItemElement;
 import com.simibubi.create.infrastructure.ponder.scenes.highLogistics.PonderHilo;
 import com.yision.fluidlogistics.api.packager.PackageResources;
 import com.yision.fluidlogistics.content.logistics.fluidPackager.repackager.FluidRepackagerBlockEntity;
+import com.yision.fluidlogistics.config.Config;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageContentHelper;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageItem;
 import com.yision.fluidlogistics.content.processing.copperBasin.CopperBasinCapacity;
@@ -106,7 +107,7 @@ public final class FluidRepackagerScenes {
 		Selection thirdStageFunnels = util.select().position(firstInputFunnelPos)
 			.add(util.select().position(outputFunnelPos));
 
-		FluidStack water = new FluidStack(Fluids.WATER.getSource(), FluidType.BUCKET_VOLUME);
+		FluidStack water = new FluidStack(Fluids.WATER.getSource(), Math.min(FluidType.BUCKET_VOLUME, Config.getFluidPerPackage()));
 		FluidStack fullBasinWater =
 			new FluidStack(Fluids.WATER.getSource(), CopperBasinCapacity.SLOT_CAPACITY);
 		ItemStack saplings = new ItemStack(Items.OAK_SAPLING, 16);

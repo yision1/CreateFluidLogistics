@@ -4,6 +4,7 @@ import com.simibubi.create.content.logistics.box.PackageEntity;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 import com.yision.fluidlogistics.content.logistics.fluidPackager.FluidPackagerBlockEntity;
+import com.yision.fluidlogistics.config.Config;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageContentHelper;
 import com.yision.fluidlogistics.registry.AllItems;
 import net.createmod.catnip.math.Pointing;
@@ -79,7 +80,7 @@ public class FluidPackagerScenes {
         scene.idle(10);
 
         ItemStack fluidPackage = new ItemStack(AllItems.FLUID_PACKAGE.get());
-        setFluidPackageContents(fluidPackage, new FluidStack(Fluids.WATER.getSource(), 1000));
+        setFluidPackageContents(fluidPackage, new FluidStack(Fluids.WATER.getSource(), Math.min(1000, Config.getFluidPerPackage())));
         fluidPackagerCreate(scene, packagerPos, fluidPackage);
 
         scene.idle(20);
@@ -291,7 +292,7 @@ public class FluidPackagerScenes {
         scene.effects()
                 .indicateRedstone(util.grid().at(5, 1, 4));
         ItemStack fluidBox = new ItemStack(AllItems.FLUID_PACKAGE.get());
-        setFluidPackageContents(fluidBox, new FluidStack(Fluids.WATER.getSource(), 1000));
+        setFluidPackageContents(fluidBox, new FluidStack(Fluids.WATER.getSource(), Math.min(1000, Config.getFluidPerPackage())));
         fluidPackagerCreate(scene, packager, fluidBox);
 
         scene.idle(20);
@@ -377,9 +378,9 @@ public class FluidPackagerScenes {
         scene.idle(70);
 
         ItemStack warehouseFluidBox = new ItemStack(AllItems.FLUID_PACKAGE.get());
-        setFluidPackageContents(warehouseFluidBox, new FluidStack(Fluids.WATER.getSource(), 1000));
+        setFluidPackageContents(warehouseFluidBox, new FluidStack(Fluids.WATER.getSource(), Math.min(1000, Config.getFluidPerPackage())));
         ItemStack factoryFluidBox = new ItemStack(AllItems.FLUID_PACKAGE.get());
-        setFluidPackageContents(factoryFluidBox, new FluidStack(Fluids.LAVA.getSource(), 1000));
+        setFluidPackageContents(factoryFluidBox, new FluidStack(Fluids.LAVA.getSource(), Math.min(1000, Config.getFluidPerPackage())));
         PackageItem.addAddress(warehouseFluidBox, "Warehouse");
         PackageItem.addAddress(factoryFluidBox, "Factory");
 

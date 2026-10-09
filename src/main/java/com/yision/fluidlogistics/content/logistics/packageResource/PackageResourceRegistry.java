@@ -255,7 +255,8 @@ public final class PackageResourceRegistry {
         PackageAnalysis analysis = analyzePackage(packageStack);
         analysis.requireExactPhysicalAmounts();
         PackageInspection inspection = analysis.inspection();
-        if (!inspection.hasResources() || inspection.canonical()) {
+        if (!inspection.hasResources() || inspection.canonical() && inspection.resources().stream().allMatch(resource ->
+                resource.amount() <= get(resource.typeId()).orElseThrow().maxPerPackage(resource.key()))) {
             return List.of(packageStack.copyWithCount(1));
         }
 

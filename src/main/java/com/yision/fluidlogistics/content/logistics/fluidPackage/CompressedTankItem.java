@@ -40,7 +40,8 @@ public class CompressedTankItem extends Item {
     }
 
     public static void setFluid(ItemStack stack, FluidStack fluid) {
-        if (!fluid.isEmpty() && fluid.getAmount() > getCapacity()) {
+        int capacity = matchesFluid(stack, fluid) ? Math.max(getCapacity(), getFluid(stack).getAmount()) : getCapacity();
+        if (!fluid.isEmpty() && fluid.getAmount() > capacity) {
             throw new IllegalArgumentException("compressed tank capacity is " + getCapacity() + " mB");
         }
         stack.set(AllDataComponents.FLUID_TANK_CONTENT, new FluidTankContent(fluid.copy()));

@@ -1,13 +1,9 @@
 package com.yision.fluidlogistics.config;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-
-import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.config.ModConfigEvent;
-import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 @EventBusSubscriber(modid = "fluidlogistics", bus = EventBusSubscriber.Bus.MOD)
@@ -164,7 +160,6 @@ public class Config {
 
     public static final ModConfigSpec.BooleanValue BLAZE_COOLER_ENABLED = BUILDER
             .translation("block.fluidlogistics.blaze_cooler")
-            .worldRestart()
             .define("blazeCoolerEnabled", BLAZE_COOLER_ENABLED_DEFAULT);
 
     public static final ModConfigSpec.BooleanValue COPPER_SCHEMATICANNON_ENABLED = BUILDER
@@ -263,6 +258,7 @@ public class Config {
     }
 
     public static final ModConfigSpec SERVER_SPEC = BUILDER.build();
+    private static volatile ModConfig serverConfig;
 
     private static boolean fluidTransporterEnabled = FLUID_TRANSPORTER_ENABLED_DEFAULT;
     private static boolean smartFaucetEnabled = SMART_FAUCET_ENABLED_DEFAULT;
@@ -307,6 +303,7 @@ public class Config {
     @SubscribeEvent
     static void onLoad(final ModConfigEvent.Loading event) {
         if (event.getConfig().getSpec() == SERVER_SPEC) {
+            serverConfig = event.getConfig();
             reloadValues();
         } else if (event.getConfig().getSpec() == CLIENT_SPEC) {
             reloadClientValues();
@@ -316,10 +313,20 @@ public class Config {
     @SubscribeEvent
     static void onReload(final ModConfigEvent.Reloading event) {
         if (event.getConfig().getSpec() == SERVER_SPEC) {
+            serverConfig = event.getConfig();
             reloadValues();
         } else if (event.getConfig().getSpec() == CLIENT_SPEC) {
             reloadClientValues();
         }
+    }
+
+    @SubscribeEvent
+    static void onUnload(final ModConfigEvent.Unloading event) {
+        if (event.getConfig().getSpec() != SERVER_SPEC) {
+            return;
+        }
+        serverConfig = null;
+        reloadValues();
     }
 
     private static void reloadClientValues() {
@@ -327,55 +334,48 @@ public class Config {
         disableBlazeCoolerParticles = DISABLE_BLAZE_COOLER_PARTICLES.get();
     }
 
-    public static void loadStartupValues() {
-        Path path = FMLPaths.CONFIGDIR.get().resolve("fluidlogistics-server.toml");
-        if (Files.exists(path)) {
-            try (CommentedFileConfig config = CommentedFileConfig.of(path)) {
-                config.load();
-                Object value = config.get(BLAZE_COOLER_ENABLED.getPath());
-                blazeCoolerEnabled = value instanceof Boolean enabled ? enabled : BLAZE_COOLER_ENABLED_DEFAULT;
-            }
-        }
+    private static void reloadValues() {
+        fluidTransporterEnabled = serverValue(FLUID_TRANSPORTER_ENABLED);
+        smartFaucetEnabled = serverValue(SMART_FAUCET_ENABLED);
+        faucetEnabled = serverValue(FAUCET_ENABLED);
+        multiFluidTankEnabled = serverValue(MULTI_FLUID_TANK_ENABLED);
+        horizontalMultiFluidTankEnabled = serverValue(HORIZONTAL_MULTI_FLUID_TANK_ENABLED);
+        multiFluidAccessPortEnabled = serverValue(MULTI_FLUID_ACCESS_PORT_ENABLED);
+        fluidInventoryAccessPortEnabled = serverValue(FLUID_INVENTORY_ACCESS_PORT_ENABLED);
+        smartHopperEnabled = serverValue(SMART_HOPPER_ENABLED);
+        fluidPumpEnabled = serverValue(FLUID_PUMP_ENABLED);
+        infiniteFluidTankEnabled = serverValue(INFINITE_FLUID_TANK_ENABLED);
+        waterContainingCopperCasingEnabled = serverValue(WATER_CONTAINING_COPPER_CASING_ENABLED);
+        copperBasinEnabled = serverValue(COPPER_BASIN_ENABLED);
+        mechanicalFluidGunEnabled = serverValue(MECHANICAL_FLUID_GUN_ENABLED);
+        handPointerEnabled = serverValue(HAND_POINTER_ENABLED);
+        copperFrogportEnabled = serverValue(COPPER_FROGPORT_ENABLED);
+        fluidPackagerEnabled = serverValue(FLUID_PACKAGER_ENABLED);
+        fluidRepackagerEnabled = serverValue(FLUID_REPACKAGER_ENABLED);
+        copperBucketEnabled = serverValue(COPPER_BUCKET_ENABLED);
+        phantomChainEnabled = serverValue(PHANTOM_CHAIN_ENABLED);
+        fluidHatchEnabled = serverValue(FLUID_HATCH_ENABLED);
+        fluidFactoryGaugeEnabled = serverValue(FLUID_FACTORY_GAUGE_ENABLED);
+        blazeCoolerEnabled = serverValue(BLAZE_COOLER_ENABLED);
+        copperSchematicannonEnabled = serverValue(COPPER_SCHEMATICANNON_ENABLED);
+        fluidSchematicEnabled = serverValue(FLUID_SCHEMATIC_ENABLED);
+        frostCakeEnabled = serverValue(FROST_CAKE_ENABLED);
+        fluidPackageCapacity = serverValue(FLUID_PACKAGE_CAPACITY);
+        fluidPumpRange = serverValue(FLUID_PUMP_RANGE);
+        handPointerMaxArms = serverValue(HAND_POINTER_MAX_ARMS);
+        handPointerMaxFrogports = serverValue(HAND_POINTER_MAX_FROGPORTS);
+        handPointerMaxMailboxes = serverValue(HAND_POINTER_MAX_MAILBOXES);
+        faucetFluidContainerMode = serverValue(FAUCET_FLUID_CONTAINER_MODE);
+        fluidTransporterInfiniteWaterEnabled = serverValue(FLUID_TRANSPORTER_INFINITE_WATER_ENABLED);
+        faucetInfiniteWaterEnabled = serverValue(FAUCET_INFINITE_WATER_ENABLED);
+        smartHopperInfiniteWaterEnabled = serverValue(SMART_HOPPER_INFINITE_WATER_ENABLED);
+        infiniteFluidTankCapacity = bucketsToMillibuckets(serverValue(INFINITE_FLUID_TANK_CAPACITY));
+        infiniteFluidTankAllowedFluids = serverValue(INFINITE_FLUID_TANK_ALLOWED_FLUIDS);
         FeatureToggle.reload();
     }
 
-    private static void reloadValues() {
-        fluidTransporterEnabled = FLUID_TRANSPORTER_ENABLED.get();
-        smartFaucetEnabled = SMART_FAUCET_ENABLED.get();
-        faucetEnabled = FAUCET_ENABLED.get();
-        multiFluidTankEnabled = MULTI_FLUID_TANK_ENABLED.get();
-        horizontalMultiFluidTankEnabled = HORIZONTAL_MULTI_FLUID_TANK_ENABLED.get();
-        multiFluidAccessPortEnabled = MULTI_FLUID_ACCESS_PORT_ENABLED.get();
-        fluidInventoryAccessPortEnabled = FLUID_INVENTORY_ACCESS_PORT_ENABLED.get();
-        smartHopperEnabled = SMART_HOPPER_ENABLED.get();
-        fluidPumpEnabled = FLUID_PUMP_ENABLED.get();
-        infiniteFluidTankEnabled = INFINITE_FLUID_TANK_ENABLED.get();
-        waterContainingCopperCasingEnabled = WATER_CONTAINING_COPPER_CASING_ENABLED.get();
-        copperBasinEnabled = COPPER_BASIN_ENABLED.get();
-        mechanicalFluidGunEnabled = MECHANICAL_FLUID_GUN_ENABLED.get();
-        handPointerEnabled = HAND_POINTER_ENABLED.get();
-        copperFrogportEnabled = COPPER_FROGPORT_ENABLED.get();
-        fluidPackagerEnabled = FLUID_PACKAGER_ENABLED.get();
-        fluidRepackagerEnabled = FLUID_REPACKAGER_ENABLED.get();
-        copperBucketEnabled = COPPER_BUCKET_ENABLED.get();
-        phantomChainEnabled = PHANTOM_CHAIN_ENABLED.get();
-        fluidHatchEnabled = FLUID_HATCH_ENABLED.get();
-        fluidFactoryGaugeEnabled = FLUID_FACTORY_GAUGE_ENABLED.get();
-        copperSchematicannonEnabled = COPPER_SCHEMATICANNON_ENABLED.get();
-        fluidSchematicEnabled = FLUID_SCHEMATIC_ENABLED.get();
-        frostCakeEnabled = FROST_CAKE_ENABLED.get();
-        fluidPackageCapacity = FLUID_PACKAGE_CAPACITY.get();
-        fluidPumpRange = FLUID_PUMP_RANGE.get();
-        handPointerMaxArms = HAND_POINTER_MAX_ARMS.get();
-        handPointerMaxFrogports = HAND_POINTER_MAX_FROGPORTS.get();
-        handPointerMaxMailboxes = HAND_POINTER_MAX_MAILBOXES.get();
-        faucetFluidContainerMode = FAUCET_FLUID_CONTAINER_MODE.get();
-        fluidTransporterInfiniteWaterEnabled = FLUID_TRANSPORTER_INFINITE_WATER_ENABLED.get();
-        faucetInfiniteWaterEnabled = FAUCET_INFINITE_WATER_ENABLED.get();
-        smartHopperInfiniteWaterEnabled = SMART_HOPPER_INFINITE_WATER_ENABLED.get();
-        infiniteFluidTankCapacity = bucketsToMillibuckets(INFINITE_FLUID_TANK_CAPACITY.get());
-        infiniteFluidTankAllowedFluids = INFINITE_FLUID_TANK_ALLOWED_FLUIDS.get();
-        FeatureToggle.reload();
+    private static <T> T serverValue(ModConfigSpec.ConfigValue<T> value) {
+        return serverConfig == null ? value.getDefault() : value.get();
     }
 
     public static boolean isFluidTransporterEnabled() { return fluidTransporterEnabled; }

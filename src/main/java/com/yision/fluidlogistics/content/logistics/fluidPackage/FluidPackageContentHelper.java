@@ -24,7 +24,7 @@ public final class FluidPackageContentHelper {
         }
 
         ItemStackHandler contents = readRawContents(packageStack);
-        if (!isCanonicalContents(contents, Config.getFluidPerPackage())) {
+        if (!isCanonicalContents(contents, Integer.MAX_VALUE)) {
             return FluidStack.EMPTY;
         }
         return CompressedTankItem.getFluid(contents.getStackInSlot(0)).copy();
@@ -32,7 +32,7 @@ public final class FluidPackageContentHelper {
 
     public static boolean isCanonicalPackage(ItemStack packageStack) {
         return packageStack != null && PackageItem.isPackage(packageStack)
-                && isCanonicalContents(readRawContents(packageStack), Config.getFluidPerPackage());
+                && isCanonicalContents(readRawContents(packageStack), Integer.MAX_VALUE);
     }
 
     public static ItemStackHandler readRawContents(ItemStack packageStack) {
@@ -83,8 +83,12 @@ public final class FluidPackageContentHelper {
     }
 
     public static void setCanonicalContents(ItemStack packageStack, FluidStack fluid) {
+        writeContents(packageStack, createCanonicalContents(fluid));
+    }
+
+    private static void writeContents(ItemStack packageStack, ItemStackHandler contents) {
         packageStack.set(AllDataComponents.PACKAGE_CONTENTS,
-                ItemHelper.containerContentsFromHandler(createCanonicalContents(fluid)));
+                ItemHelper.containerContentsFromHandler(contents));
     }
 
     public static FluidStack peekDrainOneBucket(ItemStack packageStack) {
@@ -103,7 +107,9 @@ public final class FluidPackageContentHelper {
             if (remaining <= 0) {
                 packageStack.shrink(1);
             } else {
-                setCanonicalContents(packageStack, contained.copyWithAmount(remaining));
+                ItemStackHandler contents = readRawContents(packageStack);
+                CompressedTankItem.setFluid(contents.getStackInSlot(0), contained.copyWithAmount(remaining));
+                writeContents(packageStack, contents);
             }
         }
         return drained;
