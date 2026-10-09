@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class PotatoServerBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation {
     private double mspt;
+    private double tps;
 
     public PotatoServerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -33,31 +34,37 @@ public class PotatoServerBlockEntity extends SmartBlockEntity implements IHaveGo
         if (!(level instanceof ServerLevel serverLevel))
             return;
         double current = serverLevel.getServer().getAverageTickTimeNanos() / 1_000_000d;
-        if (Math.round(current * 10) == Math.round(mspt * 10))
+        double currentTps = PotatoServerTickTracker.ticksPerSecond(serverLevel.getServer());
+        if (Math.round(current * 10) == Math.round(mspt * 10)
+            && Math.round(currentTps * 10) == Math.round(tps * 10))
             return;
         mspt = current;
+        tps = currentTps;
         sendData();
     }
 
     @Override
     protected void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
         super.write(tag, registries, clientPacket);
-        if (clientPacket)
+        if (clientPacket) {
             tag.putDouble("MSPT", mspt);
+            tag.putDouble("TPS", tps);
+        }
     }
 
     @Override
     protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
         super.read(tag, registries, clientPacket);
-        if (clientPacket)
+        if (clientPacket) {
             mspt = tag.getDouble("MSPT");
+            tps = tag.getDouble("TPS");
+        }
     }
 
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
         Lang.builder(FluidLogistics.MODID).translate("gui.potato_server.info").forGoggles(tooltip);
         CreateLang.text("TPS:").style(ChatFormatting.GRAY).forGoggles(tooltip, 1);
-        double tps = mspt <= 0 ? 20 : Math.min(20, 1000 / mspt);
         CreateLang.text((tps == 20 ? "20" : String.format(Locale.ROOT, "%.1f", tps)) + " ticks/s")
             .style(ChatFormatting.GOLD).forGoggles(tooltip, 1);
         CreateLang.text("MSPT:").style(ChatFormatting.GRAY).forGoggles(tooltip, 1);

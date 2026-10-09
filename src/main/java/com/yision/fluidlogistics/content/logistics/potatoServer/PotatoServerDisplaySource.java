@@ -42,7 +42,7 @@ public class PotatoServerDisplaySource extends PercentOrProgressBarDisplaySource
         MinecraftServer server = level.getServer();
         double mspt = server.getAverageTickTimeNanos() / 1_000_000d;
         String value = switch (metric) {
-            case 0 -> String.format(Locale.ROOT, "%.1f", mspt <= 0 ? 20d : Math.min(20d, 1000d / mspt));
+            case 0 -> String.format(Locale.ROOT, "%.1f", PotatoServerTickTracker.ticksPerSecond(server));
             case 1 -> String.format(Locale.ROOT, "%.1f", mspt);
             case 2, 6 -> Integer.toString(PotatoServerStatistics.countEntities(level, metric == 6));
             case 3 -> {
