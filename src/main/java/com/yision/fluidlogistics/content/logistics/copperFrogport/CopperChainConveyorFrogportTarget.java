@@ -59,10 +59,10 @@ public class CopperChainConveyorFrogportTarget extends PackagePortTarget.ChainCo
             frogport.getBlockPos()
         );
         return !Vec3.ZERO.equals(targetLocation)
-            && CopperFrogportRules.isChainHeightValid(
+            && CopperFrogportRules.isChainPositionValid(
                 CopperFrogportBlock.getAttachedDirection(frogport.getBlockState()),
-                targetLocation.y,
-                Vec3.atBottomCenterOf(frogport.getBlockPos()).y
+                targetLocation,
+                CopperFrogportBlock.getConnectionSource(frogport.getBlockPos(), frogport.getBlockState())
             );
     }
 

@@ -97,7 +97,8 @@ public class PackagePortTargetSelectionHandlerMixin {
         Direction attachedDirection = placedCopperFrogport
             ? CopperFrogportBlock.getAttachedDirection(minecraft.level.getBlockState(placedPos))
             : getPreviewAttachedDirection(minecraft);
-        if (!CopperFrogportRules.isChainHeightValid(attachedDirection, target.y, source.y)) {
+        if (!CopperFrogportRules.isChainPositionValid(attachedDirection, target,
+            CopperFrogportBlock.getConnectionSource(placedPos, attachedDirection))) {
             cir.setReturnValue("fluidlogistics.package_port.cannot_connect");
             return;
         }

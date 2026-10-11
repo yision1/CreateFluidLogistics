@@ -23,7 +23,6 @@ public final class PotatoServerTickTracker {
     private int next;
 
     PotatoServerTickTracker() {
-        // Seed the one-minute window at 20 TPS until actual samples replace it.
         Arrays.fill(sampleDurations, NANOS_PER_SECOND);
     }
 
