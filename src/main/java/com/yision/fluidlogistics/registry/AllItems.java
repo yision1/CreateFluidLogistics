@@ -9,6 +9,7 @@ import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.api.factorygauge.FactoryGauges;
 import com.yision.fluidlogistics.content.fluids.copperBucket.CopperBucketItem;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageItem;
+import com.yision.fluidlogistics.content.logistics.filter.PackageListFilterItem;
 import com.yision.fluidlogistics.content.equipment.handPointer.HandPointerItem;
 import com.yision.fluidlogistics.content.schematics.FluidSchematicItem;
 import com.yision.fluidlogistics.item.CompressedTankItem;
@@ -116,6 +117,12 @@ public class AllItems {
             .removeTab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, FluidLogistics.asResource("fluidlogistics_tab")))
             .properties(p -> p.stacksTo(1))
             .tag(AllItemTags.PACKAGES.tag, AllItemTags.NOT_UPRIGHT_ON_BELT.tag)
+            .model(AssetLookup.existingItemModel())
+            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
+            .register();
+
+    public static final ItemEntry<PackageListFilterItem> PACKAGE_LIST_FILTER = REGISTRATE
+            .item("package_list_filter", PackageListFilterItem::new)
             .model(AssetLookup.existingItemModel())
             .setData(ProviderType.LANG, NonNullBiConsumer.noop())
             .register();
