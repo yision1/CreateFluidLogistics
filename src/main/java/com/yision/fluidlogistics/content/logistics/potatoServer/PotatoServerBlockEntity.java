@@ -1,12 +1,14 @@
 package com.yision.fluidlogistics.content.logistics.potatoServer;
 
+import java.util.List;
+import java.util.Locale;
+
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.yision.fluidlogistics.FluidLogistics;
-import java.util.List;
-import java.util.Locale;
+
 import net.createmod.catnip.lang.Lang;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -18,58 +20,59 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class PotatoServerBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation {
-    private double mspt;
-    private double tps;
+	private double mspt;
+	private double tps;
 
-    public PotatoServerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
-        super(type, pos, state);
-        setLazyTickRate(20);
-    }
+	public PotatoServerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
+		setLazyTickRate(20);
+	}
 
-    @Override
-    public void addBehaviours(List<BlockEntityBehaviour> behaviours) {}
+	@Override
+	public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
+	}
 
-    @Override
-    public void lazyTick() {
-        if (!(level instanceof ServerLevel serverLevel))
-            return;
-        double current = serverLevel.getServer().getAverageTickTimeNanos() / 1_000_000d;
-        double currentTps = PotatoServerTickTracker.ticksPerSecond(serverLevel.getServer());
-        if (Math.round(current * 10) == Math.round(mspt * 10)
-            && Math.round(currentTps * 10) == Math.round(tps * 10))
-            return;
-        mspt = current;
-        tps = currentTps;
-        sendData();
-    }
+	@Override
+	public void lazyTick() {
+		if (!(level instanceof ServerLevel serverLevel))
+			return;
+		double current = serverLevel.getServer().getAverageTickTimeNanos() / 1_000_000d;
+		double currentTps = PotatoServerTickTracker.ticksPerSecond(serverLevel.getServer());
+		if (Math.round(current * 10) == Math.round(mspt * 10)
+			&& Math.round(currentTps * 10) == Math.round(tps * 10))
+			return;
+		mspt = current;
+		tps = currentTps;
+		sendData();
+	}
 
-    @Override
-    protected void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
-        super.write(tag, registries, clientPacket);
-        if (clientPacket) {
-            tag.putDouble("MSPT", mspt);
-            tag.putDouble("TPS", tps);
-        }
-    }
+	@Override
+	protected void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
+		super.write(tag, registries, clientPacket);
+		if (clientPacket) {
+			tag.putDouble("MSPT", mspt);
+			tag.putDouble("TPS", tps);
+		}
+	}
 
-    @Override
-    protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
-        super.read(tag, registries, clientPacket);
-        if (clientPacket) {
-            mspt = tag.getDouble("MSPT");
-            tps = tag.getDouble("TPS");
-        }
-    }
+	@Override
+	protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
+		super.read(tag, registries, clientPacket);
+		if (clientPacket) {
+			mspt = tag.getDouble("MSPT");
+			tps = tag.getDouble("TPS");
+		}
+	}
 
-    @Override
-    public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-        Lang.builder(FluidLogistics.MODID).translate("gui.potato_server.info").forGoggles(tooltip);
-        CreateLang.text("TPS:").style(ChatFormatting.GRAY).forGoggles(tooltip, 1);
-        CreateLang.text((tps == 20 ? "20" : String.format(Locale.ROOT, "%.1f", tps)) + " ticks/s")
-            .style(ChatFormatting.GOLD).forGoggles(tooltip, 1);
-        CreateLang.text("MSPT:").style(ChatFormatting.GRAY).forGoggles(tooltip, 1);
-        CreateLang.text(String.format(Locale.ROOT, "%.1f ms/tick", mspt))
-            .style(ChatFormatting.GOLD).forGoggles(tooltip, 1);
-        return true;
-    }
+	@Override
+	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
+		Lang.builder(FluidLogistics.MODID).translate("gui.potato_server.info").forGoggles(tooltip);
+		CreateLang.text("TPS:").style(ChatFormatting.GRAY).forGoggles(tooltip, 1);
+		CreateLang.text((tps == 20 ? "20" : String.format(Locale.ROOT, "%.1f", tps)) + " ticks/s")
+			.style(ChatFormatting.GOLD).forGoggles(tooltip, 1);
+		CreateLang.text("MSPT:").style(ChatFormatting.GRAY).forGoggles(tooltip, 1);
+		CreateLang.text(String.format(Locale.ROOT, "%.1f ms/tick", mspt))
+			.style(ChatFormatting.GOLD).forGoggles(tooltip, 1);
+		return true;
+	}
 }

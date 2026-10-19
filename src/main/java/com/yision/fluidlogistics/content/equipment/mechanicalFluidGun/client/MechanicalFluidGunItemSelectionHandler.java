@@ -1,16 +1,16 @@
 package com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.client;
 
-import com.simibubi.create.foundation.utility.CreateLang;
-import com.yision.fluidlogistics.FluidLogistics;
-import com.yision.fluidlogistics.content.fluids.fluidHatch.FluidHatchFluidHandlerForwarder;
-import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.MechanicalFluidGunBlock;
-import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.MechanicalFluidGunItem;
-import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.network.MechanicalFluidGunPackets;
-import com.yision.fluidlogistics.registry.AllBlocks;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import com.simibubi.create.foundation.utility.CreateLang;
+import com.yision.fluidlogistics.FluidLogistics;
+import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.MechanicalFluidGunBlock;
+import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.MechanicalFluidGunItem;
+import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.network.MechanicalFluidGunPackets;
+import com.yision.fluidlogistics.content.fluids.fluidHatch.FluidHatchFluidHandlerForwarder;
+import com.yision.fluidlogistics.registry.AllBlocks;
 
 import net.createmod.catnip.outliner.Outliner;
 import net.minecraft.ChatFormatting;
@@ -23,6 +23,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -83,7 +84,8 @@ public class MechanicalFluidGunItemSelectionHandler {
 
 		if (selectedTargets.size() >= MechanicalFluidGunPackets.TargetPacket.MAX_TARGETS) {
 			CreateLang.builder()
-				.translate("fluidlogistics.mechanical_fluid_gun.target_limit_reached", MechanicalFluidGunPackets.TargetPacket.MAX_TARGETS)
+				.translate("fluidlogistics.mechanical_fluid_gun.target_limit_reached",
+					MechanicalFluidGunPackets.TargetPacket.MAX_TARGETS)
 				.style(ChatFormatting.RED)
 				.sendStatus(player);
 			event.setCanceled(true);
@@ -158,7 +160,8 @@ public class MechanicalFluidGunItemSelectionHandler {
 		}
 
 		Level level = Minecraft.getInstance().level;
-		List<MechanicalFluidGunPackets.TargetPacket.TargetEntry> packetTargets = new ArrayList<>(selectedTargets.size());
+		List<MechanicalFluidGunPackets.TargetPacket.TargetEntry> packetTargets = new ArrayList<>(
+			selectedTargets.size());
 		int skippedOutOfRange = 0;
 		for (TargetSelection selection : selectedTargets) {
 			if (packetTargets.size() >= MechanicalFluidGunPackets.TargetPacket.MAX_TARGETS) {
@@ -200,10 +203,13 @@ public class MechanicalFluidGunItemSelectionHandler {
 	private static void rebuildTargetsFromItemNBT(ItemStack stack) {
 		selectedTargets.clear();
 		Level level = Minecraft.getInstance().level;
-		if (level == null) return;
-		if (!MechanicalFluidGunItem.hasSelectedTargets(stack)) return;
+		if (level == null)
+			return;
+		if (!MechanicalFluidGunItem.hasSelectedTargets(stack))
+			return;
 
-		List<MechanicalFluidGunItem.SelectedTarget> nbtTargets = MechanicalFluidGunItem.getSelectedTargets(stack, level);
+		List<MechanicalFluidGunItem.SelectedTarget> nbtTargets = MechanicalFluidGunItem.getSelectedTargets(stack,
+			level);
 		for (MechanicalFluidGunItem.SelectedTarget target : nbtTargets) {
 			selectedTargets.add(new TargetSelection(target.pos(), target.face()));
 		}

@@ -10,9 +10,8 @@ import com.simibubi.create.content.logistics.box.PackageItem;
 import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.api.packager.PackageResources;
 
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.minecraft.world.item.ItemStack;
 import snownee.jade.api.Accessor;
 import snownee.jade.api.EntityAccessor;
 import snownee.jade.api.view.ClientViewGroup;
@@ -21,7 +20,10 @@ import snownee.jade.api.view.IServerExtensionProvider;
 import snownee.jade.api.view.ItemView;
 import snownee.jade.api.view.ViewGroup;
 
-public enum PackageItemStorageProvider implements IServerExtensionProvider<ItemStack>, IClientExtensionProvider<ItemStack, ItemView> {
+import net.neoforged.neoforge.items.ItemStackHandler;
+
+public enum PackageItemStorageProvider
+	implements IServerExtensionProvider<ItemStack>, IClientExtensionProvider<ItemStack, ItemView> {
 	INSTANCE;
 
 	private static final ResourceLocation UID = FluidLogistics.asResource("package_item_storage");
@@ -51,7 +53,8 @@ public enum PackageItemStorageProvider implements IServerExtensionProvider<ItemS
 
 		for (int i = 0; i < contents.getSlots(); i++) {
 			ItemStack slotStack = contents.getStackInSlot(i);
-			if (slotStack.isEmpty()) continue;
+			if (slotStack.isEmpty())
+				continue;
 
 			if (PackageResources.isBootstrapped() && PackageResources.findType(slotStack).isPresent()) {
 				continue;

@@ -12,14 +12,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.simibubi.create.content.contraptions.StructureTransform;
-import com.simibubi.create.content.kinetics.chainConveyor.ChainConveyorBlockEntity;
-import com.yision.fluidlogistics.registry.AllItems;
-import com.yision.fluidlogistics.util.PhantomChainConveyorAccess;
-
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.simibubi.create.content.contraptions.StructureTransform;
+import com.simibubi.create.content.kinetics.chainConveyor.ChainConveyorBlockEntity;
+import com.yision.fluidlogistics.content.logistics.fluidPackage.phantomChain.PhantomChainConveyorAccess;
+import com.yision.fluidlogistics.registry.AllItems;
 
 import net.createmod.catnip.codecs.CatnipCodecUtils;
 import net.createmod.catnip.codecs.CatnipCodecs;
@@ -65,8 +64,7 @@ public class ChainConveyorBlockEntityMixin implements PhantomChainConveyorAccess
 		fluidlogistics$writePhantomConnections(tag, registries);
 	}
 
-	@Inject(method = "write(Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/core/HolderLookup$Provider;Z)V",
-		at = @At("HEAD"))
+	@Inject(method = "write(Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/core/HolderLookup$Provider;Z)V", at = @At("HEAD"))
 	private void fluidlogistics$write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket,
 		CallbackInfo ci) {
 		fluidlogistics$writePhantomConnections(compound, registries);
@@ -79,8 +77,7 @@ public class ChainConveyorBlockEntityMixin implements PhantomChainConveyorAccess
 				.orElseThrow());
 	}
 
-	@Inject(method = "read(Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/core/HolderLookup$Provider;Z)V",
-		at = @At("RETURN"))
+	@Inject(method = "read(Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/core/HolderLookup$Provider;Z)V", at = @At("RETURN"))
 	private void fluidlogistics$read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket,
 		CallbackInfo ci) {
 		fluidlogistics$phantomConnections.clear();
@@ -122,16 +119,10 @@ public class ChainConveyorBlockEntityMixin implements PhantomChainConveyorAccess
 		fluidlogistics$phantomConnections.addAll(transformed);
 	}
 
-	@WrapOperation(
-		method = "chainDestroyed",
-		at = @At(
-			value = "INVOKE",
-			target = "Lcom/simibubi/create/content/kinetics/chainConveyor/ChainConveyorBlockEntity;forPointsAlongChains(Lnet/minecraft/core/BlockPos;ILjava/util/function/Consumer;)Z"
-		)
-	)
+	@WrapOperation(method = "chainDestroyed", at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/kinetics/chainConveyor/ChainConveyorBlockEntity;forPointsAlongChains(Lnet/minecraft/core/BlockPos;ILjava/util/function/Consumer;)Z"))
 	private boolean fluidlogistics$dropPhantomChainAlong(ChainConveyorBlockEntity instance, BlockPos connection,
-														 int positions, Consumer<Vec3> callback,
-														 Operation<Boolean> original, BlockPos target) {
+		int positions, Consumer<Vec3> callback,
+		Operation<Boolean> original, BlockPos target) {
 		if (!fluidlogistics$phantomConnections.contains(target)) {
 			return original.call(instance, connection, positions, callback);
 		}
@@ -140,13 +131,7 @@ public class ChainConveyorBlockEntityMixin implements PhantomChainConveyorAccess
 				new ItemStack(AllItems.PHANTOM_CHAIN.get()))));
 	}
 
-	@ModifyExpressionValue(
-		method = "chainDestroyed",
-		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/world/level/block/Block;asItem()Lnet/minecraft/world/item/Item;"
-		)
-	)
+	@ModifyExpressionValue(method = "chainDestroyed", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/Block;asItem()Lnet/minecraft/world/item/Item;"))
 	private Item fluidlogistics$dropPhantomChainFallback(Item original, BlockPos target) {
 		if (fluidlogistics$phantomConnections.contains(target)) {
 			return AllItems.PHANTOM_CHAIN.get();

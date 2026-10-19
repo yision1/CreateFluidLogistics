@@ -1,6 +1,5 @@
 package com.yision.fluidlogistics.content.equipment.handPointer.network;
 
-import com.yision.fluidlogistics.network.FluidLogisticsPackets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -10,10 +9,11 @@ import com.simibubi.create.content.kinetics.chainConveyor.ChainConveyorBlockEnti
 import com.simibubi.create.content.logistics.packagePort.PackagePortBlockEntity;
 import com.simibubi.create.content.logistics.packagePort.PackagePortTarget.ChainConveyorFrogportTarget;
 import com.simibubi.create.infrastructure.config.AllConfigs;
-import com.yision.fluidlogistics.config.Config;
 import com.yision.fluidlogistics.content.equipment.handPointer.HandPointerPackagePortRules;
 import com.yision.fluidlogistics.content.logistics.copperFrogport.CopperChainConveyorFrogportTarget;
 import com.yision.fluidlogistics.content.logistics.copperFrogport.CopperFrogportBlockEntity;
+import com.yision.fluidlogistics.infrastructure.config.Config;
+import com.yision.fluidlogistics.infrastructure.network.FluidLogisticsPackets;
 
 import net.createmod.catnip.net.base.ServerboundPacketPayload;
 import net.createmod.catnip.platform.CatnipServices;
@@ -26,133 +26,132 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 
 public record HandPointerFrogportConnectionPacket(
-    List<BlockPos> frogportPositions,
-    BlockPos chainConveyorPos,
-    float chainPosition,
-    BlockPos connection
-) implements ServerboundPacketPayload {
+	List<BlockPos> frogportPositions,
+	BlockPos chainConveyorPos,
+	float chainPosition,
+	BlockPos connection) implements ServerboundPacketPayload {
 
-    public HandPointerFrogportConnectionPacket {
-        frogportPositions = List.copyOf(frogportPositions);
-    }
+	public HandPointerFrogportConnectionPacket {
+		frogportPositions = List.copyOf(frogportPositions);
+	}
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, HandPointerFrogportConnectionPacket> STREAM_CODEC =
-        StreamCodec.of(
-            HandPointerFrogportConnectionPacket::encode,
-            HandPointerFrogportConnectionPacket::decode
-        );
+	public static final StreamCodec<RegistryFriendlyByteBuf, HandPointerFrogportConnectionPacket> STREAM_CODEC = StreamCodec
+		.of(
+			HandPointerFrogportConnectionPacket::encode,
+			HandPointerFrogportConnectionPacket::decode);
 
-    public static void send(Collection<BlockPos> frogportPositions, BlockPos chainConveyorPos, float chainPosition, BlockPos connection) {
-        CatnipServices.NETWORK.sendToServer(
-            new HandPointerFrogportConnectionPacket(new ArrayList<>(frogportPositions), chainConveyorPos, chainPosition, connection));
-    }
+	public static void send(Collection<BlockPos> frogportPositions, BlockPos chainConveyorPos, float chainPosition,
+		BlockPos connection) {
+		CatnipServices.NETWORK.sendToServer(
+			new HandPointerFrogportConnectionPacket(new ArrayList<>(frogportPositions), chainConveyorPos, chainPosition,
+				connection));
+	}
 
-    private static void encode(RegistryFriendlyByteBuf buf, HandPointerFrogportConnectionPacket packet) {
-        buf.writeVarInt(packet.frogportPositions.size());
-        for (BlockPos frogportPos : packet.frogportPositions) {
-            BlockPos.STREAM_CODEC.encode(buf, frogportPos);
-        }
-        BlockPos.STREAM_CODEC.encode(buf, packet.chainConveyorPos);
-        buf.writeFloat(packet.chainPosition);
-        if (packet.connection != null) {
-            buf.writeBoolean(true);
-            BlockPos.STREAM_CODEC.encode(buf, packet.connection);
-        } else {
-            buf.writeBoolean(false);
-        }
-    }
+	private static void encode(RegistryFriendlyByteBuf buf, HandPointerFrogportConnectionPacket packet) {
+		buf.writeVarInt(packet.frogportPositions.size());
+		for (BlockPos frogportPos : packet.frogportPositions) {
+			BlockPos.STREAM_CODEC.encode(buf, frogportPos);
+		}
+		BlockPos.STREAM_CODEC.encode(buf, packet.chainConveyorPos);
+		buf.writeFloat(packet.chainPosition);
+		if (packet.connection != null) {
+			buf.writeBoolean(true);
+			BlockPos.STREAM_CODEC.encode(buf, packet.connection);
+		} else {
+			buf.writeBoolean(false);
+		}
+	}
 
-    private static HandPointerFrogportConnectionPacket decode(RegistryFriendlyByteBuf buf) {
-        int count = buf.readVarInt();
-        List<BlockPos> frogportPositions = new ArrayList<>(count);
-        for (int i = 0; i < count; i++) {
-            frogportPositions.add(BlockPos.STREAM_CODEC.decode(buf));
-        }
+	private static HandPointerFrogportConnectionPacket decode(RegistryFriendlyByteBuf buf) {
+		int count = buf.readVarInt();
+		List<BlockPos> frogportPositions = new ArrayList<>(count);
+		for (int i = 0; i < count; i++) {
+			frogportPositions.add(BlockPos.STREAM_CODEC.decode(buf));
+		}
 
-        BlockPos chainConveyorPos = BlockPos.STREAM_CODEC.decode(buf);
-        float chainPosition = buf.readFloat();
-        BlockPos connection = buf.readBoolean() ? BlockPos.STREAM_CODEC.decode(buf) : null;
-        return new HandPointerFrogportConnectionPacket(frogportPositions, chainConveyorPos, chainPosition, connection);
-    }
+		BlockPos chainConveyorPos = BlockPos.STREAM_CODEC.decode(buf);
+		float chainPosition = buf.readFloat();
+		BlockPos connection = buf.readBoolean() ? BlockPos.STREAM_CODEC.decode(buf) : null;
+		return new HandPointerFrogportConnectionPacket(frogportPositions, chainConveyorPos, chainPosition, connection);
+	}
 
-    @Override
-    public void handle(ServerPlayer player) {
-        Level level = player.level();
-        if (!HandPointerInteractionGuard.canUseHandPointer(player) || !level.isLoaded(chainConveyorPos)) {
-            return;
-        }
+	@Override
+	public void handle(ServerPlayer player) {
+		Level level = player.level();
+		if (!HandPointerInteractionGuard.canUseHandPointer(player) || !level.isLoaded(chainConveyorPos)) {
+			return;
+		}
 
-        BlockEntity chainBE = level.getBlockEntity(chainConveyorPos);
-        if (!(chainBE instanceof ChainConveyorBlockEntity)) {
-            return;
-        }
+		BlockEntity chainBE = level.getBlockEntity(chainConveyorPos);
+		if (!(chainBE instanceof ChainConveyorBlockEntity)) {
+			return;
+		}
 
-        LinkedHashSet<BlockPos> uniqueFrogports = new LinkedHashSet<>(frogportPositions);
-        if (uniqueFrogports.isEmpty() || uniqueFrogports.size() > Config.getHandPointerMaxFrogports()) {
-            return;
-        }
+		LinkedHashSet<BlockPos> uniqueFrogports = new LinkedHashSet<>(frogportPositions);
+		if (uniqueFrogports.isEmpty() || uniqueFrogports.size() > Config.getHandPointerMaxFrogports()) {
+			return;
+		}
 
-        List<PendingFrogportUpdate> pendingUpdates = new ArrayList<>(uniqueFrogports.size());
-        for (BlockPos frogportPos : uniqueFrogports) {
-            if (!level.isLoaded(frogportPos)) {
-                return;
-            }
+		List<PendingFrogportUpdate> pendingUpdates = new ArrayList<>(uniqueFrogports.size());
+		for (BlockPos frogportPos : uniqueFrogports) {
+			if (!level.isLoaded(frogportPos)) {
+				return;
+			}
 
-            BlockEntity frogportBE = level.getBlockEntity(frogportPos);
-            if (!(frogportBE instanceof PackagePortBlockEntity frogport)) {
-                return;
-            }
+			BlockEntity frogportBE = level.getBlockEntity(frogportPos);
+			if (!(frogportBE instanceof PackagePortBlockEntity frogport)) {
+				return;
+			}
 
-            ChainConveyorFrogportTarget newTarget = frogport instanceof CopperFrogportBlockEntity
-                ? new CopperChainConveyorFrogportTarget(
-                    chainConveyorPos.subtract(frogportPos), chainPosition, connection, false)
-                : new ChainConveyorFrogportTarget(
-                    chainConveyorPos.subtract(frogportPos), chainPosition, connection, false);
-            if (!newTarget.canSupport(frogport)) {
-                return;
-            }
+			ChainConveyorFrogportTarget newTarget = frogport instanceof CopperFrogportBlockEntity
+				? new CopperChainConveyorFrogportTarget(
+					chainConveyorPos.subtract(frogportPos), chainPosition, connection, false)
+				: new ChainConveyorFrogportTarget(
+					chainConveyorPos.subtract(frogportPos), chainPosition, connection, false);
+			if (!newTarget.canSupport(frogport)) {
+				return;
+			}
 
-            Vec3 targetLocation = newTarget.getExactTargetLocation(frogport, level, frogportPos);
-            if (targetLocation == Vec3.ZERO) {
-                return;
-            }
-            double maxRange = AllConfigs.server().logistics.packagePortRange.get();
-            if (frogport instanceof CopperFrogportBlockEntity) {
-                if (!HandPointerPackagePortRules.isWithinRange(
-                    targetLocation.x, targetLocation.y, targetLocation.z,
-                    frogportPos.getX(), frogportPos.getY(), frogportPos.getZ(), maxRange)) {
-                    return;
-                }
-            } else if (!HandPointerPackagePortRules.isCreateFrogportReachable(
-                targetLocation.x, targetLocation.y, targetLocation.z,
-                frogportPos.getX(), frogportPos.getY(), frogportPos.getZ(), maxRange)) {
-                return;
-            }
-            pendingUpdates.add(new PendingFrogportUpdate(frogportPos, frogport, newTarget));
-        }
+			Vec3 targetLocation = newTarget.getExactTargetLocation(frogport, level, frogportPos);
+			if (targetLocation == Vec3.ZERO) {
+				return;
+			}
+			double maxRange = AllConfigs.server().logistics.packagePortRange.get();
+			if (frogport instanceof CopperFrogportBlockEntity) {
+				if (!HandPointerPackagePortRules.isWithinRange(
+					targetLocation.x, targetLocation.y, targetLocation.z,
+					frogportPos.getX(), frogportPos.getY(), frogportPos.getZ(), maxRange)) {
+					return;
+				}
+			} else if (!HandPointerPackagePortRules.isCreateFrogportReachable(
+				targetLocation.x, targetLocation.y, targetLocation.z,
+				frogportPos.getX(), frogportPos.getY(), frogportPos.getZ(), maxRange)) {
+				return;
+			}
+			pendingUpdates.add(new PendingFrogportUpdate(frogportPos, frogport, newTarget));
+		}
 
-        for (PendingFrogportUpdate update : pendingUpdates) {
-            if (update.frogport.target != null) {
-                update.frogport.target.deregister(update.frogport, level, update.frogportPos);
-            }
+		for (PendingFrogportUpdate update : pendingUpdates) {
+			if (update.frogport.target != null) {
+				update.frogport.target.deregister(update.frogport, level, update.frogportPos);
+			}
 
-            update.target.setup(update.frogport, level, update.frogportPos);
-            update.frogport.target = update.target;
-            update.target.register(update.frogport, level, update.frogportPos);
-            update.frogport.notifyUpdate();
-            update.frogport.filterChanged();
-        }
-    }
+			update.target.setup(update.frogport, level, update.frogportPos);
+			update.frogport.target = update.target;
+			update.target.register(update.frogport, level, update.frogportPos);
+			update.frogport.notifyUpdate();
+			update.frogport.filterChanged();
+		}
+	}
 
-    @Override
-    public PacketTypeProvider getTypeProvider() {
-        return FluidLogisticsPackets.HAND_POINTER_FROGPORT_CONNECTION;
-    }
+	@Override
+	public PacketTypeProvider getTypeProvider() {
+		return FluidLogisticsPackets.HAND_POINTER_FROGPORT_CONNECTION;
+	}
 
-    private record PendingFrogportUpdate(
-        BlockPos frogportPos,
-        PackagePortBlockEntity frogport,
-        ChainConveyorFrogportTarget target
-    ) {
-    }
+	private record PendingFrogportUpdate(
+		BlockPos frogportPos,
+		PackagePortBlockEntity frogport,
+		ChainConveyorFrogportTarget target) {
+	}
 }

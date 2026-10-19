@@ -14,31 +14,31 @@ import net.minecraft.resources.ResourceLocation;
 
 public class FluidFactoryGaugePonderPlugin implements PonderPlugin {
 
-    @Override
-    public String getModId() {
-        return Create.ID;
-    }
+	@Override
+	public String getModId() {
+		return Create.ID;
+	}
 
-    @Override
-    public void registerScenes(PonderSceneRegistrationHelper<ResourceLocation> helper) {
-        PonderSceneRegistrationHelper<ItemProviderEntry<?, ?>> registration =
-                helper.withKeyFunction(RegistryEntry::getId);
+	@Override
+	public void registerScenes(PonderSceneRegistrationHelper<ResourceLocation> helper) {
+		PonderSceneRegistrationHelper<ItemProviderEntry<?, ?>> registration = helper
+			.withKeyFunction(RegistryEntry::getId);
 
-        registration.forComponents(AllItems.FLUID_FACTORY_GAUGE)
-                .addStoryBoard("high_logistics/factory_gauge_restocker", FactoryGaugeScenes::restocker)
-                .addStoryBoard("high_logistics/factory_gauge_recipe", FactoryGaugeScenes::recipe)
-                .addStoryBoard("high_logistics/factory_gauge_crafting", FactoryGaugeScenes::crafting)
-                .addStoryBoard("high_logistics/factory_gauge_links", FactoryGaugeScenes::links);
-    }
+		registration.forComponents(AllItems.FLUID_FACTORY_GAUGE)
+			.addStoryBoard("high_logistics/factory_gauge_restocker", FactoryGaugeScenes::restocker)
+			.addStoryBoard("high_logistics/factory_gauge_recipe", FactoryGaugeScenes::recipe)
+			.addStoryBoard("high_logistics/factory_gauge_crafting", FactoryGaugeScenes::crafting)
+			.addStoryBoard("high_logistics/factory_gauge_links", FactoryGaugeScenes::links);
+	}
 
-    @Override
-    public void registerTags(PonderTagRegistrationHelper<ResourceLocation> helper) {
-        PonderTagRegistrationHelper<ItemProviderEntry<?, ?>> registration =
-                helper.withKeyFunction(RegistryEntry::getId);
+	@Override
+	public void registerTags(PonderTagRegistrationHelper<ResourceLocation> helper) {
+		PonderTagRegistrationHelper<ItemProviderEntry<?, ?>> registration = helper
+			.withKeyFunction(RegistryEntry::getId);
 
-        registration.addToTag(AllCreatePonderTags.HIGH_LOGISTICS)
-                .add(AllItems.FLUID_FACTORY_GAUGE);
-        registration.addToTag(AllCreatePonderTags.DISPLAY_SOURCES)
-                .add(AllItems.FLUID_FACTORY_GAUGE);
-    }
+		registration.addToTag(AllCreatePonderTags.HIGH_LOGISTICS)
+			.add(AllItems.FLUID_FACTORY_GAUGE);
+		registration.addToTag(AllCreatePonderTags.DISPLAY_SOURCES)
+			.add(AllItems.FLUID_FACTORY_GAUGE);
+	}
 }

@@ -6,6 +6,7 @@ import com.yision.fluidlogistics.content.fluids.fluidPort.MultiFluidAccessPortBl
 import com.yision.fluidlogistics.content.fluids.fluidPort.MultiFluidAccessPortBlockEntity;
 import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankBlockEntity;
 import com.yision.fluidlogistics.registry.AllBlocks;
+
 import net.createmod.catnip.math.Pointing;
 import net.createmod.ponder.api.PonderPalette;
 import net.createmod.ponder.api.scene.SceneBuilder;
@@ -20,6 +21,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
+
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
 
@@ -125,7 +127,7 @@ public class MultiFluidAccessPortScenes {
 		scene.overlay()
 			.showOutline(PonderPalette.BLUE, "back", transWestS.add(tankWestS), 80);
 		scene.overlay()
-			.showOutline(PonderPalette.OUTPUT,  "right", transSouthS.add(tankSouthS), 80);
+			.showOutline(PonderPalette.OUTPUT, "right", transSouthS.add(tankSouthS), 80);
 		scene.overlay()
 			.showText(80)
 			.text("Multi Fluid Access Ports can access fluids in up to three directions at once")

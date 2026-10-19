@@ -9,7 +9,7 @@ import com.simibubi.create.foundation.item.ItemDescription;
 import com.simibubi.create.foundation.item.KineticStats;
 import com.simibubi.create.foundation.item.TooltipModifier;
 import net.createmod.catnip.lang.FontHelper;
-import com.yision.fluidlogistics.config.Config;
+import com.yision.fluidlogistics.infrastructure.config.Config;
 import com.yision.fluidlogistics.infrastructure.data.FluidLogisticsDatagen;
 import com.yision.fluidlogistics.infrastructure.data.FluidLogisticsRegistrate;
 import com.yision.fluidlogistics.api.factorygauge.FactoryGauges;
@@ -39,7 +39,7 @@ import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperBlockE
 import com.yision.fluidlogistics.content.processing.copperBasin.CopperBasinBlockEntity;
 import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerBlockEntity;
 import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerFuelManager;
-import com.yision.fluidlogistics.network.FluidLogisticsPackets;
+import com.yision.fluidlogistics.infrastructure.network.FluidLogisticsPackets;
 import com.yision.fluidlogistics.registry.FluidLogisticsArmInteractionPointTypes;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
 import com.yision.fluidlogistics.registry.AllBlocks;
@@ -62,7 +62,7 @@ import com.yision.fluidlogistics.registry.AllFluidLogisticsFluids;
 import com.yision.fluidlogistics.registry.AllFluidLogisticsFanProcessingTypes;
 import com.yision.fluidlogistics.registry.AllFluidLogisticsRecipeTypes;
 import com.yision.fluidlogistics.registry.FluidLogisticsPackagePortTargetTypes;
-import com.yision.fluidlogistics.config.FeatureToggle;
+import com.yision.fluidlogistics.infrastructure.config.FeatureToggle;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -97,8 +97,8 @@ import org.slf4j.Logger;
 
 @Mod(FluidLogistics.MODID)
 public class FluidLogistics {
-    public static final String MODID = "fluidlogistics";
-    public static final Logger LOGGER = LogUtils.getLogger();
+	public static final String MODID = "fluidlogistics";
+	public static final Logger LOGGER = LogUtils.getLogger();
     private static final ResourceKey<net.minecraft.world.item.CreativeModeTab> FLUID_LOGISTICS_TAB =
             ResourceKey.create(Registries.CREATIVE_MODE_TAB, asResource("fluidlogistics_tab"));
     private static final DeferredRegister<CreativeModeTab> CREATIVE_TABS =
@@ -106,217 +106,217 @@ public class FluidLogistics {
 
     public static final Supplier<CreativeModeTab> FLUID_LOGISTICS_CREATIVE_TAB =
             CREATIVE_TABS.register("fluidlogistics_tab", () -> CreativeModeTab.builder()
-                    .title(Component.translatable("itemGroup.fluidlogistics.fluidlogistics_tab"))
-                    .icon(() -> createRandomFluidPackage(Config.getFluidPerPackage()))
-                    .build());
+			.title(Component.translatable("itemGroup.fluidlogistics.fluidlogistics_tab"))
+			.icon(() -> createRandomFluidPackage(Config.getFluidPerPackage()))
+			.build());
 
     private static final DeferredRegister<com.mojang.serialization.MapCodec<? extends net.neoforged.neoforge.common.loot.IGlobalLootModifier>>
             LOOT_MODIFIERS = DeferredRegister.create(NeoForgeRegistries.GLOBAL_LOOT_MODIFIER_SERIALIZERS, MODID);
 
-    public static final CreateRegistrate REGISTRATE = FluidLogisticsRegistrate.create(MODID)
-            .setTooltipModifierFactory(item -> {
-                TooltipModifier base = item instanceof InfiniteFluidTankItem
-                        ? new InfiniteFluidTankItem.TooltipModifier(item, FontHelper.Palette.STANDARD_CREATE)
-                        : item instanceof CompressedTankItem
-                            ? new CompressedTankTooltipModifier(item, FontHelper.Palette.STANDARD_CREATE)
-                            : new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE);
-                return base.andThen(TooltipModifier.mapNull(KineticStats.create(item)));
-            })
-            .defaultCreativeTab(FLUID_LOGISTICS_TAB);
+	public static final CreateRegistrate REGISTRATE = FluidLogisticsRegistrate.create(MODID)
+		.setTooltipModifierFactory(item -> {
+			TooltipModifier base = item instanceof InfiniteFluidTankItem
+				? new InfiniteFluidTankItem.TooltipModifier(item, FontHelper.Palette.STANDARD_CREATE)
+				: item instanceof CompressedTankItem
+					? new CompressedTankTooltipModifier(item, FontHelper.Palette.STANDARD_CREATE)
+					: new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE);
+			return base.andThen(TooltipModifier.mapNull(KineticStats.create(item)));
+		})
+		.defaultCreativeTab(FLUID_LOGISTICS_TAB);
 
-    public FluidLogistics(IEventBus modEventBus, ModContainer modContainer) {
-        CREATIVE_TABS.register(modEventBus);
-        LOOT_MODIFIERS.register("factory_gauge_drops", () -> FactoryGaugeLootModifier.CODEC);
-        LOOT_MODIFIERS.register(modEventBus);
-        REGISTRATE.registerEventListeners(modEventBus);
-        modEventBus.addListener(FluidLogisticsDatagen::gatherData);
+	public FluidLogistics(IEventBus modEventBus, ModContainer modContainer) {
+		CREATIVE_TABS.register(modEventBus);
+		LOOT_MODIFIERS.register("factory_gauge_drops", () -> FactoryGaugeLootModifier.CODEC);
+		LOOT_MODIFIERS.register(modEventBus);
+		REGISTRATE.registerEventListeners(modEventBus);
+		modEventBus.addListener(FluidLogisticsDatagen::gatherData);
 
-        AllConditionCodecs.register(modEventBus);
-        AllDataComponents.register(modEventBus);
-        AllFluidAttributeTypes.REGISTER.register(modEventBus);
-        AllFluidLogisticsParticleTypes.register(modEventBus);
-        AllFluidLogisticsFluids.register();
-        AllFluidLogisticsFanProcessingTypes.register(modEventBus);
-        AllFluidLogisticsRecipeTypes.register(modEventBus);
-        FluidLogisticsPackagePortTargetTypes.register(modEventBus);
-        AllFluidLogisticsDisplaySources.register();
-        AllBlocks.register();
-        PackagerAddresses.register(com.simibubi.create.AllBlocks.PACKAGER);
-        PackagerAddresses.register(AllBlocks.FLUID_PACKAGER);
-        HandPointerCrafterAdapters.register(
-                asResource("create_mechanical_crafter"), CreateMechanicalCrafterAdapter.INSTANCE);
-        AllBlockEntities.register();
-        AllItems.register();
-        PackageResourceTypes.registerBuiltIns();
-        FactoryGauges.register(new FactoryGaugeType(
-                AllItems.FLUID_GAUGE_TYPE_ID,
-                PackageResourceTypes.FLUID,
-                AllItems.FLUID_FACTORY_GAUGE,
-                FluidContainerProbe.INSTANCE));
-        AllMenuTypes.register();
-        FluidLogisticsArmInteractionPointTypes.ARM_INTERACTION_POINT_TYPES.register(modEventBus);
+		AllConditionCodecs.register(modEventBus);
+		AllDataComponents.register(modEventBus);
+		AllFluidAttributeTypes.REGISTER.register(modEventBus);
+		AllFluidLogisticsParticleTypes.register(modEventBus);
+		AllFluidLogisticsFluids.register();
+		AllFluidLogisticsFanProcessingTypes.register(modEventBus);
+		AllFluidLogisticsRecipeTypes.register(modEventBus);
+		FluidLogisticsPackagePortTargetTypes.register(modEventBus);
+		AllFluidLogisticsDisplaySources.register();
+		AllBlocks.register();
+		PackagerAddresses.register(com.simibubi.create.AllBlocks.PACKAGER);
+		PackagerAddresses.register(AllBlocks.FLUID_PACKAGER);
+		HandPointerCrafterAdapters.register(
+			asResource("create_mechanical_crafter"), CreateMechanicalCrafterAdapter.INSTANCE);
+		AllBlockEntities.register();
+		AllItems.register();
+		PackageResourceTypes.registerBuiltIns();
+		FactoryGauges.register(new FactoryGaugeType(
+			AllItems.FLUID_GAUGE_TYPE_ID,
+			PackageResourceTypes.FLUID,
+			AllItems.FLUID_FACTORY_GAUGE,
+			FluidContainerProbe.INSTANCE));
+		AllMenuTypes.register();
+		FluidLogisticsArmInteractionPointTypes.ARM_INTERACTION_POINT_TYPES.register(modEventBus);
 
-        modContainer.registerConfig(ModConfig.Type.SERVER, Config.SERVER_SPEC);
-        modContainer.registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_SPEC);
+		modContainer.registerConfig(ModConfig.Type.SERVER, Config.SERVER_SPEC);
+		modContainer.registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_SPEC);
 
-        modEventBus.addListener(this::commonSetup);
-        modEventBus.addListener(this::registerCapabilities);
-        modEventBus.addListener(this::hideDisabledItems);
-        modEventBus.addListener(AllItems::registerAliases);
+		modEventBus.addListener(this::commonSetup);
+		modEventBus.addListener(this::registerCapabilities);
+		modEventBus.addListener(this::hideDisabledItems);
+		modEventBus.addListener(AllItems::registerAliases);
 
-        NeoForge.EVENT_BUS.register(this);
-        NeoForge.EVENT_BUS.addListener(this::addReloadListeners);
-        NeoForge.EVENT_BUS.addListener(FactoryGaugeBehaviourAttachment::onAttachBehaviours);
-        LOGGER.info("FluidLogistics initialized!");
-    }
+		NeoForge.EVENT_BUS.register(this);
+		NeoForge.EVENT_BUS.addListener(this::addReloadListeners);
+		NeoForge.EVENT_BUS.addListener(FactoryGaugeBehaviourAttachment::onAttachBehaviours);
+		LOGGER.info("FluidLogistics initialized!");
+	}
 
-    private void commonSetup(final FMLCommonSetupEvent event) {
-        event.enqueueWork(() -> {
-            PackageResources.bootstrap();
-            FactoryGauges.bootstrap();
-            FluidLogisticsPackets.register();
-            ArmInteractionPointType.init();
-            AllMountedStorageTypes.register();
-            FluidLogisticsUnpackingHandlers.registerDefaults();
-            BlockStressValues.IMPACTS.register(AllBlocks.FLUID_PUMP.get(), () -> 8.0);
-            BlockStressValues.IMPACTS.register(AllBlocks.MECHANICAL_FLUID_GUN.get(), () -> 2.0);
-            LOGGER.info("FluidLogistics mounted storage registered!");
-        });
-    }
+	private void commonSetup(final FMLCommonSetupEvent event) {
+		event.enqueueWork(() -> {
+			PackageResources.bootstrap();
+			FactoryGauges.bootstrap();
+			FluidLogisticsPackets.register();
+			ArmInteractionPointType.init();
+			AllMountedStorageTypes.register();
+			FluidLogisticsUnpackingHandlers.registerDefaults();
+			BlockStressValues.IMPACTS.register(AllBlocks.FLUID_PUMP.get(), () -> 8.0);
+			BlockStressValues.IMPACTS.register(AllBlocks.MECHANICAL_FLUID_GUN.get(), () -> 2.0);
+			LOGGER.info("FluidLogistics mounted storage registered!");
+		});
+	}
 
-    private void registerCapabilities(final RegisterCapabilitiesEvent event) {
-        CopperFrogportBlockEntity.registerCapabilities(event);
-        FluidTransporterBlockEntity.registerCapabilities(event);
-        FluidPackagerBlockEntity.registerCapabilities(event);
-        FluidRepackagerBlockEntity.registerCapabilities(event);
-        MultiFluidTankBlockEntity.registerCapabilities(event);
-        HorizontalMultiFluidTankBlockEntity.registerCapabilities(event);
-        MultiFluidAccessPortBlockEntity.registerCapabilities(event);
-        FluidInventoryAccessPortBlockEntity.registerCapabilities(event);
-        SmartHopperBlockEntity.registerCapabilities(event);
-        InfiniteFluidTankBlockEntity.registerCapabilities(event);
-        CopperBasinBlockEntity.registerCapabilities(event);
-        BlazeCoolerBlockEntity.registerCapabilities(event);
-        event.registerBlock(Capabilities.FluidHandler.BLOCK,
-                (level, pos, state, blockEntity, side) -> WaterContainingCopperCasingFluidHandler.INSTANCE,
-                AllBlocks.WATER_CONTAINING_COPPER_CASING.get());
-        event.registerItem(Capabilities.FluidHandler.ITEM,
-                (stack, context) -> new CompressedTankFluidHandler(stack),
-                AllItems.COMPRESSED_STORAGE_TANK.get());
-        event.registerItem(Capabilities.FluidHandler.ITEM,
-                (stack, context) -> new FluidHandlerItemStack(
-                        () -> AllDataComponents.COPPER_BUCKET_CONTENT, stack, CopperBucketItem.CAPACITY),
-                AllItems.COPPER_BUCKET.get());
-        event.registerItem(Capabilities.FluidHandler.ITEM,
-                (stack, context) -> new FluidPackageFluidHandler(stack),
-                AllItems.FLUID_PACKAGE.get(),
-                AllItems.FLUID_PACKAGE_EXPOSED.get(),
-                AllItems.FLUID_PACKAGE_OXIDIZED.get(),
-                AllItems.FLUID_PACKAGE_WEATHERED.get(),
-                AllItems.RARE_PIG_PACKAGE.get(),
-                AllItems.RARE_FOX_PACKAGE.get());
-        event.registerItem(Capabilities.FluidHandler.ITEM,
-                (stack, context) -> new PowderSnowBucketFluidHandler(stack),
-                net.minecraft.world.item.Items.POWDER_SNOW_BUCKET);
+	private void registerCapabilities(final RegisterCapabilitiesEvent event) {
+		CopperFrogportBlockEntity.registerCapabilities(event);
+		FluidTransporterBlockEntity.registerCapabilities(event);
+		FluidPackagerBlockEntity.registerCapabilities(event);
+		FluidRepackagerBlockEntity.registerCapabilities(event);
+		MultiFluidTankBlockEntity.registerCapabilities(event);
+		HorizontalMultiFluidTankBlockEntity.registerCapabilities(event);
+		MultiFluidAccessPortBlockEntity.registerCapabilities(event);
+		FluidInventoryAccessPortBlockEntity.registerCapabilities(event);
+		SmartHopperBlockEntity.registerCapabilities(event);
+		InfiniteFluidTankBlockEntity.registerCapabilities(event);
+		CopperBasinBlockEntity.registerCapabilities(event);
+		BlazeCoolerBlockEntity.registerCapabilities(event);
+		event.registerBlock(Capabilities.FluidHandler.BLOCK,
+			(level, pos, state, blockEntity, side) -> WaterContainingCopperCasingFluidHandler.INSTANCE,
+			AllBlocks.WATER_CONTAINING_COPPER_CASING.get());
+		event.registerItem(Capabilities.FluidHandler.ITEM,
+			(stack, context) -> new CompressedTankFluidHandler(stack),
+			AllItems.COMPRESSED_STORAGE_TANK.get());
+		event.registerItem(Capabilities.FluidHandler.ITEM,
+			(stack, context) -> new FluidHandlerItemStack(
+				() -> AllDataComponents.COPPER_BUCKET_CONTENT, stack, CopperBucketItem.CAPACITY),
+			AllItems.COPPER_BUCKET.get());
+		event.registerItem(Capabilities.FluidHandler.ITEM,
+			(stack, context) -> new FluidPackageFluidHandler(stack),
+			AllItems.FLUID_PACKAGE.get(),
+			AllItems.FLUID_PACKAGE_EXPOSED.get(),
+			AllItems.FLUID_PACKAGE_OXIDIZED.get(),
+			AllItems.FLUID_PACKAGE_WEATHERED.get(),
+			AllItems.RARE_PIG_PACKAGE.get(),
+			AllItems.RARE_FOX_PACKAGE.get());
+		event.registerItem(Capabilities.FluidHandler.ITEM,
+			(stack, context) -> new PowderSnowBucketFluidHandler(stack),
+			net.minecraft.world.item.Items.POWDER_SNOW_BUCKET);
 
-    }
+	}
 
-    private void addReloadListeners(final AddReloadListenerEvent event) {
-        event.addListener(BlazeCoolerFuelManager.INSTANCE);
-    }
+	private void addReloadListeners(final AddReloadListenerEvent event) {
+		event.addListener(BlazeCoolerFuelManager.INSTANCE);
+	}
 
-    private void hideDisabledItems(final BuildCreativeModeTabContentsEvent event) {
+	private void hideDisabledItems(final BuildCreativeModeTabContentsEvent event) {
         if (!Objects.equals(event.getTabKey(), FLUID_LOGISTICS_TAB) && !Objects.equals(event.getTabKey(), CreativeModeTabs.SEARCH)) {
-            return;
-        }
+			return;
+		}
 
-        removeCreativeItem(event, AllItems.FLUID_SCHEMATIC);
+		removeCreativeItem(event, AllItems.FLUID_SCHEMATIC);
 
-        for (FeatureItem fi : FEATURE_ITEMS) {
-            boolean shouldHide;
-            if (fi.feature == FeatureToggle.FLUID_HATCH) {
-                shouldHide = !FeatureToggle.isFluidHatchAdvertised();
-            } else {
-                shouldHide = !FeatureToggle.isEnabled(fi.feature);
-            }
-            if (shouldHide) {
-                removeCreativeItem(event, fi.item);
-            }
-        }
-    }
+		for (FeatureItem fi : FEATURE_ITEMS) {
+			boolean shouldHide;
+			if (fi.feature == FeatureToggle.FLUID_HATCH) {
+				shouldHide = !FeatureToggle.isFluidHatchAdvertised();
+			} else {
+				shouldHide = !FeatureToggle.isEnabled(fi.feature);
+			}
+			if (shouldHide) {
+				removeCreativeItem(event, fi.item);
+			}
+		}
+	}
 
-    private static void removeCreativeItem(
-            BuildCreativeModeTabContentsEvent event, Supplier<? extends ItemLike> item) {
-        ItemStack hiddenItem = event.getSearchEntries().stream()
-                .filter(stack -> stack.getItem() == item.get().asItem())
-                .findFirst()
-                .orElseGet(() -> event.getParentEntries().stream()
-                        .filter(stack -> stack.getItem() == item.get().asItem())
-                        .findFirst()
-                        .orElse(ItemStack.EMPTY));
+	private static void removeCreativeItem(
+		BuildCreativeModeTabContentsEvent event, Supplier<? extends ItemLike> item) {
+		ItemStack hiddenItem = event.getSearchEntries().stream()
+			.filter(stack -> stack.getItem() == item.get().asItem())
+			.findFirst()
+			.orElseGet(() -> event.getParentEntries().stream()
+				.filter(stack -> stack.getItem() == item.get().asItem())
+				.findFirst()
+				.orElse(ItemStack.EMPTY));
 
-        if (!hiddenItem.isEmpty()) {
-            event.remove(hiddenItem, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-        }
-    }
+		if (!hiddenItem.isEmpty()) {
+			event.remove(hiddenItem, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+		}
+	}
 
     record FeatureItem(ResourceLocation feature, Supplier<? extends ItemLike> item) {}
 
-    private static final FeatureItem[] FEATURE_ITEMS = {
-            new FeatureItem(FeatureToggle.FLUID_TRANSPORTER, AllBlocks.FLUID_TRANSPORTER),
-            new FeatureItem(FeatureToggle.SMART_FAUCET, AllBlocks.SMART_FAUCET),
-            new FeatureItem(FeatureToggle.FAUCET, AllBlocks.FAUCET),
-            new FeatureItem(FeatureToggle.MULTI_FLUID_TANK, AllBlocks.MULTI_FLUID_TANK),
-            new FeatureItem(FeatureToggle.HORIZONTAL_MULTI_FLUID_TANK, AllBlocks.HORIZONTAL_MULTI_FLUID_TANK),
-            new FeatureItem(FeatureToggle.MULTI_FLUID_ACCESS_PORT, AllBlocks.MULTI_FLUID_ACCESS_PORT),
-            new FeatureItem(FeatureToggle.FLUID_INVENTORY_ACCESS_PORT, AllBlocks.FLUID_INVENTORY_ACCESS_PORT),
-            new FeatureItem(FeatureToggle.SMART_HOPPER, AllBlocks.SMART_HOPPER),
-            new FeatureItem(FeatureToggle.FLUID_PUMP, AllBlocks.FLUID_PUMP),
-            new FeatureItem(FeatureToggle.INFINITE_FLUID_TANK, AllBlocks.INFINITE_FLUID_TANK),
-            new FeatureItem(FeatureToggle.WATER_CONTAINING_COPPER_CASING, AllBlocks.WATER_CONTAINING_COPPER_CASING),
-            new FeatureItem(FeatureToggle.COPPER_BASIN, AllBlocks.COPPER_BASIN),
-            new FeatureItem(FeatureToggle.MECHANICAL_FLUID_GUN, AllBlocks.MECHANICAL_FLUID_GUN),
-            new FeatureItem(FeatureToggle.HAND_POINTER, AllItems.HAND_POINTER),
-            new FeatureItem(FeatureToggle.COPPER_FROGPORT, AllBlocks.COPPER_FROGPORT),
-            new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllBlocks.FLUID_PACKAGER),
-            new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllItems.FLUID_PACKAGE),
-            new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllItems.FLUID_PACKAGE_EXPOSED),
-            new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllItems.FLUID_PACKAGE_WEATHERED),
-            new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllItems.FLUID_PACKAGE_OXIDIZED),
-            new FeatureItem(FeatureToggle.FLUID_REPACKAGER, AllBlocks.FLUID_REPACKAGER),
-            new FeatureItem(FeatureToggle.COPPER_BUCKET, AllItems.COPPER_BUCKET),
-            new FeatureItem(FeatureToggle.PHANTOM_CHAIN, AllItems.PHANTOM_CHAIN),
-            new FeatureItem(FeatureToggle.FLUID_HATCH, AllBlocks.FLUID_HATCH),
-            new FeatureItem(FeatureToggle.FLUID_FACTORY_GAUGE, AllItems.FLUID_FACTORY_GAUGE),
-            new FeatureItem(FeatureToggle.BLAZE_COOLER, AllBlocks.BLAZE_COOLER),
-            new FeatureItem(FeatureToggle.COPPER_SCHEMATICANNON, AllBlocks.COPPER_SCHEMATICANNON),
-            new FeatureItem(FeatureToggle.FLUID_SCHEMATIC, AllItems.EMPTY_FLUID_SCHEMATIC),
-            new FeatureItem(FeatureToggle.FROST_CAKE, AllItems.FROST_CAKE),
-            new FeatureItem(FeatureToggle.FLUID_SCHEMATIC, AllItems.FLUID_SCHEMATIC),
-    };
+	private static final FeatureItem[] FEATURE_ITEMS = {
+		new FeatureItem(FeatureToggle.FLUID_TRANSPORTER, AllBlocks.FLUID_TRANSPORTER),
+		new FeatureItem(FeatureToggle.SMART_FAUCET, AllBlocks.SMART_FAUCET),
+		new FeatureItem(FeatureToggle.FAUCET, AllBlocks.FAUCET),
+		new FeatureItem(FeatureToggle.MULTI_FLUID_TANK, AllBlocks.MULTI_FLUID_TANK),
+		new FeatureItem(FeatureToggle.HORIZONTAL_MULTI_FLUID_TANK, AllBlocks.HORIZONTAL_MULTI_FLUID_TANK),
+		new FeatureItem(FeatureToggle.MULTI_FLUID_ACCESS_PORT, AllBlocks.MULTI_FLUID_ACCESS_PORT),
+		new FeatureItem(FeatureToggle.FLUID_INVENTORY_ACCESS_PORT, AllBlocks.FLUID_INVENTORY_ACCESS_PORT),
+		new FeatureItem(FeatureToggle.SMART_HOPPER, AllBlocks.SMART_HOPPER),
+		new FeatureItem(FeatureToggle.FLUID_PUMP, AllBlocks.FLUID_PUMP),
+		new FeatureItem(FeatureToggle.INFINITE_FLUID_TANK, AllBlocks.INFINITE_FLUID_TANK),
+		new FeatureItem(FeatureToggle.WATER_CONTAINING_COPPER_CASING, AllBlocks.WATER_CONTAINING_COPPER_CASING),
+		new FeatureItem(FeatureToggle.COPPER_BASIN, AllBlocks.COPPER_BASIN),
+		new FeatureItem(FeatureToggle.MECHANICAL_FLUID_GUN, AllBlocks.MECHANICAL_FLUID_GUN),
+		new FeatureItem(FeatureToggle.HAND_POINTER, AllItems.HAND_POINTER),
+		new FeatureItem(FeatureToggle.COPPER_FROGPORT, AllBlocks.COPPER_FROGPORT),
+		new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllBlocks.FLUID_PACKAGER),
+		new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllItems.FLUID_PACKAGE),
+		new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllItems.FLUID_PACKAGE_EXPOSED),
+		new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllItems.FLUID_PACKAGE_WEATHERED),
+		new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllItems.FLUID_PACKAGE_OXIDIZED),
+		new FeatureItem(FeatureToggle.FLUID_REPACKAGER, AllBlocks.FLUID_REPACKAGER),
+		new FeatureItem(FeatureToggle.COPPER_BUCKET, AllItems.COPPER_BUCKET),
+		new FeatureItem(FeatureToggle.PHANTOM_CHAIN, AllItems.PHANTOM_CHAIN),
+		new FeatureItem(FeatureToggle.FLUID_HATCH, AllBlocks.FLUID_HATCH),
+		new FeatureItem(FeatureToggle.FLUID_FACTORY_GAUGE, AllItems.FLUID_FACTORY_GAUGE),
+		new FeatureItem(FeatureToggle.BLAZE_COOLER, AllBlocks.BLAZE_COOLER),
+		new FeatureItem(FeatureToggle.COPPER_SCHEMATICANNON, AllBlocks.COPPER_SCHEMATICANNON),
+		new FeatureItem(FeatureToggle.FLUID_SCHEMATIC, AllItems.EMPTY_FLUID_SCHEMATIC),
+		new FeatureItem(FeatureToggle.FROST_CAKE, AllItems.FROST_CAKE),
+		new FeatureItem(FeatureToggle.FLUID_SCHEMATIC, AllItems.FLUID_SCHEMATIC),
+	};
 
-    public static ResourceLocation asResource(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MODID, path);
-    }
+	public static ResourceLocation asResource(String path) {
+		return ResourceLocation.fromNamespaceAndPath(MODID, path);
+	}
 
-    @net.neoforged.bus.api.SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event) {
-        LOGGER.info("FluidLogistics server starting!");
-    }
+	@net.neoforged.bus.api.SubscribeEvent
+	public void onServerStarting(ServerStartingEvent event) {
+		LOGGER.info("FluidLogistics server starting!");
+	}
 
-    @net.neoforged.bus.api.SubscribeEvent
-    public void onServerStopped(ServerStoppedEvent event) {
-        FluidPumpNetworkUpdater.clearLoadedFluidPumpCounts();
-    }
+	@net.neoforged.bus.api.SubscribeEvent
+	public void onServerStopped(ServerStoppedEvent event) {
+		FluidPumpNetworkUpdater.clearLoadedFluidPumpCounts();
+	}
 
-    private static ItemStack createRandomFluidPackage(int amount) {
-        Fluid fluid = switch (ThreadLocalRandom.current().nextInt(5)) {
-            case 0 -> Fluids.WATER;
-            case 1 -> Fluids.LAVA;
-            case 2 -> AllFluids.HONEY.get().getSource();
-            case 3 -> AllFluids.CHOCOLATE.get().getSource();
-            default -> NeoForgeMod.MILK.get();
-        };
-        return FluidPackageContentHelper.createCanonicalPackage(new FluidStack(fluid, amount));
-    }
+	private static ItemStack createRandomFluidPackage(int amount) {
+		Fluid fluid = switch (ThreadLocalRandom.current().nextInt(5)) {
+		case 0 -> Fluids.WATER;
+		case 1 -> Fluids.LAVA;
+		case 2 -> AllFluids.HONEY.get().getSource();
+		case 3 -> AllFluids.CHOCOLATE.get().getSource();
+		default -> NeoForgeMod.MILK.get();
+		};
+		return FluidPackageContentHelper.createCanonicalPackage(new FluidStack(fluid, amount));
+	}
 }

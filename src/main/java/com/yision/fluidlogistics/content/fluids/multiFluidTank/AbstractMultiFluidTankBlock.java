@@ -34,13 +34,14 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.util.DeferredSoundType;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 public abstract class AbstractMultiFluidTankBlock<T extends AbstractMultiFluidTankBlockEntity<T>>
-		extends Block implements IWrenchable, IBE<T> {
+	extends Block implements IWrenchable, IBE<T> {
 
 	public static final VoxelShape CAMPFIRE_SMOKE_CLIP = Block.box(0, 4, 0, 16, 16, 16);
 
@@ -57,7 +58,7 @@ public abstract class AbstractMultiFluidTankBlock<T extends AbstractMultiFluidTa
 
 	@Override
 	public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos,
-			CollisionContext context) {
+		CollisionContext context) {
 		if (context == CollisionContext.empty())
 			return CAMPFIRE_SMOKE_CLIP;
 		return state.getShape(level, pos);
@@ -70,7 +71,7 @@ public abstract class AbstractMultiFluidTankBlock<T extends AbstractMultiFluidTa
 
 	@Override
 	public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
-			net.minecraft.world.level.LevelAccessor level, BlockPos currentPos, BlockPos neighborPos) {
+		net.minecraft.world.level.LevelAccessor level, BlockPos currentPos, BlockPos neighborPos) {
 		return state;
 	}
 
@@ -90,7 +91,8 @@ public abstract class AbstractMultiFluidTankBlock<T extends AbstractMultiFluidTa
 			if (!isOwnBlockEntity(be))
 				return;
 			world.removeBlockEntity(pos);
-			ConnectivityHandler.splitMulti((BlockEntity & com.simibubi.create.foundation.blockEntity.IMultiBlockEntityContainer) be);
+			ConnectivityHandler
+				.splitMulti((BlockEntity & com.simibubi.create.foundation.blockEntity.IMultiBlockEntityContainer) be);
 		}
 	}
 
@@ -104,13 +106,13 @@ public abstract class AbstractMultiFluidTankBlock<T extends AbstractMultiFluidTa
 	@Override
 	public int getAnalogOutputSignal(BlockState blockState, Level worldIn, BlockPos pos) {
 		return getBlockEntityOptional(worldIn, pos).map(AbstractMultiFluidTankBlockEntity::getControllerBE)
-				.map(AbstractMultiFluidTankBlockEntity::getComparatorOutput)
-				.orElse(0);
+			.map(AbstractMultiFluidTankBlockEntity::getComparatorOutput)
+			.orElse(0);
 	}
 
 	@Override
 	public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
-			Player player, InteractionHand hand, BlockHitResult hitResult) {
+		Player player, InteractionHand hand, BlockHitResult hitResult) {
 		boolean onClient = level.isClientSide;
 
 		if (stack.isEmpty())
@@ -135,7 +137,7 @@ public abstract class AbstractMultiFluidTankBlock<T extends AbstractMultiFluidTa
 
 		if (exchange == null) {
 			if (GenericItemEmptying.canItemBeEmptied(level, stack)
-					|| GenericItemFilling.canItemBeFilled(level, stack))
+				|| GenericItemFilling.canItemBeFilled(level, stack))
 				return ItemInteractionResult.SUCCESS;
 			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 		}
@@ -158,8 +160,8 @@ public abstract class AbstractMultiFluidTankBlock<T extends AbstractMultiFluidTa
 
 		if (soundevent != null && !onClient) {
 			float pitch = Mth.clamp(
-					1 - (1f * fluidInTank.getAmount() / (AbstractMultiFluidTankBlockEntity.getCapacityMultiplier() * 16)),
-					0, 1);
+				1 - (1f * fluidInTank.getAmount() / (AbstractMultiFluidTankBlockEntity.getCapacityMultiplier() * 16)),
+				0, 1);
 			pitch /= 1.5f;
 			pitch += .5f;
 			pitch += (level.random.nextFloat() - .5f) / 4f;
@@ -178,7 +180,8 @@ public abstract class AbstractMultiFluidTankBlock<T extends AbstractMultiFluidTa
 						fluidLevel = 1 - fluidLevel;
 
 					Vec3 vec = hitResult.getLocation();
-					vec = new Vec3(vec.x, controllerBE.getBlockPos().getY() + fluidLevel * particleHeight(controllerBE) + .25f, vec.z);
+					vec = new Vec3(vec.x,
+						controllerBE.getBlockPos().getY() + fluidLevel * particleHeight(controllerBE) + .25f, vec.z);
 					Vec3 motion = player.position().subtract(vec).scale(1 / 20f);
 					vec = vec.add(motion);
 					level.addParticle(blockParticleData, vec.x, vec.y, vec.z, motion.x, motion.y, motion.z);
@@ -195,9 +198,9 @@ public abstract class AbstractMultiFluidTankBlock<T extends AbstractMultiFluidTa
 
 	protected abstract float particleHeight(T controllerBE);
 
-	public static final SoundType SILENCED_METAL =
-			new DeferredSoundType(0.1F, 1.5F, () -> SoundEvents.METAL_BREAK, () -> SoundEvents.METAL_STEP,
-					() -> SoundEvents.METAL_PLACE, () -> SoundEvents.METAL_HIT, () -> SoundEvents.METAL_FALL);
+	public static final SoundType SILENCED_METAL = new DeferredSoundType(0.1F, 1.5F, () -> SoundEvents.METAL_BREAK,
+		() -> SoundEvents.METAL_STEP,
+		() -> SoundEvents.METAL_PLACE, () -> SoundEvents.METAL_HIT, () -> SoundEvents.METAL_FALL);
 
 	@Override
 	public SoundType getSoundType(BlockState state, LevelReader world, BlockPos pos, Entity entity) {

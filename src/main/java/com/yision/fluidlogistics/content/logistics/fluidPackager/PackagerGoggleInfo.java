@@ -10,7 +10,7 @@ import net.minecraft.network.chat.Component;
 public class PackagerGoggleInfo {
 
 	public static void addToTooltip(List<Component> tooltip, String address, boolean isManualOverride,
-									boolean isRepackager, boolean isLinkedToNetwork, int cachedPackageCount) {
+		boolean isRepackager, boolean isLinkedToNetwork, int cachedPackageCount) {
 		if (isLinkedToNetwork) {
 			CreateLang.builder()
 				.translate("goggles.packager_title")
@@ -67,7 +67,7 @@ public class PackagerGoggleInfo {
 	}
 
 	public static void addToTooltip(List<Component> tooltip, String address, boolean isManualOverride,
-									boolean isRepackager, boolean isLinkedToNetwork) {
+		boolean isRepackager, boolean isLinkedToNetwork) {
 		addToTooltip(tooltip, address, isManualOverride, isRepackager, isLinkedToNetwork, 0);
 	}
 
@@ -81,7 +81,7 @@ public class PackagerGoggleInfo {
 	}
 
 	public static void addFluidPackagerToTooltip(List<Component> tooltip, String address, boolean isManualOverride,
-												 boolean isLinkedToNetwork) {
+		boolean isLinkedToNetwork) {
 		if (isLinkedToNetwork) {
 			CreateLang.builder()
 				.translate("goggles.fluid_packager_title")
@@ -122,7 +122,7 @@ public class PackagerGoggleInfo {
 	}
 
 	public static void addFluidRepackagerToTooltip(List<Component> tooltip, String address,
-												   boolean isManualOverride, int cachedPackageCount) {
+		boolean isManualOverride, int cachedPackageCount) {
 		CreateLang.builder()
 			.translate("goggles.fluid_repackager_title")
 			.style(ChatFormatting.WHITE)
@@ -141,7 +141,7 @@ public class PackagerGoggleInfo {
 	}
 
 	public static void addFluidRepackagerToTooltip(List<Component> tooltip, String address,
-												   boolean isManualOverride) {
+		boolean isManualOverride) {
 		addFluidRepackagerToTooltip(tooltip, address, isManualOverride, 0);
 	}
 

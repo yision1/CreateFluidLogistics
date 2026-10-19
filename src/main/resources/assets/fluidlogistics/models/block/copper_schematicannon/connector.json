@@ -2,7 +2,7 @@
 	"credit": "Made with Blockbench",
 	"parent": "block/block",
 	"textures": {
-		"10": "fluidlogistics:block/copper_schematicannon/fluid_cannon_connector",
+		"10": "fluidlogistics:block/copper_schematicannon/copper_schematicannon_connector",
 		"particle": "block/spruce_log"
 	},
 	"elements": [

@@ -2,7 +2,6 @@ package com.yision.fluidlogistics.content.fluids.multiFluidTank;
 
 import java.util.List;
 
-
 import com.simibubi.create.api.connectivity.ConnectivityHandler;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.IMultiBlockEntityContainer;
@@ -12,7 +11,6 @@ import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 import net.createmod.catnip.animation.LerpedFloat;
 import net.createmod.catnip.nbt.NBTHelper;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
@@ -22,6 +20,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -29,7 +28,7 @@ import net.neoforged.neoforge.fluids.IFluidTank;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 public abstract class AbstractMultiFluidTankBlockEntity<T extends AbstractMultiFluidTankBlockEntity<T>>
-		extends SmartBlockEntity implements IHaveGoggleInformation, IMultiBlockEntityContainer.Fluid {
+	extends SmartBlockEntity implements IHaveGoggleInformation, IMultiBlockEntityContainer.Fluid {
 
 	protected static final int MAX_SIZE = 3;
 	protected static final int TANKS = 8;
@@ -90,7 +89,8 @@ public abstract class AbstractMultiFluidTankBlockEntity<T extends AbstractMultiF
 		BlockState state = getBlockState();
 		if (isOwnBlockState(state)) {
 			state = applyRemoveControllerShape(state);
-			getLevel().setBlock(worldPosition, state, Block.UPDATE_CLIENTS | Block.UPDATE_INVISIBLE | Block.UPDATE_KNOWN_SHAPE);
+			getLevel().setBlock(worldPosition, state,
+				Block.UPDATE_CLIENTS | Block.UPDATE_INVISIBLE | Block.UPDATE_KNOWN_SHAPE);
 		}
 
 		refreshCapability();
@@ -207,7 +207,7 @@ public abstract class AbstractMultiFluidTankBlockEntity<T extends AbstractMultiF
 
 	@SuppressWarnings("unchecked")
 	public static <T extends BlockEntity & IMultiBlockEntityContainer> T partAt(BlockEntityType<?> type,
-			net.minecraft.world.level.LevelAccessor level, BlockPos pos) {
+		net.minecraft.world.level.LevelAccessor level, BlockPos pos) {
 		BlockEntity be = level.getBlockEntity(pos);
 		if (be != null && be.getType() == type && !be.isRemoved())
 			return (T) be;
@@ -390,10 +390,8 @@ public abstract class AbstractMultiFluidTankBlockEntity<T extends AbstractMultiF
 			width = compound.getInt("Size");
 			height = compound.getInt("Height");
 			onWidthRestored();
-			tankInventory.setCapacity(getTotalTankSize() * getCapacityMultiplier());
 			tankInventory.load(registries, compound.getCompound("TankContent"));
-			if (tankInventory.getSpace() < 0)
-				tankInventory.drain(-tankInventory.getSpace(), IFluidHandler.FluidAction.EXECUTE);
+			applyFluidTankSize(getTotalTankSize());
 		}
 
 		updateCapability = true;
@@ -404,8 +402,8 @@ public abstract class AbstractMultiFluidTankBlockEntity<T extends AbstractMultiF
 		if (!clientPacket)
 			return;
 
-		boolean changeOfController =
-			controllerBefore == null ? controller != null : !controllerBefore.equals(controller);
+		boolean changeOfController = controllerBefore == null ? controller != null
+			: !controllerBefore.equals(controller);
 		if (changeOfController || prevSize != width || prevHeight != height) {
 			if (hasLevel())
 				level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 16);
@@ -501,7 +499,7 @@ public abstract class AbstractMultiFluidTankBlockEntity<T extends AbstractMultiF
 	}
 
 	protected void registerCapability(RegisterCapabilitiesEvent event,
-			BlockEntityType<? extends AbstractMultiFluidTankBlockEntity<?>> type) {
+		BlockEntityType<? extends AbstractMultiFluidTankBlockEntity<?>> type) {
 		event.registerBlockEntity(
 			Capabilities.FluidHandler.BLOCK,
 			type,
@@ -510,7 +508,6 @@ public abstract class AbstractMultiFluidTankBlockEntity<T extends AbstractMultiF
 				if (tank.fluidCapability == null)
 					tank.refreshCapability();
 				return tank.fluidCapability;
-			}
-		);
+			});
 	}
 }

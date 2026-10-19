@@ -3,9 +3,11 @@ package com.yision.fluidlogistics.content.logistics.smartHopper;
 import com.simibubi.create.foundation.data.SpecialBlockStateGen;
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
+
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 
 public class SmartHopperGenerator extends SpecialBlockStateGen {
@@ -30,8 +32,10 @@ public class SmartHopperGenerator extends SpecialBlockStateGen {
 		Direction facing = state.getValue(SmartHopperBlock.FACING);
 		boolean powered = state.getValue(SmartHopperBlock.POWERED);
 		if (facing == Direction.DOWN) {
-			return prov.models().getExistingFile(prov.modLoc("block/smart_hopper/fluid_hopper" + (powered ? "_power" : "")));
+			return prov.models()
+				.getExistingFile(prov.modLoc("block/smart_hopper/block" + (powered ? "_powered" : "")));
 		}
-		return prov.models().getExistingFile(prov.modLoc("block/smart_hopper/fluid_hopper_side" + (powered ? "_power" : "")));
+		return prov.models()
+			.getExistingFile(prov.modLoc("block/smart_hopper/block_side" + (powered ? "_powered" : "")));
 	}
 }

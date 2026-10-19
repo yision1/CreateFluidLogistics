@@ -24,15 +24,7 @@ import net.minecraft.world.level.block.state.BlockState;
 @Mixin(value = FluidPropagator.class, remap = false)
 public class FluidPropagatorMixin {
 
-	@Inject(
-		method = "propagateChangedPipe",
-		at = @At(
-			value = "INVOKE",
-			target = "Lcom/simibubi/create/content/fluids/FluidTransportBehaviour;wipePressure()V",
-			remap = false
-		),
-		remap = false
-	)
+	@Inject(method = "propagateChangedPipe", at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/fluids/FluidTransportBehaviour;wipePressure()V", remap = false), remap = false)
 	private static void fluidlogistics$recordCreateTraversal(LevelAccessor world, BlockPos pipePos,
 		BlockState pipeState, CallbackInfo ci, @Local Pair<Integer, BlockPos> pair,
 		@Local FluidTransportBehaviour pipe,
@@ -47,15 +39,7 @@ public class FluidPropagatorMixin {
 			context.recordCreatePipe(pair.getSecond(), pair.getFirst(), pipe);
 	}
 
-	@ModifyExpressionValue(
-		method = "propagateChangedPipe",
-		at = @At(
-			value = "INVOKE",
-			target = "Lcom/simibubi/create/content/fluids/FluidTransportBehaviour;hasAnyPressure()Z",
-			remap = false
-		),
-		remap = false
-	)
+	@ModifyExpressionValue(method = "propagateChangedPipe", at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/fluids/FluidTransportBehaviour;hasAnyPressure()Z", remap = false), remap = false)
 	private static boolean fluidlogistics$captureFluidPumpFrontier(boolean original, LevelAccessor world,
 		BlockPos pipePos, BlockState pipeState, @Local(ordinal = 2) BlockPos target,
 		@Local(ordinal = 2) BlockState targetState, @Local(ordinal = 1) FluidTransportBehaviour targetPipe,

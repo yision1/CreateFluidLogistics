@@ -11,16 +11,16 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class MultiFluidTankMountedStorageType extends MountedFluidStorageType<MultiFluidTankMountedStorage> {
-    public MultiFluidTankMountedStorageType() {
-        super(MultiFluidTankMountedStorage.CODEC);
-    }
+	public MultiFluidTankMountedStorageType() {
+		super(MultiFluidTankMountedStorage.CODEC);
+	}
 
-    @Override
-    @Nullable
-    public MultiFluidTankMountedStorage mount(Level level, BlockState state, BlockPos pos, @Nullable BlockEntity be) {
-        if (be instanceof MultiFluidTankBlockEntity tank && tank.isController()) {
-            return MultiFluidTankMountedStorage.fromTank(tank);
-        }
-        return null;
-    }
+	@Override
+	@Nullable
+	public MultiFluidTankMountedStorage mount(Level level, BlockState state, BlockPos pos, @Nullable BlockEntity be) {
+		if (be instanceof MultiFluidTankBlockEntity tank && tank.isController()) {
+			return MultiFluidTankMountedStorage.fromTank(tank);
+		}
+		return null;
+	}
 }

@@ -3,53 +3,53 @@ package com.yision.fluidlogistics.content.fluids.multiFluidTank;
 import java.util.Arrays;
 
 import com.simibubi.create.foundation.block.connected.CTSpriteShiftEntry;
+import com.yision.fluidlogistics.registry.AllSpriteShifts;
 
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
 
-import com.yision.fluidlogistics.registry.AllSpriteShifts;
-
 public class MultiFluidTankModel extends AbstractMultiFluidTankModel {
 
-    public static MultiFluidTankModel standard(BakedModel originalModel) {
-        return new MultiFluidTankModel(originalModel, AllSpriteShifts.MULTI_FLUID_TANK, AllSpriteShifts.MULTI_FLUID_TANK_TOP,
-                AllSpriteShifts.MULTI_FLUID_TANK_INNER);
-    }
+	public static MultiFluidTankModel standard(BakedModel originalModel) {
+		return new MultiFluidTankModel(originalModel, AllSpriteShifts.MULTI_FLUID_TANK,
+			AllSpriteShifts.MULTI_FLUID_TANK_TOP,
+			AllSpriteShifts.MULTI_FLUID_TANK_INNER);
+	}
 
-    private MultiFluidTankModel(BakedModel originalModel, CTSpriteShiftEntry side, CTSpriteShiftEntry top,
-                                CTSpriteShiftEntry inner) {
-        super(originalModel, side, top, inner, new MultiFluidTankCTBehaviour(side, top, inner));
-    }
+	private MultiFluidTankModel(BakedModel originalModel, CTSpriteShiftEntry side, CTSpriteShiftEntry top,
+		CTSpriteShiftEntry inner) {
+		super(originalModel, side, top, inner, new MultiFluidTankCTBehaviour(side, top, inner));
+	}
 
-    @Override
-    protected CullData createCullData() {
-        return new CullData();
-    }
+	@Override
+	protected CullData createCullData() {
+		return new CullData();
+	}
 
-    @Override
-    protected boolean shouldCheck(Direction direction, BlockState state) {
-        return direction.getAxis().isHorizontal();
-    }
+	@Override
+	protected boolean shouldCheck(Direction direction, BlockState state) {
+		return direction.getAxis().isHorizontal();
+	}
 
-    private static final class CullData extends AbstractMultiFluidTankModel.CullData {
-        CullData() {
-            super(4);
-            Arrays.fill(culledFaces, false);
-        }
+	private static final class CullData extends AbstractMultiFluidTankModel.CullData {
+		CullData() {
+			super(4);
+			Arrays.fill(culledFaces, false);
+		}
 
-        @Override
-        public void setCulled(Direction face, boolean cull) {
-            if (face.getAxis().isVertical())
-                return;
-            culledFaces[face.get2DDataValue()] = cull;
-        }
+		@Override
+		public void setCulled(Direction face, boolean cull) {
+			if (face.getAxis().isVertical())
+				return;
+			culledFaces[face.get2DDataValue()] = cull;
+		}
 
-        @Override
-        public boolean isCulled(Direction face) {
-            if (face.getAxis().isVertical())
-                return false;
-            return culledFaces[face.get2DDataValue()];
-        }
-    }
+		@Override
+		public boolean isCulled(Direction face) {
+			if (face.getAxis().isVertical())
+				return false;
+			return culledFaces[face.get2DDataValue()];
+		}
+	}
 }

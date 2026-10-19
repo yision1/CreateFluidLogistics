@@ -7,6 +7,6 @@ import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 
 @Mixin(CreativeModeInventoryScreen.ItemPickerMenu.class)
 public interface CreativeModeItemPickerMenuAccessor {
-    @Invoker("getRowIndexForScroll")
-    int fluidLogistics$getRowIndexForScroll(float scrollOffset);
+	@Invoker("getRowIndexForScroll")
+	int fluidLogistics$getRowIndexForScroll(float scrollOffset);
 }

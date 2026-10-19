@@ -11,11 +11,11 @@ import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 import com.simibubi.create.foundation.ponder.element.BeltItemElement;
 import com.simibubi.create.infrastructure.ponder.scenes.highLogistics.PonderHilo;
 import com.yision.fluidlogistics.api.packager.PackageResources;
-import com.yision.fluidlogistics.content.logistics.fluidPackager.repackager.FluidRepackagerBlockEntity;
-import com.yision.fluidlogistics.config.Config;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageContentHelper;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageItem;
+import com.yision.fluidlogistics.content.logistics.fluidPackager.repackager.FluidRepackagerBlockEntity;
 import com.yision.fluidlogistics.content.processing.copperBasin.CopperBasinCapacity;
+import com.yision.fluidlogistics.infrastructure.config.Config;
 import com.yision.fluidlogistics.registry.AllBlocks;
 
 import net.createmod.catnip.data.IntAttached;
@@ -32,6 +32,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluids;
+
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
@@ -107,9 +108,9 @@ public final class FluidRepackagerScenes {
 		Selection thirdStageFunnels = util.select().position(firstInputFunnelPos)
 			.add(util.select().position(outputFunnelPos));
 
-		FluidStack water = new FluidStack(Fluids.WATER.getSource(), Math.min(FluidType.BUCKET_VOLUME, Config.getFluidPerPackage()));
-		FluidStack fullBasinWater =
-			new FluidStack(Fluids.WATER.getSource(), CopperBasinCapacity.SLOT_CAPACITY);
+		FluidStack water = new FluidStack(Fluids.WATER.getSource(),
+			Math.min(FluidType.BUCKET_VOLUME, Config.getFluidPerPackage()));
+		FluidStack fullBasinWater = new FluidStack(Fluids.WATER.getSource(), CopperBasinCapacity.SLOT_CAPACITY);
 		ItemStack saplings = new ItemStack(Items.OAK_SAPLING, 16);
 
 		ItemStack fluidPackage = com.yision.fluidlogistics.registry.AllItems.FLUID_PACKAGE.asStack();
@@ -205,14 +206,15 @@ public final class FluidRepackagerScenes {
 		scene.rotateCameraY(15);
 		scene.world().multiplyKineticSpeed(util.select().everywhere(), 2);
 		scene.world().flapFunnel(outputFunnelPos, true);
-		ElementLink<BeltItemElement> mixedPackageOnBelt =
-			scene.world().createItemOnBelt(outputFunnelPos.below(), Direction.NORTH, mixedPackage);
+		ElementLink<BeltItemElement> mixedPackageOnBelt = scene.world().createItemOnBelt(outputFunnelPos.below(),
+			Direction.NORTH, mixedPackage);
 		scene.idle(12);
 		scene.world().stallBeltItem(mixedPackageOnBelt, true);
 		scene.idle(5);
 
 		scene.overlay().showOutlineWithText(unpackager, 100)
-			.text("The Unpackager can now split a package containing both item and fluid cargo into the appropriate container")
+			.text(
+				"The Unpackager can now split a package containing both item and fluid cargo into the appropriate container")
 			.attachKeyFrame()
 			.pointAt(util.vector().centerOf(unpackagerPos))
 			.placeNearTarget();
@@ -292,7 +294,8 @@ public final class FluidRepackagerScenes {
 		scene.idle(20);
 
 		scene.overlay().showOutlineWithText(unpackager, 120)
-			.text("Packages that cannot be fully unpacked will be cached in the Unpackager until the corresponding container can fully unpack them")
+			.text(
+				"Packages that cannot be fully unpacked will be cached in the Unpackager until the corresponding container can fully unpack them")
 			.attachKeyFrame()
 			.pointAt(util.vector().centerOf(unpackagerPos))
 			.placeNearTarget();
@@ -393,7 +396,7 @@ public final class FluidRepackagerScenes {
 	}
 
 	private static void setStalledPackage(CreateSceneBuilder scene, Selection unpackager,
-			ItemStack packageStack) {
+		ItemStack packageStack) {
 		scene.world().modifyBlockEntityNBT(unpackager, FluidRepackagerBlockEntity.class, nbt -> {
 			ListTag stalledPackages = new ListTag();
 			if (!packageStack.isEmpty()) {
@@ -405,7 +408,7 @@ public final class FluidRepackagerScenes {
 	}
 
 	private static void unpackPackageContents(CreateSceneBuilder scene, BlockPos basinPos,
-			List<ItemStack> splitPackages) {
+		List<ItemStack> splitPackages) {
 		for (ItemStack splitPackage : splitPackages) {
 			if (FluidPackageItem.isFluidPackage(splitPackage)) {
 				FluidStack fluid = FluidPackageContentHelper.getSingleContainedFluid(splitPackage);

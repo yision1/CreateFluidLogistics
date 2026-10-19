@@ -30,59 +30,46 @@ import net.minecraft.world.level.block.state.BlockState;
 @Mixin(PackageEntity.class)
 public abstract class PackageEntityMixin implements IHaveGoggleInformation {
 
-    @Shadow
-    public ItemStack box;
+	@Shadow
+	public ItemStack box;
 
-    @Unique
-    private Set<ResourceLocation> fluidlogistics$consumedResourceTypes = Set.of();
+	@Unique
+	private Set<ResourceLocation> fluidlogistics$consumedResourceTypes = Set.of();
 
-    @Override
-    public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-        return PackageResourceGoggleDispatcher.append(box, tooltip, isPlayerSneaking);
-    }
+	@Override
+	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
+		return PackageResourceGoggleDispatcher.append(box, tooltip, isPlayerSneaking);
+	}
 
-    @Inject(
-        method = "onInsideBlock",
-        at = @At(
-            value = "INVOKE",
-            target = "Lcom/simibubi/create/content/logistics/box/PackageEntity;destroy(Lnet/minecraft/world/damagesource/DamageSource;)V"
-        ),
-        cancellable = true
-    )
-    private void fluidlogistics$onWaterDestroy(BlockState state, CallbackInfo ci) {
-        if (PackageResources.isBootstrapped() && PackageResources.survivesWater(box)) {
-            ci.cancel();
-        }
-    }
+	@Inject(method = "onInsideBlock", at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/logistics/box/PackageEntity;destroy(Lnet/minecraft/world/damagesource/DamageSource;)V"), cancellable = true)
+	private void fluidlogistics$onWaterDestroy(BlockState state, CallbackInfo ci) {
+		if (PackageResources.isBootstrapped() && PackageResources.survivesWater(box)) {
+			ci.cancel();
+		}
+	}
 
-    @Inject(method = "dropAllDeathLoot", at = @At("HEAD"))
-    private void fluidlogistics$resetDroppedFluidSelection(ServerLevel level, DamageSource damageSource,
-            CallbackInfo ci) {
-        fluidlogistics$consumedResourceTypes = PackageResources.isBootstrapped()
-                ? PackageResources.handleDestroyed(new PackageDestroyContext(
-                        level, (PackageEntity) (Object) this, damageSource, box))
-                : Set.of();
-    }
+	@Inject(method = "dropAllDeathLoot", at = @At("HEAD"))
+	private void fluidlogistics$resetDroppedFluidSelection(ServerLevel level, DamageSource damageSource,
+		CallbackInfo ci) {
+		fluidlogistics$consumedResourceTypes = PackageResources.isBootstrapped()
+			? PackageResources.handleDestroyed(new PackageDestroyContext(
+				level, (PackageEntity) (Object) this, damageSource, box))
+			: Set.of();
+	}
 
-    @WrapOperation(
-        method = "dropAllDeathLoot",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/server/level/ServerLevel;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z"
-        )
-    )
-    private boolean fluidlogistics$dropFluidAwarePackageTank(ServerLevel level, Entity entity,
-            Operation<Boolean> original) {
-        if (!(entity instanceof ItemEntity itemEntity)) {
-            return original.call(level, entity);
-        }
-        if (!PackageResources.isBootstrapped()) {
-            return original.call(level, entity);
-        }
+	@WrapOperation(method = "dropAllDeathLoot", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z"))
+	private boolean fluidlogistics$dropFluidAwarePackageTank(ServerLevel level, Entity entity,
+		Operation<Boolean> original) {
+		if (!(entity instanceof ItemEntity itemEntity)) {
+			return original.call(level, entity);
+		}
+		if (!PackageResources.isBootstrapped()) {
+			return original.call(level, entity);
+		}
 
-        return PackageResources.findType(itemEntity.getItem())
-                .filter(type -> fluidlogistics$consumedResourceTypes.contains(type.id()))
-                .isPresent()
-                || original.call(level, entity);
-    }
+		return PackageResources.findType(itemEntity.getItem())
+			.filter(type -> fluidlogistics$consumedResourceTypes.contains(type.id()))
+			.isPresent()
+			|| original.call(level, entity);
+	}
 }

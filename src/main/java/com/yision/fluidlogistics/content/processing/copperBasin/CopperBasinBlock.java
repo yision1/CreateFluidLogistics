@@ -10,8 +10,8 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class CopperBasinBlock extends BasinBlock {
 
-	public CopperBasinBlock(Properties p_i48440_1) {
-		super(p_i48440_1);
+	public CopperBasinBlock(Properties properties) {
+		super(properties);
 	}
 
 	@Override

@@ -1,5 +1,9 @@
 package com.yision.fluidlogistics.content.logistics.smartHopper;
 
+import java.util.List;
+
+import org.jetbrains.annotations.Nullable;
+
 import com.simibubi.create.content.kinetics.belt.behaviour.DirectBeltInputBehaviour;
 import com.simibubi.create.content.kinetics.belt.behaviour.TransportedItemStackHandlerBehaviour;
 import com.simibubi.create.content.kinetics.belt.behaviour.TransportedItemStackHandlerBehaviour.TransportedResult;
@@ -10,8 +14,9 @@ import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringB
 import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTankBehaviour;
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.yision.fluidlogistics.content.fluids.infiniteWater.InfiniteWaterSource;
+import com.yision.fluidlogistics.foundation.capability.SidedCapabilityCache;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
-import com.yision.fluidlogistics.util.SidedCapabilityCache;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -20,6 +25,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -29,9 +35,6 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 public class SmartHopperBlockEntity extends SmartBlockEntity {
 
@@ -57,10 +60,10 @@ public class SmartHopperBlockEntity extends SmartBlockEntity {
 	private FilteringBehaviour filtering;
 	private int transferCooldown;
 
-	private final SidedCapabilityCache<IItemHandler> itemCapCaches =
-		new SidedCapabilityCache<>(Capabilities.ItemHandler.BLOCK);
-	private final SidedCapabilityCache<IFluidHandler> fluidCapCaches =
-		new SidedCapabilityCache<>(Capabilities.FluidHandler.BLOCK);
+	private final SidedCapabilityCache<IItemHandler> itemCapCaches = new SidedCapabilityCache<>(
+		Capabilities.ItemHandler.BLOCK);
+	private final SidedCapabilityCache<IFluidHandler> fluidCapCaches = new SidedCapabilityCache<>(
+		Capabilities.FluidHandler.BLOCK);
 
 	public SmartHopperBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
@@ -171,8 +174,8 @@ public class SmartHopperBlockEntity extends SmartBlockEntity {
 
 			ItemStack toExtract = stackInSlot.copyWithCount(ITEM_TRANSFER_AMOUNT);
 
-			DirectBeltInputBehaviour beltBehaviour =
-				BlockEntityBehaviour.get(level, outputPos, DirectBeltInputBehaviour.TYPE);
+			DirectBeltInputBehaviour beltBehaviour = BlockEntityBehaviour.get(level, outputPos,
+				DirectBeltInputBehaviour.TYPE);
 			if (beltBehaviour != null) {
 				if (!beltBehaviour.canInsertFromSide(facing)) {
 					continue;
@@ -218,8 +221,8 @@ public class SmartHopperBlockEntity extends SmartBlockEntity {
 
 	private boolean pullItems() {
 		BlockPos abovePos = worldPosition.above();
-		TransportedItemStackHandlerBehaviour beltItems =
-			BlockEntityBehaviour.get(level, abovePos, TransportedItemStackHandlerBehaviour.TYPE);
+		TransportedItemStackHandlerBehaviour beltItems = BlockEntityBehaviour.get(level, abovePos,
+			TransportedItemStackHandlerBehaviour.TYPE);
 		if (beltItems != null) {
 			return pullItemsFromBelt(beltItems);
 		}
@@ -267,7 +270,7 @@ public class SmartHopperBlockEntity extends SmartBlockEntity {
 	}
 
 	private boolean pullItemsFromBelt(TransportedItemStackHandlerBehaviour beltItems) {
-		boolean[] transferred = {false};
+		boolean[] transferred = { false };
 		beltItems.handleCenteredProcessingOnAllItems(.51f, transported -> {
 			if (transferred[0]) {
 				return TransportedResult.doNothing();
@@ -450,6 +453,8 @@ public class SmartHopperBlockEntity extends SmartBlockEntity {
 
 		@Override
 		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+			if (!isItemValid(slot, stack))
+				return stack;
 			return inventory.insertItem(slot, stack, simulate);
 		}
 

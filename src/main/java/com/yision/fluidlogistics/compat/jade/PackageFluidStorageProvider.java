@@ -8,14 +8,12 @@ import org.jetbrains.annotations.Nullable;
 import com.simibubi.create.content.logistics.box.PackageEntity;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.yision.fluidlogistics.FluidLogistics;
-import com.yision.fluidlogistics.config.Config;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.CompressedTankItem;
+import com.yision.fluidlogistics.infrastructure.config.Config;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.items.ItemStackHandler;
 import snownee.jade.api.Accessor;
 import snownee.jade.api.EntityAccessor;
 import snownee.jade.api.fluid.JadeFluidObject;
@@ -25,7 +23,11 @@ import snownee.jade.api.view.IClientExtensionProvider;
 import snownee.jade.api.view.IServerExtensionProvider;
 import snownee.jade.api.view.ViewGroup;
 
-public enum PackageFluidStorageProvider implements IServerExtensionProvider<CompoundTag>, IClientExtensionProvider<CompoundTag, FluidView> {
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.items.ItemStackHandler;
+
+public enum PackageFluidStorageProvider
+	implements IServerExtensionProvider<CompoundTag>, IClientExtensionProvider<CompoundTag, FluidView> {
 	INSTANCE;
 
 	private static final ResourceLocation UID = FluidLogistics.asResource("package_fluid_storage");
@@ -72,8 +74,7 @@ public enum PackageFluidStorageProvider implements IServerExtensionProvider<Comp
 			JadeFluidObject fluidObject = JadeFluidObject.of(
 				fluid.getFluid(),
 				fluid.getAmount(),
-				fluid.getComponentsPatch()
-			);
+				fluid.getComponentsPatch());
 			views.add(FluidView.writeDefault(fluidObject, capacity));
 		}
 

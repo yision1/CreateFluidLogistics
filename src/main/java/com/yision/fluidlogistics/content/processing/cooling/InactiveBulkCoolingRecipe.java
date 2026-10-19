@@ -8,12 +8,12 @@ import com.yision.fluidlogistics.registry.AllFluidLogisticsRecipeTypes;
 @ParametersAreNonnullByDefault
 public class InactiveBulkCoolingRecipe extends BulkCoolingRecipe {
 
-    public InactiveBulkCoolingRecipe(ProcessingRecipeParams params) {
-        super(AllFluidLogisticsRecipeTypes.INACTIVE_BULK_COOLING, params);
-    }
+	public InactiveBulkCoolingRecipe(ProcessingRecipeParams params) {
+		super(AllFluidLogisticsRecipeTypes.INACTIVE_BULK_COOLING, params);
+	}
 
-    @Override
-    public boolean requiresActiveCooler() {
-        return false;
-    }
+	@Override
+	public boolean requiresActiveCooler() {
+		return false;
+	}
 }

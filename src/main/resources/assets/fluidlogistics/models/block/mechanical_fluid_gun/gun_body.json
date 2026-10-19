@@ -3,8 +3,8 @@
 	"credit": "Made with Blockbench",
 	"textures": {
 		"0": "fluidlogistics:block/mechanical_fluid_gun/gun",
-		"1": "fluidlogistics:block/mechanical_fluid_gun/mechanical_water_gun",
-		"particle": "fluidlogistics:block/mechanical_fluid_gun/mechanical_water_gun"
+		"1": "fluidlogistics:block/mechanical_fluid_gun/mechanical_fluid_gun",
+		"particle": "fluidlogistics:block/mechanical_fluid_gun/mechanical_fluid_gun"
 	},
 	"elements": [
 		{

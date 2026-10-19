@@ -1,15 +1,17 @@
 package com.yision.fluidlogistics.content.equipment.mechanicalFluidGun;
 
+import org.jetbrains.annotations.Nullable;
+
 import com.simibubi.create.content.contraptions.StructureTransform;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import org.jetbrains.annotations.Nullable;
 
 public record MechanicalFluidGunTargetConfig(BlockPos relativePos, @Nullable Direction face) {
 
 	public static MechanicalFluidGunTargetConfig fromAbsolute(BlockPos gunPos, BlockPos targetPos,
-															  @Nullable Direction face) {
+		@Nullable Direction face) {
 		return new MechanicalFluidGunTargetConfig(targetPos.subtract(gunPos), face);
 	}
 

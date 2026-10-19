@@ -3,10 +3,10 @@ package com.yision.fluidlogistics.content.fluids.fluidPump;
 import com.simibubi.create.api.contraption.transformable.TransformableBlock;
 import com.simibubi.create.content.contraptions.StructureTransform;
 import com.simibubi.create.content.fluids.FluidPropagator;
-import com.simibubi.create.content.kinetics.base.IRotate;
 import com.simibubi.create.content.fluids.pipes.FluidPipeBlock;
 import com.simibubi.create.content.fluids.pump.PumpBlock;
 import com.simibubi.create.content.kinetics.base.DirectionalAxisKineticBlock;
+import com.simibubi.create.content.kinetics.base.IRotate;
 import com.simibubi.create.foundation.block.ProperWaterloggedBlock;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
 
@@ -32,41 +32,41 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-
 public class FluidPumpBlock extends PumpBlock implements TransformableBlock {
 
 	public static final BooleanProperty TOP_NEGATIVE = BooleanProperty.create("top_negative");
 
 	private static final double[][] HORIZONTAL_MODEL_BOXES = {
-		{2, 2, 2, 14, 14, 14},
-		{2, 2, 13, 14, 14, 14},
-		{3, 0, 3, 13, 2, 13},
-		{3, 14, 3, 13, 16, 13},
-		{3, 1, 0, 6, 15, 2},
-		{10, 1, 0, 13, 15, 2},
-		{4, 4, 14, 12, 12, 15},
+		{ 2, 2, 2, 14, 14, 14 },
+		{ 2, 2, 13, 14, 14, 14 },
+		{ 3, 0, 3, 13, 2, 13 },
+		{ 3, 14, 3, 13, 16, 13 },
+		{ 3, 1, 0, 6, 15, 2 },
+		{ 10, 1, 0, 13, 15, 2 },
+		{ 4, 4, 14, 12, 12, 15 },
 	};
 	private static final double[][] VERTICAL_MODEL_BOXES = {
-		{2, 2, 2, 14, 14, 14},
-		{2, 2, 13, 14, 14, 14},
-		{14, 3, 3, 16, 13, 13},
-		{0, 3, 3, 2, 13, 13},
-		{1, 3, 0, 15, 6, 2},
-		{1, 10, 0, 15, 13, 2},
-		{4, 4, 14, 12, 12, 15},
+		{ 2, 2, 2, 14, 14, 14 },
+		{ 2, 2, 13, 14, 14, 14 },
+		{ 14, 3, 3, 16, 13, 13 },
+		{ 0, 3, 3, 2, 13, 13 },
+		{ 1, 3, 0, 15, 6, 2 },
+		{ 1, 10, 0, 15, 13, 2 },
+		{ 4, 4, 14, 12, 12, 15 },
 	};
-	private static final double[] SHAFT_BOX = {6, 6, 0, 10, 10, 16};
+	private static final double[] SHAFT_BOX = { 6, 6, 0, 10, 10, 16 };
 	private static final VoxelShape[][] SHAPES = makeShapes();
 
-	public FluidPumpBlock(Properties p_i48415_1_) {
-		super(p_i48415_1_);
+	public FluidPumpBlock(Properties properties) {
+		super(properties);
 		registerDefaultState(defaultBlockState()
 			.setValue(DirectionalAxisKineticBlock.AXIS_ALONG_FIRST_COORDINATE, false)
 			.setValue(TOP_NEGATIVE, false));
 	}
 
 	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<net.minecraft.world.level.block.Block, BlockState> builder) {
+	protected void createBlockStateDefinition(
+		StateDefinition.Builder<net.minecraft.world.level.block.Block, BlockState> builder) {
 		super.createBlockStateDefinition(builder);
 		builder.add(DirectionalAxisKineticBlock.AXIS_ALONG_FIRST_COORDINATE);
 		builder.add(TOP_NEGATIVE);
@@ -95,7 +95,8 @@ public class FluidPumpBlock extends PumpBlock implements TransformableBlock {
 	@Override
 	public BlockState rotate(BlockState state, Rotation rotation) {
 		Direction output = rotation.rotate(state.getValue(FACING));
-		Axis shaft = rotation.rotate(Direction.fromAxisAndDirection(getShaftAxis(state), AxisDirection.POSITIVE)).getAxis();
+		Axis shaft = rotation.rotate(Direction.fromAxisAndDirection(getShaftAxis(state), AxisDirection.POSITIVE))
+			.getAxis();
 		return withOutputAndShaft(state, output, shaft)
 			.setValue(TOP_NEGATIVE, rotation.rotate(getModelTop(state)).getAxisDirection() == AxisDirection.NEGATIVE);
 	}
@@ -111,9 +112,11 @@ public class FluidPumpBlock extends PumpBlock implements TransformableBlock {
 		if (transform.mirror != null)
 			state = mirror(state, transform.mirror);
 		Direction output = transform.rotateFacing(state.getValue(FACING));
-		Axis shaft = transform.rotateFacing(Direction.fromAxisAndDirection(getShaftAxis(state), AxisDirection.POSITIVE)).getAxis();
+		Axis shaft = transform.rotateFacing(Direction.fromAxisAndDirection(getShaftAxis(state), AxisDirection.POSITIVE))
+			.getAxis();
 		return withOutputAndShaft(state, output, shaft)
-			.setValue(TOP_NEGATIVE, transform.rotateFacing(getModelTop(state)).getAxisDirection() == AxisDirection.NEGATIVE);
+			.setValue(TOP_NEGATIVE,
+				transform.rotateFacing(getModelTop(state)).getAxisDirection() == AxisDirection.NEGATIVE);
 	}
 
 	@Override
@@ -303,10 +306,10 @@ public class FluidPumpBlock extends PumpBlock implements TransformableBlock {
 				boolean vertical = isVerticalModel(direction, alongFirst);
 				int xRot = getXRotation(direction);
 				int yRot = getYRotation(direction, alongFirst);
-				shapes[alongFirst ? 1 : 0][direction.ordinal()] =
-					Shapes.or(makeShape(vertical ? VERTICAL_MODEL_BOXES : HORIZONTAL_MODEL_BOXES, xRot, yRot),
+				shapes[alongFirst ? 1 : 0][direction.ordinal()] = Shapes
+					.or(makeShape(vertical ? VERTICAL_MODEL_BOXES : HORIZONTAL_MODEL_BOXES, xRot, yRot),
 						makeShaftShape(getShaftAxis(direction.getAxis(), alongFirst)))
-						.optimize();
+					.optimize();
 			}
 		}
 		return shapes;
@@ -321,9 +324,9 @@ public class FluidPumpBlock extends PumpBlock implements TransformableBlock {
 
 	private static VoxelShape makeShaftShape(Axis axis) {
 		return switch (axis) {
-			case X -> rotateBox(SHAFT_BOX, 0, 90);
-			case Y -> rotateBox(SHAFT_BOX, 90, 0);
-			case Z -> Block.box(SHAFT_BOX[0], SHAFT_BOX[1], SHAFT_BOX[2], SHAFT_BOX[3], SHAFT_BOX[4], SHAFT_BOX[5]);
+		case X -> rotateBox(SHAFT_BOX, 0, 90);
+		case Y -> rotateBox(SHAFT_BOX, 90, 0);
+		case Z -> Block.box(SHAFT_BOX[0], SHAFT_BOX[1], SHAFT_BOX[2], SHAFT_BOX[3], SHAFT_BOX[4], SHAFT_BOX[5]);
 		};
 	}
 
@@ -366,10 +369,10 @@ public class FluidPumpBlock extends PumpBlock implements TransformableBlock {
 		double y = point.y - 8;
 		double z = point.z - 8;
 		return switch (normalized) {
-			case 90 -> new Vec3(x + 8, z + 8, -y + 8);
-			case 180 -> new Vec3(x + 8, -y + 8, -z + 8);
-			case 270 -> new Vec3(x + 8, -z + 8, y + 8);
-			default -> point;
+		case 90 -> new Vec3(x + 8, z + 8, -y + 8);
+		case 180 -> new Vec3(x + 8, -y + 8, -z + 8);
+		case 270 -> new Vec3(x + 8, -z + 8, y + 8);
+		default -> point;
 		};
 	}
 
@@ -379,10 +382,10 @@ public class FluidPumpBlock extends PumpBlock implements TransformableBlock {
 		double y = point.y - 8;
 		double z = point.z - 8;
 		return switch (normalized) {
-			case 90 -> new Vec3(-z + 8, y + 8, x + 8);
-			case 180 -> new Vec3(-x + 8, y + 8, -z + 8);
-			case 270 -> new Vec3(z + 8, y + 8, -x + 8);
-			default -> point;
+		case 90 -> new Vec3(-z + 8, y + 8, x + 8);
+		case 180 -> new Vec3(-x + 8, y + 8, -z + 8);
+		case 270 -> new Vec3(z + 8, y + 8, -x + 8);
+		default -> point;
 		};
 	}
 

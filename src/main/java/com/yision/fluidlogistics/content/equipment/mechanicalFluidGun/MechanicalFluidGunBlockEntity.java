@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.jetbrains.annotations.Nullable;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.api.contraption.transformable.TransformableBlockEntity;
 import com.simibubi.create.content.contraptions.StructureTransform;
@@ -13,10 +15,10 @@ import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
 import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.ScrollOptionBehaviour;
 import com.simibubi.create.foundation.item.TooltipHelper;
-import com.yision.fluidlogistics.foundation.fluid.CachedFluidInterface;
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.network.MechanicalFluidGunPackets;
-import dev.engine_room.flywheel.lib.transform.TransformStack;
+import com.yision.fluidlogistics.foundation.fluid.FluidHandlerCache;
 
+import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.animation.LerpedFloat;
 import net.createmod.catnip.math.AngleHelper;
 import net.createmod.catnip.math.VecHelper;
@@ -33,10 +35,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
 
 public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 	implements MechanicalFluidGunContext, TransformableBlockEntity {
@@ -56,7 +58,7 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 	private MechanicalFluidGunBeltHandler beltHandler;
 	private MechanicalFluidGunProcessor processor;
 	private boolean dynamicAimUpdatePending;
-	private final CachedFluidInterface sourceCache = new CachedFluidInterface();
+	private final FluidHandlerCache sourceCache = new FluidHandlerCache();
 
 	private ScrollOptionBehaviour<MechanicalFluidGunScheduleMode> scheduleMode;
 	BeltProcessingBehaviour beltProcessing;
@@ -158,7 +160,8 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 	public void tick() {
 		super.tick();
 
-		if (level == null) return;
+		if (level == null)
+			return;
 
 		if (level.isClientSide) {
 			updateVisuals();
@@ -202,7 +205,8 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 	@Override
 	public void notifyGunUpdate() {
 		setChanged();
-		if (!(level instanceof ServerLevel serverLevel)) return;
+		if (!(level instanceof ServerLevel serverLevel))
+			return;
 		Vec3 point = aimState.getAimPoint(targets.getActiveTargetIndex());
 		var state = new MechanicalFluidGunPackets.VisualStatePacket(worldPosition, targets.getActiveTargetIndex(),
 			cycle.isActive(), point, visuals.isSpraying(), visuals.getRenderingFluid().copy(), itemFilling.isFilling());
@@ -210,15 +214,17 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 			&& state.cycleActive() == lastVisualState.cycleActive()
 			&& java.util.Objects.equals(state.dynamicAimPoint(), lastVisualState.dynamicAimPoint())
 			&& state.spraying() == lastVisualState.spraying() && state.fillingItem() == lastVisualState.fillingItem()
-			&& FluidStack.matches(state.renderingFluid(), lastVisualState.renderingFluid())) return;
+			&& FluidStack.matches(state.renderingFluid(), lastVisualState.renderingFluid()))
+			return;
 		lastVisualState = state;
 		PacketDistributor.sendToPlayersNear(serverLevel, null, worldPosition.getX() + .5,
 			worldPosition.getY() + .5, worldPosition.getZ() + .5, 64, state);
 	}
 
 	public void applyVisualState(int activeTargetIndex, boolean cycleActive, @Nullable Vec3 dynamicAimPoint,
-								 boolean spraying, FluidStack renderingFluid, boolean fillingItem) {
-		if (level == null || !level.isClientSide) return;
+		boolean spraying, FluidStack renderingFluid, boolean fillingItem) {
+		if (level == null || !level.isClientSide)
+			return;
 		if (activeTargetIndex >= 0 && activeTargetIndex < targets.size()) {
 			targets.setActiveTargetIndex(activeTargetIndex);
 		} else {
@@ -355,11 +361,13 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 		MechanicalFluidGunTargetConfig activeTarget = targets.getActiveTarget();
 		Vec3 aimPoint = getTargetAimPoint(activeTarget);
 		visuals.updateTargetAngles(worldPosition, getBlockState(), aimPoint,
-			cycle.isActive(), itemFilling.isFilling(), redstoneLocked && !itemFilling.isFilling() ? 0 : Math.abs(getSpeed()));
+			cycle.isActive(), itemFilling.isFilling(),
+			redstoneLocked && !itemFilling.isFilling() ? 0 : Math.abs(getSpeed()));
 	}
 
 	Vec3 getTargetAimPoint(@Nullable MechanicalFluidGunTargetConfig target) {
-		if (target == null) return null;
+		if (target == null)
+			return null;
 		Vec3 dynamicAimPoint = aimState.getAimPoint(targets.getActiveTargetIndex());
 		if (dynamicAimPoint != null) {
 			return dynamicAimPoint;
@@ -381,7 +389,8 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 
 	@Nullable
 	IFluidHandler getSourceHandler() {
-		if (level == null) return null;
+		if (level == null)
+			return null;
 		Direction sourceSide = MechanicalFluidGunMount.getMountFace(getBlockState());
 		BlockPos sourcePos = worldPosition.relative(sourceSide.getOpposite());
 		return sourceCache.get(level, sourcePos, sourceSide);
@@ -390,7 +399,6 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 	public boolean shouldRenderSourceInterface() {
 		return getSourceHandler() != null;
 	}
-
 
 	public void setTargets(List<MechanicalFluidGunTargetConfig> newTargets) {
 		itemFilling.clear();
@@ -446,13 +454,15 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 		return targets.getTargets();
 	}
 
-
 	public int getComparatorOutput() {
-		if (targets.isEmpty()) return 0;
+		if (targets.isEmpty())
+			return 0;
 		IFluidHandler source = getSourceHandler();
-		if (source == null) return 0;
+		if (source == null)
+			return 0;
 		for (int tank = 0; tank < source.getTanks(); tank++) {
-			if (!source.getFluidInTank(tank).isEmpty()) return 15;
+			if (!source.getFluidInTank(tank).isEmpty())
+				return 15;
 		}
 		return 0;
 	}

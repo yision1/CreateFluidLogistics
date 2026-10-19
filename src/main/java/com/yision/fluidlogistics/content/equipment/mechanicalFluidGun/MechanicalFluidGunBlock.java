@@ -12,6 +12,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -21,7 +22,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -33,8 +33,7 @@ public class MechanicalFluidGunBlock extends KineticBlock implements IBE<Mechani
 
 	public static final TagKey<Block> TARGETS = TagKey.create(
 		Registries.BLOCK,
-		FluidLogistics.asResource("mechanical_fluid_gun_targets")
-	);
+		FluidLogistics.asResource("mechanical_fluid_gun_targets"));
 
 	public MechanicalFluidGunBlock(Properties properties) {
 		super(properties);
@@ -122,7 +121,7 @@ public class MechanicalFluidGunBlock extends KineticBlock implements IBE<Mechani
 
 	@Override
 	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block otherBlock,
-	                            BlockPos neighborPos, boolean isMoving) {
+		BlockPos neighborPos, boolean isMoving) {
 		withBlockEntityDo(world, pos, MechanicalFluidGunBlockEntity::redstoneUpdate);
 	}
 

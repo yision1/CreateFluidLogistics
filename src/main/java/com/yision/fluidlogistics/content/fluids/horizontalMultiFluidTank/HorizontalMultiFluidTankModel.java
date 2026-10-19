@@ -12,40 +12,41 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class HorizontalMultiFluidTankModel extends AbstractMultiFluidTankModel {
 
-    public static HorizontalMultiFluidTankModel standard(BakedModel originalModel) {
-        return new HorizontalMultiFluidTankModel(originalModel, AllSpriteShifts.MULTI_FLUID_TANK, AllSpriteShifts.MULTI_FLUID_TANK_TOP,
-            AllSpriteShifts.MULTI_FLUID_TANK_INNER);
-    }
+	public static HorizontalMultiFluidTankModel standard(BakedModel originalModel) {
+		return new HorizontalMultiFluidTankModel(originalModel, AllSpriteShifts.MULTI_FLUID_TANK,
+			AllSpriteShifts.MULTI_FLUID_TANK_TOP,
+			AllSpriteShifts.MULTI_FLUID_TANK_INNER);
+	}
 
-    private HorizontalMultiFluidTankModel(BakedModel originalModel, CTSpriteShiftEntry side, CTSpriteShiftEntry top,
-                             CTSpriteShiftEntry inner) {
-        super(originalModel, side, top, inner, new HorizontalMultiFluidTankCTBehaviour(side, top, inner));
-    }
+	private HorizontalMultiFluidTankModel(BakedModel originalModel, CTSpriteShiftEntry side, CTSpriteShiftEntry top,
+		CTSpriteShiftEntry inner) {
+		super(originalModel, side, top, inner, new HorizontalMultiFluidTankCTBehaviour(side, top, inner));
+	}
 
-    @Override
-    protected CullData createCullData() {
-        return new CullData();
-    }
+	@Override
+	protected CullData createCullData() {
+		return new CullData();
+	}
 
-    @Override
-    protected boolean shouldCheck(Direction direction, BlockState state) {
-        return direction.getAxis() != state.getValue(HorizontalMultiFluidTankBlock.AXIS);
-    }
+	@Override
+	protected boolean shouldCheck(Direction direction, BlockState state) {
+		return direction.getAxis() != state.getValue(HorizontalMultiFluidTankBlock.AXIS);
+	}
 
-    public static final class CullData extends AbstractMultiFluidTankModel.CullData {
-        public CullData() {
-            super(6);
-            Arrays.fill(culledFaces, false);
-        }
+	public static final class CullData extends AbstractMultiFluidTankModel.CullData {
+		public CullData() {
+			super(6);
+			Arrays.fill(culledFaces, false);
+		}
 
-        @Override
-        public void setCulled(Direction face, boolean cull) {
-            culledFaces[face.get3DDataValue()] = cull;
-        }
+		@Override
+		public void setCulled(Direction face, boolean cull) {
+			culledFaces[face.get3DDataValue()] = cull;
+		}
 
-        @Override
-        public boolean isCulled(Direction face) {
-            return culledFaces[face.get3DDataValue()];
-        }
-    }
+		@Override
+		public boolean isCulled(Direction face) {
+			return culledFaces[face.get3DDataValue()];
+		}
+	}
 }

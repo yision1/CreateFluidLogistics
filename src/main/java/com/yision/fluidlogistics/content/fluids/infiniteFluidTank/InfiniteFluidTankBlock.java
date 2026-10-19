@@ -7,6 +7,7 @@ import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.fluid.FluidHelper.FluidExchange;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -26,6 +27,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -43,7 +45,7 @@ public class InfiniteFluidTankBlock extends Block implements IWrenchable, IBE<In
 
 	@Override
 	protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
-	                                          Player player, InteractionHand hand, BlockHitResult hitResult) {
+		Player player, InteractionHand hand, BlockHitResult hitResult) {
 		boolean onClient = level.isClientSide;
 
 		if (stack.isEmpty())

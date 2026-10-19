@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableList;
 import com.simibubi.create.content.fluids.FluidPropagator;
 import com.simibubi.create.content.fluids.FluidTransportBehaviour;
 import com.simibubi.create.content.fluids.PipeConnection;
@@ -19,9 +20,7 @@ import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsBoard;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsFormatter.ScrollOptionSettingsFormatter;
 import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.ScrollOptionBehaviour;
-import com.yision.fluidlogistics.config.Config;
-
-import com.google.common.collect.ImmutableList;
+import com.yision.fluidlogistics.infrastructure.config.Config;
 
 import net.createmod.catnip.data.Couple;
 import net.createmod.catnip.data.Pair;
@@ -37,6 +36,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+
 import net.neoforged.neoforge.capabilities.Capabilities;
 
 public class FluidPumpBlockEntity extends PumpBlockEntity {
@@ -66,8 +66,10 @@ public class FluidPumpBlockEntity extends PumpBlockEntity {
 			@Override
 			public ValueSettingsBoard createBoard(Player player, BlockHitResult hitResult) {
 				return new ValueSettingsBoard(label, max, 1, ImmutableList.of(label),
-					new ScrollOptionSettingsFormatter(FluidTransferDirection.guiOptions(FluidPumpBlock.getFluidAxis(getBlockState()))));
+					new ScrollOptionSettingsFormatter(
+						FluidTransferDirection.guiOptions(FluidPumpBlock.getFluidAxis(getBlockState()))));
 			}
+
 			@Override
 			public void read(CompoundTag nbt, HolderLookup.Provider registries, boolean clientPacket) {
 				syncDirectionSelectorWithBlockState();
@@ -111,7 +113,8 @@ public class FluidPumpBlockEntity extends PumpBlockEntity {
 
 	private void syncDirectionSelectorWithBlockState() {
 		if (directionSelector != null)
-			directionSelector.value = FluidTransferDirection.fromAxisDirection(getBlockState().getValue(PumpBlock.FACING).getAxisDirection()).ordinal();
+			directionSelector.value = FluidTransferDirection
+				.fromAxisDirection(getBlockState().getValue(PumpBlock.FACING).getAxisDirection()).ordinal();
 	}
 
 	@Override
@@ -121,7 +124,8 @@ public class FluidPumpBlockEntity extends PumpBlockEntity {
 	}
 
 	private void onDirectionSelected(int newOrdinal) {
-		if (level == null || level.isClientSide || newOrdinal < 0 || newOrdinal >= FluidTransferDirection.values().length)
+		if (level == null || level.isClientSide || newOrdinal < 0
+			|| newOrdinal >= FluidTransferDirection.values().length)
 			return;
 		BlockState state = getBlockState();
 		Direction output = Direction.fromAxisAndDirection(FluidPumpBlock.getFluidAxis(state),

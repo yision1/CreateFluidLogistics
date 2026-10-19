@@ -6,6 +6,7 @@ import com.tterrag.registrate.util.entry.RegistryEntry;
 import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.registry.AllBlocks;
 import com.yision.fluidlogistics.registry.AllItems;
+
 import net.createmod.ponder.api.registration.PonderPlugin;
 import net.createmod.ponder.api.registration.PonderSceneRegistrationHelper;
 import net.createmod.ponder.api.registration.PonderTagRegistrationHelper;
@@ -13,122 +14,124 @@ import net.minecraft.resources.ResourceLocation;
 
 public class FluidLogisticsPonderPlugin implements PonderPlugin {
 
-    public static final ResourceLocation HIGH_LOGISTICS = Create.asResource("high_logistics");
-    public static final ResourceLocation LOGISTICS = Create.asResource("logistics");
-    public static final ResourceLocation FLUIDS = Create.asResource("fluids");
-    public static final ResourceLocation ARM_TARGETS = Create.asResource("arm_targets");
-    public static final ResourceLocation KINETIC_APPLIANCES = Create.asResource("kinetic_appliances");
-    public static final ResourceLocation DISPLAY_SOURCES = Create.asResource("display_sources");
+	public static final ResourceLocation HIGH_LOGISTICS = Create.asResource("high_logistics");
+	public static final ResourceLocation LOGISTICS = Create.asResource("logistics");
+	public static final ResourceLocation FLUIDS = Create.asResource("fluids");
+	public static final ResourceLocation ARM_TARGETS = Create.asResource("arm_targets");
+	public static final ResourceLocation KINETIC_APPLIANCES = Create.asResource("kinetic_appliances");
+	public static final ResourceLocation DISPLAY_SOURCES = Create.asResource("display_sources");
 
-    @Override
-    public String getModId() {
-        return FluidLogistics.MODID;
-    }
+	@Override
+	public String getModId() {
+		return FluidLogistics.MODID;
+	}
 
-    @Override
-    public void registerScenes(PonderSceneRegistrationHelper<ResourceLocation> helper) {
-        PonderSceneRegistrationHelper<ItemProviderEntry<?, ?>> registration = helper.withKeyFunction(RegistryEntry::getId);
+	@Override
+	public void registerScenes(PonderSceneRegistrationHelper<ResourceLocation> helper) {
+		PonderSceneRegistrationHelper<ItemProviderEntry<?, ?>> registration = helper
+			.withKeyFunction(RegistryEntry::getId);
 
-        registration.forComponents(AllBlocks.FLUID_PACKAGER)
-                .addStoryBoard(FluidPackagerScenes.FLUID_PACKAGER, FluidPackagerScenes::fluidPackager)
-                .addStoryBoard(FluidPackagerScenes.FLUID_PACKAGER_ADDRESS, FluidPackagerScenes::fluidPackagerAddress);
+		registration.forComponents(AllBlocks.FLUID_PACKAGER)
+			.addStoryBoard(FluidPackagerScenes.FLUID_PACKAGER, FluidPackagerScenes::fluidPackager)
+			.addStoryBoard(FluidPackagerScenes.FLUID_PACKAGER_ADDRESS, FluidPackagerScenes::fluidPackagerAddress);
 
-        registration.forComponents(AllBlocks.FLUID_REPACKAGER)
-                .addStoryBoard(FluidRepackagerScenes.FLUID_REPACKAGER,
-                        FluidRepackagerScenes::fluidRepackager, HIGH_LOGISTICS);
+		registration.forComponents(AllBlocks.FLUID_REPACKAGER)
+			.addStoryBoard(FluidRepackagerScenes.FLUID_REPACKAGER,
+				FluidRepackagerScenes::fluidRepackager, HIGH_LOGISTICS);
 
-        registration.forComponents(AllBlocks.COPPER_FROGPORT)
-                .addStoryBoard(CopperFrogportScenes.PLACEMENT, CopperFrogportScenes::placement,
-                        storyboard -> storyboard.highlightTag(HIGH_LOGISTICS)
-                                .orderBefore(Create.ID, "package_frogport"));
+		registration.forComponents(AllBlocks.COPPER_FROGPORT)
+			.addStoryBoard(CopperFrogportScenes.PLACEMENT, CopperFrogportScenes::placement,
+				storyboard -> storyboard.highlightTag(HIGH_LOGISTICS)
+					.orderBefore(Create.ID, "package_frogport"));
 
-        registration.forComponents(AllBlocks.SMART_FAUCET)
-                .addStoryBoard(SmartFaucetScenes.SMART_FAUCET, SmartFaucetScenes::smartFaucet);
+		registration.forComponents(AllBlocks.SMART_FAUCET)
+			.addStoryBoard(SmartFaucetScenes.SMART_FAUCET, SmartFaucetScenes::smartFaucet);
 
-        registration.forComponents(AllBlocks.FAUCET)
-                .addStoryBoard(FaucetScenes.FAUCET, FaucetScenes::faucet);
+		registration.forComponents(AllBlocks.FAUCET)
+			.addStoryBoard(FaucetScenes.FAUCET, FaucetScenes::faucet);
 
-        registration.forComponents(AllBlocks.MULTI_FLUID_ACCESS_PORT)
-                .addStoryBoard(MultiFluidAccessPortScenes.MULTI_FLUID_ACCESS_PORT,
-                        MultiFluidAccessPortScenes::multiFluidAccessPort);
+		registration.forComponents(AllBlocks.MULTI_FLUID_ACCESS_PORT)
+			.addStoryBoard(MultiFluidAccessPortScenes.MULTI_FLUID_ACCESS_PORT,
+				MultiFluidAccessPortScenes::multiFluidAccessPort);
 
-        registration.forComponents(AllBlocks.FLUID_INVENTORY_ACCESS_PORT)
-                .addStoryBoard(FluidInventoryAccessPortScenes.FLUID_INVENTORY_ACCESS_PORT,
-                        FluidInventoryAccessPortScenes::fluidInventoryAccessPort);
+		registration.forComponents(AllBlocks.FLUID_INVENTORY_ACCESS_PORT)
+			.addStoryBoard(FluidInventoryAccessPortScenes.FLUID_INVENTORY_ACCESS_PORT,
+				FluidInventoryAccessPortScenes::fluidInventoryAccessPort);
 
-        registration.forComponents(AllBlocks.MULTI_FLUID_TANK, AllBlocks.HORIZONTAL_MULTI_FLUID_TANK)
-                .addStoryBoard(MultiFluidTankScenes.STORAGE, MultiFluidTankScenes::storage, FLUIDS)
-                .addStoryBoard(MultiFluidTankScenes.SIZES, MultiFluidTankScenes::sizes);
+		registration.forComponents(AllBlocks.MULTI_FLUID_TANK, AllBlocks.HORIZONTAL_MULTI_FLUID_TANK)
+			.addStoryBoard(MultiFluidTankScenes.STORAGE, MultiFluidTankScenes::storage, FLUIDS)
+			.addStoryBoard(MultiFluidTankScenes.SIZES, MultiFluidTankScenes::sizes);
 
-        registration.forComponents(AllItems.COPPER_BUCKET)
-                .addStoryBoard(CopperBucketScenes.INTERACTION, CopperBucketScenes::interaction, FLUIDS);
+		registration.forComponents(AllItems.COPPER_BUCKET)
+			.addStoryBoard(CopperBucketScenes.INTERACTION, CopperBucketScenes::interaction, FLUIDS);
 
-        registration.forComponents(AllBlocks.SMART_HOPPER)
-                .addStoryBoard(SmartHopperScenes.SMART_HOPPER, SmartHopperScenes::smartHopper);
+		registration.forComponents(AllBlocks.SMART_HOPPER)
+			.addStoryBoard(SmartHopperScenes.SMART_HOPPER, SmartHopperScenes::smartHopper);
 
-        registration.forComponents(AllBlocks.FLUID_TRANSPORTER)
-                .addStoryBoard(FluidTransporterScenes.FLUID_TRANSPORTER,
-                        FluidTransporterScenes::fluidTransporter);
+		registration.forComponents(AllBlocks.FLUID_TRANSPORTER)
+			.addStoryBoard(FluidTransporterScenes.FLUID_TRANSPORTER,
+				FluidTransporterScenes::fluidTransporter);
 
-        registration.forComponents(AllBlocks.FLUID_PUMP)
-                .addStoryBoard(FluidPumpScenes.PUMP_FLOW, FluidPumpScenes::flow, FLUIDS, KINETIC_APPLIANCES)
-                .addStoryBoard(FluidPumpScenes.PUMP_SPEED, FluidPumpScenes::speed);
+		registration.forComponents(AllBlocks.FLUID_PUMP)
+			.addStoryBoard(FluidPumpScenes.PUMP_FLOW, FluidPumpScenes::flow, FLUIDS, KINETIC_APPLIANCES)
+			.addStoryBoard(FluidPumpScenes.PUMP_SPEED, FluidPumpScenes::speed);
 
-        registration.forComponents(AllBlocks.FLOW_METER)
-                .addStoryBoard(FlowMeterScenes.FLOW_METER, FlowMeterScenes::flowMeter, FLUIDS);
+		registration.forComponents(AllBlocks.FLOW_METER)
+			.addStoryBoard(FlowMeterScenes.FLOW_METER, FlowMeterScenes::flowMeter, FLUIDS);
 
-        registration.forComponents(AllBlocks.POTATO_SERVER)
-                .addStoryBoard(PotatoServerScenes.POTATO_SERVER, PotatoServerScenes::potatoServer, DISPLAY_SOURCES);
+		registration.forComponents(AllBlocks.POTATO_SERVER)
+			.addStoryBoard(PotatoServerScenes.POTATO_SERVER, PotatoServerScenes::potatoServer, DISPLAY_SOURCES);
 
-        registration.forComponents(AllBlocks.REDSTONE_FLUID_VALVE)
-                .addStoryBoard(RedstoneFluidValveScenes.REDSTONE_FLUID_VALVE,
-                        RedstoneFluidValveScenes::redstoneFluidValve, FLUIDS);
+		registration.forComponents(AllBlocks.REDSTONE_FLUID_VALVE)
+			.addStoryBoard(RedstoneFluidValveScenes.REDSTONE_FLUID_VALVE,
+				RedstoneFluidValveScenes::redstoneFluidValve, FLUIDS);
 
-        registration.forComponents(AllBlocks.MECHANICAL_FLUID_GUN)
-                .addStoryBoard(MechanicalFluidGunScenes.MECHANICAL_FLUID_GUN_SETUP,
-                        MechanicalFluidGunScenes::setup, FLUIDS, KINETIC_APPLIANCES);
+		registration.forComponents(AllBlocks.MECHANICAL_FLUID_GUN)
+			.addStoryBoard(MechanicalFluidGunScenes.MECHANICAL_FLUID_GUN_SETUP,
+				MechanicalFluidGunScenes::setup, FLUIDS, KINETIC_APPLIANCES);
 
-        registration.forComponents(AllBlocks.BLAZE_COOLER)
-                .addStoryBoard(BlazeCoolerScenes.CONVERSION, BlazeCoolerScenes::blazeCooler)
-                .addStoryBoard(BlazeCoolerScenes.FUELING, BlazeCoolerScenes::fueling);
-    }
+		registration.forComponents(AllBlocks.BLAZE_COOLER)
+			.addStoryBoard(BlazeCoolerScenes.CONVERSION, BlazeCoolerScenes::blazeCooler)
+			.addStoryBoard(BlazeCoolerScenes.FUELING, BlazeCoolerScenes::fueling);
+	}
 
-    @Override
-    public void registerTags(PonderTagRegistrationHelper<ResourceLocation> helper) {
-        PonderTagRegistrationHelper<ItemProviderEntry<?, ?>> registration = helper.withKeyFunction(RegistryEntry::getId);
+	@Override
+	public void registerTags(PonderTagRegistrationHelper<ResourceLocation> helper) {
+		PonderTagRegistrationHelper<ItemProviderEntry<?, ?>> registration = helper
+			.withKeyFunction(RegistryEntry::getId);
 
-        registration.addToTag(HIGH_LOGISTICS)
-                .add(AllBlocks.FLUID_PACKAGER)
-                .add(AllBlocks.FLUID_REPACKAGER);
+		registration.addToTag(HIGH_LOGISTICS)
+			.add(AllBlocks.FLUID_PACKAGER)
+			.add(AllBlocks.FLUID_REPACKAGER);
 
-        registration.addToTag(LOGISTICS)
-                .add(AllBlocks.SMART_HOPPER);
+		registration.addToTag(LOGISTICS)
+			.add(AllBlocks.SMART_HOPPER);
 
-        registration.addToTag(FLUIDS)
-                .add(AllItems.COPPER_BUCKET)
-                .add(AllBlocks.SMART_FAUCET)
-                .add(AllBlocks.FAUCET)
-                .add(AllBlocks.MULTI_FLUID_ACCESS_PORT)
-                .add(AllBlocks.FLUID_INVENTORY_ACCESS_PORT)
-                .add(AllBlocks.MULTI_FLUID_TANK)
-                .add(AllBlocks.HORIZONTAL_MULTI_FLUID_TANK)
-                .add(AllBlocks.SMART_HOPPER)
-                .add(AllBlocks.FLUID_TRANSPORTER)
-                .add(AllBlocks.FLUID_PUMP)
-                .add(AllBlocks.FLOW_METER)
-                .add(AllBlocks.REDSTONE_FLUID_VALVE)
-                .add(AllBlocks.MECHANICAL_FLUID_GUN);
+		registration.addToTag(FLUIDS)
+			.add(AllItems.COPPER_BUCKET)
+			.add(AllBlocks.SMART_FAUCET)
+			.add(AllBlocks.FAUCET)
+			.add(AllBlocks.MULTI_FLUID_ACCESS_PORT)
+			.add(AllBlocks.FLUID_INVENTORY_ACCESS_PORT)
+			.add(AllBlocks.MULTI_FLUID_TANK)
+			.add(AllBlocks.HORIZONTAL_MULTI_FLUID_TANK)
+			.add(AllBlocks.SMART_HOPPER)
+			.add(AllBlocks.FLUID_TRANSPORTER)
+			.add(AllBlocks.FLUID_PUMP)
+			.add(AllBlocks.FLOW_METER)
+			.add(AllBlocks.REDSTONE_FLUID_VALVE)
+			.add(AllBlocks.MECHANICAL_FLUID_GUN);
 
-        registration.addToTag(KINETIC_APPLIANCES)
-                .add(AllBlocks.FLUID_PUMP)
-                .add(AllBlocks.MECHANICAL_FLUID_GUN);
+		registration.addToTag(KINETIC_APPLIANCES)
+			.add(AllBlocks.FLUID_PUMP)
+			.add(AllBlocks.MECHANICAL_FLUID_GUN);
 
-        registration.addToTag(DISPLAY_SOURCES)
-                .add(AllBlocks.FLOW_METER)
-                .add(AllBlocks.POTATO_SERVER);
+		registration.addToTag(DISPLAY_SOURCES)
+			.add(AllBlocks.FLOW_METER)
+			.add(AllBlocks.POTATO_SERVER);
 
-        registration.addToTag(ARM_TARGETS)
-                .add(AllBlocks.SMART_HOPPER)
-                .add(AllBlocks.BLAZE_COOLER);
-    }
+		registration.addToTag(ARM_TARGETS)
+			.add(AllBlocks.SMART_HOPPER)
+			.add(AllBlocks.BLAZE_COOLER);
+	}
 }

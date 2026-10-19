@@ -2,11 +2,13 @@ package com.yision.fluidlogistics.content.fluids.infiniteFluidTank;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRenderer;
+
 import net.createmod.catnip.animation.LerpedFloat;
 import net.createmod.catnip.platform.NeoForgeCatnipServices;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.util.Mth;
+
 import net.neoforged.neoforge.fluids.FluidStack;
 
 public class InfiniteFluidTankRenderer extends SafeBlockEntityRenderer<InfiniteFluidTankBlockEntity> {
@@ -16,7 +18,7 @@ public class InfiniteFluidTankRenderer extends SafeBlockEntityRenderer<InfiniteF
 
 	@Override
 	protected void renderSafe(InfiniteFluidTankBlockEntity be, float partialTicks, PoseStack ms,
-	                          MultiBufferSource buffer, int light, int overlay) {
+		MultiBufferSource buffer, int light, int overlay) {
 		LerpedFloat fluidLevel = be.getFluidLevel();
 		if (fluidLevel == null)
 			return;

@@ -12,11 +12,11 @@ public class FanBulkCoolingCategory extends ProcessingViaFanCategory.MultiOutput
 
     private boolean renderActiveCooler;
 
-    public FanBulkCoolingCategory(Info<BulkCoolingRecipe> info) {
-        super(info);
-    }
+	public FanBulkCoolingCategory(Info<BulkCoolingRecipe> info) {
+		super(info);
+	}
 
-    @Override
+	@Override
     public void draw(BulkCoolingRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics graphics,
             double mouseX, double mouseY) {
         renderActiveCooler = recipe.requiresActiveCooler();
@@ -24,7 +24,7 @@ public class FanBulkCoolingCategory extends ProcessingViaFanCategory.MultiOutput
     }
 
     @Override
-    protected void renderAttachedBlock(GuiGraphics graphics) {
+	protected void renderAttachedBlock(GuiGraphics graphics) {
         if (renderActiveCooler) {
             AnimatedKinetics.defaultBlockElement(AllPartialModels.BLAZE_COOLER_ITEM)
                 .scale(SCALE)
@@ -33,14 +33,14 @@ public class FanBulkCoolingCategory extends ProcessingViaFanCategory.MultiOutput
             return;
         }
 
-        AnimatedKinetics.defaultBlockElement(AllPartialModels.BLAZE_COOLER_CAGE)
-            .scale(SCALE)
-            .atLocal(0, 0, 2)
-            .render(graphics);
-        AnimatedKinetics.defaultBlockElement(AllPartialModels.BLAZE_COOLER_INERT)
-            .rotate(0, 180, 0)
-            .scale(SCALE)
-            .atLocal(1, .15, 3)
-            .render(graphics);
-    }
+		AnimatedKinetics.defaultBlockElement(AllPartialModels.BLAZE_COOLER_CAGE)
+			.scale(SCALE)
+			.atLocal(0, 0, 2)
+			.render(graphics);
+		AnimatedKinetics.defaultBlockElement(AllPartialModels.BLAZE_COOLER_INERT)
+			.rotate(0, 180, 0)
+			.scale(SCALE)
+			.atLocal(1, .15, 3)
+			.render(graphics);
+	}
 }

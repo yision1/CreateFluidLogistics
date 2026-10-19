@@ -5,8 +5,9 @@ import com.simibubi.create.AllItems;
 import com.simibubi.create.content.processing.basin.BasinBlockEntity;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 import com.simibubi.create.foundation.ponder.element.BeltItemElement;
-import com.yision.fluidlogistics.content.fluids.faucet.SmartFaucetBlock;
 import com.yision.fluidlogistics.content.fluids.faucet.FaucetBlockEntity;
+import com.yision.fluidlogistics.content.fluids.faucet.SmartFaucetBlock;
+
 import net.createmod.catnip.math.Pointing;
 import net.createmod.ponder.api.element.ElementLink;
 import net.createmod.ponder.api.element.WorldSectionElement;
@@ -19,260 +20,261 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluids;
+
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
 
 public class SmartFaucetScenes {
 
-    public static final String SMART_FAUCET = "smart_faucet/smart_faucet";
+	public static final String SMART_FAUCET = "smart_faucet/smart_faucet";
 
-    public static void smartFaucet(SceneBuilder builder, SceneBuildingUtil util) {
-        CreateSceneBuilder scene = new CreateSceneBuilder(builder);
-        scene.title(SMART_FAUCET, "Filling Items with Smart Faucets");
-        scene.configureBasePlate(0, 0, 7);
-        scene.showBasePlate();
-        scene.idle(5);
+	public static void smartFaucet(SceneBuilder builder, SceneBuildingUtil util) {
+		CreateSceneBuilder scene = new CreateSceneBuilder(builder);
+		scene.title(SMART_FAUCET, "Filling Items with Smart Faucets");
+		scene.configureBasePlate(0, 0, 7);
+		scene.showBasePlate();
+		scene.idle(5);
 
-        BlockPos faucet1Pos = util.grid().at(0, 2, 5);
-        BlockPos tank1Bottom = util.grid().at(0, 1, 6);
-        BlockPos tank1Top = util.grid().at(0, 2, 6);
-        BlockPos depotPos = util.grid().at(0, 1, 5);
-        BlockPos faucet2Pos = util.grid().at(2, 2, 2);
-        BlockPos tank2Bottom = util.grid().at(2, 1, 3);
-        BlockPos tank2Top = util.grid().at(2, 2, 3);
-        BlockPos chestPos = util.grid().at(5, 2, 3);
-        BlockPos funnelPos = util.grid().at(5, 2, 2);
-        BlockPos depot1V = util.grid().at(3, 1, 3);
-        BlockPos basinPos = depot1V;
+		BlockPos faucet1Pos = util.grid().at(0, 2, 5);
+		BlockPos tank1Bottom = util.grid().at(0, 1, 6);
+		BlockPos tank1Top = util.grid().at(0, 2, 6);
+		BlockPos depotPos = util.grid().at(0, 1, 5);
+		BlockPos faucet2Pos = util.grid().at(2, 2, 2);
+		BlockPos tank2Bottom = util.grid().at(2, 1, 3);
+		BlockPos tank2Top = util.grid().at(2, 2, 3);
+		BlockPos chestPos = util.grid().at(5, 2, 3);
+		BlockPos funnelPos = util.grid().at(5, 2, 2);
+		BlockPos depot1V = util.grid().at(3, 1, 3);
+		BlockPos basinPos = depot1V;
 
-        Selection tank1Faucet1S = util.select().fromTo(tank1Bottom, tank1Top)
-            .add(util.select().position(faucet1Pos));
-        Selection depotS = util.select().position(depotPos);
-        Selection faucet1S = util.select().position(faucet1Pos);
-        Selection tank2S = util.select().fromTo(tank2Bottom, tank2Top);
-        Selection faucet2S = util.select().position(faucet2Pos);
-        Selection chestS = util.select().position(chestPos);
-        Selection funnelS = util.select().position(funnelPos);
-        Selection basinS = util.select().position(basinPos);
-        Selection largeCog = util.select().position(7, 0, 3);
-        Selection kinetics = util.select().position(6, 1, 3);
-        Selection belt = util.select().fromTo(0, 1, 2, 6, 1, 2);
+		Selection tank1Faucet1S = util.select().fromTo(tank1Bottom, tank1Top)
+			.add(util.select().position(faucet1Pos));
+		Selection depotS = util.select().position(depotPos);
+		Selection faucet1S = util.select().position(faucet1Pos);
+		Selection tank2S = util.select().fromTo(tank2Bottom, tank2Top);
+		Selection faucet2S = util.select().position(faucet2Pos);
+		Selection chestS = util.select().position(chestPos);
+		Selection funnelS = util.select().position(funnelPos);
+		Selection basinS = util.select().position(basinPos);
+		Selection largeCog = util.select().position(7, 0, 3);
+		Selection kinetics = util.select().position(6, 1, 3);
+		Selection belt = util.select().fromTo(0, 1, 2, 6, 1, 2);
 
-        ElementLink<WorldSectionElement> tank1Link =
-            scene.world().showIndependentSection(tank1Faucet1S, Direction.DOWN);
-        scene.world().moveSection(tank1Link, util.vector().of(3, 0, -2), 0);
-        scene.idle(5);
+		ElementLink<WorldSectionElement> tank1Link = scene.world().showIndependentSection(tank1Faucet1S,
+			Direction.DOWN);
+		scene.world().moveSection(tank1Link, util.vector().of(3, 0, -2), 0);
+		scene.idle(5);
 
-        ElementLink<WorldSectionElement> depotLink =
-            scene.world().showIndependentSection(depotS, Direction.DOWN);
-        scene.world().moveSection(depotLink, util.vector().of(3, 0, -2), 0);
-        scene.idle(15);
+		ElementLink<WorldSectionElement> depotLink = scene.world().showIndependentSection(depotS, Direction.DOWN);
+		scene.world().moveSection(depotLink, util.vector().of(3, 0, -2), 0);
+		scene.idle(15);
 
-        scene.overlay()
-            .showText(100)
-            .text("Smart Faucets can fill items with fluids")
-            .attachKeyFrame()
-            .placeNearTarget()
-            .pointAt(util.vector().of(3.5, 2.5, 3.5));
-        scene.idle(70);
+		scene.overlay()
+			.showText(100)
+			.text("Smart Faucets can fill items with fluids")
+			.attachKeyFrame()
+			.placeNearTarget()
+			.pointAt(util.vector().of(3.5, 2.5, 3.5));
+		scene.idle(70);
 
-        ItemStack bucket = new ItemStack(Items.BUCKET);
-        scene.world().createItemOnBeltLike(depotPos, Direction.NORTH, bucket);
-        scene.idle(20);
+		ItemStack bucket = new ItemStack(Items.BUCKET);
+		scene.world().createItemOnBeltLike(depotPos, Direction.NORTH, bucket);
+		scene.idle(20);
 
-        scene.world().modifyBlock(faucet1Pos,
-            s -> s.setValue(SmartFaucetBlock.OPEN, true), false);
+		scene.world().modifyBlock(faucet1Pos,
+			s -> s.setValue(SmartFaucetBlock.OPEN, true), false);
 
-        CompoundTag waterTag = fluidTag("minecraft:water", 1000);
-        showFaucetFluid(scene, faucet1S, waterTag);
-        scene.idle(25);
+		CompoundTag waterTag = fluidTag("minecraft:water", 1000);
+		showFaucetFluid(scene, faucet1S, waterTag);
+		scene.idle(25);
 
-        hideFaucetFluid(scene, faucet1S);
-        scene.world().removeItemsFromBelt(depotPos);
-        scene.world().createItemOnBeltLike(depotPos, Direction.UP, new ItemStack(Items.WATER_BUCKET));
-        scene.idle(10);
+		hideFaucetFluid(scene, faucet1S);
+		scene.world().removeItemsFromBelt(depotPos);
+		scene.world().createItemOnBeltLike(depotPos, Direction.UP, new ItemStack(Items.WATER_BUCKET));
+		scene.idle(10);
 
-        scene.overlay()
-            .showText(80)
-            .text("Filters can restrict which fluid types are allowed through")
-            .attachKeyFrame()
-            .placeNearTarget()
-            .pointAt(util.vector().of(3.5, 2.78, 3.625));
-        scene.idle(40);
+		scene.overlay()
+			.showText(80)
+			.text("Filters can restrict which fluid types are allowed through")
+			.attachKeyFrame()
+			.placeNearTarget()
+			.pointAt(util.vector().of(3.5, 2.78, 3.625));
+		scene.idle(40);
 
-        scene.overlay()
-            .showFilterSlotInput(util.vector().of(3.5, 2.82, 3.625), Direction.UP, 60);
-        scene.idle(10);
+		scene.overlay()
+			.showFilterSlotInput(util.vector().of(3.5, 2.82, 3.625), Direction.UP, 60);
+		scene.idle(10);
 
-        scene.overlay()
-            .showControls(util.vector().of(3.5, 2.78, 3.625), Pointing.DOWN, 60)
-            .withItem(new ItemStack(Items.LAVA_BUCKET));
-        scene.idle(50);
+		scene.overlay()
+			.showControls(util.vector().of(3.5, 2.78, 3.625), Pointing.DOWN, 60)
+			.withItem(new ItemStack(Items.LAVA_BUCKET));
+		scene.idle(50);
 
-        scene.world().setFilterData(faucet1S, FaucetBlockEntity.class, new ItemStack(Items.LAVA_BUCKET));
-        scene.idle(20);
+		scene.world().setFilterData(faucet1S, FaucetBlockEntity.class, new ItemStack(Items.LAVA_BUCKET));
+		scene.idle(20);
 
-        scene.world().removeItemsFromBelt(depotPos);
-        scene.world().createItemOnBeltLike(depotPos, Direction.NORTH, new ItemStack(Items.BUCKET));
-        scene.idle(20);
+		scene.world().removeItemsFromBelt(depotPos);
+		scene.world().createItemOnBeltLike(depotPos, Direction.NORTH, new ItemStack(Items.BUCKET));
+		scene.idle(20);
 
-        CompoundTag lavaTag = fluidTag("minecraft:lava", 1000);
-        showFaucetFluid(scene, faucet1S, lavaTag);
-        scene.idle(25);
+		CompoundTag lavaTag = fluidTag("minecraft:lava", 1000);
+		showFaucetFluid(scene, faucet1S, lavaTag);
+		scene.idle(25);
 
-        hideFaucetFluid(scene, faucet1S);
-        scene.world().removeItemsFromBelt(depotPos);
-        scene.world().createItemOnBeltLike(depotPos, Direction.UP, new ItemStack(Items.LAVA_BUCKET));
-        scene.idle(30);
+		hideFaucetFluid(scene, faucet1S);
+		scene.world().removeItemsFromBelt(depotPos);
+		scene.world().createItemOnBeltLike(depotPos, Direction.UP, new ItemStack(Items.LAVA_BUCKET));
+		scene.idle(30);
 
-        scene.world().hideIndependentSection(depotLink, Direction.NORTH);
-        scene.world().setFilterData(faucet1S, FaucetBlockEntity.class, ItemStack.EMPTY);
-        scene.idle(20);
+		scene.world().hideIndependentSection(depotLink, Direction.NORTH);
+		scene.world().setFilterData(faucet1S, FaucetBlockEntity.class, ItemStack.EMPTY);
+		scene.idle(20);
 
-        scene.world().setBlock(basinPos, AllBlocks.BASIN.getDefaultState(), false);
-        scene.world().showSection(basinS, Direction.SOUTH);
-        scene.idle(15);
+		scene.world().setBlock(basinPos, AllBlocks.BASIN.getDefaultState(), false);
+		scene.world().showSection(basinS, Direction.SOUTH);
+		scene.idle(15);
 
-        scene.overlay()
-            .showText(60)
-            .text("Smart Faucets can also fill some fluid containers")
-            .attachKeyFrame()
-            .placeNearTarget()
-            .pointAt(util.vector().centerOf(depot1V));
-        scene.idle(80);
+		scene.overlay()
+			.showText(60)
+			.text("Smart Faucets can also fill some fluid containers")
+			.attachKeyFrame()
+			.placeNearTarget()
+			.pointAt(util.vector().centerOf(depot1V));
+		scene.idle(80);
 
-        CompoundTag basinWaterTag = fluidTag("minecraft:water", 1000);
-        showFaucetFluid(scene, faucet1S, basinWaterTag);
-        scene.idle(25);
+		CompoundTag basinWaterTag = fluidTag("minecraft:water", 1000);
+		showFaucetFluid(scene, faucet1S, basinWaterTag);
+		scene.idle(25);
 
-        hideFaucetFluid(scene, faucet1S);
-        addBasinFluid(scene, basinPos, new FluidStack(Fluids.WATER, 1000));
-        scene.idle(10);
+		hideFaucetFluid(scene, faucet1S);
+		addBasinFluid(scene, basinPos, new FluidStack(Fluids.WATER, 1000));
+		scene.idle(10);
 
-        showFaucetFluid(scene, faucet1S, lavaTag);
-        scene.idle(25);
+		showFaucetFluid(scene, faucet1S, lavaTag);
+		scene.idle(25);
 
-        hideFaucetFluid(scene, faucet1S);
-        addBasinFluid(scene, basinPos, new FluidStack(Fluids.LAVA, 1000));
+		hideFaucetFluid(scene, faucet1S);
+		addBasinFluid(scene, basinPos, new FluidStack(Fluids.LAVA, 1000));
 
-        scene.idle(50);
+		scene.idle(50);
 
-        scene.world().hideSection(basinS, Direction.UP);
-        scene.world().hideIndependentSection(tank1Link, Direction.UP);
-        scene.idle(5);
-        scene.world().setBlock(basinPos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), false);
-        scene.idle(30);
+		scene.world().hideSection(basinS, Direction.UP);
+		scene.world().hideIndependentSection(tank1Link, Direction.UP);
+		scene.idle(5);
+		scene.world().setBlock(basinPos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), false);
+		scene.idle(30);
 
-        Selection scaffoldingS = util.select().position(5, 1, 3);
+		Selection scaffoldingS = util.select().position(5, 1, 3);
 
-        scene.world().showSection(largeCog, Direction.UP);
-        scene.world().showSection(kinetics, Direction.DOWN);
-        scene.world().showSection(scaffoldingS, Direction.DOWN);
-        scene.world().showSection(belt, Direction.SOUTH);
-        scene.idle(5);
-        scene.world().showSection(funnelS, Direction.DOWN);
-        scene.world().showSection(chestS, Direction.DOWN);
-        scene.idle(10);
+		scene.world().showSection(largeCog, Direction.UP);
+		scene.world().showSection(kinetics, Direction.DOWN);
+		scene.world().showSection(scaffoldingS, Direction.DOWN);
+		scene.world().showSection(belt, Direction.SOUTH);
+		scene.idle(5);
+		scene.world().showSection(funnelS, Direction.DOWN);
+		scene.world().showSection(chestS, Direction.DOWN);
+		scene.idle(10);
 
-        scene.world().modifyBlock(faucet2Pos,
-            s -> s.setValue(SmartFaucetBlock.OPEN, true), false);
+		scene.world().modifyBlock(faucet2Pos,
+			s -> s.setValue(SmartFaucetBlock.OPEN, true), false);
 
-        ElementLink<WorldSectionElement> faucet2Link =
-            scene.world().showIndependentSection(tank2S, Direction.DOWN);
-        scene.idle(5);
-        scene.world().showSectionAndMerge(faucet2S, Direction.SOUTH, faucet2Link);
-        scene.idle(15);
+		ElementLink<WorldSectionElement> faucet2Link = scene.world().showIndependentSection(tank2S, Direction.DOWN);
+		scene.idle(5);
+		scene.world().showSectionAndMerge(faucet2S, Direction.SOUTH, faucet2Link);
+		scene.idle(15);
 
-        scene.overlay()
-            .showText(80)
-            .text("Smart Faucets can also fill items on belts")
-            .attachKeyFrame()
-            .placeNearTarget()
-            .pointAt(util.vector().of(2.5, 2.5, 2.5));
-        scene.idle(90);
+		scene.overlay()
+			.showText(80)
+			.text("Smart Faucets can also fill items on belts")
+			.attachKeyFrame()
+			.placeNearTarget()
+			.pointAt(util.vector().of(2.5, 2.5, 2.5));
+		scene.idle(90);
 
-        ItemStack bucket1 = new ItemStack(Items.BUCKET);
-        ElementLink<BeltItemElement> bucketItem =
-            scene.world().createItemOnBelt(util.grid().at(5, 1, 2), Direction.SOUTH, bucket1);
-        scene.idle(45);
+		ItemStack bucket1 = new ItemStack(Items.BUCKET);
+		ElementLink<BeltItemElement> bucketItem = scene.world().createItemOnBelt(util.grid().at(5, 1, 2),
+			Direction.SOUTH, bucket1);
+		scene.idle(45);
 
-        scene.world().stallBeltItem(bucketItem, true);
-        scene.idle(10);
+		scene.world().stallBeltItem(bucketItem, true);
+		scene.idle(10);
 
-        CompoundTag waterTag2 = fluidTag("minecraft:water", 1000);
-        showFaucetFluid(scene, faucet2S, waterTag2);
-        scene.idle(25);
+		CompoundTag waterTag2 = fluidTag("minecraft:water", 1000);
+		showFaucetFluid(scene, faucet2S, waterTag2);
+		scene.idle(25);
 
-        hideFaucetFluid(scene, faucet2S);
-        scene.world().removeItemsFromBelt(faucet2Pos.below());
-        bucketItem = scene.world().createItemOnBelt(faucet2Pos.below(), Direction.UP, new ItemStack(Items.WATER_BUCKET));
-        scene.world().stallBeltItem(bucketItem, true);
-        scene.world().stallBeltItem(bucketItem, false);
-        scene.idle(40);
+		hideFaucetFluid(scene, faucet2S);
+		scene.world().removeItemsFromBelt(faucet2Pos.below());
+		bucketItem = scene.world().createItemOnBelt(faucet2Pos.below(), Direction.UP,
+			new ItemStack(Items.WATER_BUCKET));
+		scene.world().stallBeltItem(bucketItem, true);
+		scene.world().stallBeltItem(bucketItem, false);
+		scene.idle(40);
 
-        scene.overlay()
-            .showText(70)
-            .text("Without a filter, Smart Faucets choose the fluid intelligently based on the item")
-            .placeNearTarget()
-            .pointAt(util.vector().of(2.5, 2.5, 2.5));
-        scene.idle(80);
+		scene.overlay()
+			.showText(70)
+			.text("Without a filter, Smart Faucets choose the fluid intelligently based on the item")
+			.placeNearTarget()
+			.pointAt(util.vector().of(2.5, 2.5, 2.5));
+		scene.idle(80);
 
-        ItemStack powderedObsidian = AllItems.POWDERED_OBSIDIAN.asStack();
-        ElementLink<BeltItemElement> obsidianItem =
-            scene.world().createItemOnBelt(util.grid().at(5, 1, 2), Direction.SOUTH, powderedObsidian);
-        scene.idle(45);
+		ItemStack powderedObsidian = AllItems.POWDERED_OBSIDIAN.asStack();
+		ElementLink<BeltItemElement> obsidianItem = scene.world().createItemOnBelt(util.grid().at(5, 1, 2),
+			Direction.SOUTH, powderedObsidian);
+		scene.idle(45);
 
-        scene.world().stallBeltItem(obsidianItem, true);
-        scene.idle(10);
+		scene.world().stallBeltItem(obsidianItem, true);
+		scene.idle(10);
 
-        CompoundTag lavaTag2 = fluidTag("minecraft:lava", 1000);
-        showFaucetFluid(scene, faucet2S, lavaTag2);
-        scene.idle(25);
+		CompoundTag lavaTag2 = fluidTag("minecraft:lava", 1000);
+		showFaucetFluid(scene, faucet2S, lavaTag2);
+		scene.idle(25);
 
-        hideFaucetFluid(scene, faucet2S);
-        scene.world().removeItemsFromBelt(faucet2Pos.below());
-        obsidianItem = scene.world().createItemOnBelt(faucet2Pos.below(), Direction.UP, AllItems.INCOMPLETE_REINFORCED_SHEET.asStack());
-        scene.world().stallBeltItem(obsidianItem, true);
-        scene.world().stallBeltItem(obsidianItem, false);
+		hideFaucetFluid(scene, faucet2S);
+		scene.world().removeItemsFromBelt(faucet2Pos.below());
+		obsidianItem = scene.world().createItemOnBelt(faucet2Pos.below(), Direction.UP,
+			AllItems.INCOMPLETE_REINFORCED_SHEET.asStack());
+		scene.world().stallBeltItem(obsidianItem, true);
+		scene.world().stallBeltItem(obsidianItem, false);
 
-        scene.markAsFinished();
-    }
+		scene.markAsFinished();
+	}
 
-    private static CompoundTag fluidTag(String fluidId, int amount) {
-        CompoundTag fluid = new CompoundTag();
-        fluid.putString("id", fluidId);
-        fluid.putInt("amount", amount);
-        return fluid;
-    }
+	private static CompoundTag fluidTag(String fluidId, int amount) {
+		CompoundTag fluid = new CompoundTag();
+		fluid.putString("id", fluidId);
+		fluid.putInt("amount", amount);
+		return fluid;
+	}
 
-    private static void showFaucetFluid(CreateSceneBuilder scene, Selection faucet, CompoundTag fluid) {
-        scene.world().modifyBlockEntityNBT(faucet, FaucetBlockEntity.class,
-            nbt -> {
-                nbt.put("RenderingFluid", fluid.copy());
-                nbt.putBoolean("IsFillingItem", false);
-                nbt.putInt("ProcessingTicks", 0);
-                nbt.putInt("ProcessingTarget", 0);
-                nbt.putInt("TransferCooldown", 40);
-            });
-    }
+	private static void showFaucetFluid(CreateSceneBuilder scene, Selection faucet, CompoundTag fluid) {
+		scene.world().modifyBlockEntityNBT(faucet, FaucetBlockEntity.class,
+			nbt -> {
+				nbt.put("RenderingFluid", fluid.copy());
+				nbt.putBoolean("IsFillingItem", false);
+				nbt.putInt("ProcessingTicks", 0);
+				nbt.putInt("ProcessingTarget", 0);
+				nbt.putInt("TransferCooldown", 40);
+			});
+	}
 
-    private static void hideFaucetFluid(CreateSceneBuilder scene, Selection faucet) {
-        scene.world().modifyBlockEntityNBT(faucet, FaucetBlockEntity.class,
-            nbt -> {
-                nbt.remove("RenderingFluid");
-                nbt.putInt("TransferCooldown", 0);
-            });
-    }
+	private static void hideFaucetFluid(CreateSceneBuilder scene, Selection faucet) {
+		scene.world().modifyBlockEntityNBT(faucet, FaucetBlockEntity.class,
+			nbt -> {
+				nbt.remove("RenderingFluid");
+				nbt.putInt("TransferCooldown", 0);
+			});
+	}
 
-    private static void addBasinFluid(CreateSceneBuilder scene, BlockPos basinPos, FluidStack fluid) {
-        scene.world().modifyBlockEntity(basinPos, BasinBlockEntity.class, be -> {
-            var fh = be.getLevel().getCapability(Capabilities.FluidHandler.BLOCK, be.getBlockPos(), null);
-            if (fh == null) {
-                return;
-            }
+	private static void addBasinFluid(CreateSceneBuilder scene, BlockPos basinPos, FluidStack fluid) {
+		scene.world().modifyBlockEntity(basinPos, BasinBlockEntity.class, be -> {
+			var fh = be.getLevel().getCapability(Capabilities.FluidHandler.BLOCK, be.getBlockPos(), null);
+			if (fh == null) {
+				return;
+			}
 
-            fh.fill(fluid.copy(), FluidAction.EXECUTE);
-        });
-    }
+			fh.fill(fluid.copy(), FluidAction.EXECUTE);
+		});
+	}
 }

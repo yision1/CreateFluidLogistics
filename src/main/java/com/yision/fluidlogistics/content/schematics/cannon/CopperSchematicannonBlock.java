@@ -8,12 +8,12 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public class CopperSchematicannonBlock extends SchematicannonBlock {
 
-    public CopperSchematicannonBlock(Properties properties) {
-        super(properties);
-    }
+	public CopperSchematicannonBlock(Properties properties) {
+		super(properties);
+	}
 
-    @Override
-    public BlockEntityType<? extends SchematicannonBlockEntity> getBlockEntityType() {
-        return AllBlockEntities.COPPER_SCHEMATICANNON.get();
-    }
+	@Override
+	public BlockEntityType<? extends SchematicannonBlockEntity> getBlockEntityType() {
+		return AllBlockEntities.COPPER_SCHEMATICANNON.get();
+	}
 }

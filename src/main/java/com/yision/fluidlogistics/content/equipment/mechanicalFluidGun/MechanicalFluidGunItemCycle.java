@@ -8,7 +8,8 @@ final class MechanicalFluidGunItemCycle {
 	private long lastTick = Long.MIN_VALUE;
 
 	boolean tick(long gameTime, float speed) {
-		if (gameTime == lastTick || speed == 0) return false;
+		if (gameTime == lastTick || speed == 0)
+			return false;
 		lastTick = gameTime;
 		progress += Math.min(256, Math.abs(speed));
 		return progress >= 256f * SpoutBlockEntity.FILLING_TIME / 2;

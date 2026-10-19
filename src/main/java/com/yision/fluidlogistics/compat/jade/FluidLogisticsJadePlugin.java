@@ -18,27 +18,27 @@ import snownee.jade.api.WailaPlugin;
 @WailaPlugin
 public class FluidLogisticsJadePlugin implements IWailaPlugin {
 
-    @Override
-    public void register(IWailaCommonRegistration registration) {
-        registration.registerItemStorage(PackageItemStorageProvider.INSTANCE, PackageEntity.class);
-        registration.registerFluidStorage(PackageFluidStorageProvider.INSTANCE, PackageEntity.class);
-        registration.registerFluidStorage(MultiFluidTankProvider.INSTANCE, Block.class);
-        registration.registerFluidStorage(ContraptionMultiFluidTankProvider.INSTANCE, AbstractContraptionEntity.class);
-        registration.registerFluidStorage(ConnectedFluidSourceProvider.INSTANCE, MechanicalFluidGunBlockEntity.class);
-        registration.registerFluidStorage(ConnectedFluidSourceProvider.INSTANCE, FaucetBlockEntity.class);
-        registration.registerFluidStorage(ConnectedFluidSourceProvider.INSTANCE, MultiFluidAccessPortBlockEntity.class);
-        registration.registerFluidStorage(ConnectedFluidSourceProvider.INSTANCE,
-            FluidInventoryAccessPortBlockEntity.class);
-    }
+	@Override
+	public void register(IWailaCommonRegistration registration) {
+		registration.registerItemStorage(PackageItemStorageProvider.INSTANCE, PackageEntity.class);
+		registration.registerFluidStorage(PackageFluidStorageProvider.INSTANCE, PackageEntity.class);
+		registration.registerFluidStorage(MultiFluidTankProvider.INSTANCE, Block.class);
+		registration.registerFluidStorage(ContraptionMultiFluidTankProvider.INSTANCE, AbstractContraptionEntity.class);
+		registration.registerFluidStorage(ConnectedFluidSourceProvider.INSTANCE, MechanicalFluidGunBlockEntity.class);
+		registration.registerFluidStorage(ConnectedFluidSourceProvider.INSTANCE, FaucetBlockEntity.class);
+		registration.registerFluidStorage(ConnectedFluidSourceProvider.INSTANCE, MultiFluidAccessPortBlockEntity.class);
+		registration.registerFluidStorage(ConnectedFluidSourceProvider.INSTANCE,
+			FluidInventoryAccessPortBlockEntity.class);
+	}
 
-    @Override
-    public void registerClient(IWailaClientRegistration registration) {
-        registration.registerItemStorageClient(PackageItemStorageProvider.INSTANCE);
-        registration.registerFluidStorageClient(PackageFluidStorageProvider.INSTANCE);
-        registration.registerFluidStorageClient(MultiFluidTankProvider.INSTANCE);
-        registration.registerFluidStorageClient(ContraptionMultiFluidTankProvider.INSTANCE);
-        registration.registerFluidStorageClient(ConnectedFluidSourceProvider.INSTANCE);
-        registration.registerBlockComponent(BlazeCoolerIconProvider.INSTANCE, BlazeCoolerBlock.class);
-        registration.usePickedResult(AllBlocks.FACTORY_GAUGE.get());
-    }
+	@Override
+	public void registerClient(IWailaClientRegistration registration) {
+		registration.registerItemStorageClient(PackageItemStorageProvider.INSTANCE);
+		registration.registerFluidStorageClient(PackageFluidStorageProvider.INSTANCE);
+		registration.registerFluidStorageClient(MultiFluidTankProvider.INSTANCE);
+		registration.registerFluidStorageClient(ContraptionMultiFluidTankProvider.INSTANCE);
+		registration.registerFluidStorageClient(ConnectedFluidSourceProvider.INSTANCE);
+		registration.registerBlockComponent(BlazeCoolerIconProvider.INSTANCE, BlazeCoolerBlock.class);
+		registration.usePickedResult(AllBlocks.FACTORY_GAUGE.get());
+	}
 }

@@ -13,41 +13,39 @@ import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
+
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.fluids.SimpleFluidContent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class AllDataComponents {
 
-    private static final DeferredRegister.DataComponents DATA_COMPONENTS = 
-            DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, "fluidlogistics");
+	private static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister
+		.createDataComponents(Registries.DATA_COMPONENT_TYPE, "fluidlogistics");
 
-    public static final DataComponentType<FluidTankContent> FLUID_TANK_CONTENT = register(
-            "fluid_tank_content",
-            builder -> builder.persistent(FluidTankContent.CODEC)
-                    .networkSynchronized(FluidTankContent.STREAM_CODEC)
-    );
+	public static final DataComponentType<FluidTankContent> FLUID_TANK_CONTENT = register(
+		"fluid_tank_content",
+		builder -> builder.persistent(FluidTankContent.CODEC)
+			.networkSynchronized(FluidTankContent.STREAM_CODEC));
 
-    public static final DataComponentType<SimpleFluidContent> COPPER_BUCKET_CONTENT = register(
-            "copper_bucket_content",
-            builder -> builder.persistent(SimpleFluidContent.CODEC)
-                    .networkSynchronized(SimpleFluidContent.STREAM_CODEC)
-    );
+	public static final DataComponentType<SimpleFluidContent> COPPER_BUCKET_CONTENT = register(
+		"copper_bucket_content",
+		builder -> builder.persistent(SimpleFluidContent.CODEC)
+			.networkSynchronized(SimpleFluidContent.STREAM_CODEC));
 
-    public static final DataComponentType<List<UUID>> HAND_POINTER_AUTHORIZED_NETWORKS = register(
-            "hand_pointer_authorized_networks",
-            builder -> builder.persistent(UUIDUtil.STRING_CODEC.listOf())
-                    .networkSynchronized(ByteBufCodecs.collection(ArrayList::new, UUIDUtil.STREAM_CODEC))
-    );
+	public static final DataComponentType<List<UUID>> HAND_POINTER_AUTHORIZED_NETWORKS = register(
+		"hand_pointer_authorized_networks",
+		builder -> builder.persistent(UUIDUtil.STRING_CODEC.listOf())
+			.networkSynchronized(ByteBufCodecs.collection(ArrayList::new, UUIDUtil.STREAM_CODEC)));
 
-    private static <T> DataComponentType<T> register(String name, UnaryOperator<DataComponentType.Builder<T>> builder) {
-        DataComponentType<T> type = builder.apply(DataComponentType.builder()).build();
-        DATA_COMPONENTS.register(name, () -> type);
-        return type;
-    }
+	private static <T> DataComponentType<T> register(String name, UnaryOperator<DataComponentType.Builder<T>> builder) {
+		DataComponentType<T> type = builder.apply(DataComponentType.builder()).build();
+		DATA_COMPONENTS.register(name, () -> type);
+		return type;
+	}
 
-    @Internal
-    public static void register(IEventBus modEventBus) {
-        DATA_COMPONENTS.register(modEventBus);
-    }
+	@Internal
+	public static void register(IEventBus modEventBus) {
+		DATA_COMPONENTS.register(modEventBus);
+	}
 }

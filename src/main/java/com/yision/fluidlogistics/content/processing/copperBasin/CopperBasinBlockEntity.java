@@ -303,6 +303,6 @@ public class CopperBasinBlockEntity extends BasinBlockEntity {
 		protected boolean isSideActive(BlockState state, Direction direction) {
 			return direction.getAxis()
 				.isHorizontal();
-		}
 	}
+}
 }

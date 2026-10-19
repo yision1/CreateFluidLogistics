@@ -11,56 +11,56 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 public interface PackageResourceType {
-    enum SawAction {
-        DEFAULT,
-        DESTROY_WITHOUT_DROPS
-    }
+	enum SawAction {
+		DEFAULT,
+		DESTROY_WITHOUT_DROPS
+	}
 
-    enum DropAction {
-        PASS,
-        CONSUME_CARRIERS
-    }
+	enum DropAction {
+		PASS,
+		CONSUME_CARRIERS
+	}
 
-    ResourceLocation id();
+	ResourceLocation id();
 
-    Supplier<? extends Item> carrierItem();
+	Supplier<? extends Item> carrierItem();
 
-    @Contract(pure = true)
-    boolean isValidCarrier(ItemStack stack);
+	@Contract(pure = true)
+	boolean isValidCarrier(ItemStack stack);
 
-    ItemStack normalizeKey(ItemStack stack);
+	ItemStack normalizeKey(ItemStack stack);
 
-    boolean matches(ItemStack firstNormalizedKey, ItemStack secondNormalizedKey);
+	boolean matches(ItemStack firstNormalizedKey, ItemStack secondNormalizedKey);
 
-    @Contract(pure = true)
-    default int identityHash(ItemStack normalizedKey) {
-        return 0;
-    }
+	@Contract(pure = true)
+	default int identityHash(ItemStack normalizedKey) {
+		return 0;
+	}
 
-    @Contract(pure = true)
-    int amountOf(ItemStack carrierStack);
+	@Contract(pure = true)
+	int amountOf(ItemStack carrierStack);
 
-    ItemStack createCarrier(ItemStack normalizedKey, int amount);
+	ItemStack createCarrier(ItemStack normalizedKey, int amount);
 
-    int maxPerPackage(ItemStack normalizedKey);
+	int maxPerPackage(ItemStack normalizedKey);
 
-    ItemStack createPackage(ItemStack normalizedKey, int amount);
+	ItemStack createPackage(ItemStack normalizedKey, int amount);
 
-    Optional<PackageResource> readCanonicalPackage(ItemStack packageStack);
+	Optional<PackageResource> readCanonicalPackage(ItemStack packageStack);
 
-    boolean unpack(PackageUnpackContext context, PackageResource resource, boolean simulate);
+	boolean unpack(PackageUnpackContext context, PackageResource resource, boolean simulate);
 
-    PackageResourceDisplay display();
+	PackageResourceDisplay display();
 
-    default boolean survivesWater(ItemStack packageStack, PackageInspection inspection) {
-        return false;
-    }
+	default boolean survivesWater(ItemStack packageStack, PackageInspection inspection) {
+		return false;
+	}
 
-    default SawAction sawAction(ItemStack packageStack, PackageInspection inspection) {
-        return SawAction.DEFAULT;
-    }
+	default SawAction sawAction(ItemStack packageStack, PackageInspection inspection) {
+		return SawAction.DEFAULT;
+	}
 
-    default DropAction onDestroyed(PackageDestroyContext context, List<PackageResource> resources) {
-        return DropAction.PASS;
-    }
+	default DropAction onDestroyed(PackageDestroyContext context, List<PackageResource> resources) {
+		return DropAction.PASS;
+	}
 }

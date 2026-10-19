@@ -19,67 +19,69 @@ import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class ResourceFactoryGaugeSetFilterScreen extends AbstractSimiContainerScreen<ResourceFactoryGaugeSetFilterMenu> {
+public class ResourceFactoryGaugeSetFilterScreen
+	extends AbstractSimiContainerScreen<ResourceFactoryGaugeSetFilterMenu> {
 
-    private static final FluidLogisticsGuiTextures BACKGROUND = FluidLogisticsGuiTextures.FACTORY_GAUGE_SET_FILTER;
+	private static final FluidLogisticsGuiTextures BACKGROUND = FluidLogisticsGuiTextures.FACTORY_GAUGE_SET_FILTER;
 
-    private IconButton confirmButton;
-    private List<Rect2i> extraAreas = Collections.emptyList();
+	private IconButton confirmButton;
+	private List<Rect2i> extraAreas = Collections.emptyList();
 
-    public ResourceFactoryGaugeSetFilterScreen(ResourceFactoryGaugeSetFilterMenu menu, Inventory inv,
-        Component title) {
-        super(menu, inv, title);
-    }
+	public ResourceFactoryGaugeSetFilterScreen(ResourceFactoryGaugeSetFilterMenu menu, Inventory inv,
+		Component title) {
+		super(menu, inv, title);
+	}
 
-    @Override
-    protected void init() {
-        int bgHeight = BACKGROUND.getHeight();
-        int bgWidth = BACKGROUND.getWidth();
-        setWindowSize(bgWidth, bgHeight + AllGuiTextures.PLAYER_INVENTORY.getHeight());
-        super.init();
-        clearWidgets();
-        int x = getGuiLeft();
-        int y = getGuiTop();
+	@Override
+	protected void init() {
+		int bgHeight = BACKGROUND.getHeight();
+		int bgWidth = BACKGROUND.getWidth();
+		setWindowSize(bgWidth, bgHeight + AllGuiTextures.PLAYER_INVENTORY.getHeight());
+		super.init();
+		clearWidgets();
+		int x = getGuiLeft();
+		int y = getGuiTop();
 
-        confirmButton = new IconButton(x + bgWidth - 40, y + bgHeight - 25, AllIcons.I_CONFIRM);
-        confirmButton.withCallback(() -> minecraft.player.closeContainer());
-        addRenderableWidget(confirmButton);
+		confirmButton = new IconButton(x + bgWidth - 40, y + bgHeight - 25, AllIcons.I_CONFIRM);
+		confirmButton.withCallback(() -> minecraft.player.closeContainer());
+		addRenderableWidget(confirmButton);
 
-        extraAreas = List.of(new Rect2i(x + bgWidth, y + bgHeight - 30, 40, 20));
-    }
+		extraAreas = List.of(new Rect2i(x + bgWidth, y + bgHeight - 30, 40, 20));
+	}
 
-    @Override
-    protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        int x = getGuiLeft();
-        int y = getGuiTop();
-        BACKGROUND.render(graphics, x - 5, y);
-        renderPlayerInventory(graphics, x + 5, y + 94);
+	@Override
+	protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+		int x = getGuiLeft();
+		int y = getGuiTop();
+		BACKGROUND.render(graphics, x - 5, y);
+		renderPlayerInventory(graphics, x + 5, y + 94);
 
-        Component title = CreateLang.translate("gui.factory_panel.place_item_to_monitor")
-            .component();
-        graphics.drawString(font, title, x + imageWidth / 2 - font.width(title) / 2 - 5, y + 4, 0x3D3C48, false);
+		Component title = CreateLang.translate("gui.factory_panel.place_item_to_monitor")
+			.component();
+		graphics.drawString(font, title, x + imageWidth / 2 - font.width(title) / 2 - 5, y + 4, 0x3D3C48, false);
 
-        GuiGameElement.of(previewStack())
-            .scale(3)
-            .render(graphics, x + 180, y + 48);
-    }
+		GuiGameElement.of(previewStack())
+			.scale(3)
+			.render(graphics, x + 180, y + 48);
+	}
 
-    private ItemStack previewStack() {
-        if (getMenu().contentHolder instanceof ResourceFactoryPanelBehaviour behaviour) {
-            return behaviour.registeredType()
-                .<ItemStack>map(type -> new ItemStack(type.item()
-                    .get()))
-                .orElseGet(AllBlocks.FACTORY_GAUGE::asStack);
-        }
-        return AllBlocks.FACTORY_GAUGE.asStack();
-    }
+	private ItemStack previewStack() {
+		if (getMenu().contentHolder instanceof ResourceFactoryPanelBehaviour behaviour) {
+			return behaviour.registeredType()
+				.<ItemStack>map(type -> new ItemStack(type.item()
+					.get()))
+				.orElseGet(AllBlocks.FACTORY_GAUGE::asStack);
+		}
+		return AllBlocks.FACTORY_GAUGE.asStack();
+	}
 
-    @Override
-    public List<Rect2i> getExtraAreas() {
-        return extraAreas;
-    }
+	@Override
+	public List<Rect2i> getExtraAreas() {
+		return extraAreas;
+	}
 }

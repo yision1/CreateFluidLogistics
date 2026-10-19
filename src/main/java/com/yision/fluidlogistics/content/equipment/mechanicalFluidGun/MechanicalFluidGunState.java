@@ -1,16 +1,5 @@
 package com.yision.fluidlogistics.content.equipment.mechanicalFluidGun;
 
-import com.simibubi.create.AllSoundEvents;
-import com.simibubi.create.AllDataComponents;
-import com.simibubi.create.AllRecipeTypes;
-import com.simibubi.create.content.fluids.transfer.FillingRecipe;
-import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipe;
-import com.simibubi.create.content.contraptions.StructureTransform;
-import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.INamedIconOptions;
-import com.simibubi.create.foundation.gui.AllIcons;
-import com.yision.fluidlogistics.content.fluids.faucet.FaucetFilling;
-import net.createmod.catnip.lang.Lang;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,6 +8,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jetbrains.annotations.Nullable;
+
+import com.simibubi.create.AllDataComponents;
+import com.simibubi.create.AllRecipeTypes;
+import com.simibubi.create.AllSoundEvents;
+import com.simibubi.create.content.contraptions.StructureTransform;
+import com.simibubi.create.content.fluids.transfer.FillingRecipe;
+import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipe;
+import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.INamedIconOptions;
+import com.simibubi.create.foundation.gui.AllIcons;
+import com.yision.fluidlogistics.content.fluids.faucet.FaucetFilling;
+
+import net.createmod.catnip.lang.Lang;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -28,9 +30,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import org.jetbrains.annotations.Nullable;
 
 interface MechanicalFluidGunContext {
 	Level level();
@@ -112,7 +114,8 @@ class MechanicalFluidGunCycle {
 	void tickContainerFillCooldowns() {
 		containerFillCooldowns.entrySet().removeIf(entry -> {
 			int next = entry.getValue() - 1;
-			if (next <= 0) return true;
+			if (next <= 0)
+				return true;
 			entry.setValue(next);
 			return false;
 		});
@@ -208,7 +211,8 @@ class MechanicalFluidGunAimState {
 	}
 
 	void write(CompoundTag tag) {
-		if (dynamicAimPoint == null) return;
+		if (dynamicAimPoint == null)
+			return;
 		tag.putInt("DynamicAimTarget", dynamicTargetIndex);
 		tag.putDouble("DynamicAimX", dynamicAimPoint.x);
 		tag.putDouble("DynamicAimY", dynamicAimPoint.y);
@@ -314,22 +318,25 @@ class MechanicalFluidGunItemFilling {
 	}
 
 	static boolean startFilling(MechanicalFluidGunBlockEntity be,
-								IFluidHandler sourceHandler,
-								ItemStack item,
-								FluidStack availableFluid,
-								ProcessingTarget targetType,
-								@Nullable BlockPos beltPos) {
+		IFluidHandler sourceHandler,
+		ItemStack item,
+		FluidStack availableFluid,
+		ProcessingTarget targetType,
+		@Nullable BlockPos beltPos) {
 		int requiredAmount = FaucetFilling
 			.getRequiredAmountForItem(be.getLevel(), item, availableFluid.copy());
-		if (requiredAmount <= 0 || requiredAmount > availableFluid.getAmount()) return false;
+		if (requiredAmount <= 0 || requiredAmount > availableFluid.getAmount())
+			return false;
 
 		FluidStack simulatedDrain = sourceHandler.drain(
 			availableFluid.copyWithAmount(requiredAmount), IFluidHandler.FluidAction.SIMULATE);
-		if (simulatedDrain.isEmpty() || simulatedDrain.getAmount() < requiredAmount) return false;
+		if (simulatedDrain.isEmpty() || simulatedDrain.getAmount() < requiredAmount)
+			return false;
 		ItemStack preparedInput = item.copyWithCount(1);
 		ItemStack preparedResult = FaucetFilling.fillItem(be.getLevel(), requiredAmount,
 			preparedInput, simulatedDrain.copy());
-		if (preparedResult.isEmpty() || !preparedInput.isEmpty()) return false;
+		if (preparedResult.isEmpty() || !preparedInput.isEmpty())
+			return false;
 
 		MechanicalFluidGunItemFilling itemFilling = be.getItemFillingHelper();
 		MechanicalFluidGunVisuals visuals = be.getVisualsHelper();
@@ -339,7 +346,8 @@ class MechanicalFluidGunItemFilling {
 		} else {
 			itemFilling.startDepot(item, simulatedDrain, preparedResult);
 		}
-		if (visuals.isSpraying()) visuals.startSpraying(simulatedDrain, be.getSpeed(), false);
+		if (visuals.isSpraying())
+			visuals.startSpraying(simulatedDrain, be.getSpeed(), false);
 		be.notifyGunUpdate();
 		return true;
 	}
@@ -360,23 +368,31 @@ class MechanicalFluidGunItemFilling {
 	}
 
 	boolean refreshAssembly(MechanicalFluidGunBlockEntity be, ItemStack item) {
-		if (canCommit(item)) return true;
-		if (!isFillingItem || item.isEmpty() || pendingFluid.isEmpty()) return false;
+		if (canCommit(item))
+			return true;
+		if (!isFillingItem || item.isEmpty() || pendingFluid.isEmpty())
+			return false;
 		var assembly = item.get(AllDataComponents.SEQUENCED_ASSEMBLY);
-		if (assembly == null) return false;
+		if (assembly == null)
+			return false;
 		var previous = SequencedAssemblyRecipe.getRecipe(be.getLevel(), processingItem,
 			AllRecipeTypes.FILLING.getType(), FillingRecipe.class);
-		if (previous.isEmpty() || !previous.get().id().equals(assembly.id())) return false;
+		if (previous.isEmpty() || !previous.get().id().equals(assembly.id()))
+			return false;
 		var next = SequencedAssemblyRecipe.getRecipe(be.getLevel(), item,
 			AllRecipeTypes.FILLING.getType(), FillingRecipe.class);
-		if (next.isEmpty() || !next.get().id().equals(assembly.id())) return false;
+		if (next.isEmpty() || !next.get().id().equals(assembly.id()))
+			return false;
 		var required = next.get().value().getRequiredFluid();
-		if (!required.ingredient().test(pendingFluid) || required.amount() <= 0) return false;
+		if (!required.ingredient().test(pendingFluid) || required.amount() <= 0)
+			return false;
 		var source = be.sourceHandler();
 		FluidStack fluid = pendingFluid.copyWithAmount(required.amount());
-		if (source == null || !required.test(source.drain(fluid, IFluidHandler.FluidAction.SIMULATE))) return false;
+		if (source == null || !required.test(source.drain(fluid, IFluidHandler.FluidAction.SIMULATE)))
+			return false;
 		var results = next.get().value().rollResults(be.getLevel().random);
-		if (results.isEmpty() || results.getFirst().isEmpty()) return false;
+		if (results.isEmpty() || results.getFirst().isEmpty())
+			return false;
 		processingItem = item.copyWithCount(1);
 		pendingFluid = fluid;
 		preparedResult = results.getFirst().copy();
@@ -389,11 +405,14 @@ class MechanicalFluidGunItemFilling {
 	}
 
 	FluidStack drainPendingFluid(IFluidHandler sourceHandler) {
-		if (pendingFluid.isEmpty()) return FluidStack.EMPTY;
+		if (pendingFluid.isEmpty())
+			return FluidStack.EMPTY;
 		FluidStack simulated = sourceHandler.drain(pendingFluid.copy(), IFluidHandler.FluidAction.SIMULATE);
-		if (!isExactPendingFluid(simulated)) return FluidStack.EMPTY;
+		if (!isExactPendingFluid(simulated))
+			return FluidStack.EMPTY;
 		FluidStack drained = sourceHandler.drain(pendingFluid.copy(), IFluidHandler.FluidAction.EXECUTE);
-		if (isExactPendingFluid(drained)) return drained;
+		if (isExactPendingFluid(drained))
+			return drained;
 		if (!drained.isEmpty()) {
 			MechanicalFluidGunFillOperations.restoreToSource(sourceHandler, drained);
 		}
@@ -517,12 +536,14 @@ class MechanicalFluidGunTargets {
 	}
 
 	boolean isTargetValid(Level level, BlockPos gunPos, BlockPos absTarget) {
-		if (!level.isLoaded(absTarget)) return false;
+		if (!level.isLoaded(absTarget))
+			return false;
 		return gunPos.distSqr(absTarget) <= RANGE * RANGE;
 	}
 
 	boolean hasValidTarget(Level level, BlockPos gunPos) {
-		if (targets.isEmpty()) return false;
+		if (targets.isEmpty())
+			return false;
 		for (MechanicalFluidGunTargetConfig target : targets) {
 			if (isTargetValid(level, gunPos, target.absoluteFrom(gunPos))) {
 				return true;
@@ -568,7 +589,8 @@ class MechanicalFluidGunTargets {
 	}
 
 	void transform(StructureTransform transform) {
-		if (targets.isEmpty()) return;
+		if (targets.isEmpty())
+			return;
 		for (int i = 0; i < targets.size(); i++) {
 			targets.set(i, targets.get(i).transform(transform));
 		}

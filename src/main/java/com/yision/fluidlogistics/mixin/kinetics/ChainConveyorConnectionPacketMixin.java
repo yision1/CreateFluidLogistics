@@ -10,8 +10,8 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.simibubi.create.content.kinetics.chainConveyor.ChainConveyorBlockEntity;
 import com.simibubi.create.content.kinetics.chainConveyor.ChainConveyorConnectionPacket;
+import com.yision.fluidlogistics.content.logistics.fluidPackage.phantomChain.PhantomChainConveyorAccess;
 import com.yision.fluidlogistics.registry.AllItems;
-import com.yision.fluidlogistics.util.PhantomChainConveyorAccess;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -29,15 +29,9 @@ public class ChainConveyorConnectionPacketMixin {
 	@Final
 	private ItemStack chain;
 
-	@ModifyExpressionValue(
-		method = "applySettings",
-		at = @At(
-			value = "FIELD",
-			target = "Lnet/minecraft/world/item/Items;CHAIN:Lnet/minecraft/world/item/Item;"
-		)
-	)
+	@ModifyExpressionValue(method = "applySettings", at = @At(value = "FIELD", target = "Lnet/minecraft/world/item/Items;CHAIN:Lnet/minecraft/world/item/Item;"))
 	private Item fluidlogistics$returnPhantomChainOnDisconnect(Item original, ServerPlayer player,
-															   ChainConveyorBlockEntity be) {
+		ChainConveyorBlockEntity be) {
 		BlockPos connection = targetPos.subtract(be.getBlockPos());
 		if (((PhantomChainConveyorAccess) be).fluidlogistics$isPhantomConnection(connection)) {
 			return AllItems.PHANTOM_CHAIN.get();
@@ -45,19 +39,12 @@ public class ChainConveyorConnectionPacketMixin {
 		return original;
 	}
 
-	@WrapOperation(
-		method = "applySettings",
-		at = @At(
-			value = "INVOKE",
-			target = "Lcom/simibubi/create/content/kinetics/chainConveyor/ChainConveyorBlockEntity;addConnectionTo(Lnet/minecraft/core/BlockPos;)Z",
-			ordinal = 1
-		)
-	)
+	@WrapOperation(method = "applySettings", at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/kinetics/chainConveyor/ChainConveyorBlockEntity;addConnectionTo(Lnet/minecraft/core/BlockPos;)Z", ordinal = 1))
 	private boolean fluidlogistics$markPhantomConnectionOnSuccessfulConnect(ChainConveyorBlockEntity instance,
-																			BlockPos target,
-																			Operation<Boolean> original,
-																			ServerPlayer player,
-																			ChainConveyorBlockEntity be) {
+		BlockPos target,
+		Operation<Boolean> original,
+		ServerPlayer player,
+		ChainConveyorBlockEntity be) {
 		boolean added = original.call(instance, target);
 		if (!added || !chain.is(AllItems.PHANTOM_CHAIN.get())) {
 			return added;

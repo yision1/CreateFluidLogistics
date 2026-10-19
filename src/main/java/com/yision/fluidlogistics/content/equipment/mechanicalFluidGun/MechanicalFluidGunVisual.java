@@ -2,6 +2,8 @@ package com.yision.fluidlogistics.content.equipment.mechanicalFluidGun;
 
 import java.util.function.Consumer;
 
+import org.jetbrains.annotations.Nullable;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.simibubi.create.content.fluids.FluidTransportBehaviour.AttachmentTypes.ComponentPartials;
@@ -19,7 +21,6 @@ import dev.engine_room.flywheel.lib.visual.AbstractBlockEntityVisual;
 import dev.engine_room.flywheel.lib.visual.SimpleDynamicVisual;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
-import org.jetbrains.annotations.Nullable;
 
 public class MechanicalFluidGunVisual extends AbstractBlockEntityVisual<MechanicalFluidGunBlockEntity>
 	implements SimpleDynamicVisual {
@@ -39,7 +40,7 @@ public class MechanicalFluidGunVisual extends AbstractBlockEntityVisual<Mechanic
 	private float lastPitch = Float.NaN;
 
 	public MechanicalFluidGunVisual(VisualizationContext context, MechanicalFluidGunBlockEntity blockEntity,
-									float partialTick) {
+		float partialTick) {
 		super(context, blockEntity, partialTick);
 		base = create(AllPartialModels.MECHANICAL_FLUID_GUN_BASE);
 		cog = create(AllPartialModels.MECHANICAL_FLUID_GUN_COG);
@@ -49,7 +50,7 @@ public class MechanicalFluidGunVisual extends AbstractBlockEntityVisual<Mechanic
 		bottom = create(AllPartialModels.MECHANICAL_FLUID_GUN_GUNPOINT_BOTTOM);
 		sourceDirection = MechanicalFluidGunMount.getMountFace(blockState).getOpposite();
 		sourceInterface = create(getSourcePartial(sourceDirection));
-		instances = new TransformedInstance[]{base, cog, gunBody, top, middle, bottom, sourceInterface};
+		instances = new TransformedInstance[] { base, cog, gunBody, top, middle, bottom, sourceInterface };
 		sourceInterface.setIdentityTransform().translate(getVisualPosition()).setChanged();
 
 		TransformStack.of(poseStack).translate(getVisualPosition());

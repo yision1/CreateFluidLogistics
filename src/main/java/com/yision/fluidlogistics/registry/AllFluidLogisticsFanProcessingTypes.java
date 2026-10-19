@@ -20,10 +20,10 @@ public final class AllFluidLogisticsFanProcessingTypes {
     public static final DeferredHolder<FanProcessingType, InactiveBulkCoolingFanProcessingType> INACTIVE_BULK_COOLING =
         REGISTER.register("inactive_bulk_cooling", InactiveBulkCoolingFanProcessingType::new);
 
-    private AllFluidLogisticsFanProcessingTypes() {
-    }
+	private AllFluidLogisticsFanProcessingTypes() {
+	}
 
-    public static void register(IEventBus modEventBus) {
-        REGISTER.register(modEventBus);
-    }
+	public static void register(IEventBus modEventBus) {
+		REGISTER.register(modEventBus);
+	}
 }

@@ -5,6 +5,7 @@ import com.yision.fluidlogistics.registry.AllBlockEntities;
 
 import net.createmod.catnip.lang.Lang;
 import net.minecraft.core.Direction.Axis;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
@@ -18,137 +19,139 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.util.StringRepresentable;
 
 public class HorizontalMultiFluidTankBlock extends AbstractMultiFluidTankBlock<HorizontalMultiFluidTankBlockEntity> {
 
-    public static final BooleanProperty POSITIVE = BooleanProperty.create("positive");
-    public static final BooleanProperty NEGATIVE = BooleanProperty.create("negative");
-    public static final EnumProperty<Axis> AXIS = BlockStateProperties.HORIZONTAL_AXIS;
-    public static final EnumProperty<Shape> SHAPE = EnumProperty.create("shape", Shape.class);
+	public static final BooleanProperty POSITIVE = BooleanProperty.create("positive");
+	public static final BooleanProperty NEGATIVE = BooleanProperty.create("negative");
+	public static final EnumProperty<Axis> AXIS = BlockStateProperties.HORIZONTAL_AXIS;
+	public static final EnumProperty<Shape> SHAPE = EnumProperty.create("shape", Shape.class);
 
-    public static HorizontalMultiFluidTankBlock regular(Properties properties) {
-        return new HorizontalMultiFluidTankBlock(properties);
-    }
+	public static HorizontalMultiFluidTankBlock regular(Properties properties) {
+		return new HorizontalMultiFluidTankBlock(properties);
+	}
 
-    protected HorizontalMultiFluidTankBlock(Properties properties) {
-        super(properties);
-        registerDefaultState(defaultBlockState()
-                .setValue(POSITIVE, true)
-                .setValue(NEGATIVE, true)
-                .setValue(AXIS, Axis.X)
-                .setValue(SHAPE, Shape.WINDOW));
-    }
+	protected HorizontalMultiFluidTankBlock(Properties properties) {
+		super(properties);
+		registerDefaultState(defaultBlockState()
+			.setValue(POSITIVE, true)
+			.setValue(NEGATIVE, true)
+			.setValue(AXIS, Axis.X)
+			.setValue(SHAPE, Shape.WINDOW));
+	}
 
-    @Override
-    protected String silenceSoundTag() {
-        return "SilenceVesselSound";
-    }
+	@Override
+	protected String silenceSoundTag() {
+		return "SilenceVesselSound";
+	}
 
-    @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(POSITIVE, NEGATIVE, AXIS, SHAPE);
-    }
+	@Override
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+		builder.add(POSITIVE, NEGATIVE, AXIS, SHAPE);
+	}
 
-    public static boolean isVessel(BlockState state) {
-        return state.getBlock() instanceof HorizontalMultiFluidTankBlock;
-    }
+	public static boolean isVessel(BlockState state) {
+		return state.getBlock() instanceof HorizontalMultiFluidTankBlock;
+	}
 
-    @Override
-    protected boolean isOwnBlockEntity(BlockEntity be) {
-        return be instanceof HorizontalMultiFluidTankBlockEntity;
-    }
+	@Override
+	protected boolean isOwnBlockEntity(BlockEntity be) {
+		return be instanceof HorizontalMultiFluidTankBlockEntity;
+	}
 
-    @Override
-    public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-        if (ctx.getPlayer() == null || !ctx.getPlayer().isShiftKeyDown()) {
-            BlockState placedOn = ctx.getLevel().getBlockState(ctx.getClickedPos().relative(ctx.getClickedFace().getOpposite()));
-            Axis preferredAxis = placedOn.getOptionalValue(AXIS).orElse(null);
-            if (preferredAxis != null)
-                return this.defaultBlockState().setValue(AXIS, preferredAxis);
-        }
-        return this.defaultBlockState().setValue(AXIS, ctx.getHorizontalDirection().getAxis());
-    }
+	@Override
+	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+		if (ctx.getPlayer() == null || !ctx.getPlayer().isShiftKeyDown()) {
+			BlockState placedOn = ctx.getLevel()
+				.getBlockState(ctx.getClickedPos().relative(ctx.getClickedFace().getOpposite()));
+			Axis preferredAxis = placedOn.getOptionalValue(AXIS).orElse(null);
+			if (preferredAxis != null)
+				return this.defaultBlockState().setValue(AXIS, preferredAxis);
+		}
+		return this.defaultBlockState().setValue(AXIS, ctx.getHorizontalDirection().getAxis());
+	}
 
-    @Override
-    public InteractionResult onWrenched(BlockState state, UseOnContext context) {
-        withBlockEntityDo(context.getLevel(), context.getClickedPos(), HorizontalMultiFluidTankBlockEntity::toggleWindows);
-        return InteractionResult.SUCCESS;
-    }
+	@Override
+	public InteractionResult onWrenched(BlockState state, UseOnContext context) {
+		withBlockEntityDo(context.getLevel(), context.getClickedPos(),
+			HorizontalMultiFluidTankBlockEntity::toggleWindows);
+		return InteractionResult.SUCCESS;
+	}
 
-    @Override
-    protected float particleHeight(HorizontalMultiFluidTankBlockEntity controllerBE) {
-        return controllerBE.getWidth() - .5f;
-    }
+	@Override
+	protected float particleHeight(HorizontalMultiFluidTankBlockEntity controllerBE) {
+		return controllerBE.getWidth() - .5f;
+	}
 
-    @Override
-    public Class<HorizontalMultiFluidTankBlockEntity> getBlockEntityClass() {
-        return HorizontalMultiFluidTankBlockEntity.class;
-    }
+	@Override
+	public Class<HorizontalMultiFluidTankBlockEntity> getBlockEntityClass() {
+		return HorizontalMultiFluidTankBlockEntity.class;
+	}
 
-    @Override
-    public BlockEntityType<? extends HorizontalMultiFluidTankBlockEntity> getBlockEntityType() {
-        return AllBlockEntities.HORIZONTAL_MULTI_FLUID_TANK.get();
-    }
+	@Override
+	public BlockEntityType<? extends HorizontalMultiFluidTankBlockEntity> getBlockEntityType() {
+		return AllBlockEntities.HORIZONTAL_MULTI_FLUID_TANK.get();
+	}
 
-    @Override
-    public BlockState mirror(BlockState state, Mirror mirror) {
-        if (mirror == Mirror.NONE)
-            return state;
-        Axis mirrorAxis = mirror == Mirror.FRONT_BACK ? Axis.X : Axis.Z;
-        Axis axis = state.getValue(AXIS);
-        if (axis == mirrorAxis) {
-            return state.setValue(POSITIVE, state.getValue(NEGATIVE))
-                    .setValue(NEGATIVE, state.getValue(POSITIVE));
-        } else {
-            return state;
-        }
-    }
+	@Override
+	public BlockState mirror(BlockState state, Mirror mirror) {
+		if (mirror == Mirror.NONE)
+			return state;
+		Axis mirrorAxis = mirror == Mirror.FRONT_BACK ? Axis.X : Axis.Z;
+		Axis axis = state.getValue(AXIS);
+		if (axis == mirrorAxis) {
+			return state.setValue(POSITIVE, state.getValue(NEGATIVE))
+				.setValue(NEGATIVE, state.getValue(POSITIVE));
+		} else {
+			return state;
+		}
+	}
 
-    @Override
-    public BlockState rotate(BlockState state, Rotation rotation) {
-        for (int i = 0; i < rotation.ordinal(); i++)
-            state = rotateOnce(state);
-        return state;
-    }
+	@Override
+	public BlockState rotate(BlockState state, Rotation rotation) {
+		for (int i = 0; i < rotation.ordinal(); i++)
+			state = rotateOnce(state);
+		return state;
+	}
 
-    private BlockState rotateOnce(BlockState state) {
-        Axis axis = state.getValue(AXIS);
-        if (axis == Axis.X) {
-            return state.setValue(AXIS, Axis.Z);
-        } else if (axis == Axis.Z) {
-            return state.setValue(AXIS, Axis.X)
-                    .setValue(POSITIVE, state.getValue(NEGATIVE))
-                    .setValue(NEGATIVE, state.getValue(POSITIVE));
-        }
-        return state;
-    }
+	private BlockState rotateOnce(BlockState state) {
+		Axis axis = state.getValue(AXIS);
+		if (axis == Axis.X) {
+			return state.setValue(AXIS, Axis.Z);
+		} else if (axis == Axis.Z) {
+			return state.setValue(AXIS, Axis.X)
+				.setValue(POSITIVE, state.getValue(NEGATIVE))
+				.setValue(NEGATIVE, state.getValue(POSITIVE));
+		}
+		return state;
+	}
 
-    public enum Shape implements StringRepresentable {
-        PLAIN, WINDOW, WINDOW_TOP, WINDOW_MIDDLE, WINDOW_BOTTOM, WINDOW_SINGLE, WINDOW_TOP_SINGLE, WINDOW_MIDDLE_SINGLE, WINDOW_BOTTOM_SINGLE;
+	public enum Shape implements StringRepresentable {
+		PLAIN, WINDOW, WINDOW_TOP, WINDOW_MIDDLE, WINDOW_BOTTOM, WINDOW_SINGLE, WINDOW_TOP_SINGLE, WINDOW_MIDDLE_SINGLE,
+		WINDOW_BOTTOM_SINGLE;
 
-        @Override
-        public String getSerializedName() {
-            return Lang.asId(name());
-        }
+		@Override
+		public String getSerializedName() {
+			return Lang.asId(name());
+		}
 
-        public Shape nonSingleVariant() {
-            return switch (this) {
-                case WINDOW_SINGLE -> WINDOW;
-                case WINDOW_TOP_SINGLE -> WINDOW_TOP;
-                case WINDOW_MIDDLE_SINGLE -> WINDOW_MIDDLE;
-                case WINDOW_BOTTOM_SINGLE -> WINDOW_BOTTOM;
-                default -> this;
-            };
-        }
-    }
+		public Shape nonSingleVariant() {
+			return switch (this) {
+			case WINDOW_SINGLE -> WINDOW;
+			case WINDOW_TOP_SINGLE -> WINDOW_TOP;
+			case WINDOW_MIDDLE_SINGLE -> WINDOW_MIDDLE;
+			case WINDOW_BOTTOM_SINGLE -> WINDOW_BOTTOM;
+			default -> this;
+			};
+		}
+	}
 
-    public enum WindowType implements StringRepresentable {
-        SIDE_WIDE, SIDE_NARROW_ENDS, SIDE_NARROW_THIRDS, SIDE_HORIZONTAL;
+	public enum WindowType implements StringRepresentable {
+		SIDE_WIDE, SIDE_NARROW_ENDS, SIDE_NARROW_THIRDS, SIDE_HORIZONTAL;
 
-        @Override
-        public String getSerializedName() {
-            return Lang.asId(name());
-        }
-    }
+		@Override
+		public String getSerializedName() {
+			return Lang.asId(name());
+		}
+	}
 }

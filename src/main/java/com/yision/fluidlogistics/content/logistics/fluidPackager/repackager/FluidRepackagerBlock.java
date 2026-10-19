@@ -26,8 +26,8 @@ public class FluidRepackagerBlock extends PackagerBlock {
 
 	@Override
 	protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
-											  Player player, net.minecraft.world.InteractionHand hand,
-											  BlockHitResult hitResult) {
+		Player player, net.minecraft.world.InteractionHand hand,
+		BlockHitResult hitResult) {
 		if (COPPER_FROGPORT.isIn(stack))
 			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 		if (level.getBlockEntity(pos) instanceof FluidRepackagerBlockEntity repackager

@@ -2,8 +2,8 @@
 	"credit": "Made with Blockbench",
 	"parent": "block/block",
 	"textures": {
-		"3": "fluidlogistics:block/copper_schematicannon/fluid_cannon",
-		"4": "fluidlogistics:block/copper_schematicannon/fluid_cannon_top",
+		"3": "fluidlogistics:block/copper_schematicannon/copper_schematicannon",
+		"4": "fluidlogistics:block/copper_schematicannon/copper_schematicannon_top",
 		"particle": "block/spruce_log"
 	},
 	"elements": [

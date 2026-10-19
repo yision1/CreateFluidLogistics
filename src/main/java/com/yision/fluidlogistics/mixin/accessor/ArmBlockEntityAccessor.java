@@ -1,25 +1,27 @@
 package com.yision.fluidlogistics.mixin.accessor;
 
-import com.simibubi.create.content.kinetics.mechanicalArm.ArmBlockEntity;
-import com.simibubi.create.content.kinetics.mechanicalArm.ArmInteractionPoint;
-import net.minecraft.nbt.ListTag;
+import java.util.List;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-import java.util.List;
+import com.simibubi.create.content.kinetics.mechanicalArm.ArmBlockEntity;
+import com.simibubi.create.content.kinetics.mechanicalArm.ArmInteractionPoint;
+
+import net.minecraft.nbt.ListTag;
 
 @Mixin(value = ArmBlockEntity.class, remap = false)
 public interface ArmBlockEntityAccessor {
 
-    @Accessor("inputs")
-    List<ArmInteractionPoint> getInputs();
+	@Accessor("inputs")
+	List<ArmInteractionPoint> getInputs();
 
-    @Accessor("outputs")
-    List<ArmInteractionPoint> getOutputs();
+	@Accessor("outputs")
+	List<ArmInteractionPoint> getOutputs();
 
-    @Accessor("interactionPointTag")
-    void setInteractionPointTag(ListTag tag);
+	@Accessor("interactionPointTag")
+	void setInteractionPointTag(ListTag tag);
 
-    @Accessor("updateInteractionPoints")
-    void setUpdateInteractionPoints(boolean updateInteractionPoints);
+	@Accessor("updateInteractionPoints")
+	void setUpdateInteractionPoints(boolean updateInteractionPoints);
 }

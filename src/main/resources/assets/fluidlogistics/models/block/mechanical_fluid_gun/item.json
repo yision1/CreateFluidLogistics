@@ -6,7 +6,7 @@
 		"0": "fluidlogistics:block/mechanical_fluid_gun/copper_casing",
 		"1": "fluidlogistics:block/mechanical_fluid_gun/encased_pipe",
 		"2": "fluidlogistics:block/mechanical_fluid_gun/cog",
-		"3": "fluidlogistics:block/mechanical_fluid_gun/mechanical_water_gun",
+		"3": "fluidlogistics:block/mechanical_fluid_gun/mechanical_fluid_gun",
 		"4": "fluidlogistics:block/mechanical_fluid_gun/gun",
 		"particle": "fluidlogistics:block/mechanical_fluid_gun/copper_casing"
 	},

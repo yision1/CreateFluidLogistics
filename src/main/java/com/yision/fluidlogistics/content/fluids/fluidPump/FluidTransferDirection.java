@@ -1,7 +1,7 @@
 package com.yision.fluidlogistics.content.fluids.fluidPump;
 
-import com.simibubi.create.foundation.gui.AllIcons;
 import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.INamedIconOptions;
+import com.simibubi.create.foundation.gui.AllIcons;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -49,7 +49,8 @@ public enum FluidTransferDirection implements INamedIconOptions {
 
 				@Override
 				public String getTranslationKey() {
-					return "fluidlogistics.fluid_pump.direction." + Direction.fromAxisAndDirection(axis, option.axisDirection).getSerializedName();
+					return "fluidlogistics.fluid_pump.direction."
+						+ Direction.fromAxisAndDirection(axis, option.axisDirection).getSerializedName();
 				}
 			};
 		}

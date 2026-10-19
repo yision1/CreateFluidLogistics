@@ -18,6 +18,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
+
 import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.client.model.data.ModelProperty;
 
@@ -26,7 +27,7 @@ public abstract class AbstractMultiFluidTankModel extends CTModel {
 	protected static final ModelProperty<CullData> CULL_PROPERTY = new ModelProperty<>();
 
 	protected AbstractMultiFluidTankModel(BakedModel originalModel, CTSpriteShiftEntry side, CTSpriteShiftEntry top,
-			CTSpriteShiftEntry inner, ConnectedTextureBehaviour behaviour) {
+		CTSpriteShiftEntry inner, ConnectedTextureBehaviour behaviour) {
 		super(originalModel, behaviour);
 	}
 
@@ -36,7 +37,7 @@ public abstract class AbstractMultiFluidTankModel extends CTModel {
 
 	@Override
 	protected ModelData.Builder gatherModelData(ModelData.Builder builder, BlockAndTintGetter world, BlockPos pos,
-			BlockState state, ModelData blockEntityData) {
+		BlockState state, ModelData blockEntityData) {
 		super.gatherModelData(builder, world, pos, state, blockEntityData);
 		CullData cullData = createCullData();
 		for (Direction d : Iterate.directions) {
@@ -49,7 +50,7 @@ public abstract class AbstractMultiFluidTankModel extends CTModel {
 
 	@Override
 	public List<BakedQuad> getQuads(BlockState state, Direction side, RandomSource rand, ModelData extraData,
-			RenderType renderType) {
+		RenderType renderType) {
 		if (side != null)
 			return Collections.emptyList();
 

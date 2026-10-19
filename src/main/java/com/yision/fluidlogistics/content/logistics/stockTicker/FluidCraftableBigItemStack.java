@@ -9,14 +9,14 @@ import net.minecraft.world.level.Level;
 
 public class FluidCraftableBigItemStack extends CraftableBigItemStack {
 
-    public FluidCraftableBigItemStack(ItemStack stack, Recipe<?> recipe) {
-        super(stack, recipe);
-    }
+	public FluidCraftableBigItemStack(ItemStack stack, Recipe<?> recipe) {
+		super(stack, recipe);
+	}
 
-    @Override
-    public int getOutputCount(Level level) {
-        return PackageResourceCrafting.get(this)
-                .map(data -> data.outputCount())
-                .orElseGet(() -> super.getOutputCount(level));
-    }
+	@Override
+	public int getOutputCount(Level level) {
+		return PackageResourceCrafting.get(this)
+			.map(data -> data.outputCount())
+			.orElseGet(() -> super.getOutputCount(level));
+	}
 }

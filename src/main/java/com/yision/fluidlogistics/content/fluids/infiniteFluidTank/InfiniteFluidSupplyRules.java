@@ -1,13 +1,14 @@
 package com.yision.fluidlogistics.content.fluids.infiniteFluidTank;
 
+import java.math.BigDecimal;
+
 import com.simibubi.create.infrastructure.config.AllConfigs;
-import com.yision.fluidlogistics.config.Config;
+import com.yision.fluidlogistics.infrastructure.config.Config;
 
 import net.minecraft.world.level.material.Fluid;
+
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
-
-import java.math.BigDecimal;
 
 public final class InfiniteFluidSupplyRules {
 

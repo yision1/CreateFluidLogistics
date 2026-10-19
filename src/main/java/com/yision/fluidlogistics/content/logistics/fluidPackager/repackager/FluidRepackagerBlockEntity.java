@@ -20,11 +20,11 @@ import com.simibubi.create.content.logistics.packager.PackagerItemHandler;
 import com.simibubi.create.content.logistics.packager.PackagingRequest;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts;
 import com.simibubi.create.foundation.item.ItemHelper;
-import com.yision.fluidlogistics.content.logistics.fluidPackager.PackagerGoggleInfo;
 import com.yision.fluidlogistics.api.packager.PackageInspection;
 import com.yision.fluidlogistics.api.packager.PackageResources;
 import com.yision.fluidlogistics.api.packager.PackageUnpackContext;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageContentHelper;
+import com.yision.fluidlogistics.content.logistics.fluidPackager.PackagerGoggleInfo;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
 import com.yision.fluidlogistics.util.IPackagerOverrideData;
 
@@ -42,6 +42,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -65,15 +66,13 @@ public class FluidRepackagerBlockEntity extends PackagerBlockEntity
 			AllBlockEntities.FLUID_REPACKAGER.get(),
 			(be, context) -> {
 				return be.externalItemHandler;
-			}
-		);
+			});
 
 		if (Mods.COMPUTERCRAFT.isLoaded()) {
 			event.registerBlockEntity(
 				PeripheralCapability.get(),
 				AllBlockEntities.FLUID_REPACKAGER.get(),
-				(be, context) -> be.computerBehaviour.getPeripheralCapability()
-			);
+				(be, context) -> be.computerBehaviour.getPeripheralCapability());
 		}
 	}
 
@@ -285,7 +284,7 @@ public class FluidRepackagerBlockEntity extends PackagerBlockEntity
 	}
 
 	private void deliverToTarget(List<ItemStack> packages, BlockPos targetPos, BlockState targetState,
-								 BlockEntity targetBE, Direction facing) {
+		BlockEntity targetBE, Direction facing) {
 		boolean stalledAny = false;
 		for (ItemStack pkg : packages) {
 			if (deliverSinglePackage(pkg, targetPos, targetState, targetBE, facing)) {
@@ -308,7 +307,7 @@ public class FluidRepackagerBlockEntity extends PackagerBlockEntity
 	}
 
 	private boolean deliverSinglePackage(ItemStack pkg, BlockPos targetPos, BlockState targetState,
-										BlockEntity targetBE, Direction facing) {
+		BlockEntity targetBE, Direction facing) {
 		PackageInspection inspection = PackageResources.inspectPackage(pkg);
 		if (inspection.hasResources()) {
 			return unpackResourceToTarget(pkg, targetPos, targetState, targetBE, facing, true)
@@ -319,7 +318,7 @@ public class FluidRepackagerBlockEntity extends PackagerBlockEntity
 	}
 
 	private boolean unpackResourceToTarget(ItemStack resourcePackage, BlockPos targetPos, BlockState targetState,
-										@Nullable BlockEntity targetBE, Direction facing, boolean simulate) {
+		@Nullable BlockEntity targetBE, Direction facing, boolean simulate) {
 		PackageUnpackContext context = new PackageUnpackContext(
 			level, targetPos, targetState, targetBE, facing, resourcePackage,
 			PackageItem.getOrderContext(resourcePackage));
@@ -327,7 +326,7 @@ public class FluidRepackagerBlockEntity extends PackagerBlockEntity
 	}
 
 	private boolean unpackItemsToTarget(ItemStack itemPackage, BlockPos targetPos, BlockState targetState,
-										@Nullable BlockEntity targetBE, Direction facing, boolean simulate) {
+		@Nullable BlockEntity targetBE, Direction facing, boolean simulate) {
 		ItemStackHandler contents = FluidPackageContentHelper.readRawContents(itemPackage);
 		List<ItemStack> items = ItemHelper.getNonEmptyStacks(contents);
 		if (items.isEmpty()) {
@@ -341,7 +340,7 @@ public class FluidRepackagerBlockEntity extends PackagerBlockEntity
 	}
 
 	private boolean isSolidLiquidMixedTarget(BlockPos targetPos, BlockState targetState,
-											 @Nullable BlockEntity targetBE, Direction facing) {
+		@Nullable BlockEntity targetBE, Direction facing) {
 		boolean hasItemHandler = UnpackingHandler.REGISTRY.get(targetState) != null
 			|| level.getCapability(Capabilities.ItemHandler.BLOCK, targetPos, targetState, targetBE, facing) != null;
 		boolean hasFluidHandler = level.getCapability(

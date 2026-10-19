@@ -8,22 +8,22 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 
 public class CoolingCompactingRecipe extends CompactingRecipe implements CoolingRecipe {
 
-    public CoolingCompactingRecipe(CoolingRecipeParams params) {
-        super(params);
-    }
+	public CoolingCompactingRecipe(CoolingRecipeParams params) {
+		super(params);
+	}
 
-    @Override
-    public boolean requiresSupercooling() {
-        return ((CoolingRecipeParams) getParams()).supercooled();
-    }
+	@Override
+	public boolean requiresSupercooling() {
+		return ((CoolingRecipeParams) getParams()).supercooled();
+	}
 
-    @Override
-    public RecipeSerializer<?> getSerializer() {
-        return AllFluidLogisticsRecipeTypes.COOLING_COMPACTING.getSerializer();
-    }
+	@Override
+	public RecipeSerializer<?> getSerializer() {
+		return AllFluidLogisticsRecipeTypes.COOLING_COMPACTING.getSerializer();
+	}
 
-    @Override
-    public IRecipeTypeInfo getTypeInfo() {
-        return AllFluidLogisticsRecipeTypes.COOLING_COMPACTING;
-    }
+	@Override
+	public IRecipeTypeInfo getTypeInfo() {
+		return AllFluidLogisticsRecipeTypes.COOLING_COMPACTING;
+	}
 }

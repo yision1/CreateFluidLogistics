@@ -18,50 +18,50 @@ import net.minecraft.world.item.ItemStack;
 
 public class HandPointerFilterScreen extends AbstractSimiContainerScreen<HandPointerFilterMenu> {
 
-    private IconButton confirmButton;
-    private List<Rect2i> extraAreas = Collections.emptyList();
+	private IconButton confirmButton;
+	private List<Rect2i> extraAreas = Collections.emptyList();
 
-    public HandPointerFilterScreen(HandPointerFilterMenu container, Inventory inv, Component title) {
-        super(container, inv, title);
-    }
+	public HandPointerFilterScreen(HandPointerFilterMenu container, Inventory inv, Component title) {
+		super(container, inv, title);
+	}
 
-    @Override
-    protected void init() {
-        int bgHeight = AllGuiTextures.FACTORY_GAUGE_SET_ITEM.getHeight();
-        int bgWidth = AllGuiTextures.FACTORY_GAUGE_SET_ITEM.getWidth();
-        setWindowSize(bgWidth, bgHeight + AllGuiTextures.PLAYER_INVENTORY.getHeight());
-        super.init();
-        clearWidgets();
-        int x = getGuiLeft();
-        int y = getGuiTop();
+	@Override
+	protected void init() {
+		int bgHeight = AllGuiTextures.FACTORY_GAUGE_SET_ITEM.getHeight();
+		int bgWidth = AllGuiTextures.FACTORY_GAUGE_SET_ITEM.getWidth();
+		setWindowSize(bgWidth, bgHeight + AllGuiTextures.PLAYER_INVENTORY.getHeight());
+		super.init();
+		clearWidgets();
+		int x = getGuiLeft();
+		int y = getGuiTop();
 
-        confirmButton = new IconButton(x + bgWidth - 40, y + bgHeight - 25, AllIcons.I_CONFIRM);
-        confirmButton.withCallback(() -> minecraft.player.closeContainer());
-        addRenderableWidget(confirmButton);
+		confirmButton = new IconButton(x + bgWidth - 40, y + bgHeight - 25, AllIcons.I_CONFIRM);
+		confirmButton.withCallback(() -> minecraft.player.closeContainer());
+		addRenderableWidget(confirmButton);
 
-        extraAreas = List.of(new Rect2i(x + bgWidth, y + bgHeight - 30, 40, 20));
-    }
+		extraAreas = List.of(new Rect2i(x + bgWidth, y + bgHeight - 30, 40, 20));
+	}
 
-    @Override
-    protected void renderBg(GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
-        int x = getGuiLeft();
-        int y = getGuiTop();
-        AllGuiTextures.FACTORY_GAUGE_SET_ITEM.render(pGuiGraphics, x - 5, y);
-        renderPlayerInventory(pGuiGraphics, x + 5, y + 94);
+	@Override
+	protected void renderBg(GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
+		int x = getGuiLeft();
+		int y = getGuiTop();
+		AllGuiTextures.FACTORY_GAUGE_SET_ITEM.render(pGuiGraphics, x - 5, y);
+		renderPlayerInventory(pGuiGraphics, x + 5, y + 94);
 
-        ItemStack stack = menu.contentHolder.iconStack();
-        Component title = CreateLang.translate("gui.fluidlogistics.hand_pointer_filter.place_item_to_filter")
-            .component();
-        pGuiGraphics.drawString(font, title, x + imageWidth / 2 - font.width(title) / 2 - 5, y + 4, 0x3D3C48, false);
+		ItemStack stack = menu.contentHolder.iconStack();
+		Component title = CreateLang.translate("gui.fluidlogistics.hand_pointer_filter.place_item_to_filter")
+			.component();
+		pGuiGraphics.drawString(font, title, x + imageWidth / 2 - font.width(title) / 2 - 5, y + 4, 0x3D3C48, false);
 
-        GuiGameElement.of(stack)
-            .scale(3)
-            .render(pGuiGraphics, x + 180, y + 48);
-    }
+		GuiGameElement.of(stack)
+			.scale(3)
+			.render(pGuiGraphics, x + 180, y + 48);
+	}
 
-    @Override
-    public List<Rect2i> getExtraAreas() {
-        return extraAreas;
-    }
+	@Override
+	public List<Rect2i> getExtraAreas() {
+		return extraAreas;
+	}
 
 }

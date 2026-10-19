@@ -1,12 +1,14 @@
 package com.yision.fluidlogistics.content.equipment.mechanicalFluidGun;
 
+import org.jetbrains.annotations.Nullable;
+
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.network.MechanicalFluidGunPackets;
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.particle.MechanicalFluidGunStreamParticleData;
 
 import net.createmod.catnip.animation.LerpedFloat;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -14,9 +16,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
 
 class MechanicalFluidGunVisuals {
 
@@ -76,14 +78,17 @@ class MechanicalFluidGunVisuals {
 	}
 
 	void spawnClientSprayParticles(Level level, BlockPos gunPos, BlockState blockState,
-								   @Nullable Vec3 aimPoint) {
-		if (!spraying || renderingFluid.isEmpty() || aimPoint == null) return;
+		@Nullable Vec3 aimPoint) {
+		if (!spraying || renderingFluid.isEmpty() || aimPoint == null)
+			return;
 
 		Vec3 nozzle = MechanicalFluidGunTarget.getNozzleWorldPos(gunPos, blockState, yaw.getValue(), pitch.getValue());
 		Vec3 motion = aimPoint.subtract(nozzle);
-		if (motion.lengthSqr() < 0.001) return;
+		if (motion.lengthSqr() < 0.001)
+			return;
 		int particleCount = getStreamParticleCount(level, gunPos);
-		if (particleCount == 0) return;
+		if (particleCount == 0)
+			return;
 
 		double travelDistance = motion.length();
 		Vec3 direction = motion.normalize();
@@ -117,11 +122,14 @@ class MechanicalFluidGunVisuals {
 	private static int getStreamParticleCount(Level level, BlockPos gunPos) {
 		Player nearestPlayer = level.getNearestPlayer(gunPos.getX() + 0.5, gunPos.getY() + 0.5,
 			gunPos.getZ() + 0.5, 64, false);
-		if (nearestPlayer == null) return 0;
+		if (nearestPlayer == null)
+			return 0;
 		double distanceSqr = nearestPlayer.distanceToSqr(gunPos.getX() + 0.5, gunPos.getY() + 0.5,
 			gunPos.getZ() + 0.5);
-		if (distanceSqr <= 16 * 16) return STREAM_PARTICLES_NEAR;
-		if (distanceSqr <= 32 * 32) return STREAM_PARTICLES_MID;
+		if (distanceSqr <= 16 * 16)
+			return STREAM_PARTICLES_NEAR;
+		if (distanceSqr <= 32 * 32)
+			return STREAM_PARTICLES_MID;
 		return STREAM_PARTICLES_FAR;
 	}
 
@@ -155,8 +163,10 @@ class MechanicalFluidGunVisuals {
 	}
 
 	boolean tickTransientSpray(boolean isFillingItem, Runnable onSprayComplete) {
-		if (!spraying || isFillingItem || !advanceTargetAfterSpray) return false;
-		if (sprayTicks > 0) sprayTicks--;
+		if (!spraying || isFillingItem || !advanceTargetAfterSpray)
+			return false;
+		if (sprayTicks > 0)
+			sprayTicks--;
 		if (sprayTicks <= 0) {
 			boolean shouldAdvance = advanceTargetAfterSpray;
 			completeTransientSpray();
@@ -183,17 +193,20 @@ class MechanicalFluidGunVisuals {
 	}
 
 	void spawnServerSprayParticles(Level level, BlockPos gunPos, @Nullable Vec3 aimPoint) {
-		if (!(level instanceof ServerLevel serverLevel)) return;
-		if (aimPoint == null) return;
+		if (!(level instanceof ServerLevel serverLevel))
+			return;
+		if (aimPoint == null)
+			return;
 		FluidStack fluid = renderingFluid;
-		if (fluid.isEmpty()) return;
+		if (fluid.isEmpty())
+			return;
 
 		PacketDistributor.sendToPlayersNear(serverLevel, null, aimPoint.x, aimPoint.y, aimPoint.z, 64.0,
 			new MechanicalFluidGunPackets.SprayParticlePacket(aimPoint, fluid.copy()));
 	}
 
 	void updateTargetAngles(BlockPos gunPos, BlockState blockState,
-							@Nullable Vec3 aimPoint, boolean isCycleActive, boolean isFillingItem, float speed) {
+		@Nullable Vec3 aimPoint, boolean isCycleActive, boolean isFillingItem, float speed) {
 		if (aimPoint != null && isCycleActive && speed == 0) {
 			yaw.chase(yaw.getValue(), 0, LerpedFloat.Chaser.EXP);
 			pitch.chase(pitch.getValue(), 0, LerpedFloat.Chaser.EXP);
@@ -224,10 +237,10 @@ class MechanicalFluidGunVisuals {
 			? state.getValue(MechanicalFluidGunBlock.FACING)
 			: Direction.NORTH;
 		return switch (facing) {
-			case SOUTH -> 180f;
-			case EAST -> -90f;
-			case WEST -> 90f;
-			default -> 0f;
+		case SOUTH -> 180f;
+		case EAST -> -90f;
+		case WEST -> 90f;
+		default -> 0f;
 		};
 	}
 

@@ -6,5 +6,5 @@ import net.neoforged.neoforge.fluids.FluidStack;
 
 public interface SharedCapacityFluidHandler {
 
-    boolean canFillAll(List<FluidStack> fluids);
+	boolean canFillAll(List<FluidStack> fluids);
 }

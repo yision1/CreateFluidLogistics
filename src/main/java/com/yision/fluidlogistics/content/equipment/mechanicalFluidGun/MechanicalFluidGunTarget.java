@@ -1,6 +1,7 @@
 package com.yision.fluidlogistics.content.equipment.mechanicalFluidGun;
 
 import com.yision.fluidlogistics.content.fluids.fluidHatch.FluidHatchBlock;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -81,12 +82,12 @@ public class MechanicalFluidGunTarget {
 				Vec3 center = bounds.getCenter();
 				Direction exposedSide = FluidHatchBlock.getTargetDirection(state).getOpposite();
 				Vec3 surfaceCenter = switch (exposedSide) {
-					case DOWN -> new Vec3(center.x, bounds.minY, center.z);
-					case UP -> new Vec3(center.x, bounds.maxY, center.z);
-					case NORTH -> new Vec3(center.x, center.y, bounds.minZ);
-					case SOUTH -> new Vec3(center.x, center.y, bounds.maxZ);
-					case WEST -> new Vec3(bounds.minX, center.y, center.z);
-					case EAST -> new Vec3(bounds.maxX, center.y, center.z);
+				case DOWN -> new Vec3(center.x, bounds.minY, center.z);
+				case UP -> new Vec3(center.x, bounds.maxY, center.z);
+				case NORTH -> new Vec3(center.x, center.y, bounds.minZ);
+				case SOUTH -> new Vec3(center.x, center.y, bounds.maxZ);
+				case WEST -> new Vec3(bounds.minX, center.y, center.z);
+				case EAST -> new Vec3(bounds.maxX, center.y, center.z);
 				};
 				return Vec3.atLowerCornerOf(targetPos).add(surfaceCenter);
 			}

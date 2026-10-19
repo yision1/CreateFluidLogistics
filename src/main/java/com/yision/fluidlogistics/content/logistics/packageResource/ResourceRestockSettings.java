@@ -4,16 +4,16 @@ import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
 public interface ResourceRestockSettings {
-    int fluidlogistics$getRestockThreshold();
+	int fluidlogistics$getRestockThreshold();
 
-    void fluidlogistics$setRestockThreshold(int threshold);
+	void fluidlogistics$setRestockThreshold(int threshold);
 
-    int fluidlogistics$getPromiseLimit();
+	int fluidlogistics$getPromiseLimit();
 
-    void fluidlogistics$setPromiseLimit(int limit);
+	void fluidlogistics$setPromiseLimit(int limit);
 
-    int fluidlogistics$getAdditionalStock();
+	int fluidlogistics$getAdditionalStock();
 
-    void fluidlogistics$setAdditionalStock(int amount);
+	void fluidlogistics$setAdditionalStock(int amount);
 
 }

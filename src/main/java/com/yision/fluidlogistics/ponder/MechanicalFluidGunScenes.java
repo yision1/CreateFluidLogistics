@@ -1,5 +1,7 @@
 package com.yision.fluidlogistics.ponder;
 
+import java.util.List;
+
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.content.fluids.tank.FluidTankBlockEntity;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
@@ -21,10 +23,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
+
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
-
-import java.util.List;
 
 public class MechanicalFluidGunScenes {
 
@@ -95,8 +96,7 @@ public class MechanicalFluidGunScenes {
 		scene.world().modifyBlockEntity(gunPos, MechanicalFluidGunBlockEntity.class,
 			MechanicalFluidGunBlockEntity::clearTarget);
 
-		ElementLink<WorldSectionElement> gunPreview =
-			scene.world().showIndependentSection(gunS, Direction.DOWN);
+		ElementLink<WorldSectionElement> gunPreview = scene.world().showIndependentSection(gunS, Direction.DOWN);
 		scene.world().moveSection(gunPreview, util.vector().of(0, -1, 0), 0);
 		scene.idle(15);
 
@@ -123,7 +123,8 @@ public class MechanicalFluidGunScenes {
 		scene.overlay().showText(70)
 			.attachKeyFrame()
 			.colored(PonderPalette.INPUT)
-			.text("Right-Click depots, belts, or other components while holding the Mechanical Fluid Gun to assign them as Targets")
+			.text(
+				"Right-Click depots, belts, or other components while holding the Mechanical Fluid Gun to assign them as Targets")
 			.pointAt(util.vector().blockSurface(leftDepot, Direction.WEST))
 			.placeNearTarget();
 		scene.idle(80);
@@ -162,8 +163,7 @@ public class MechanicalFluidGunScenes {
 
 		scene.world().modifyBlockEntity(gunPos, MechanicalFluidGunBlockEntity.class, be -> be.setTargets(List.of(
 			MechanicalFluidGunTargetConfig.fromAbsolute(gunPos, leftDepot, Direction.UP),
-			MechanicalFluidGunTargetConfig.fromAbsolute(gunPos, rightDepot, Direction.UP)
-		)));
+			MechanicalFluidGunTargetConfig.fromAbsolute(gunPos, rightDepot, Direction.UP))));
 
 		scene.overlay().showText(70)
 			.attachKeyFrame()
@@ -201,8 +201,7 @@ public class MechanicalFluidGunScenes {
 		scene.world().modifyBlockEntity(gunPos, MechanicalFluidGunBlockEntity.class, be -> be.setTargets(List.of(
 			MechanicalFluidGunTargetConfig.fromAbsolute(gunPos, leftDepot, Direction.UP),
 			MechanicalFluidGunTargetConfig.fromAbsolute(gunPos, rightDepot, Direction.UP),
-			MechanicalFluidGunTargetConfig.fromAbsolute(gunPos, upperDepot, Direction.UP)
-		)));
+			MechanicalFluidGunTargetConfig.fromAbsolute(gunPos, upperDepot, Direction.UP))));
 
 		scene.overlay().chaseBoundingBoxOutline(PonderPalette.OUTPUT, new Object(), depotBounds.move(0, 2, 1), 60);
 		scene.idle(5);
@@ -255,8 +254,7 @@ public class MechanicalFluidGunScenes {
 		scene.idle(80);
 
 		scene.world().modifyBlockEntity(gunPos, MechanicalFluidGunBlockEntity.class, be -> be.setTargets(List.of(
-			MechanicalFluidGunTargetConfig.fromAbsolute(gunPos, hatch, Direction.NORTH)
-		)));
+			MechanicalFluidGunTargetConfig.fromAbsolute(gunPos, hatch, Direction.NORTH))));
 		startSpray(scene, gunS, 0, water);
 		scene.idle(30);
 		fillCreateTank(scene, hatchTank, 1000);

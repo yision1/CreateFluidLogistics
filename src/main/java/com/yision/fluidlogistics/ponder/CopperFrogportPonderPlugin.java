@@ -6,6 +6,7 @@ import com.simibubi.create.infrastructure.ponder.scenes.highLogistics.FrogAndCon
 import com.tterrag.registrate.util.entry.ItemProviderEntry;
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import com.yision.fluidlogistics.registry.AllBlocks;
+
 import net.createmod.ponder.api.registration.PonderPlugin;
 import net.createmod.ponder.api.registration.PonderSceneRegistrationHelper;
 import net.createmod.ponder.api.registration.PonderTagRegistrationHelper;
@@ -13,26 +14,26 @@ import net.minecraft.resources.ResourceLocation;
 
 public class CopperFrogportPonderPlugin implements PonderPlugin {
 
-    @Override
-    public String getModId() {
-        return Create.ID;
-    }
+	@Override
+	public String getModId() {
+		return Create.ID;
+	}
 
-    @Override
-    public void registerScenes(PonderSceneRegistrationHelper<ResourceLocation> helper) {
-        PonderSceneRegistrationHelper<ItemProviderEntry<?, ?>> registration =
-                helper.withKeyFunction(RegistryEntry::getId);
+	@Override
+	public void registerScenes(PonderSceneRegistrationHelper<ResourceLocation> helper) {
+		PonderSceneRegistrationHelper<ItemProviderEntry<?, ?>> registration = helper
+			.withKeyFunction(RegistryEntry::getId);
 
-        registration.forComponents(AllBlocks.COPPER_FROGPORT)
-                .addStoryBoard("high_logistics/package_frogport", FrogAndConveyorScenes::frogPort);
-    }
+		registration.forComponents(AllBlocks.COPPER_FROGPORT)
+			.addStoryBoard("high_logistics/package_frogport", FrogAndConveyorScenes::frogPort);
+	}
 
-    @Override
-    public void registerTags(PonderTagRegistrationHelper<ResourceLocation> helper) {
-        PonderTagRegistrationHelper<ItemProviderEntry<?, ?>> registration =
-                helper.withKeyFunction(RegistryEntry::getId);
+	@Override
+	public void registerTags(PonderTagRegistrationHelper<ResourceLocation> helper) {
+		PonderTagRegistrationHelper<ItemProviderEntry<?, ?>> registration = helper
+			.withKeyFunction(RegistryEntry::getId);
 
-        registration.addToTag(AllCreatePonderTags.HIGH_LOGISTICS)
-                .add(AllBlocks.COPPER_FROGPORT);
-    }
+		registration.addToTag(AllCreatePonderTags.HIGH_LOGISTICS)
+			.add(AllBlocks.COPPER_FROGPORT);
+	}
 }

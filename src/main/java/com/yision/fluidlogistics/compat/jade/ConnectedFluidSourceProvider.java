@@ -7,15 +7,13 @@ import org.jetbrains.annotations.Nullable;
 
 import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.MechanicalFluidGunBlockEntity;
-import com.yision.fluidlogistics.content.fluids.fluidPort.FluidPort;
 import com.yision.fluidlogistics.content.fluids.faucet.FaucetBlockEntity;
 import com.yision.fluidlogistics.content.fluids.fluidHatch.FluidHatchBlockEntity;
-import com.yision.fluidlogistics.util.MergedFluidDisplayHandler;
+import com.yision.fluidlogistics.content.fluids.fluidPort.FluidPort;
+import com.yision.fluidlogistics.foundation.fluid.MergedFluidDisplayHandler;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import snownee.jade.api.Accessor;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.fluid.JadeFluidObject;
@@ -26,8 +24,11 @@ import snownee.jade.api.view.IServerExtensionProvider;
 import snownee.jade.api.view.ViewGroup;
 import snownee.jade.util.JadeForgeUtils;
 
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+
 public enum ConnectedFluidSourceProvider
-		implements IServerExtensionProvider<CompoundTag>, IClientExtensionProvider<CompoundTag, FluidView> {
+	implements IServerExtensionProvider<CompoundTag>, IClientExtensionProvider<CompoundTag, FluidView> {
 	INSTANCE;
 
 	private static final ResourceLocation UID = FluidLogistics.asResource("connected_fluid_source");
@@ -105,8 +106,7 @@ public enum ConnectedFluidSourceProvider
 			JadeFluidObject fluidObject = JadeFluidObject.of(
 				fluid.getFluid(),
 				fluid.getAmount(),
-				fluid.getComponentsPatch()
-			);
+				fluid.getComponentsPatch());
 			views.add(FluidView.writeDefault(fluidObject, fluid.getAmount()));
 		}
 		return views.isEmpty() ? List.of() : List.of(new ViewGroup<>(views));

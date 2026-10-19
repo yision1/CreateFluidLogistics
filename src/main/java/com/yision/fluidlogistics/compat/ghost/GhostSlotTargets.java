@@ -12,40 +12,42 @@ import net.minecraft.world.inventory.Slot;
 
 public final class GhostSlotTargets {
 
-    private GhostSlotTargets() {
-    }
+	private GhostSlotTargets() {
+	}
 
-    public record GhostSlotTarget(Rect2i area, int slotIndex) {
-    }
+	public record GhostSlotTarget(Rect2i area, int slotIndex) {
+	}
 
-    public static <T extends AbstractSimiContainerScreen<? extends GhostItemMenu<?>>> List<GhostSlotTarget> collect(T gui) {
-        List<GhostSlotTarget> targets = new ArrayList<>();
-        boolean attributeFilter = gui instanceof AttributeFilterScreen;
-        int guiLeft = gui.getGuiLeft();
-        int guiTop = gui.getGuiTop();
+	public static <T extends AbstractSimiContainerScreen<? extends GhostItemMenu<?>>> List<GhostSlotTarget> collect(
+		T gui) {
+		List<GhostSlotTarget> targets = new ArrayList<>();
+		boolean attributeFilter = gui instanceof AttributeFilterScreen;
+		int guiLeft = gui.getGuiLeft();
+		int guiTop = gui.getGuiTop();
 
-        for (int i = 36; i < gui.getMenu().slots.size(); i++) {
-            int slotIndex = i - 36;
-            if (attributeFilter && slotIndex != 0) {
-                continue;
-            }
-            Slot slot = gui.getMenu().slots.get(i);
-            if (!slot.isActive()) {
-                continue;
-            }
-            Rect2i area = new Rect2i(guiLeft + slot.x, guiTop + slot.y, 16, 16);
-            targets.add(new GhostSlotTarget(area, slotIndex));
-        }
+		for (int i = 36; i < gui.getMenu().slots.size(); i++) {
+			int slotIndex = i - 36;
+			if (attributeFilter && slotIndex != 0) {
+				continue;
+			}
+			Slot slot = gui.getMenu().slots.get(i);
+			if (!slot.isActive()) {
+				continue;
+			}
+			Rect2i area = new Rect2i(guiLeft + slot.x, guiTop + slot.y, 16, 16);
+			targets.add(new GhostSlotTarget(area, slotIndex));
+		}
 
-        return targets;
-    }
+		return targets;
+	}
 
-    public static <T extends AbstractSimiContainerScreen<? extends GhostItemMenu<?>>> GhostSlotTarget hit(T gui, int x, int y) {
-        for (GhostSlotTarget target : collect(gui)) {
-            if (target.area().contains(x, y)) {
-                return target;
-            }
-        }
-        return null;
-    }
+	public static <T extends AbstractSimiContainerScreen<? extends GhostItemMenu<?>>> GhostSlotTarget hit(T gui, int x,
+		int y) {
+		for (GhostSlotTarget target : collect(gui)) {
+			if (target.area().contains(x, y)) {
+				return target;
+			}
+		}
+		return null;
+	}
 }

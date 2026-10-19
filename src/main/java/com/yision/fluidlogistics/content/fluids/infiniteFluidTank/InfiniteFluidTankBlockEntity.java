@@ -1,12 +1,15 @@
 package com.yision.fluidlogistics.content.fluids.infiniteFluidTank;
 
+import java.util.List;
+import java.util.function.Consumer;
+
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
-import com.simibubi.create.foundation.utility.CreateLang;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.fluid.SmartFluidTank;
+import com.simibubi.create.foundation.utility.CreateLang;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
-import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidSupplyRules;
+
 import net.createmod.catnip.animation.LerpedFloat;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -18,13 +21,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-
-import java.util.List;
-import java.util.function.Consumer;
 
 public class InfiniteFluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation {
 
@@ -40,7 +41,8 @@ public class InfiniteFluidTankBlockEntity extends SmartBlockEntity implements IH
 
 	public InfiniteFluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
-		tankInventory = new InfiniteSmartFluidTank(InfiniteFluidSupplyRules.getRequiredAmount(), this::onFluidStackChanged);
+		tankInventory = new InfiniteSmartFluidTank(InfiniteFluidSupplyRules.getRequiredAmount(),
+			this::onFluidStackChanged);
 		forceFluidLevelUpdate = true;
 		refreshCapability();
 	}
@@ -53,8 +55,7 @@ public class InfiniteFluidTankBlockEntity extends SmartBlockEntity implements IH
 				if (be.fluidCapability == null)
 					be.refreshCapability();
 				return be.fluidCapability;
-			}
-		);
+			});
 	}
 
 	@Override
@@ -198,9 +199,6 @@ public class InfiniteFluidTankBlockEntity extends SmartBlockEntity implements IH
 
 	@Override
 	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-		if (!InfiniteFluidSupplyRules.isInfiniteSourceEnabled() && !tankInventory.getFluid().isEmpty())
-			return disabledInfiniteSourceFluidTooltip(tooltip, isPlayerSneaking);
-
 		if (isInfiniteMode()) {
 			containedFluidTooltip(tooltip, isPlayerSneaking, tankInventory);
 			CreateLang.translate("hint.hose_pulley.title")
@@ -208,10 +206,6 @@ public class InfiniteFluidTankBlockEntity extends SmartBlockEntity implements IH
 				.forGoggles(tooltip);
 			return true;
 		}
-		return containedFluidTooltip(tooltip, isPlayerSneaking, tankInventory);
-	}
-
-	private boolean disabledInfiniteSourceFluidTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
 		return containedFluidTooltip(tooltip, isPlayerSneaking, tankInventory);
 	}
 

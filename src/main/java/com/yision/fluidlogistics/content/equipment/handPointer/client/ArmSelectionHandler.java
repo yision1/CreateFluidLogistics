@@ -1,11 +1,16 @@
 package com.yision.fluidlogistics.content.equipment.handPointer.client;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import com.simibubi.create.content.kinetics.mechanicalArm.ArmBlockEntity;
 import com.simibubi.create.content.kinetics.mechanicalArm.ArmInteractionPoint;
 import com.simibubi.create.foundation.utility.CreateLang;
-import com.yision.fluidlogistics.config.Config;
-import com.yision.fluidlogistics.mixin.accessor.ArmBlockEntityAccessor;
 import com.yision.fluidlogistics.content.equipment.handPointer.network.HandPointerArmPlacementPacket;
+import com.yision.fluidlogistics.infrastructure.config.Config;
+import com.yision.fluidlogistics.mixin.accessor.ArmBlockEntityAccessor;
+
 import net.createmod.catnip.outliner.Outliner;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -19,10 +24,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 public class ArmSelectionHandler {
 

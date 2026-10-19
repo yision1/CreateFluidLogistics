@@ -4,6 +4,7 @@ import com.simibubi.create.content.fluids.tank.FluidTankBlockEntity;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperBlock;
 import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperBlockEntity;
+
 import net.createmod.catnip.math.Pointing;
 import net.createmod.ponder.api.element.ElementLink;
 import net.createmod.ponder.api.element.WorldSectionElement;
@@ -22,6 +23,7 @@ import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
+
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
 
@@ -95,9 +97,8 @@ public class SmartHopperScenes {
 		fillTank(scene, inputTank, 1000);
 		scene.world()
 			.showSection(inputHopperS.add(inputTankS), Direction.DOWN);
-		ElementLink<WorldSectionElement> firstOutputTank =
-			scene.world()
-				.showIndependentSection(outputTankS, Direction.EAST);
+		ElementLink<WorldSectionElement> firstOutputTank = scene.world()
+			.showIndependentSection(outputTankS, Direction.EAST);
 		scene.world()
 			.moveSection(firstOutputTank, util.vector()
 				.of(1, 0, 0), 0);
@@ -183,10 +184,9 @@ public class SmartHopperScenes {
 			.hideIndependentSection(firstOutputTank, Direction.WEST);
 		scene.idle(20);
 
-		ElementLink<WorldSectionElement> itemRig =
-			scene.world()
-				.showIndependentSection(itemOutputChestS.add(itemHopperS).add(itemInputChestS).add(funnelS),
-					Direction.SOUTH);
+		ElementLink<WorldSectionElement> itemRig = scene.world()
+			.showIndependentSection(itemOutputChestS.add(itemHopperS).add(itemInputChestS).add(funnelS),
+				Direction.SOUTH);
 		scene.world()
 			.moveSection(itemRig, util.vector()
 				.of(1, 0, -1), 0);
@@ -220,8 +220,10 @@ public class SmartHopperScenes {
 		ElementLink<net.createmod.ponder.api.element.EntityElement> copperDrop = scene.world()
 			.createItemEntity(util.vector()
 				.centerOf(funnelView)
-				.subtract(0, .45, 0), util.vector()
-				.of(-0.1, 0, 0), copper.copyWithCount(1));
+				.subtract(0, .45, 0),
+				util.vector()
+					.of(-0.1, 0, 0),
+				copper.copyWithCount(1));
 		scene.world()
 			.modifyBlockEntity(itemOutputChest, ChestBlockEntity.class, be -> be.setItem(0, ItemStack.EMPTY));
 		scene.idle(45);
@@ -280,8 +282,10 @@ public class SmartHopperScenes {
 		scene.world()
 			.createItemEntity(util.vector()
 				.centerOf(funnelView)
-				.subtract(0, .45, 0), util.vector()
-				.of(-0.1, 0, 0), iron.copyWithCount(1));
+				.subtract(0, .45, 0),
+				util.vector()
+					.of(-0.1, 0, 0),
+				iron.copyWithCount(1));
 		scene.world()
 			.modifyBlockEntity(itemOutputChest, ChestBlockEntity.class, be -> be.setItem(0, ItemStack.EMPTY));
 		scene.idle(45);

@@ -135,8 +135,8 @@ public class HandPointerThresholdSwitchScreen extends AbstractSimiScreen {
 		addRenderableWidget(onAboveBox);
 		addRenderableWidget(offBelowBox);
 
-		confirmButton =
-			new IconButton(x + background.getWidth() - 33, y + background.getHeight() - 24, AllIcons.I_CONFIRM);
+		confirmButton = new IconButton(x + background.getWidth() - 33, y + background.getHeight() - 24,
+			AllIcons.I_CONFIRM);
 		confirmButton.withCallback(this::onClose);
 		addRenderableWidget(confirmButton);
 
@@ -199,8 +199,8 @@ public class HandPointerThresholdSwitchScreen extends AbstractSimiScreen {
 		ThresholdType typeOfCurrentTarget = blockEntity.getTypeOfCurrentTarget();
 		boolean forItems = typeOfCurrentTarget == ThresholdType.ITEM;
 		boolean hasSeparateSuffix = forItems || typeOfCurrentTarget == ThresholdType.FLUID;
-		AllGuiTextures inputBg =
-			forItems ? AllGuiTextures.THRESHOLD_SWITCH_ITEMCOUNT_INPUTS : AllGuiTextures.THRESHOLD_SWITCH_MISC_INPUTS;
+		AllGuiTextures inputBg = forItems ? AllGuiTextures.THRESHOLD_SWITCH_ITEMCOUNT_INPUTS
+			: AllGuiTextures.THRESHOLD_SWITCH_MISC_INPUTS;
 
 		inputBg.render(graphics, x + 44, y + 21);
 		inputBg.render(graphics, x + 44, y + 21 + 24);
@@ -211,9 +211,9 @@ public class HandPointerThresholdSwitchScreen extends AbstractSimiScreen {
 			valueStep = 1000;
 
 		if (forItems) {
-			Component suffix =
-				inStacks.getState() == 0 ? CreateLang.translateDirect("schedule.condition.threshold.items")
-					: CreateLang.translateDirect("schedule.condition.threshold.stacks");
+			Component suffix = inStacks.getState() == 0
+				? CreateLang.translateDirect("schedule.condition.threshold.items")
+				: CreateLang.translateDirect("schedule.condition.threshold.stacks");
 			valueStep = inStacks.getState() == 0 ? 1 : 64;
 			graphics.drawString(font, suffix, x + 105, y + 28, 0xFFFFFFFF, true);
 			graphics.drawString(font, suffix, x + 105, y + 28 + 24, 0xFFFFFFFF, true);
@@ -226,8 +226,9 @@ public class HandPointerThresholdSwitchScreen extends AbstractSimiScreen {
 		graphics.drawString(font, Component.literal("\u2265"), x + 53, y + 28, 0xFFFFFFFF, true);
 		graphics.drawString(font, Component.literal("\u2264"), x + 53, y + 28 + 24, 0xFFFFFFFF, true);
 
-		GuiGameElement.of(renderedItem)
-			.<GuiGameElement.GuiRenderBuilder>at(x + background.getWidth() + 6, y + background.getHeight() - 56, -200)
+		GuiGameElement
+			.of(renderedItem).<GuiGameElement.GuiRenderBuilder>at(x + background.getWidth() + 6,
+				y + background.getHeight() - 56, -200)
 			.scale(5)
 			.render(graphics);
 
@@ -235,8 +236,9 @@ public class HandPointerThresholdSwitchScreen extends AbstractSimiScreen {
 		int itemY = y + 80;
 
 		ItemStack displayItem = blockEntity.getDisplayItemForScreen();
-		GuiGameElement.of(displayItem.isEmpty() ? new ItemStack(Items.BARRIER) : displayItem)
-			.<GuiGameElement.GuiRenderBuilder>at(itemX, itemY, 0)
+		GuiGameElement
+			.of(displayItem.isEmpty() ? new ItemStack(Items.BARRIER) : displayItem).<GuiGameElement.GuiRenderBuilder>at(
+				itemX, itemY, 0)
 			.render(graphics);
 
 		int torchX = x + 23;
@@ -255,7 +257,7 @@ public class HandPointerThresholdSwitchScreen extends AbstractSimiScreen {
 
 		for (boolean power : Iterate.trueAndFalse) {
 			GuiGameElement.of(Blocks.REDSTONE_TORCH.defaultBlockState()
-					.setValue(RedstoneTorchBlock.LIT, blockEntity.isInverted() ^ power))
+				.setValue(RedstoneTorchBlock.LIT, blockEntity.isInverted() ^ power))
 				.scale(20)
 				.render(graphics);
 			ms.translate(0, 26, 0);
@@ -438,8 +440,9 @@ public class HandPointerThresholdSwitchScreen extends AbstractSimiScreen {
 
 	protected void send(boolean invert) {
 		applyTextBoxValues();
-		CatnipServices.NETWORK.sendToServer(new ConfigureThresholdSwitchPacket(blockEntity.getBlockPos(), offBelow.getState(),
-			onAbove.getState(), invert, inStacks.getState() == 1));
+		CatnipServices.NETWORK
+			.sendToServer(new ConfigureThresholdSwitchPacket(blockEntity.getBlockPos(), offBelow.getState(),
+				onAbove.getState(), invert, inStacks.getState() == 1));
 	}
 
 	private void applyTextBoxValues() {

@@ -31,79 +31,64 @@ import net.minecraft.world.phys.HitResult;
 @Mixin(FactoryPanelBlock.class)
 public abstract class FactoryGaugeHostBlockMixin {
 
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level,
-        BlockPos pos, Player player) {
-        if (!AllBlocks.FACTORY_GAUGE.has(state))
-            return ((FactoryPanelBlock) (Object) this).getCloneItemStack(level, pos, state);
+	public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level,
+		BlockPos pos, Player player) {
+		if (!AllBlocks.FACTORY_GAUGE.has(state))
+			return ((FactoryPanelBlock) (Object) this).getCloneItemStack(level, pos, state);
 
-        ItemStack picked = FactoryGaugeHostHooks.pickStackFor(state, target, level, pos);
-        if (!picked.isEmpty())
-            return picked;
-        return ((FactoryPanelBlock) (Object) this).getCloneItemStack(level, pos, state);
-    }
+		ItemStack picked = FactoryGaugeHostHooks.pickStackFor(state, target, level, pos);
+		if (!picked.isEmpty())
+			return picked;
+		return ((FactoryPanelBlock) (Object) this).getCloneItemStack(level, pos, state);
+	}
 
-    @Inject(
-        method = "useItemOn",
-        at = @At("HEAD"),
-        cancellable = true,
-        remap = false
-    )
-    private void fluidlogistics$useRegisteredGaugeOnHost(ItemStack stack, BlockState state, Level level,
-        BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult,
-        CallbackInfoReturnable<ItemInteractionResult> cir) {
+	@Inject(method = "useItemOn", at = @At("HEAD"), cancellable = true, remap = false)
+	private void fluidlogistics$useRegisteredGaugeOnHost(ItemStack stack, BlockState state, Level level,
+		BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult,
+		CallbackInfoReturnable<ItemInteractionResult> cir) {
 
-        FactoryGaugeType type = FactoryGauges.findByItem(stack.getItem())
-            .orElse(null);
-        if (type == null)
-            return;
+		FactoryGaugeType type = FactoryGauges.findByItem(stack.getItem())
+			.orElse(null);
+		if (type == null)
+			return;
 
-        cir.setReturnValue(FactoryGaugeHostHooks.useRegisteredGaugeOnExistingHost(
-            type, stack, state, level, pos, player, hand, hitResult));
-    }
+		cir.setReturnValue(FactoryGaugeHostHooks.useRegisteredGaugeOnExistingHost(
+			type, stack, state, level, pos, player, hand, hitResult));
+	}
 
-    @Inject(
-        method = "onSneakWrenched",
-        at = @At("HEAD"),
-        cancellable = true,
-        remap = false
-    )
-    private void fluidlogistics$wrenchRemoveResourcePanel(BlockState state, UseOnContext context,
-        CallbackInfoReturnable<InteractionResult> cir) {
+	@Inject(method = "onSneakWrenched", at = @At("HEAD"), cancellable = true, remap = false)
+	private void fluidlogistics$wrenchRemoveResourcePanel(BlockState state, UseOnContext context,
+		CallbackInfoReturnable<InteractionResult> cir) {
 
-        if (!(context.getLevel() instanceof ServerLevel serverLevel))
-            return;
-        BlockPos pos = context.getClickedPos();
-        PanelSlot slot = FactoryPanelBlock.getTargetedSlot(pos, state, context.getClickLocation());
-        if (!FactoryGaugeHostHooks.isRemovableResourceSlot(serverLevel.getBlockEntity(pos), slot))
-            return;
+		if (!(context.getLevel() instanceof ServerLevel serverLevel))
+			return;
+		BlockPos pos = context.getClickedPos();
+		PanelSlot slot = FactoryPanelBlock.getTargetedSlot(pos, state, context.getClickLocation());
+		if (!FactoryGaugeHostHooks.isRemovableResourceSlot(serverLevel.getBlockEntity(pos), slot))
+			return;
 
-        cir.setReturnValue(FactoryGaugeHostHooks.removePanel(serverLevel, pos, slot, context.getPlayer()));
-    }
+		cir.setReturnValue(FactoryGaugeHostHooks.removePanel(serverLevel, pos, slot, context.getPlayer()));
+	}
 
-    @Inject(
-        method = "tryDestroySubPanelFirst",
-        at = @At("HEAD"),
-        cancellable = true,
-        remap = false
-    )
-    private void fluidlogistics$punchRemoveResourcePanel(BlockState state, Level level, BlockPos pos,
-        Player player, CallbackInfoReturnable<Boolean> cir) {
+	@Inject(method = "tryDestroySubPanelFirst", at = @At("HEAD"), cancellable = true, remap = false)
+	private void fluidlogistics$punchRemoveResourcePanel(BlockState state, Level level, BlockPos pos,
+		Player player, CallbackInfoReturnable<Boolean> cir) {
 
-        if (!(level instanceof ServerLevel serverLevel) || player == null)
-            return;
+		if (!(level instanceof ServerLevel serverLevel) || player == null)
+			return;
 
-        if (!(serverLevel.getBlockEntity(pos) instanceof FactoryPanelBlockEntity be))
-            return;
-        if (be.activePanels() < 2)
-            return;
+		if (!(serverLevel.getBlockEntity(pos) instanceof FactoryPanelBlockEntity be))
+			return;
+		if (be.activePanels() < 2)
+			return;
 
-        double range = player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) + 1;
-        HitResult hitResult = player.pick(range, 1, false);
-        PanelSlot slot = FactoryPanelBlock.getTargetedSlot(pos, state, hitResult.getLocation());
-        if (!FactoryGaugeHostHooks.isRemovableResourceSlot(be, slot))
-            return;
+		double range = player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) + 1;
+		HitResult hitResult = player.pick(range, 1, false);
+		PanelSlot slot = FactoryPanelBlock.getTargetedSlot(pos, state, hitResult.getLocation());
+		if (!FactoryGaugeHostHooks.isRemovableResourceSlot(be, slot))
+			return;
 
-        InteractionResult result = FactoryGaugeHostHooks.removePanel(serverLevel, pos, slot, player);
-        cir.setReturnValue(result == InteractionResult.SUCCESS);
-    }
+		InteractionResult result = FactoryGaugeHostHooks.removePanel(serverLevel, pos, slot, player);
+		cir.setReturnValue(result == InteractionResult.SUCCESS);
+	}
 }

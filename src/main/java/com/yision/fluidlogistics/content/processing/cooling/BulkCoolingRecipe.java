@@ -13,30 +13,30 @@ import net.minecraft.world.level.Level;
 @ParametersAreNonnullByDefault
 public class BulkCoolingRecipe extends StandardProcessingRecipe<SingleRecipeInput> {
 
-    public BulkCoolingRecipe(ProcessingRecipeParams params) {
-        this(AllFluidLogisticsRecipeTypes.BULK_COOLING, params);
-    }
+	public BulkCoolingRecipe(ProcessingRecipeParams params) {
+		this(AllFluidLogisticsRecipeTypes.BULK_COOLING, params);
+	}
 
-    protected BulkCoolingRecipe(IRecipeTypeInfo recipeType, ProcessingRecipeParams params) {
-        super(recipeType, params);
-    }
+	protected BulkCoolingRecipe(IRecipeTypeInfo recipeType, ProcessingRecipeParams params) {
+		super(recipeType, params);
+	}
 
-    public boolean requiresActiveCooler() {
+	public boolean requiresActiveCooler() {
         return true;
-    }
+	}
 
-    @Override
-    public boolean matches(SingleRecipeInput input, Level level) {
-        return !input.isEmpty() && ingredients.getFirst().test(input.getItem(0));
-    }
+	@Override
+	public boolean matches(SingleRecipeInput input, Level level) {
+		return !input.isEmpty() && ingredients.getFirst().test(input.getItem(0));
+	}
 
-    @Override
-    protected int getMaxInputCount() {
-        return 1;
-    }
+	@Override
+	protected int getMaxInputCount() {
+		return 1;
+	}
 
-    @Override
-    protected int getMaxOutputCount() {
-        return 12;
-    }
+	@Override
+	protected int getMaxOutputCount() {
+		return 12;
+	}
 }

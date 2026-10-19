@@ -20,139 +20,140 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 public abstract class AbstractFluidPortBlockEntity extends SmartBlockEntity
-    implements IHaveGoggleInformation, FluidPort {
+	implements IHaveGoggleInformation, FluidPort {
 
-    private boolean powered;
+	private boolean powered;
 
-    @Nullable
-    private BlockCapabilityCache<IFluidHandler, @Nullable Direction> connectedFluidCache;
-    @Nullable
-    private Direction cachedTargetDirection;
+	@Nullable
+	private BlockCapabilityCache<IFluidHandler, @Nullable Direction> connectedFluidCache;
+	@Nullable
+	private Direction cachedTargetDirection;
 
-    protected AbstractFluidPortBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
-        super(type, pos, state);
-    }
+	protected AbstractFluidPortBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
+	}
 
-    @Override
-    public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
-    }
+	@Override
+	public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
+	}
 
-    @Override
-    public void initialize() {
-        super.initialize();
-        updateConnectedStorage();
-    }
+	@Override
+	public void initialize() {
+		super.initialize();
+		updateConnectedStorage();
+	}
 
-    @Override
-    public void lazyTick() {
-        super.lazyTick();
-        if (level == null || level.isClientSide) {
-            return;
-        }
-        updateConnectedStorage();
-    }
+	@Override
+	public void lazyTick() {
+		super.lazyTick();
+		if (level == null || level.isClientSide) {
+			return;
+		}
+		updateConnectedStorage();
+	}
 
-    @Override
-    public void invalidate() {
-        connectedFluidCache = null;
-        cachedTargetDirection = null;
-        super.invalidate();
-    }
+	@Override
+	public void invalidate() {
+		connectedFluidCache = null;
+		cachedTargetDirection = null;
+		super.invalidate();
+	}
 
-    @Nullable
-    protected final IFluidHandler getCachedConnectedFluidHandler() {
-        if (level == null) {
-            return null;
-        }
-        Direction targetDirection = getTargetDirection();
-        BlockPos targetPos = worldPosition.relative(targetDirection);
-        if (!(level instanceof ServerLevel serverLevel)) {
-            return level.getCapability(Capabilities.FluidHandler.BLOCK, targetPos, targetDirection.getOpposite());
-        }
-        if (connectedFluidCache == null || cachedTargetDirection != targetDirection) {
-            connectedFluidCache = BlockCapabilityCache.create(
-                Capabilities.FluidHandler.BLOCK, serverLevel, targetPos, targetDirection.getOpposite());
-            cachedTargetDirection = targetDirection;
-        }
-        return connectedFluidCache.getCapability();
-    }
+	@Nullable
+	protected final IFluidHandler getCachedConnectedFluidHandler() {
+		if (level == null) {
+			return null;
+		}
+		Direction targetDirection = getTargetDirection();
+		BlockPos targetPos = worldPosition.relative(targetDirection);
+		if (!(level instanceof ServerLevel serverLevel)) {
+			return level.getCapability(Capabilities.FluidHandler.BLOCK, targetPos, targetDirection.getOpposite());
+		}
+		if (connectedFluidCache == null || cachedTargetDirection != targetDirection) {
+			connectedFluidCache = BlockCapabilityCache.create(
+				Capabilities.FluidHandler.BLOCK, serverLevel, targetPos, targetDirection.getOpposite());
+			cachedTargetDirection = targetDirection;
+		}
+		return connectedFluidCache.getCapability();
+	}
 
-    @Nullable
-    protected final IFluidHandler getConnectedFluidHandler() {
-        if (powered) {
-            return null;
-        }
-        return getConnectedFluidHandlerIgnoringPower();
-    }
+	@Nullable
+	protected final IFluidHandler getConnectedFluidHandler() {
+		if (powered) {
+			return null;
+		}
+		return getConnectedFluidHandlerIgnoringPower();
+	}
 
-    @Nullable
-    protected final IFluidHandler getConnectedFluidHandlerIgnoringPower() {
-        IFluidHandler handler = getCachedConnectedFluidHandler();
-        return handler instanceof FluidPortHandler ? null : handler;
-    }
+	@Nullable
+	protected final IFluidHandler getConnectedFluidHandlerIgnoringPower() {
+		IFluidHandler handler = getCachedConnectedFluidHandler();
+		return handler instanceof FluidPortHandler ? null : handler;
+	}
 
-    public final void updateConnectedStorage() {
-        Level currentLevel = getLevel();
-        if (currentLevel == null) {
-            return;
-        }
+	public final void updateConnectedStorage() {
+		Level currentLevel = getLevel();
+		if (currentLevel == null) {
+			return;
+		}
 
-        boolean newPowered = currentLevel.hasNeighborSignal(worldPosition);
-        boolean poweredChanged = powered != newPowered;
-        powered = newPowered;
+		boolean newPowered = currentLevel.hasNeighborSignal(worldPosition);
+		boolean poweredChanged = powered != newPowered;
+		powered = newPowered;
 
-        boolean attached = getConnectedFluidHandler() != null;
-        BlockState state = getBlockState();
-        boolean attachedChanged = state.getValue(BlockStateProperties.ATTACHED) != attached;
-        if (attachedChanged) {
-            currentLevel.setBlockAndUpdate(worldPosition, state.setValue(BlockStateProperties.ATTACHED, attached));
-        }
-        if (poweredChanged || attachedChanged) {
-            notifyUpdate();
-        }
-    }
+		boolean attached = getConnectedFluidHandler() != null;
+		BlockState state = getBlockState();
+		boolean attachedChanged = state.getValue(BlockStateProperties.ATTACHED) != attached;
+		if (attachedChanged) {
+			currentLevel.setBlockAndUpdate(worldPosition, state.setValue(BlockStateProperties.ATTACHED, attached));
+		}
+		if (poweredChanged || attachedChanged) {
+			notifyUpdate();
+		}
+	}
 
-    @Override
-    public final boolean blocksFluidPackagerPlacement(Direction side) {
-        if (!isOutputSide(side) || level == null) {
-            return false;
-        }
-        BlockPos targetPos = worldPosition.relative(getTargetDirection());
-        return level.getBlockEntity(targetPos) instanceof PortableFluidInterfaceBlockEntity;
-    }
+	@Override
+	public final boolean blocksFluidPackagerPlacement(Direction side) {
+		if (!isOutputSide(side) || level == null) {
+			return false;
+		}
+		BlockPos targetPos = worldPosition.relative(getTargetDirection());
+		return level.getBlockEntity(targetPos) instanceof PortableFluidInterfaceBlockEntity;
+	}
 
-    public final boolean isConnectedTankCreative() {
-        if (level == null) {
-            return false;
-        }
-        BlockPos targetPos = worldPosition.relative(getTargetDirection());
-        return level.getBlockEntity(targetPos) instanceof CreativeFluidTankBlockEntity;
-    }
+	public final boolean isConnectedTankCreative() {
+		if (level == null) {
+			return false;
+		}
+		BlockPos targetPos = worldPosition.relative(getTargetDirection());
+		return level.getBlockEntity(targetPos) instanceof CreativeFluidTankBlockEntity;
+	}
 
-    protected abstract boolean isOutputSide(@Nullable Direction side);
+	protected abstract boolean isOutputSide(@Nullable Direction side);
 
-    protected final boolean isPowered() {
-        return powered;
-    }
+	protected final boolean isPowered() {
+		return powered;
+	}
 
-    protected final Direction getTargetDirection() {
-        return DirectedDirectionalBlock.getTargetDirection(getBlockState());
-    }
+	protected final Direction getTargetDirection() {
+		return DirectedDirectionalBlock.getTargetDirection(getBlockState());
+	}
 
-    @Override
-    protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
-        super.read(tag, registries, clientPacket);
-        powered = tag.getBoolean("Powered");
-    }
+	@Override
+	protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
+		super.read(tag, registries, clientPacket);
+		powered = tag.getBoolean("Powered");
+	}
 
-    @Override
-    protected void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
-        super.write(tag, registries, clientPacket);
-        tag.putBoolean("Powered", powered);
-    }
+	@Override
+	protected void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
+		super.write(tag, registries, clientPacket);
+		tag.putBoolean("Powered", powered);
+	}
 }

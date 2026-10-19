@@ -9,6 +9,7 @@ import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 
 public class FluidRepackagerGenerator extends SpecialBlockStateGen {
@@ -25,7 +26,7 @@ public class FluidRepackagerGenerator extends SpecialBlockStateGen {
 
 	@Override
 	public <T extends Block> ModelFile getModel(DataGenContext<Block, T> ctx, RegistrateBlockstateProvider prov,
-												BlockState state) {
+		BlockState state) {
 		String suffix = state.getValue(PackagerBlock.POWERED) ? "powered" : "";
 		return state.getValue(PackagerBlock.FACING)
 			.getAxis() == Axis.Y ? AssetLookup.partialBaseModel(ctx, prov, "vertical", suffix)

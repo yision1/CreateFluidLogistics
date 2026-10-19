@@ -10,7 +10,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-
 final class MechanicalFluidGunMount {
 
 	private MechanicalFluidGunMount() {
@@ -34,15 +33,19 @@ final class MechanicalFluidGunMount {
 	}
 
 	static Direction normalizeFacing(Direction mountFace, Direction facing) {
-		if (isFacingValid(mountFace, facing)) return facing;
-		for (Direction candidate : new Direction[]{Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST}) {
-			if (candidate.getAxis() != mountFace.getAxis()) return candidate;
+		if (isFacingValid(mountFace, facing))
+			return facing;
+		for (Direction candidate : new Direction[] { Direction.NORTH, Direction.EAST, Direction.SOUTH,
+			Direction.WEST }) {
+			if (candidate.getAxis() != mountFace.getAxis())
+				return candidate;
 		}
 		return Direction.NORTH;
 	}
 
 	static Direction resolveFacing(Direction mountFace, Direction playerHorizontal) {
-		if (isFacingValid(mountFace, playerHorizontal)) return playerHorizontal;
+		if (isFacingValid(mountFace, playerHorizontal))
+			return playerHorizontal;
 		return playerHorizontal.getClockWise();
 	}
 
@@ -55,12 +58,13 @@ final class MechanicalFluidGunMount {
 		ms.translate(0.5, 0.5, 0.5);
 
 		switch (mountFace) {
-			case UP -> {}
-			case DOWN -> ms.mulPose(Axis.XP.rotationDegrees(180));
-			case NORTH -> ms.mulPose(Axis.XP.rotationDegrees(-90));
-			case SOUTH -> ms.mulPose(Axis.XP.rotationDegrees(90));
-			case EAST -> ms.mulPose(Axis.ZP.rotationDegrees(-90));
-			case WEST -> ms.mulPose(Axis.ZP.rotationDegrees(90));
+		case UP -> {
+		}
+		case DOWN -> ms.mulPose(Axis.XP.rotationDegrees(180));
+		case NORTH -> ms.mulPose(Axis.XP.rotationDegrees(-90));
+		case SOUTH -> ms.mulPose(Axis.XP.rotationDegrees(90));
+		case EAST -> ms.mulPose(Axis.ZP.rotationDegrees(-90));
+		case WEST -> ms.mulPose(Axis.ZP.rotationDegrees(90));
 		}
 
 		ms.translate(-0.5, -0.5, -0.5);
@@ -86,23 +90,23 @@ final class MechanicalFluidGunMount {
 
 	private static Vec3 applyMountRotation(Vec3 v, Direction mountFace) {
 		return switch (mountFace) {
-			case UP -> v;
-			case DOWN -> new Vec3(v.x, -v.y, -v.z);
-			case NORTH -> new Vec3(v.x, v.z, -v.y);
-			case SOUTH -> new Vec3(v.x, -v.z, v.y);
-			case EAST -> new Vec3(v.y, -v.x, v.z);
-			case WEST -> new Vec3(-v.y, v.x, v.z);
+		case UP -> v;
+		case DOWN -> new Vec3(v.x, -v.y, -v.z);
+		case NORTH -> new Vec3(v.x, v.z, -v.y);
+		case SOUTH -> new Vec3(v.x, -v.z, v.y);
+		case EAST -> new Vec3(v.y, -v.x, v.z);
+		case WEST -> new Vec3(-v.y, v.x, v.z);
 		};
 	}
 
 	private static Vec3 undoMountRotation(Vec3 v, Direction mountFace) {
 		return switch (mountFace) {
-			case UP -> v;
-			case DOWN -> new Vec3(v.x, -v.y, -v.z);
-			case NORTH -> new Vec3(v.x, -v.z, v.y);
-			case SOUTH -> new Vec3(v.x, v.z, -v.y);
-			case EAST -> new Vec3(-v.y, v.x, v.z);
-			case WEST -> new Vec3(v.y, -v.x, v.z);
+		case UP -> v;
+		case DOWN -> new Vec3(v.x, -v.y, -v.z);
+		case NORTH -> new Vec3(v.x, -v.z, v.y);
+		case SOUTH -> new Vec3(v.x, v.z, -v.y);
+		case EAST -> new Vec3(-v.y, v.x, v.z);
+		case WEST -> new Vec3(v.y, -v.x, v.z);
 		};
 	}
 
@@ -115,30 +119,29 @@ final class MechanicalFluidGunMount {
 
 	static VoxelShape getShapeForMount(Direction mountFace) {
 		return switch (mountFace) {
-			case UP -> FLOOR_SHAPE;
-			case DOWN -> CEILING_SHAPE;
-			case NORTH -> NORTH_WALL_SHAPE;
-			case SOUTH -> SOUTH_WALL_SHAPE;
-			case EAST -> EAST_WALL_SHAPE;
-			case WEST -> WEST_WALL_SHAPE;
+		case UP -> FLOOR_SHAPE;
+		case DOWN -> CEILING_SHAPE;
+		case NORTH -> NORTH_WALL_SHAPE;
+		case SOUTH -> SOUTH_WALL_SHAPE;
+		case EAST -> EAST_WALL_SHAPE;
+		case WEST -> WEST_WALL_SHAPE;
 		};
 	}
 
 	private static VoxelShape buildShape(Direction mountFace) {
 		return Shapes.or(
 			rotatedBox(mountFace, 0, 0, 0, 16, 6, 16),
-			rotatedBox(mountFace, 2, 6, 2, 14, 10, 14)
-		);
+			rotatedBox(mountFace, 2, 6, 2, 14, 10, 14));
 	}
 
 	private static VoxelShape rotatedBox(Direction mountFace, double minX, double minY, double minZ, double maxX,
 		double maxY, double maxZ) {
-		double[] bounds = {Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY,
-			Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY};
+		double[] bounds = { Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY,
+			Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY };
 
-		for (double x : new double[]{minX, maxX}) {
-			for (double y : new double[]{minY, maxY}) {
-				for (double z : new double[]{minZ, maxZ}) {
+		for (double x : new double[] { minX, maxX }) {
+			for (double y : new double[] { minY, maxY }) {
+				for (double z : new double[] { minZ, maxZ }) {
 					Vec3 rotated = toWorld(mountFace, new Vec3(x / 16, y / 16, z / 16)).scale(16);
 					bounds[0] = Math.min(bounds[0], rotated.x);
 					bounds[1] = Math.min(bounds[1], rotated.y);

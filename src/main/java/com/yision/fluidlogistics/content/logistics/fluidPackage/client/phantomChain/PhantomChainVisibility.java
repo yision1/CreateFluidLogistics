@@ -1,8 +1,8 @@
 package com.yision.fluidlogistics.content.logistics.fluidPackage.client.phantomChain;
 
 import com.simibubi.create.content.kinetics.chainConveyor.ChainConveyorBlockEntity;
+import com.yision.fluidlogistics.content.logistics.fluidPackage.phantomChain.PhantomChainConveyorAccess;
 import com.yision.fluidlogistics.registry.AllItems;
-import com.yision.fluidlogistics.util.PhantomChainConveyorAccess;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;

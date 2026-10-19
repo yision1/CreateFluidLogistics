@@ -6,6 +6,7 @@ import com.simibubi.create.infrastructure.ponder.scenes.ProcessingScenes;
 import com.tterrag.registrate.util.entry.ItemProviderEntry;
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import com.yision.fluidlogistics.registry.AllBlocks;
+
 import net.createmod.ponder.api.registration.PonderPlugin;
 import net.createmod.ponder.api.registration.PonderSceneRegistrationHelper;
 import net.createmod.ponder.api.registration.PonderTagRegistrationHelper;
@@ -13,28 +14,28 @@ import net.minecraft.resources.ResourceLocation;
 
 public class CopperBasinPonderPlugin implements PonderPlugin {
 
-    @Override
-    public String getModId() {
-        return Create.ID;
-    }
+	@Override
+	public String getModId() {
+		return Create.ID;
+	}
 
-    @Override
-    public void registerScenes(PonderSceneRegistrationHelper<ResourceLocation> helper) {
-        PonderSceneRegistrationHelper<ItemProviderEntry<?, ?>> registration =
-                helper.withKeyFunction(RegistryEntry::getId);
+	@Override
+	public void registerScenes(PonderSceneRegistrationHelper<ResourceLocation> helper) {
+		PonderSceneRegistrationHelper<ItemProviderEntry<?, ?>> registration = helper
+			.withKeyFunction(RegistryEntry::getId);
 
-        registration.forComponents(AllBlocks.COPPER_BASIN)
-                .addStoryBoard("basin", ProcessingScenes::basin)
-                .addStoryBoard("mechanical_mixer/mixing", ProcessingScenes::mixing)
-                .addStoryBoard("mechanical_press/compacting", ProcessingScenes::compacting);
-    }
+		registration.forComponents(AllBlocks.COPPER_BASIN)
+			.addStoryBoard("basin", ProcessingScenes::basin)
+			.addStoryBoard("mechanical_mixer/mixing", ProcessingScenes::mixing)
+			.addStoryBoard("mechanical_press/compacting", ProcessingScenes::compacting);
+	}
 
-    @Override
-    public void registerTags(PonderTagRegistrationHelper<ResourceLocation> helper) {
-        PonderTagRegistrationHelper<ItemProviderEntry<?, ?>> registration =
-                helper.withKeyFunction(RegistryEntry::getId);
+	@Override
+	public void registerTags(PonderTagRegistrationHelper<ResourceLocation> helper) {
+		PonderTagRegistrationHelper<ItemProviderEntry<?, ?>> registration = helper
+			.withKeyFunction(RegistryEntry::getId);
 
-        registration.addToTag(AllCreatePonderTags.ARM_TARGETS)
-                .add(AllBlocks.COPPER_BASIN);
-    }
+		registration.addToTag(AllCreatePonderTags.ARM_TARGETS)
+			.add(AllBlocks.COPPER_BASIN);
+	}
 }

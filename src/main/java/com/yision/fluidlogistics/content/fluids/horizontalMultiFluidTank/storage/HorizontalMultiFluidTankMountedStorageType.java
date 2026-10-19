@@ -10,17 +10,19 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class HorizontalMultiFluidTankMountedStorageType extends MountedFluidStorageType<HorizontalMultiFluidTankMountedStorage> {
-    public HorizontalMultiFluidTankMountedStorageType() {
-        super(HorizontalMultiFluidTankMountedStorage.CODEC);
-    }
+public class HorizontalMultiFluidTankMountedStorageType
+	extends MountedFluidStorageType<HorizontalMultiFluidTankMountedStorage> {
+	public HorizontalMultiFluidTankMountedStorageType() {
+		super(HorizontalMultiFluidTankMountedStorage.CODEC);
+	}
 
-    @Override
-    @Nullable
-    public HorizontalMultiFluidTankMountedStorage mount(Level level, BlockState state, BlockPos pos, @Nullable BlockEntity be) {
-        if (be instanceof HorizontalMultiFluidTankBlockEntity tank && tank.isController()) {
-            return HorizontalMultiFluidTankMountedStorage.fromTank(tank);
-        }
-        return null;
-    }
+	@Override
+	@Nullable
+	public HorizontalMultiFluidTankMountedStorage mount(Level level, BlockState state, BlockPos pos,
+		@Nullable BlockEntity be) {
+		if (be instanceof HorizontalMultiFluidTankBlockEntity tank && tank.isController()) {
+			return HorizontalMultiFluidTankMountedStorage.fromTank(tank);
+		}
+		return null;
+	}
 }

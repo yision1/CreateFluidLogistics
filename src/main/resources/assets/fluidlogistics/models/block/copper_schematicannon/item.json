@@ -5,9 +5,9 @@
 	"texture_size": [32, 32],
 	"textures": {
 		"0": "create:block/andesite_casing_short",
-		"3": "fluidlogistics:block/copper_schematicannon/fluid_cannon",
-		"4": "fluidlogistics:block/copper_schematicannon/fluid_cannon_top",
-		"10": "fluidlogistics:block/copper_schematicannon/fluid_cannon_connector",
+		"3": "fluidlogistics:block/copper_schematicannon/copper_schematicannon",
+		"4": "fluidlogistics:block/copper_schematicannon/copper_schematicannon_top",
+		"10": "fluidlogistics:block/copper_schematicannon/copper_schematicannon_connector",
 		"7": "create:block/schematicannon",
 		"8": "block/stone",
 		"particle": "block/spruce_log"

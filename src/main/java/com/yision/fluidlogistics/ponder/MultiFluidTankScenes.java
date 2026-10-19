@@ -11,6 +11,7 @@ import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankBlock;
 import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankBlockEntity;
 import com.yision.fluidlogistics.registry.AllBlocks;
+
 import net.createmod.catnip.math.Pointing;
 import net.createmod.catnip.math.VecHelper;
 import net.createmod.ponder.api.PonderPalette;
@@ -26,6 +27,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
+
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -64,8 +66,7 @@ public class MultiFluidTankScenes {
 		ElementLink<WorldSectionElement> tankLink = scene.world().showIndependentSection(tank, Direction.NORTH);
 		scene.world().moveSection(tankLink, util.vector().of(0, 0, -1), 0);
 		scene.idle(5);
-		ElementLink<WorldSectionElement> fluidsLink =
-			scene.world().showIndependentSection(fluids, Direction.NORTH);
+		ElementLink<WorldSectionElement> fluidsLink = scene.world().showIndependentSection(fluids, Direction.NORTH);
 		scene.world().moveSection(fluidsLink, util.vector().of(2, -4, 3), 0);
 		scene.idle(10);
 
@@ -169,7 +170,8 @@ public class MultiFluidTankScenes {
 		scene.idle(20);
 
 		ItemStack bucket = new ItemStack(Items.BUCKET, 1);
-		scene.overlay().showControls(util.vector().blockSurface(util.grid().at(2, 2, 2), Direction.NORTH), Pointing.RIGHT, 40)
+		scene.overlay()
+			.showControls(util.vector().blockSurface(util.grid().at(2, 2, 2), Direction.NORTH), Pointing.RIGHT, 40)
 			.showing(AllIcons.I_MTD_CLOSE)
 			.withItem(bucket);
 		scene.idle(7);
@@ -181,7 +183,8 @@ public class MultiFluidTankScenes {
 			.pointAt(util.vector().blockSurface(util.grid().at(2, 2, 2), Direction.WEST));
 		scene.idle(80);
 		scene.world().modifyBlockEntity(util.grid().at(4, 3, 0), SpoutBlockEntity.class, be -> {
-			IFluidHandler handler = be.getLevel().getCapability(Capabilities.FluidHandler.BLOCK, be.getBlockPos(), null);
+			IFluidHandler handler = be.getLevel().getCapability(Capabilities.FluidHandler.BLOCK, be.getBlockPos(),
+				null);
 			if (handler != null)
 				handler.fill(chocolate.copyWithAmount(1000), FluidAction.EXECUTE);
 		});
@@ -220,7 +223,7 @@ public class MultiFluidTankScenes {
 		scene.world().createItemOnBeltLike(util.grid().at(4, 1, 0), Direction.UP, chocolateBucket);
 		for (int i = 0; i < 10; i++) {
 			scene.effects().emitParticles(util.vector().topOf(3, 1, 1)
-					.add(0, 1 / 16f, 0),
+				.add(0, 1 / 16f, 0),
 				scene.effects().simpleParticleEmitter(FluidFX.getFluidParticle(chocolate),
 					VecHelper.offsetRandomly(Vec3.ZERO, random, .1f)),
 				1, 1);
@@ -344,7 +347,8 @@ public class MultiFluidTankScenes {
 			.pointAt(blockSurface);
 		scene.idle(70);
 
-		scene.overlay().showControls(util.vector().blockSurface(util.grid().at(3, 3, 1), Direction.NORTH), Pointing.RIGHT, 60)
+		scene.overlay()
+			.showControls(util.vector().blockSurface(util.grid().at(3, 3, 1), Direction.NORTH), Pointing.RIGHT, 60)
 			.rightClick()
 			.withItem(AllItems.WRENCH.asStack());
 		scene.idle(7);

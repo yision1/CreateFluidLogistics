@@ -1,5 +1,7 @@
 package com.yision.fluidlogistics.registry;
 
+import com.simibubi.create.content.logistics.packagePort.PackagePortMenu;
+import com.simibubi.create.content.schematics.cannon.SchematicannonMenu;
 import com.tterrag.registrate.builders.MenuBuilder.ForgeMenuFactory;
 import com.tterrag.registrate.builders.MenuBuilder.ScreenFactory;
 import com.tterrag.registrate.util.entry.MenuEntry;
@@ -12,33 +14,30 @@ import com.yision.fluidlogistics.content.logistics.factoryGauge.ResourceFactoryG
 import com.yision.fluidlogistics.content.logistics.factoryGauge.client.ResourceFactoryGaugeSetFilterScreen;
 import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonScreen;
 
-import com.simibubi.create.content.logistics.packagePort.PackagePortMenu;
-import com.simibubi.create.content.schematics.cannon.SchematicannonMenu;
-
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
 public class AllMenuTypes {
 
-    public static final MenuEntry<PackagePortMenu> COPPER_FROGPORT =
-        register("copper_frogport", PackagePortMenu::new, () -> CopperFrogportScreen::new);
+	public static final MenuEntry<PackagePortMenu> COPPER_FROGPORT = register("copper_frogport", PackagePortMenu::new,
+		() -> CopperFrogportScreen::new);
 
-    public static final MenuEntry<HandPointerFilterMenu> HAND_POINTER_FILTER =
-        register("hand_pointer_filter", HandPointerFilterMenu::new, () -> HandPointerFilterScreen::new);
+	public static final MenuEntry<HandPointerFilterMenu> HAND_POINTER_FILTER = register("hand_pointer_filter",
+		HandPointerFilterMenu::new, () -> HandPointerFilterScreen::new);
 
-    public static final MenuEntry<SchematicannonMenu> COPPER_SCHEMATICANNON =
-        register("copper_schematicannon", SchematicannonMenu::new, () -> CopperSchematicannonScreen::new);
+	public static final MenuEntry<SchematicannonMenu> COPPER_SCHEMATICANNON = register("copper_schematicannon",
+		SchematicannonMenu::new, () -> CopperSchematicannonScreen::new);
 
-    public static final MenuEntry<ResourceFactoryGaugeSetFilterMenu> RESOURCE_GAUGE_SET_FILTER =
-        register("resource_gauge_set_filter", ResourceFactoryGaugeSetFilterMenu::new,
-            () -> ResourceFactoryGaugeSetFilterScreen::new);
+	public static final MenuEntry<ResourceFactoryGaugeSetFilterMenu> RESOURCE_GAUGE_SET_FILTER = register(
+		"resource_gauge_set_filter", ResourceFactoryGaugeSetFilterMenu::new,
+		() -> ResourceFactoryGaugeSetFilterScreen::new);
 
-    private static <C extends AbstractContainerMenu, S extends Screen & MenuAccess<C>> MenuEntry<C> register(
-        String name, ForgeMenuFactory<C> factory, NonNullSupplier<ScreenFactory<C, S>> screenFactory) {
-        return FluidLogistics.REGISTRATE.menu(name, factory, screenFactory).register();
-    }
+	private static <C extends AbstractContainerMenu, S extends Screen & MenuAccess<C>> MenuEntry<C> register(
+		String name, ForgeMenuFactory<C> factory, NonNullSupplier<ScreenFactory<C, S>> screenFactory) {
+		return FluidLogistics.REGISTRATE.menu(name, factory, screenFactory).register();
+	}
 
-    public static void register() {
-    }
+	public static void register() {
+	}
 }

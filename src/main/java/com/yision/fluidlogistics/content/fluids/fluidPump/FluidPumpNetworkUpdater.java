@@ -12,7 +12,7 @@ import com.simibubi.create.content.fluids.FluidPropagator;
 import com.simibubi.create.content.fluids.FluidTransportBehaviour;
 import com.simibubi.create.content.fluids.PipeConnection;
 import com.simibubi.create.content.fluids.pump.PumpBlockEntity;
-import com.yision.fluidlogistics.config.Config;
+import com.yision.fluidlogistics.infrastructure.config.Config;
 
 import net.createmod.catnip.data.Iterate;
 import net.createmod.catnip.data.Pair;

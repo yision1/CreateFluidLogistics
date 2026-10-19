@@ -8,82 +8,85 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.simibubi.create.foundation.gui.menu.AbstractSimiContainerScreen;
 import com.simibubi.create.foundation.gui.menu.GhostItemMenu;
+import com.yision.fluidlogistics.compat.ghost.FluidGhostStacks;
 import com.yision.fluidlogistics.compat.ghost.GhostSlotSubmitter;
 import com.yision.fluidlogistics.compat.ghost.GhostSlotTargets;
-import com.yision.fluidlogistics.compat.ghost.FluidGhostStacks;
 
 import mezz.jei.api.gui.handlers.IGhostIngredientHandler;
 import mezz.jei.api.ingredients.ITypedIngredient;
 import mezz.jei.api.neoforge.NeoForgeTypes;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.renderer.Rect2i;
+
 import net.neoforged.neoforge.fluids.FluidStack;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class FluidGhostIngredientHandler<T extends AbstractSimiContainerScreen<? extends GhostItemMenu<?>>>
-        implements IGhostIngredientHandler<T> {
+	implements IGhostIngredientHandler<T> {
 
-    private final BiConsumer<T, Integer> afterSubmit;
+	private final BiConsumer<T, Integer> afterSubmit;
 
-    public FluidGhostIngredientHandler() {
-        this((gui, slotIndex) -> {});
-    }
+	public FluidGhostIngredientHandler() {
+		this((gui, slotIndex) -> {
+		});
+	}
 
-    public FluidGhostIngredientHandler(BiConsumer<T, Integer> afterSubmit) {
-        this.afterSubmit = afterSubmit;
-    }
+	public FluidGhostIngredientHandler(BiConsumer<T, Integer> afterSubmit) {
+		this.afterSubmit = afterSubmit;
+	}
 
-    @Override
-    public <I> List<Target<I>> getTargetsTyped(T gui, ITypedIngredient<I> ingredient, boolean doStart) {
-        List<Target<I>> targets = new LinkedList<>();
+	@Override
+	public <I> List<Target<I>> getTargetsTyped(T gui, ITypedIngredient<I> ingredient, boolean doStart) {
+		List<Target<I>> targets = new LinkedList<>();
 
-        if (ingredient.getType() == NeoForgeTypes.FLUID_STACK) {
-            for (GhostSlotTargets.GhostSlotTarget target : GhostSlotTargets.collect(gui)) {
-                targets.add(new FluidGhostTarget<>(target.area(), target.slotIndex(), gui, afterSubmit));
-            }
-        }
+		if (ingredient.getType() == NeoForgeTypes.FLUID_STACK) {
+			for (GhostSlotTargets.GhostSlotTarget target : GhostSlotTargets.collect(gui)) {
+				targets.add(new FluidGhostTarget<>(target.area(), target.slotIndex(), gui, afterSubmit));
+			}
+		}
 
-        return targets;
-    }
+		return targets;
+	}
 
-    @Override
-    public void onComplete() {
-    }
+	@Override
+	public void onComplete() {
+	}
 
-    @Override
-    public boolean shouldHighlightTargets() {
-        return true;
-    }
+	@Override
+	public boolean shouldHighlightTargets() {
+		return true;
+	}
 
-    private static class FluidGhostTarget<I, T extends AbstractSimiContainerScreen<? extends GhostItemMenu<?>>> implements Target<I> {
+	private static class FluidGhostTarget<I, T extends AbstractSimiContainerScreen<? extends GhostItemMenu<?>>>
+		implements Target<I> {
 
-        private final Rect2i area;
-        private final T gui;
-        private final int slotIndex;
-        private final BiConsumer<T, Integer> afterSubmit;
+		private final Rect2i area;
+		private final T gui;
+		private final int slotIndex;
+		private final BiConsumer<T, Integer> afterSubmit;
 
-        FluidGhostTarget(Rect2i area, int slotIndex, T gui, BiConsumer<T, Integer> afterSubmit) {
-            this.area = area;
-            this.slotIndex = slotIndex;
-            this.gui = gui;
-            this.afterSubmit = afterSubmit;
-        }
+		FluidGhostTarget(Rect2i area, int slotIndex, T gui, BiConsumer<T, Integer> afterSubmit) {
+			this.area = area;
+			this.slotIndex = slotIndex;
+			this.gui = gui;
+			this.afterSubmit = afterSubmit;
+		}
 
-        @Override
-        public Rect2i getArea() {
-            return area;
-        }
+		@Override
+		public Rect2i getArea() {
+			return area;
+		}
 
-        @Override
-        public void accept(I ingredient) {
-            if (!(ingredient instanceof FluidStack fluidStack)) {
-                return;
-            }
+		@Override
+		public void accept(I ingredient) {
+			if (!(ingredient instanceof FluidStack fluidStack)) {
+				return;
+			}
 
-            var stack = FluidGhostStacks.fromFluid(fluidStack);
-            GhostSlotSubmitter.submit(gui, slotIndex, stack);
-            afterSubmit.accept(gui, slotIndex);
-        }
-    }
+			var stack = FluidGhostStacks.fromFluid(fluidStack);
+			GhostSlotSubmitter.submit(gui, slotIndex, stack);
+			afterSubmit.accept(gui, slotIndex);
+		}
+	}
 }

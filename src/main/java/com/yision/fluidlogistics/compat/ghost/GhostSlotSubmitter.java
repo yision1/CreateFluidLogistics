@@ -9,14 +9,14 @@ import net.minecraft.world.item.ItemStack;
 
 public final class GhostSlotSubmitter {
 
-    private GhostSlotSubmitter() {
-    }
+	private GhostSlotSubmitter() {
+	}
 
-    public static <T extends AbstractSimiContainerScreen<? extends GhostItemMenu<?>>> void submit(T gui, int slotIndex,
-            ItemStack stack) {
-        GhostItemMenu<?> menu = (GhostItemMenu<?>) gui.getMenu();
-        menu.ghostInventory.setStackInSlot(slotIndex, stack);
-        gui.getMenu().getSlot(slotIndex + 36).setChanged();
-        CatnipServices.NETWORK.sendToServer(new GhostItemSubmitPacket(stack, slotIndex));
-    }
+	public static <T extends AbstractSimiContainerScreen<? extends GhostItemMenu<?>>> void submit(T gui, int slotIndex,
+		ItemStack stack) {
+		GhostItemMenu<?> menu = (GhostItemMenu<?>) gui.getMenu();
+		menu.ghostInventory.setStackInSlot(slotIndex, stack);
+		gui.getMenu().getSlot(slotIndex + 36).setChanged();
+		CatnipServices.NETWORK.sendToServer(new GhostItemSubmitPacket(stack, slotIndex));
+	}
 }

@@ -1,13 +1,15 @@
 package com.yision.fluidlogistics.content.equipment.handPointer.client;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.jetbrains.annotations.Nullable;
+
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.MechanicalFluidGunBlock;
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.MechanicalFluidGunBlockEntity;
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.MechanicalFluidGunTargetConfig;
-import com.yision.fluidlogistics.content.fluids.fluidHatch.FluidHatchFluidHandlerForwarder;
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.network.MechanicalFluidGunPackets;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.yision.fluidlogistics.content.fluids.fluidHatch.FluidHatchFluidHandlerForwarder;
 
 import net.createmod.catnip.outliner.Outliner;
 import net.minecraft.client.Minecraft;
@@ -17,8 +19,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
 
 public class MechanicalFluidGunSelectionHandler {
 
@@ -42,7 +44,8 @@ public class MechanicalFluidGunSelectionHandler {
 		BlockEntity be = level.getBlockEntity(pos);
 		if (be instanceof MechanicalFluidGunBlockEntity gun && gun.hasTarget()) {
 			for (MechanicalFluidGunTargetConfig target : gun.getTargets()) {
-				targets.add(new MechanicalFluidGunPackets.TargetPacket.TargetEntry(target.absoluteFrom(pos).immutable(), target.face()));
+				targets.add(new MechanicalFluidGunPackets.TargetPacket.TargetEntry(target.absoluteFrom(pos).immutable(),
+					target.face()));
 			}
 		}
 	}
@@ -72,7 +75,8 @@ public class MechanicalFluidGunSelectionHandler {
 			return false;
 		}
 
-		targets.add(new MechanicalFluidGunPackets.TargetPacket.TargetEntry(pos.immutable(), getTargetFace(level, pos, face)));
+		targets.add(
+			new MechanicalFluidGunPackets.TargetPacket.TargetEntry(pos.immutable(), getTargetFace(level, pos, face)));
 		return true;
 	}
 
@@ -114,7 +118,8 @@ public class MechanicalFluidGunSelectionHandler {
 			return new SubmitResult(false, 0, skipped);
 		}
 
-		PacketDistributor.sendToServer(MechanicalFluidGunPackets.TargetPacket.setTargets(selectedGunPos, List.copyOf(inRange)));
+		PacketDistributor
+			.sendToServer(MechanicalFluidGunPackets.TargetPacket.setTargets(selectedGunPos, List.copyOf(inRange)));
 		return new SubmitResult(true, inRange.size(), skipped);
 	}
 

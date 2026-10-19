@@ -15,107 +15,109 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+
 import net.neoforged.neoforge.fluids.FluidStack;
 
 public final class EmiFluidStackProvider {
 
-    private EmiFluidStackProvider() {
-    }
+	private EmiFluidStackProvider() {
+	}
 
-    public static EmiStackInteraction forGhostSlotScreen(AbstractContainerScreen<?> gui, int x, int y) {
-        for (int i = 36; i < gui.getMenu().slots.size(); i++) {
-            Slot slot = gui.getMenu().slots.get(i);
-            if (!slot.isActive()) {
-                continue;
-            }
-            Rect2i area = new Rect2i(gui.getGuiLeft() + slot.x, gui.getGuiTop() + slot.y, 16, 16);
-            if (!area.contains(x, y)) {
-                continue;
-            }
-            ItemStack ghost = slot.getItem();
-            if (CompressedTankItem.isFluidStack(ghost)) {
-                FluidStack fluid = CompressedTankItem.getFluid(ghost);
-                if (!fluid.isEmpty()) {
-                    return new EmiStackInteraction(NeoForgeEmiStack.of(fluid), null, false);
-                }
-            }
-        }
-        return EmiStackInteraction.EMPTY;
-    }
+	public static EmiStackInteraction forGhostSlotScreen(AbstractContainerScreen<?> gui, int x, int y) {
+		for (int i = 36; i < gui.getMenu().slots.size(); i++) {
+			Slot slot = gui.getMenu().slots.get(i);
+			if (!slot.isActive()) {
+				continue;
+			}
+			Rect2i area = new Rect2i(gui.getGuiLeft() + slot.x, gui.getGuiTop() + slot.y, 16, 16);
+			if (!area.contains(x, y)) {
+				continue;
+			}
+			ItemStack ghost = slot.getItem();
+			if (CompressedTankItem.isFluidStack(ghost)) {
+				FluidStack fluid = CompressedTankItem.getFluid(ghost);
+				if (!fluid.isEmpty()) {
+					return new EmiStackInteraction(NeoForgeEmiStack.of(fluid), null, false);
+				}
+			}
+		}
+		return EmiStackInteraction.EMPTY;
+	}
 
-    public static class ResourceGaugeSetFilter
-            implements EmiStackProvider<com.yision.fluidlogistics.content.logistics.factoryGauge.client.ResourceFactoryGaugeSetFilterScreen> {
-        public static final ResourceGaugeSetFilter INSTANCE = new ResourceGaugeSetFilter();
+	public static class ResourceGaugeSetFilter
+		implements
+		EmiStackProvider<com.yision.fluidlogistics.content.logistics.factoryGauge.client.ResourceFactoryGaugeSetFilterScreen> {
+		public static final ResourceGaugeSetFilter INSTANCE = new ResourceGaugeSetFilter();
 
-        @Override
-        public EmiStackInteraction getStackAt(
-                com.yision.fluidlogistics.content.logistics.factoryGauge.client.ResourceFactoryGaugeSetFilterScreen screen,
-                int x, int y) {
-            return forGhostSlotScreen(screen, x, y);
-        }
-    }
+		@Override
+		public EmiStackInteraction getStackAt(
+			com.yision.fluidlogistics.content.logistics.factoryGauge.client.ResourceFactoryGaugeSetFilterScreen screen,
+			int x, int y) {
+			return forGhostSlotScreen(screen, x, y);
+		}
+	}
 
-    public static class Filter implements EmiStackProvider<FilterScreen> {
-        public static final Filter INSTANCE = new Filter();
+	public static class Filter implements EmiStackProvider<FilterScreen> {
+		public static final Filter INSTANCE = new Filter();
 
-        @Override
-        public EmiStackInteraction getStackAt(FilterScreen screen, int x, int y) {
-            return forGhostSlotScreen(screen, x, y);
-        }
-    }
+		@Override
+		public EmiStackInteraction getStackAt(FilterScreen screen, int x, int y) {
+			return forGhostSlotScreen(screen, x, y);
+		}
+	}
 
-    public static class AttributeFilter implements EmiStackProvider<AttributeFilterScreen> {
-        public static final AttributeFilter INSTANCE = new AttributeFilter();
+	public static class AttributeFilter implements EmiStackProvider<AttributeFilterScreen> {
+		public static final AttributeFilter INSTANCE = new AttributeFilter();
 
-        @Override
-        public EmiStackInteraction getStackAt(AttributeFilterScreen screen, int x, int y) {
-            return forGhostSlotScreen(screen, x, y);
-        }
-    }
+		@Override
+		public EmiStackInteraction getStackAt(AttributeFilterScreen screen, int x, int y) {
+			return forGhostSlotScreen(screen, x, y);
+		}
+	}
 
-    public static class RedstoneRequester implements EmiStackProvider<RedstoneRequesterScreen> {
-        public static final RedstoneRequester INSTANCE = new RedstoneRequester();
+	public static class RedstoneRequester implements EmiStackProvider<RedstoneRequesterScreen> {
+		public static final RedstoneRequester INSTANCE = new RedstoneRequester();
 
-        @Override
-        public EmiStackInteraction getStackAt(RedstoneRequesterScreen screen, int x, int y) {
-            return forGhostSlotScreen(screen, x, y);
-        }
-    }
+		@Override
+		public EmiStackInteraction getStackAt(RedstoneRequesterScreen screen, int x, int y) {
+			return forGhostSlotScreen(screen, x, y);
+		}
+	}
 
-    public static class HandPointerFilter implements EmiStackProvider<HandPointerFilterScreen> {
-        public static final HandPointerFilter INSTANCE = new HandPointerFilter();
+	public static class HandPointerFilter implements EmiStackProvider<HandPointerFilterScreen> {
+		public static final HandPointerFilter INSTANCE = new HandPointerFilter();
 
-        @Override
-        public EmiStackInteraction getStackAt(HandPointerFilterScreen screen, int x, int y) {
-            return forGhostSlotScreen(screen, x, y);
-        }
-    }
+		@Override
+		public EmiStackInteraction getStackAt(HandPointerFilterScreen screen, int x, int y) {
+			return forGhostSlotScreen(screen, x, y);
+		}
+	}
 
-    public static class StockKeeper implements EmiStackProvider<StockKeeperRequestScreen> {
-        public static final StockKeeper INSTANCE = new StockKeeper();
+	public static class StockKeeper implements EmiStackProvider<StockKeeperRequestScreen> {
+		public static final StockKeeper INSTANCE = new StockKeeper();
 
-        @Override
-        public EmiStackInteraction getStackAt(StockKeeperRequestScreen containerScreen, int x, int y) {
-            return containerScreen.getHoveredIngredient(x, y)
-                    .map(pair -> toInteraction(pair.getFirst()))
-                    .orElse(EmiStackInteraction.EMPTY);
-        }
+		@Override
+		public EmiStackInteraction getStackAt(StockKeeperRequestScreen containerScreen, int x, int y) {
+			return containerScreen.getHoveredIngredient(x, y)
+				.map(pair -> toInteraction(pair.getFirst()))
+				.orElse(EmiStackInteraction.EMPTY);
+		}
 
-        private static EmiStackInteraction toInteraction(Object ingredient) {
-            if (ingredient instanceof ItemStack stack && CompressedTankItem.isFluidStack(stack)) {
-                FluidStack fluid = CompressedTankItem.getFluid(stack);
-                if (!fluid.isEmpty()) {
-                    return new EmiStackInteraction(NeoForgeEmiStack.of(fluid), null, false);
-                }
-                return EmiStackInteraction.EMPTY;
-            }
-            if (ingredient instanceof ItemStack itemStack && !itemStack.isEmpty()) {
-                return new EmiStackInteraction(EmiStack.of(itemStack), null, false);
-            }
-            if (ingredient instanceof FluidStack fluidStack && !fluidStack.isEmpty()) {
-                return new EmiStackInteraction(NeoForgeEmiStack.of(fluidStack), null, false);
-            }
-            return EmiStackInteraction.EMPTY;
-        }
-    }
+		private static EmiStackInteraction toInteraction(Object ingredient) {
+			if (ingredient instanceof ItemStack stack && CompressedTankItem.isFluidStack(stack)) {
+				FluidStack fluid = CompressedTankItem.getFluid(stack);
+				if (!fluid.isEmpty()) {
+					return new EmiStackInteraction(NeoForgeEmiStack.of(fluid), null, false);
+				}
+				return EmiStackInteraction.EMPTY;
+			}
+			if (ingredient instanceof ItemStack itemStack && !itemStack.isEmpty()) {
+				return new EmiStackInteraction(EmiStack.of(itemStack), null, false);
+			}
+			if (ingredient instanceof FluidStack fluidStack && !fluidStack.isEmpty()) {
+				return new EmiStackInteraction(NeoForgeEmiStack.of(fluidStack), null, false);
+			}
+			return EmiStackInteraction.EMPTY;
+		}
+	}
 }

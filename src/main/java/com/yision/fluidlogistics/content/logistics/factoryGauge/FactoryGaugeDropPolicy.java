@@ -10,17 +10,17 @@ import net.minecraft.world.item.ItemStack;
 @ApiStatus.Internal
 public final class FactoryGaugeDropPolicy {
 
-    private FactoryGaugeDropPolicy() {
-        throw new AssertionError("This class should not be instantiated");
-    }
+	private FactoryGaugeDropPolicy() {
+		throw new AssertionError("This class should not be instantiated");
+	}
 
-    public static ItemStack stackFor(FactoryPanelBehaviour behaviour) {
-        if (!(behaviour instanceof ResourceFactoryPanelBehaviour resource) || !resource.isResourceGauge())
-            return AllBlocks.FACTORY_GAUGE.asStack();
+	public static ItemStack stackFor(FactoryPanelBehaviour behaviour) {
+		if (!(behaviour instanceof ResourceFactoryPanelBehaviour resource) || !resource.isResourceGauge())
+			return AllBlocks.FACTORY_GAUGE.asStack();
 
-        return resource.registeredType()
-            .<ItemStack>map(type -> new ItemStack(type.item()
-                .get()))
-            .orElseGet(AllBlocks.FACTORY_GAUGE::asStack);
-    }
+		return resource.registeredType()
+			.<ItemStack>map(type -> new ItemStack(type.item()
+				.get()))
+			.orElseGet(AllBlocks.FACTORY_GAUGE::asStack);
+	}
 }
