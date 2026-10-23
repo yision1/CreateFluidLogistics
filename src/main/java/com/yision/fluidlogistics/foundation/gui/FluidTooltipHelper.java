@@ -3,7 +3,7 @@ package com.yision.fluidlogistics.foundation.gui;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.yision.fluidlogistics.content.logistics.fluidPackage.CompressedTankItem;
+import com.yision.fluidlogistics.foundation.fluid.FluidDisplayHelper;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -15,7 +15,6 @@ import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 public final class FluidTooltipHelper {
-
 	private FluidTooltipHelper() {
 	}
 
@@ -59,10 +58,7 @@ public final class FluidTooltipHelper {
 	}
 
 	public static FluidStack getCompressedTankFluid(ItemStack stack) {
-		if (!CompressedTankItem.isFluidStack(stack)) {
-			return FluidStack.EMPTY;
-		}
-		return CompressedTankItem.getFluid(stack);
+		return FluidDisplayHelper.getDisplayFluid(stack);
 	}
 
 	public static void addAdvancedComponentLines(List<Component> lines, FluidStack fluid, boolean advanced) {

@@ -10,11 +10,11 @@ import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlock;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlockEntity;
 import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBehaviour;
 import com.simibubi.create.content.logistics.packagerLink.LogisticsManager;
-import com.simibubi.create.content.logistics.packagerLink.LogisticsNetwork;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.yision.fluidlogistics.content.equipment.handPointer.HandPointerItem;
 import com.yision.fluidlogistics.content.equipment.handPointer.logistics.LogisticsLinkResolver;
 import com.yision.fluidlogistics.infrastructure.network.FluidLogisticsPackets;
+import com.yision.fluidlogistics.migration.logistics.LegacyLogisticsNetworkMigration;
 
 import net.createmod.catnip.net.base.ServerboundPacketPayload;
 import net.minecraft.core.BlockPos;
@@ -57,7 +57,8 @@ public record HandPointerLogisticsNetworkPacket(
 		this(action, sourcePos, targetNetworkId, panelSlot, allSlots, -1);
 	}
 
-	public static final StreamCodec<RegistryFriendlyByteBuf, HandPointerLogisticsNetworkPacket> STREAM_CODEC = StreamCodec
+	public static final StreamCodec<RegistryFriendlyByteBuf, HandPointerLogisticsNetworkPacket>
+		STREAM_CODEC = StreamCodec
 		.of(
 			(buf, packet) -> {
 				ByteBufCodecs.VAR_INT.encode(buf, packet.action.ordinal());
@@ -323,25 +324,7 @@ public record HandPointerLogisticsNetworkPacket(
 	}
 
 	private static void purgeLegacyRegisteredPosFromAllNetworks(Level level, BlockPos pos) {
-		GlobalPos globalPos = GlobalPos.of(level.dimension(), pos);
-		boolean changed = false;
-
-		var networkIterator = Create.LOGISTICS.logisticsNetworks.entrySet().iterator();
-		while (networkIterator.hasNext()) {
-			LogisticsNetwork network = networkIterator.next().getValue();
-			if (network.totalLinks.remove(globalPos)) {
-				changed = true;
-			}
-			network.loadedLinks.remove(globalPos);
-			if (network.totalLinks.isEmpty()) {
-				networkIterator.remove();
-				changed = true;
-			}
-		}
-
-		if (changed) {
-			Create.LOGISTICS.markDirty();
-		}
+		LegacyLogisticsNetworkMigration.purgeRegisteredPositionFromAllNetworks(level, pos);
 	}
 
 	@Override

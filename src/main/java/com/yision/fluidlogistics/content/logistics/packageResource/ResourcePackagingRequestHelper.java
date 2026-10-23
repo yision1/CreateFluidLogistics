@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.packager.PackagingRequest;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts;
+import com.yision.fluidlogistics.migration.item.LegacyFluidKeyMigration;
 
 import net.minecraft.world.item.ItemStack;
 
@@ -33,24 +34,29 @@ final class ResourcePackagingRequestHelper {
 		int linkIndex = request.linkIndex();
 		boolean finalLink = request.finalLink().booleanValue();
 		int packageIndex = request.packageCounter().getAndIncrement();
-		PackageOrderWithCrafts context = request.context();
+		PackageOrderWithCrafts context = LegacyFluidKeyMigration.normalizeOrderContext(request.context());
 
 		request.subtract(transferred);
 		boolean finalPackage = false;
 		if (request.isEmpty()) {
-			finalPackage = true;
-			queuedRequests.removeFirst();
-			if (!queuedRequests.isEmpty()) {
-				PackagingRequest following = queuedRequests.getFirst();
-				if (sameSequence(address, orderId, linkIndex, following)) {
-					following.packageCounter().setValue(packageIndex + 1);
-					finalPackage = false;
-				}
-			}
+			finalPackage = !advanceToNextRequest(queuedRequests);
 		}
 
 		return new PackageFragment(
 			address, orderId, linkIndex, finalLink, packageIndex, finalPackage, context);
+	}
+
+	public static boolean advanceToNextRequest(List<PackagingRequest> queuedRequests) {
+		PackagingRequest previous = queuedRequests.removeFirst();
+		if (queuedRequests.isEmpty()) {
+			return false;
+		}
+		PackagingRequest following = queuedRequests.getFirst();
+		if (!sameSequence(previous.address(), previous.orderId(), previous.linkIndex(), following)) {
+			return false;
+		}
+		following.packageCounter().setValue(previous.packageCounter().intValue());
+		return true;
 	}
 
 	private static boolean sameSequence(

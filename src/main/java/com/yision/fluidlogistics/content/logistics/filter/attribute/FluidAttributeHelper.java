@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.simibubi.create.content.fluids.transfer.GenericItemEmptying;
-import com.yision.fluidlogistics.content.logistics.fluidPackage.CompressedTankItem;
+import com.yision.fluidlogistics.api.packager.PackageResourceTypes;
 
 import net.createmod.catnip.data.Pair;
 import net.minecraft.world.item.ItemStack;
@@ -21,10 +21,7 @@ public class FluidAttributeHelper {
 		List<FluidStack> result = new ArrayList<>();
 		Set<FluidStackKey> seen = new HashSet<>();
 
-		if (CompressedTankItem.isFluidStack(stack)) {
-			FluidStack fluid = CompressedTankItem.getFluid(stack);
-			addIfNew(result, seen, fluid);
-		}
+		addIfNew(result, seen, PackageResourceTypes.getFluid(stack));
 
 		IFluidHandlerItem handler = stack.getCapability(Capabilities.FluidHandler.ITEM);
 		if (handler != null) {

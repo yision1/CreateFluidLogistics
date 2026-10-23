@@ -12,6 +12,7 @@ import com.simibubi.create.content.contraptions.Contraption;
 import com.yision.fluidlogistics.content.fluids.horizontalMultiFluidTank.HorizontalMultiFluidTankBlockEntity;
 import com.yision.fluidlogistics.content.fluids.multiFluidTank.SmartMultiFluidTank;
 import com.yision.fluidlogistics.content.fluids.multiFluidTank.storage.AbstractMultiFluidTankMountedStorage;
+import com.yision.fluidlogistics.migration.mountedStorage.LegacyMountedFluidStorageMigration;
 import com.yision.fluidlogistics.registry.AllMountedStorageTypes;
 
 import net.createmod.catnip.animation.LerpedFloat;
@@ -88,9 +89,6 @@ public class HorizontalMultiFluidTankMountedStorage
 	}
 
 	public static HorizontalMultiFluidTankMountedStorage fromLegacy(HolderLookup.Provider registries, CompoundTag nbt) {
-		int capacity = nbt.getInt("Capacity");
-		int tanks = readLegacyTanks(nbt);
-		List<FluidStack> fluids = readLegacyFluids(registries, nbt, tanks);
-		return new HorizontalMultiFluidTankMountedStorage(capacity, tanks, fluids);
+		return LegacyMountedFluidStorageMigration.readHorizontal(registries, nbt);
 	}
 }

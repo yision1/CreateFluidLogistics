@@ -5,12 +5,12 @@ import java.util.Optional;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsBoard;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsBehaviour;
+import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsBoard;
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.yision.fluidlogistics.api.packager.PackageResourceDisplay;
-import com.yision.fluidlogistics.api.packager.PackageResources;
 import com.yision.fluidlogistics.api.packager.PackageResourceTypes;
+import com.yision.fluidlogistics.api.packager.PackageResources;
 import com.yision.fluidlogistics.foundation.fluid.FluidAmountHelper;
 
 import net.minecraft.network.chat.Component;
@@ -20,7 +20,6 @@ import net.minecraft.world.item.ItemStack;
 
 @ApiStatus.Internal
 public final class ResourceFactoryGaugeController {
-
 	public ResourceGaugeDecision evaluate(
 		ResourceFactoryGaugeConfig config,
 		ResourceFactoryGaugeRuntime runtime,
@@ -39,8 +38,8 @@ public final class ResourceFactoryGaugeController {
 			PackageResourceDisplay.FactoryPanelRestockPolicy policy = policyOf(config);
 			demand = policy.restockDemand(config.targetAmount(), nextRemaining);
 			int threshold = policy.effectiveThreshold(config.restockThreshold());
-            shouldSatisfy = demand - snapshot.stored() < threshold;
-            shouldPromiseSatisfy = demand - snapshot.stored() - snapshot.promised() < threshold;
+			shouldSatisfy = (long) demand - snapshot.stored() < threshold;
+			shouldPromiseSatisfy = (long) demand - snapshot.stored() - snapshot.promised() < threshold;
 		}
 
 		boolean shouldWait = snapshot.unloadedLinks() > 0;
@@ -78,7 +77,7 @@ public final class ResourceFactoryGaugeController {
 		amountToOrder = Math.min(amountToOrder, policy.maxRequestPerBatch());
 		amountToOrder = Math.min(amountToOrder,
 			policy.remainingPromiseCapacity(config.promiseLimit(), snapshot.promised()));
-		if (amountToOrder <= 0 || snapshot.availableOnNetwork() == 0)
+		if (amountToOrder <= 0)
 			return Optional.empty();
 
 		return Optional.of(new ResourceGaugeDecision.ResourceRequestPlan(

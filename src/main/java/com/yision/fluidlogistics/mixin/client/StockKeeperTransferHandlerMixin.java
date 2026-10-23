@@ -20,10 +20,9 @@ import com.simibubi.create.content.logistics.stockTicker.StockKeeperRequestScree
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.yision.fluidlogistics.api.packager.PackageResourceCrafting;
 import com.yision.fluidlogistics.api.packager.PackageResourceCraftingData;
-import com.yision.fluidlogistics.content.logistics.fluidPackage.CompressedTankItem;
+import com.yision.fluidlogistics.api.packager.PackageResourceTypes;
 import com.yision.fluidlogistics.content.logistics.stockTicker.FluidCraftableBigItemStack;
 import com.yision.fluidlogistics.infrastructure.config.Config;
-import com.yision.fluidlogistics.registry.AllItems;
 
 import mezz.jei.api.gui.ingredient.IRecipeSlotView;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -42,7 +41,6 @@ import net.neoforged.neoforge.fluids.FluidStack;
 
 @Mixin(StockKeeperTransferHandler.class)
 public abstract class StockKeeperTransferHandlerMixin {
-
 	@Inject(method = "transferRecipeOnClient", at = @At("HEAD"), cancellable = true, remap = false)
 	private void fluidlogistics$handleFluidRecipes(StockKeeperRequestMenu container,
 		RecipeHolder<Recipe<?>> recipeHolder,
@@ -152,9 +150,8 @@ public abstract class StockKeeperTransferHandlerMixin {
 				.filter(fluid -> !fluid.isEmpty())
 				.findFirst();
 			if (fluidOutput.isPresent()) {
-				ItemStack fluidTank = new ItemStack(AllItems.COMPRESSED_STORAGE_TANK.get());
-				CompressedTankItem.setFluid(fluidTank, fluidOutput.get().copyWithAmount(1));
-				return new OutputTarget(fluidTank, Math.max(1, fluidOutput.get().getAmount()),
+				ItemStack key = PackageResourceTypes.createFluidKey(fluidOutput.get());
+				return new OutputTarget(key, Math.max(1, fluidOutput.get().getAmount()),
 					Config.getFluidPerPackage());
 			}
 		}
@@ -211,9 +208,8 @@ public abstract class StockKeeperTransferHandlerMixin {
 				return;
 			}
 
-			ItemStack fluidTank = new ItemStack(AllItems.COMPRESSED_STORAGE_TANK.get());
-			CompressedTankItem.setFluid(fluidTank, fluid.copyWithAmount(1));
-			candidates.add(new BigItemStack(fluidTank, fluid.getAmount()));
+			ItemStack key = PackageResourceTypes.createFluidKey(fluid);
+			candidates.add(new BigItemStack(key, fluid.getAmount()));
 		});
 
 		return candidates;

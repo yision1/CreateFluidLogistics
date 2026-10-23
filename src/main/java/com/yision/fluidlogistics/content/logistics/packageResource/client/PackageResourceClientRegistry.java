@@ -48,10 +48,6 @@ public final class PackageResourceClientRegistry {
 		}
 	}
 
-	public static boolean hasStockKeeperAmountRenderer(ItemStack carrierStack) {
-		return stockKeeperRendererFor(carrierStack) != null;
-	}
-
 	public static boolean tryRenderStockKeeperAmount(
 		GuiGraphics graphics, ItemStack carrierStack, int amount) {
 		Objects.requireNonNull(graphics, "graphics");

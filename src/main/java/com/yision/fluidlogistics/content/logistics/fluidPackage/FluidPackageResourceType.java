@@ -1,10 +1,11 @@
 package com.yision.fluidlogistics.content.logistics.fluidPackage;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.Set;
 
 import org.jetbrains.annotations.ApiStatus;
 
@@ -21,12 +22,16 @@ import com.yision.fluidlogistics.api.packager.PackageResources;
 import com.yision.fluidlogistics.api.packager.PackageUnpackContext;
 import com.yision.fluidlogistics.compat.CompatMods;
 import com.yision.fluidlogistics.compat.createenchantmentindustry.CreateEnchantmentIndustryCompat;
+import com.yision.fluidlogistics.datacomponent.FluidTankContent;
+import com.yision.fluidlogistics.datacomponent.PackageFluidContents;
 import com.yision.fluidlogistics.foundation.fluid.FluidAmountHelper;
-import com.yision.fluidlogistics.foundation.gui.FluidTooltipHelper;
 import com.yision.fluidlogistics.infrastructure.config.Config;
+import com.yision.fluidlogistics.migration.packageData.LegacyFluidPackageMigration;
+import com.yision.fluidlogistics.registry.AllDataComponents;
 import com.yision.fluidlogistics.registry.AllItems;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -44,7 +49,6 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
-import net.neoforged.neoforge.items.ItemStackHandler;
 
 @ApiStatus.Internal
 public final class FluidPackageResourceType {
@@ -63,20 +67,15 @@ public final class FluidPackageResourceType {
 		if (fluid == null || fluid.isEmpty()) {
 			return ItemStack.EMPTY;
 		}
-		ItemStack carrier = new ItemStack(AllItems.COMPRESSED_STORAGE_TANK.get());
-		CompressedTankItem.setFluid(carrier, fluid.copyWithAmount(1));
-		return FLUID_TYPE.normalizeKey(carrier);
+		return FluidProxyRegistry.createKey(fluid);
 	}
 
 	public static FluidStack getFluid(ItemStack carrierOrKey) {
 		if (!FLUID_TYPE.isValidCarrier(carrierOrKey)) {
 			return FluidStack.EMPTY;
 		}
-		return CompressedTankItem.getFluid(carrierOrKey).copy();
-	}
-
-	public static int getFluidPerPackage() {
-		return CompressedTankItem.getCapacity();
+		return FluidProxyRegistry.isProxy(carrierOrKey) ? FluidProxyRegistry.getFluid(carrierOrKey)
+			: CompressedTankItem.getFluid(carrierOrKey).copyWithAmount(1);
 	}
 
 	@ApiStatus.Internal
@@ -98,13 +97,20 @@ public final class FluidPackageResourceType {
 		}
 
 		@Override
-		public Supplier<? extends Item> carrierItem() {
-			return AllItems.COMPRESSED_STORAGE_TANK;
+		public Collection<Item> keyItems() {
+			List<Item> items = new ArrayList<>(FluidProxyRegistry.items());
+			items.add(AllItems.COMPRESSED_STORAGE_TANK.get());
+			return items;
 		}
 
 		@Override
 		public boolean isValidCarrier(ItemStack stack) {
-			return stack != null && CompressedTankItem.isFluidStack(stack);
+			return stack != null && (FluidProxyRegistry.isProxy(stack) || CompressedTankItem.isFluidStack(stack));
+		}
+
+		@Override
+		public boolean isPhysicalCarrier(ItemStack stack) {
+			return CompressedTankItem.isFluidStack(stack);
 		}
 
 		@Override
@@ -112,10 +118,7 @@ public final class FluidPackageResourceType {
 			if (!isValidCarrier(stack)) {
 				throw new IllegalArgumentException("invalid fluid resource carrier");
 			}
-			FluidStack fluid = CompressedTankItem.getFluid(stack);
-			ItemStack normalized = new ItemStack(AllItems.COMPRESSED_STORAGE_TANK.get());
-			CompressedTankItem.setFluid(normalized, fluid.copyWithAmount(1));
-			return normalized;
+			return FluidProxyRegistry.createKey(getFluid(stack));
 		}
 
 		@Override
@@ -124,44 +127,121 @@ public final class FluidPackageResourceType {
 				return false;
 			}
 			return FluidStack.isSameFluidSameComponents(
-				CompressedTankItem.getFluid(firstNormalizedKey),
-				CompressedTankItem.getFluid(secondNormalizedKey));
+				getFluid(firstNormalizedKey), getFluid(secondNormalizedKey));
 		}
 
 		@Override
 		public int identityHash(ItemStack normalizedKey) {
-			return ItemStack.hashItemAndComponents(normalizedKey);
+			return ItemStack.hashItemAndComponents(normalizeKey(normalizedKey));
 		}
 
 		@Override
 		public int amountOf(ItemStack carrierStack) {
-			if (!isValidCarrier(carrierStack)) {
+			if (!isPhysicalCarrier(carrierStack)) {
 				throw new IllegalArgumentException("invalid fluid resource carrier");
 			}
 			return Math.multiplyExact(CompressedTankItem.getFluidAmount(carrierStack), carrierStack.getCount());
 		}
 
 		@Override
-		public ItemStack createCarrier(ItemStack normalizedKey, int amount) {
-			if (amount <= 0 || amount > CompressedTankItem.getCapacity()) {
-				throw new IllegalArgumentException("invalid fluid resource amount");
-			}
-			ItemStack carrier = normalizeKey(normalizedKey);
-			CompressedTankItem.setFluid(carrier,
-				CompressedTankItem.getFluid(normalizedKey).copyWithAmount(amount));
-			return carrier;
-		}
-
-		@Override
 		public int maxPerPackage(ItemStack normalizedKey) {
 			normalizeKey(normalizedKey);
-			return CompressedTankItem.getCapacity();
+			return Config.getFluidPerPackage();
 		}
 
 		@Override
 		public ItemStack createPackage(ItemStack normalizedKey, int amount) {
-			ItemStack carrier = createCarrier(normalizedKey, amount);
-			return FluidPackageContentHelper.createCanonicalPackage(CompressedTankItem.getFluid(carrier));
+			ItemStack key = normalizeKey(normalizedKey);
+			if (amount <= 0 || amount > Config.getFluidPerPackage()) {
+				throw new IllegalArgumentException("invalid fluid resource amount");
+			}
+			return FluidPackageContentHelper.createCanonicalPackage(getFluid(key).copyWithAmount(amount));
+		}
+
+		@Override
+		public List<PackageResource> readPackageResources(ItemStack packageStack) {
+			var content = packageStack.get(AllDataComponents.PACKAGE_FLUID_CONTENT);
+			if (content == null || content.isEmpty()) {
+				return List.of();
+			}
+			return content.tanks().stream()
+				.map(tank -> new PackageResource(id(), createFluidKey(tank.fluid()), tank.getAmount()))
+				.toList();
+		}
+
+		@Override
+		public void setPackageResources(ItemStack packageStack, List<PackageResource> resources) {
+			if (!PackageItem.isPackage(packageStack)
+				|| FluidPackageContentHelper.hasConflictingContents(packageStack)) {
+				throw new IllegalArgumentException("Cannot replace conflicting or invalid package contents");
+			}
+			if (LegacyFluidPackageMigration.hasLegacyContents(packageStack)) {
+				throw new IllegalArgumentException("Legacy package must be split before replacing fluid contents");
+			}
+			if (FluidPackageItem.isFluidPackage(packageStack)
+				&& (resources.size() != 1 || FluidPackageContentHelper.hasItemContents(packageStack))) {
+				throw new IllegalArgumentException(
+					"Fluid package must contain exactly one fluid and no ordinary items");
+			}
+			List<FluidTankContent> tanks = new ArrayList<>(resources.size());
+			long totalAmount = 0;
+			for (PackageResource resource : resources) {
+				FluidStack fluid = getFluid(resource.key());
+				if (!id().equals(resource.typeId()) || fluid.isEmpty()
+					|| resource.amount() <= 0) {
+					throw new IllegalArgumentException("invalid fluid package resource");
+				}
+				totalAmount += resource.amount();
+				if (totalAmount > Config.getFluidPerPackage()) {
+					throw new IllegalArgumentException("combined fluid amount exceeds package capacity");
+				}
+				int matchingTank = -1;
+				for (int tank = 0; tank < tanks.size(); tank++) {
+					if (FluidStack.isSameFluidSameComponents(tanks.get(tank).fluid(), fluid)) {
+						matchingTank = tank;
+						break;
+					}
+				}
+				if (matchingTank >= 0) {
+					tanks.set(matchingTank, new FluidTankContent(
+						fluid.copyWithAmount(tanks.get(matchingTank).getAmount() + resource.amount())));
+				} else {
+					if (tanks.size() == PackageFluidContents.MAX_FLUIDS) {
+						throw new IllegalArgumentException("too many fluids in package");
+					}
+					tanks.add(new FluidTankContent(fluid.copyWithAmount(resource.amount())));
+				}
+			}
+			if (tanks.isEmpty()) {
+				packageStack.remove(AllDataComponents.PACKAGE_FLUID_CONTENT);
+			} else {
+				packageStack.set(AllDataComponents.PACKAGE_FLUID_CONTENT,
+					new PackageFluidContents(tanks));
+			}
+		}
+
+		@Override
+		public Set<DataComponentType<?>> packageComponents() {
+			return Set.of(AllDataComponents.PACKAGE_FLUID_CONTENT);
+		}
+
+		@Override
+		public void validatePackage(ItemStack packageStack) {
+			if (FluidPackageContentHelper.hasConflictingContents(packageStack)) {
+				throw new IllegalArgumentException(
+					"Package has both legacy and current fluid cargo; retain for recovery");
+			}
+		}
+
+		@Override
+		public ItemStack migratePackage(ItemStack packageStack) {
+			return FluidPackageContentHelper.migrateCopy(packageStack);
+		}
+
+		@Override
+		public ItemStack withPackageAmount(ItemStack packageStack, ItemStack key, int amount) {
+			FluidPackageContentHelper.setCanonicalContents(packageStack, getFluid(key).copyWithAmount(amount));
+			return packageStack;
 		}
 
 		@Override
@@ -173,15 +253,14 @@ public final class FluidPackageResourceType {
 			if (fluid.isEmpty()) {
 				return Optional.empty();
 			}
-			ItemStack key = new ItemStack(AllItems.COMPRESSED_STORAGE_TANK.get());
-			CompressedTankItem.setFluid(key, fluid.copyWithAmount(1));
+			ItemStack key = createFluidKey(fluid);
 			return Optional.of(new PackageResource(PackageResourceTypes.FLUID, key, fluid.getAmount()));
 		}
 
 		@Override
-		public boolean unpack(PackageUnpackContext context, PackageResource resource, boolean simulate) {
+		public int unpackAmount(PackageUnpackContext context, PackageResource resource, boolean simulate) {
 			if (!resource.typeId().equals(PackageResourceTypes.FLUID)) {
-				return false;
+				return 0;
 			}
 			Level level = context.level();
 			IFluidHandler handler = level.getCapability(
@@ -191,14 +270,10 @@ public final class FluidPackageResourceType {
 				context.targetBlockEntity(),
 				context.side());
 			if (handler == null) {
-				return false;
+				return 0;
 			}
-			FluidStack fluid = CompressedTankItem.getFluid(resource.key()).copyWithAmount(resource.amount());
-			int accepted = handler.fill(fluid.copy(), FluidAction.SIMULATE);
-			if (accepted != fluid.getAmount()) {
-				return false;
-			}
-			return simulate || handler.fill(fluid.copy(), FluidAction.EXECUTE) == fluid.getAmount();
+			FluidStack fluid = getFluid(resource.key()).copyWithAmount(resource.amount());
+			return handler.fill(fluid, simulate ? FluidAction.SIMULATE : FluidAction.EXECUTE);
 		}
 
 		@Override
@@ -216,46 +291,32 @@ public final class FluidPackageResourceType {
 				.map(resource -> getFluid(resource.key()).copyWithAmount(resource.amount()))
 				.filter(fluid -> !fluid.isEmpty())
 				.toList();
-			return FluidPackageGoggleInfo.append(tooltip, fluids, CompressedTankItem.getCapacity());
+			return FluidPackageGoggleInfo.append(tooltip, fluids, Config.getFluidPerPackage());
 		}
 
 		@Override
 		public boolean survivesWater(ItemStack packageStack, PackageInspection inspection) {
-			return inspection.canonical() && FluidPackageItem.isFluidPackage(packageStack);
+			return inspection.canonical();
 		}
 
 		@Override
-		public SawAction sawAction(ItemStack packageStack, PackageInspection inspection) {
-			return inspection.canonical() && FluidPackageItem.isFluidPackage(packageStack)
-				? SawAction.DESTROY_WITHOUT_DROPS
-				: SawAction.DEFAULT;
-		}
-
-		@Override
-		public DropAction onDestroyed(PackageDestroyContext context, List<PackageResource> resources) {
+		public void onDestroyed(PackageDestroyContext context, List<PackageResource> resources) {
 			ServerLevel level = context.level();
 			PackageEntity entity = context.entity();
 			boolean selectedFluid = false;
-			ItemStackHandler contents = PackageItem.getContents(context.packageStack());
-			for (int slot = 0; slot < contents.getSlots(); slot++) {
-				ItemStack carrier = contents.getStackInSlot(slot);
-				if (!isValidCarrier(carrier)) {
-					continue;
-				}
+			for (PackageResource resource : resources) {
+				FluidStack fluid = getFluid(resource.key()).copyWithAmount(resource.amount());
 				if (CompatMods.createEnchantmentIndustryLoaded()
-					&& CreateEnchantmentIndustryCompat.tryDropExperienceFromTank(
-						level, entity.position(), carrier)) {
+					&& CreateEnchantmentIndustryCompat.tryDropExperienceFromFluid(level, entity.position(), fluid)) {
 					continue;
 				}
-				if (!selectedFluid && tryPlaceFluid(level, entity.blockPosition(), carrier)) {
+				if (!selectedFluid && tryPlaceFluid(level, entity.blockPosition(), fluid)) {
 					selectedFluid = true;
 				}
 			}
-			return DropAction.CONSUME_CARRIERS;
 		}
 
-		private static boolean tryPlaceFluid(ServerLevel level, BlockPos pos, ItemStack carrier) {
-			FluidStack fluid = CompressedTankItem.getFluid(carrier);
+		private static boolean tryPlaceFluid(ServerLevel level, BlockPos pos, FluidStack fluid) {
 			if (fluid.getAmount() < FluidAmountHelper.MB_PER_BUCKET) {
 				return false;
 			}
@@ -308,21 +369,6 @@ public final class FluidPackageResourceType {
 		@Override
 		public Component name(ItemStack normalizedKey) {
 			return getFluid(normalizedKey).getHoverName().copy();
-		}
-
-		@Override
-		public List<Component> tooltip(ItemStack normalizedKey, boolean advanced) {
-			return FluidTooltipHelper.getTooltipLines(getFluid(normalizedKey), advanced);
-		}
-
-		@Override
-		public List<Component> tooltip(ItemStack normalizedKey, int amount, boolean advanced) {
-			List<Component> lines = new ArrayList<>(tooltip(normalizedKey, advanced));
-			if (!lines.isEmpty()) {
-				lines.add(1, Component.literal(format(normalizedKey, amount, Format.PRECISE))
-					.withStyle(net.minecraft.ChatFormatting.GRAY));
-			}
-			return List.copyOf(lines);
 		}
 
 		@Override

@@ -8,8 +8,10 @@ import java.util.function.UnaryOperator;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
 import com.yision.fluidlogistics.datacomponent.FluidTankContent;
+import com.yision.fluidlogistics.datacomponent.PackageFluidContents;
 
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -19,7 +21,6 @@ import net.neoforged.neoforge.fluids.SimpleFluidContent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class AllDataComponents {
-
 	private static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister
 		.createDataComponents(Registries.DATA_COMPONENT_TYPE, "fluidlogistics");
 
@@ -27,6 +28,16 @@ public class AllDataComponents {
 		"fluid_tank_content",
 		builder -> builder.persistent(FluidTankContent.CODEC)
 			.networkSynchronized(FluidTankContent.STREAM_CODEC));
+
+	public static final DataComponentType<PackageFluidContents> PACKAGE_FLUID_CONTENT = register(
+		"package_fluid_content",
+		builder -> builder.persistent(PackageFluidContents.CODEC)
+			.networkSynchronized(PackageFluidContents.STREAM_CODEC));
+
+	public static final DataComponentType<DataComponentPatch> FLUID_PROXY_COMPONENTS = register(
+		"fluid_proxy_components",
+		builder -> builder.persistent(DataComponentPatch.CODEC)
+			.networkSynchronized(DataComponentPatch.STREAM_CODEC));
 
 	public static final DataComponentType<SimpleFluidContent> COPPER_BUCKET_CONTENT = register(
 		"copper_bucket_content",

@@ -3,7 +3,6 @@ package com.yision.fluidlogistics.compat.createenchantmentindustry;
 import java.util.Set;
 
 import com.yision.fluidlogistics.compat.CompatMods;
-import com.yision.fluidlogistics.content.logistics.fluidPackage.CompressedTankItem;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -86,8 +85,7 @@ public final class CreateEnchantmentIndustryCompat {
 		return result;
 	}
 
-	public static boolean tryDropExperienceFromTank(ServerLevel level, Vec3 pos, ItemStack tankStack) {
-		FluidStack fluid = CompressedTankItem.getFluid(tankStack);
+	public static boolean tryDropExperienceFromFluid(ServerLevel level, Vec3 pos, FluidStack fluid) {
 		if (!isKnownExperienceFluid(fluid)) {
 			return false;
 		}
@@ -97,9 +95,7 @@ public final class CreateEnchantmentIndustryCompat {
 			return false;
 		}
 
-		long totalXpLong = (long) xpPerTank * tankStack.getCount();
-		int totalXp = totalXpLong > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) totalXpLong;
-		ExperienceOrb.award(level, pos, totalXp);
+		ExperienceOrb.award(level, pos, xpPerTank);
 		return true;
 	}
 

@@ -1,5 +1,6 @@
 package com.yision.fluidlogistics.api.packager;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -7,7 +8,9 @@ import com.simibubi.create.content.logistics.BigItemStack;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 
 public interface PackageResourceDisplay {
 	record FactoryPanelUnit(String label, int amountPerStep, int displayedPerStep) {
@@ -132,14 +135,17 @@ public interface PackageResourceDisplay {
 	}
 
 	default List<Component> tooltip(ItemStack normalizedKey, int amount, boolean advanced) {
-		return List.of(
-			name(normalizedKey),
-			Component.literal(format(normalizedKey, amount, Format.PRECISE))
+		List<Component> lines = new ArrayList<>(tooltip(normalizedKey, advanced));
+		if (!lines.isEmpty()) {
+			lines.add(1, Component.literal(format(normalizedKey, amount, Format.PRECISE))
 				.withStyle(ChatFormatting.GRAY));
+		}
+		return List.copyOf(lines);
 	}
 
 	default List<Component> tooltip(ItemStack normalizedKey, boolean advanced) {
-		return List.of(name(normalizedKey));
+		return normalizedKey.getTooltipLines(Item.TooltipContext.EMPTY, null,
+			advanced ? TooltipFlag.ADVANCED : TooltipFlag.NORMAL);
 	}
 
 	default boolean showsAmountInTooltip(TooltipContext context) {
@@ -149,9 +155,10 @@ public interface PackageResourceDisplay {
 	default List<Component> tooltip(
 		ItemStack normalizedKey, int amount, boolean advanced, TooltipContext context) {
 		Objects.requireNonNull(context, "context");
+		boolean showAdvanced = advanced && context != TooltipContext.STOCK_KEEPER_CRAFTABLE;
 		return showsAmountInTooltip(context)
-			? tooltip(normalizedKey, amount, advanced)
-			: tooltip(normalizedKey, advanced);
+			? tooltip(normalizedKey, amount, showAdvanced)
+			: tooltip(normalizedKey, showAdvanced);
 	}
 
 	default List<FactoryPanelUnit> factoryPanelUnits(ItemStack normalizedKey) {

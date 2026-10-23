@@ -4,24 +4,18 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlock.PanelSlot;
-import com.simibubi.create.content.logistics.filter.FilterItemStack;
 import com.simibubi.create.foundation.utility.CreateLang;
-import com.yision.fluidlogistics.api.packager.PackageResourceTypes;
-import com.yision.fluidlogistics.api.packager.PackageResources;
+import com.yision.fluidlogistics.migration.factoryGauge.LegacyFactoryGaugeMigration;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
 
 @ApiStatus.Internal
 public final class ResourceFactoryGaugeNbt {
-
 	public static final String TYPE_KEY = "CFLGaugeType";
 	public static final String STATE_KEY = "CFLResourceGauge";
 	public static final String ENHANCEMENTS_VISIBLE_KEY = "EnhancementsVisible";
-	public static final String LEGACY_KIND_KEY = "CFLGaugeKind";
-	public static final String LEGACY_FLUID_KIND = "fluid";
 
 	private ResourceFactoryGaugeNbt() {
 		throw new AssertionError("This class should not be instantiated");
@@ -40,22 +34,7 @@ public final class ResourceFactoryGaugeNbt {
 				return typeId;
 		}
 
-		if (LEGACY_FLUID_KIND.equals(rawSlotTag.getString(LEGACY_KIND_KEY)))
-			return builtinFluidGaugeId();
-
-		ItemStack legacyFilter = FilterItemStack.of(registries, rawSlotTag.getCompound("Filter"))
-			.item();
-		if (!legacyFilter.isEmpty() && PackageResources.findType(legacyFilter)
-			.map(type -> type.id()
-				.equals(PackageResourceTypes.FLUID))
-			.orElse(false))
-			return builtinFluidGaugeId();
-
-		return null;
-	}
-
-	public static ResourceLocation builtinFluidGaugeId() {
-		return com.yision.fluidlogistics.FluidLogistics.asResource("fluid");
+		return LegacyFactoryGaugeMigration.determineTypeId(rawSlotTag, registries);
 	}
 
 	public static void writeTypeAndSettings(CompoundTag panelTag, ResourceLocation typeId,

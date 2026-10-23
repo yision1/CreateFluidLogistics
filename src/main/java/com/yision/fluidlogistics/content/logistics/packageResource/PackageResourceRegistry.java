@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 
@@ -19,16 +18,15 @@ import org.jetbrains.annotations.ApiStatus;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.content.logistics.BigItemStack;
 import com.simibubi.create.content.logistics.box.PackageItem;
-import com.simibubi.create.content.logistics.stockTicker.PackageOrder;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts;
-import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts.CraftingEntry;
-import com.simibubi.create.foundation.item.ItemHelper;
 import com.yision.fluidlogistics.api.packager.PackageDestroyContext;
 import com.yision.fluidlogistics.api.packager.PackageInspection;
 import com.yision.fluidlogistics.api.packager.PackageResource;
 import com.yision.fluidlogistics.api.packager.PackageResourceDisplay;
 import com.yision.fluidlogistics.api.packager.PackageResourceType;
 import com.yision.fluidlogistics.api.packager.PackageUnpackContext;
+import com.yision.fluidlogistics.api.packager.PackageUnpackResult;
+import com.yision.fluidlogistics.migration.item.LegacyFluidKeyMigration;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -100,20 +98,16 @@ public final class PackageResourceRegistry {
 						"package resource type id changed during bootstrap: " + entry.getKey());
 				}
 				Objects.requireNonNull(type.display(), "display for " + id);
-				Item carrier = Objects.requireNonNull(
-					Objects.requireNonNull(type.carrierItem(), "carrier supplier for " + id).get(),
-					"carrier item for " + id);
-				if (carrier == Items.AIR) {
-					throw new IllegalStateException("invalid package resource carrier for " + id);
-				}
-				if (new ItemStack(carrier).getMaxStackSize() != 1) {
-					throw new IllegalStateException(
-						"package resource carrier must have a maximum stack size of 1 for " + id);
-				}
-				PackageResourceType duplicate = carriers.put(carrier, type);
-				if (duplicate != null) {
-					throw new IllegalStateException(
-						"duplicate package resource carrier for " + duplicate.id() + " and " + id);
+				for (Item carrier : type.keyItems()) {
+					Objects.requireNonNull(carrier, "resource key item for " + id);
+					if (carrier == Items.AIR || new ItemStack(carrier).getMaxStackSize() != 1) {
+						throw new IllegalStateException("invalid resource key item for " + id);
+					}
+					PackageResourceType duplicate = carriers.put(carrier, type);
+					if (duplicate != null) {
+						throw new IllegalStateException(
+							"duplicate resource key item for " + duplicate.id() + " and " + id);
+					}
 				}
 				ids.put(id, type);
 			}
@@ -168,11 +162,9 @@ public final class PackageResourceRegistry {
 	}
 
 	public Optional<PackageResource> readResource(ItemStack carrierStack) {
-		Optional<PackageResourceType> typeResult = findType(carrierStack);
-		if (typeResult.isEmpty()) {
-			return Optional.empty();
-		}
-		return Optional.of(readResource(typeResult.orElseThrow(), carrierStack));
+		return findType(carrierStack)
+			.filter(type -> type.isPhysicalCarrier(carrierStack))
+			.map(type -> readResource(type, carrierStack.copy()));
 	}
 
 	private PackageResource readResource(PackageResourceType type, ItemStack carrierStack) {
@@ -185,7 +177,8 @@ public final class PackageResourceRegistry {
 	}
 
 	public Optional<ItemStack> normalizeKey(ItemStack carrierStack) {
-		return readResource(carrierStack).map(PackageResource::key);
+		return findType(carrierStack)
+			.map(type -> validateNormalizedKey(type, type.normalizeKey(carrierStack.copy())));
 	}
 
 	public Optional<PackageResourceKey> keyOf(ItemStack carrierStack) {
@@ -254,7 +247,15 @@ public final class PackageResourceRegistry {
 		if (!PackageItem.isPackage(packageStack)) {
 			return List.of();
 		}
+		if (packageStack.getCount() != 1) {
+			throw new IllegalArgumentException("Split one package at a time");
+		}
+		for (PackageResourceType type : typesById.values()) {
+			packageStack = type.migratePackage(packageStack);
+		}
+		packageStack = LegacyFluidKeyMigration.normalizePackageOrder(packageStack);
 		PackageAnalysis analysis = analyzePackage(packageStack);
+		validatePackage(packageStack);
 		analysis.requireExactPhysicalAmounts();
 		PackageInspection inspection = analysis.inspection();
 		if (!inspection.hasResources() || inspection.canonical() && inspection.resources().stream().allMatch(
@@ -282,18 +283,45 @@ public final class PackageResourceRegistry {
 		return List.copyOf(output);
 	}
 
-	public boolean unpackPackage(PackageUnpackContext context, boolean simulate) {
+	public PackageUnpackResult unpackPackageResult(PackageUnpackContext context, boolean simulate) {
 		ensureFrozen();
 		Objects.requireNonNull(context, "context");
+		if (context.packageStack().getCount() != 1) {
+			return new PackageUnpackResult(0, context.packageStack());
+		}
+		validatePackage(context.packageStack());
 		PackageAnalysis analysis = analyzePackage(context.packageStack());
 		analysis.requireExactPhysicalAmounts();
 		PackageInspection inspection = analysis.inspection();
 		if (inspection.isMixed() || inspection.hasOrdinaryItems() || inspection.resources().size() != 1) {
-			return false;
+			return new PackageUnpackResult(0, context.packageStack());
 		}
 		PackageResource resource = inspection.resources().getFirst();
 		PackageResourceType type = get(resource.typeId()).orElseThrow();
-		return type.unpack(context, resource, simulate);
+		int transferred = type.unpackAmount(context, resource, simulate);
+		if (transferred < 0 || transferred > resource.amount()) {
+			throw new IllegalStateException("invalid transferred amount for " + type.id());
+		}
+		ItemStack remainder = transferred == resource.amount() ? ItemStack.EMPTY
+			: transferred == 0 ? context.packageStack()
+			: withPackageAmount(context.packageStack(), resource.key(), resource.amount() - transferred);
+		return new PackageUnpackResult(transferred, remainder);
+	}
+
+	public ItemStack withPackageAmount(ItemStack packageStack, ItemStack key, int amount) {
+		PackageResourceType type = findType(key).orElseThrow();
+		if (amount <= 0) {
+			throw new IllegalArgumentException("remaining amount must be positive");
+		}
+		ItemStack output = type.withPackageAmount(packageStack.copy(), key.copy(), amount);
+		copyMetadata(packageStack, output);
+		return output;
+	}
+
+	private void validatePackage(ItemStack packageStack) {
+		for (PackageResourceType type : typesById.values()) {
+			type.validatePackage(packageStack);
+		}
 	}
 
 	public Optional<PackageResourceDisplay> displayOf(ItemStack carrierOrKey) {
@@ -319,35 +347,26 @@ public final class PackageResourceRegistry {
 		});
 	}
 
-	public Optional<List<Component>> tooltipOf(
-		ItemStack carrierOrKey, int amount, boolean advanced) {
-		return withDisplayKey(carrierOrKey).map(displayKey -> {
-			List<Component> tooltip = Objects.requireNonNull(
-				displayKey.display().tooltip(displayKey.key().copy(), amount, advanced),
-				"resource tooltip for " + displayKey.type().id());
-			return tooltip.stream()
-				.<Component>map(line -> Objects.requireNonNull(
-					line, "resource tooltip line for " + displayKey.type().id()).copy())
-				.toList();
-		});
+	public Optional<List<Component>> tooltipOf(ItemStack carrierOrKey, int amount, boolean advanced) {
+		return withDisplayKey(carrierOrKey).map(displayKey -> copyTooltip(
+			displayKey.display().tooltip(tooltipKey(carrierOrKey, displayKey), amount, advanced)));
 	}
 
 	public Optional<List<Component>> tooltipOf(
-		ItemStack carrierOrKey,
-		int amount,
-		boolean advanced,
-		PackageResourceDisplay.TooltipContext context) {
+		ItemStack carrierOrKey, int amount, boolean advanced, PackageResourceDisplay.TooltipContext context) {
 		Objects.requireNonNull(context, "context");
-		return withDisplayKey(carrierOrKey).map(displayKey -> {
-			List<Component> tooltip = Objects.requireNonNull(
-				displayKey.display().tooltip(
-					displayKey.key().copy(), amount, advanced, context),
-				"resource tooltip for " + displayKey.type().id());
-			return tooltip.stream()
-				.<Component>map(line -> Objects.requireNonNull(
-					line, "resource tooltip line for " + displayKey.type().id()).copy())
-				.toList();
-		});
+		return withDisplayKey(carrierOrKey).map(displayKey -> copyTooltip(
+			displayKey.display().tooltip(tooltipKey(carrierOrKey, displayKey), amount, advanced, context)));
+	}
+
+	private static ItemStack tooltipKey(ItemStack original, DisplayKey displayKey) {
+		return original.is(displayKey.key().getItem()) ? original.copyWithCount(1) : displayKey.key().copy();
+	}
+
+	private static List<Component> copyTooltip(List<Component> tooltip) {
+		return Objects.requireNonNull(tooltip, "resource tooltip").stream()
+			.<Component>map(line -> Objects.requireNonNull(line, "resource tooltip line").copy())
+			.toList();
 	}
 
 	public Optional<String> formatAmount(
@@ -403,18 +422,7 @@ public final class PackageResourceRegistry {
 		return false;
 	}
 
-	public PackageResourceType.SawAction sawAction(ItemStack packageStack) {
-		PackageInspection inspection = inspectPackage(packageStack);
-		for (PackageResourceType type : typesIn(inspection)) {
-			if (type.sawAction(packageStack.copy(),
-				inspection) == PackageResourceType.SawAction.DESTROY_WITHOUT_DROPS) {
-				return PackageResourceType.SawAction.DESTROY_WITHOUT_DROPS;
-			}
-		}
-		return PackageResourceType.SawAction.DEFAULT;
-	}
-
-	public Set<ResourceLocation> handleDestroyed(PackageDestroyContext context) {
+	public void handleDestroyed(PackageDestroyContext context) {
 		ensureFrozen();
 		Objects.requireNonNull(context, "context");
 		PackageInspection inspection = inspectPackage(context.packageStack());
@@ -422,14 +430,7 @@ public final class PackageResourceRegistry {
 		for (PackageResource resource : inspection.resources()) {
 			grouped.computeIfAbsent(resource.typeId(), ignored -> new ArrayList<>()).add(resource);
 		}
-		Set<ResourceLocation> consumed = new LinkedHashSet<>();
-		grouped.forEach((id, resources) -> {
-			PackageResourceType type = get(id).orElseThrow();
-			if (type.onDestroyed(context, List.copyOf(resources)) == PackageResourceType.DropAction.CONSUME_CARRIERS) {
-				consumed.add(type.id());
-			}
-		});
-		return Set.copyOf(consumed);
+		grouped.forEach((id, resources) -> get(id).orElseThrow().onDestroyed(context, List.copyOf(resources)));
 	}
 
 	private boolean isCanonical(ItemStack packageStack, List<ResourceGroup> groups, List<ItemStack> ordinaryItems) {
@@ -462,18 +463,28 @@ public final class PackageResourceRegistry {
 		}
 		List<ResourceGroup> groups = new ArrayList<>();
 		List<ItemStack> ordinaryItems = new ArrayList<>();
-		ItemStackHandler contents = readRawContents(packageStack);
-		for (int slot = 0; slot < contents.getSlots(); slot++) {
-			ItemStack stack = contents.getStackInSlot(slot).copy();
-			if (stack.isEmpty()) {
-				continue;
+		for (PackageResourceType type : typesById.values()) {
+			for (PackageResource resource : type.readPackageResources(packageStack.copy())) {
+				if (!resource.typeId().equals(type.id()) || resource.amount() <= 0) {
+					throw new IllegalStateException("invalid package resource for " + type.id());
+				}
+				groups.add(new ResourceGroup(type, validateNormalizedKey(type, resource.key()), resource.amount()));
 			}
+		}
+		ItemContainerContents contents = packageStack.getOrDefault(
+			AllDataComponents.PACKAGE_CONTENTS, ItemContainerContents.EMPTY);
+		for (ItemStack item : contents.nonEmptyItems()) {
+			ItemStack stack = item.copy();
 			Optional<PackageResourceType> typeResult = findType(stack);
-			if (typeResult.isEmpty()) {
+			if (typeResult.isEmpty() || !typeResult.orElseThrow().isPhysicalCarrier(stack)) {
 				ordinaryItems.add(stack);
 				continue;
 			}
 			PackageResourceType type = typeResult.orElseThrow();
+			if (type.packageComponents().stream().anyMatch(packageStack::has)) {
+				ordinaryItems.add(stack);
+				continue;
+			}
 			PackageResource resource = readResource(type, stack);
 			ResourceGroup matching = null;
 			for (ResourceGroup group : groups) {
@@ -490,14 +501,6 @@ public final class PackageResourceRegistry {
 		}
 		return new PackageAnalysis(
 			packageStack, groups, ordinaryItems, isCanonical(packageStack, groups, ordinaryItems));
-	}
-
-	private static ItemStackHandler readRawContents(ItemStack packageStack) {
-		ItemStackHandler contents = new ItemStackHandler(PackageItem.SLOTS);
-		ItemContainerContents component = packageStack.getOrDefault(
-			AllDataComponents.PACKAGE_CONTENTS, ItemContainerContents.EMPTY);
-		ItemHelper.fillItemStackHandler(component, contents);
-		return contents;
 	}
 
 	private static List<ItemStack> createOrdinaryPackages(List<ItemStack> ordinaryItems) {
@@ -524,12 +527,12 @@ public final class PackageResourceRegistry {
 		return output;
 	}
 
-	private static void applyMetadata(ItemStack input, List<ItemStack> output) {
+	private void applyMetadata(ItemStack input, List<ItemStack> output) {
 		if (output.isEmpty()) {
 			throw new IllegalStateException("resource package split produced no output");
 		}
 		String address = PackageItem.getAddress(input);
-		PackageOrderWithCrafts context = copyOrderContext(PackageItem.getOrderContext(input));
+		PackageOrderWithCrafts context = PackageItem.getOrderContext(input);
 		int originalOrderId = PackageItem.getOrderId(input);
 		int orderId;
 		do {
@@ -537,29 +540,19 @@ public final class PackageResourceRegistry {
 		} while (orderId == originalOrderId);
 		for (int index = 0; index < output.size(); index++) {
 			ItemStack packageStack = output.get(index);
+			copyMetadata(input, packageStack);
 			PackageItem.clearAddress(packageStack);
 			PackageItem.addAddress(packageStack, address);
 			boolean last = index == output.size() - 1;
-			PackageItem.setOrder(packageStack, orderId, 0, true, index, last,
-				last ? copyOrderContext(context) : null);
+			PackageItem.setOrder(packageStack, orderId, 0, true, index, last, last ? context : null);
 		}
 	}
 
-	private static PackageOrderWithCrafts copyOrderContext(PackageOrderWithCrafts context) {
-		if (context == null) {
-			return null;
-		}
-		List<com.simibubi.create.content.logistics.BigItemStack> stacks = context.orderedStacks().stacks().stream()
-			.map(stack -> new com.simibubi.create.content.logistics.BigItemStack(stack.stack.copy(), stack.count))
-			.toList();
-		PackageOrder order = new PackageOrder(stacks);
-		List<CraftingEntry> crafts = context.orderedCrafts().stream()
-			.map(entry -> new CraftingEntry(new PackageOrder(entry.pattern().stacks().stream()
-				.map(stack -> new com.simibubi.create.content.logistics.BigItemStack(
-					stack.stack.copy(), stack.count))
-				.toList()), entry.count()))
-			.toList();
-		return new PackageOrderWithCrafts(order, crafts);
+	private void copyMetadata(ItemStack input, ItemStack output) {
+		var metadata = input.getComponentsPatch().forget(component ->
+			component == AllDataComponents.PACKAGE_CONTENTS
+				|| typesById.values().stream().anyMatch(type -> type.packageComponents().contains(component)));
+		output.applyComponents(metadata);
 	}
 
 	private ItemStack validateNormalizedKey(PackageResourceType type, ItemStack key) {
@@ -570,7 +563,7 @@ public final class PackageResourceRegistry {
 		PackageResourceType type, ItemStack key, Map<Item, PackageResourceType> carriers) {
 		Objects.requireNonNull(key, "normalized key for " + type.id());
 		if (key.isEmpty() || key.getCount() != 1 || carriers.get(key.getItem()) != type
-			|| !type.isValidCarrier(key) || type.amountOf(key) != 1) {
+			|| !type.isValidCarrier(key)) {
 			throw new IllegalStateException("invalid normalized key for " + type.id());
 		}
 		return key.copyWithCount(1);
@@ -592,10 +585,6 @@ public final class PackageResourceRegistry {
 			throw new IllegalStateException("package contents mismatch for " + type.id());
 		}
 		return packageStack.copyWithCount(1);
-	}
-
-	private static int saturate(long amount) {
-		return (int) Math.min(BigItemStack.INF, amount);
 	}
 
 	private void ensureFrozen() {
@@ -635,16 +624,17 @@ public final class PackageResourceRegistry {
 
 		private PackageInspection inspection() {
 			List<PackageResource> resources = groups.stream()
-				.map(group -> new PackageResource(group.type.id(), group.key, saturate(group.amount)))
+				.map(group -> new PackageResource(group.type.id(), group.key,
+					(int) Math.min(Integer.MAX_VALUE, group.amount)))
 				.toList();
 			return new PackageInspection(packageStack, resources, ordinaryItems, canonical);
 		}
 
 		private void requireExactPhysicalAmounts() {
 			for (ResourceGroup group : groups) {
-				if (group.amount > BigItemStack.INF) {
+				if (group.amount > Integer.MAX_VALUE) {
 					throw new ArithmeticException(
-						"physical package resource amount exceeds INF for " + group.type.id());
+						"physical package resource amount exceeds integer range for " + group.type.id());
 				}
 			}
 		}

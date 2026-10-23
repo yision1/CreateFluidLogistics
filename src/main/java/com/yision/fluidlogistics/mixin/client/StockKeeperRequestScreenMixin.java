@@ -21,7 +21,6 @@ import com.simibubi.create.content.logistics.stockTicker.CraftableBigItemStack;
 import com.simibubi.create.content.logistics.stockTicker.StockKeeperRequestScreen;
 import com.simibubi.create.content.logistics.stockTicker.StockTickerBlockEntity;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock.HeatLevel;
-import com.simibubi.create.foundation.utility.CreateLang;
 import com.yision.fluidlogistics.api.packager.PackageResourceCrafting;
 import com.yision.fluidlogistics.api.packager.PackageResourceCraftingData;
 import com.yision.fluidlogistics.api.packager.PackageResourceDisplay;
@@ -34,6 +33,7 @@ import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import net.createmod.catnip.data.Couple;
 import net.createmod.catnip.data.Pair;
 import net.createmod.catnip.render.SuperByteBuffer;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -289,30 +289,33 @@ public abstract class StockKeeperRequestScreenMixin {
 		}
 	}
 
-	@WrapOperation(method = "renderForeground", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;renderComponentTooltip(Lnet/minecraft/client/gui/Font;Ljava/util/List;II)V", ordinal = 0))
+	@WrapOperation(method = "renderForeground", at = @At(value = "INVOKE",
+		target = "Lnet/minecraft/client/gui/GuiGraphics;renderComponentTooltip("
+			+ "Lnet/minecraft/client/gui/Font;Ljava/util/List;II)V", ordinal = 0))
 	private void fluidlogistics$recipeTooltip(GuiGraphics graphics, Font font, List<Component> tooltipLines,
 		int mouseX, int mouseY, Operation<Void> original,
-		@Local(name = "lines") ArrayList<Component> lines, @Local(name = "entry") BigItemStack entry) {
-		ArrayList<Component> resourceLines = fluidlogistics$getResourceTooltipLines(
-			entry, PackageResourceDisplay.TooltipContext.STOCK_KEEPER_CRAFTABLE);
-		if (!resourceLines.isEmpty()) {
-			original.call(graphics, font, resourceLines, mouseX, mouseY);
-			return;
-		}
+		@Local(name = "entry") BigItemStack entry) {
+		List<Component> lines = PackageResources.formatAmount(
+			entry.stack, entry.count, PackageResourceDisplay.Format.PRECISE)
+			.map(amount -> fluidlogistics$withResourceAmount(tooltipLines, amount))
+			.orElse(tooltipLines);
 		original.call(graphics, font, lines, mouseX, mouseY);
 	}
 
-	@WrapOperation(method = "renderForeground", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;renderTooltip(Lnet/minecraft/client/gui/Font;Lnet/minecraft/world/item/ItemStack;II)V", ordinal = 0))
+	@WrapOperation(method = "renderForeground", at = @At(value = "INVOKE",
+		target = "Lnet/minecraft/client/gui/GuiGraphics;renderTooltip("
+			+ "Lnet/minecraft/client/gui/Font;Lnet/minecraft/world/item/ItemStack;II)V", ordinal = 0))
 	private void fluidlogistics$itemTooltip(GuiGraphics graphics, Font font, ItemStack stack, int mouseX, int mouseY,
 		Operation<Void> original, @Local(name = "entry") BigItemStack entry) {
-		boolean orderHovered = getHoveredSlot(mouseX, mouseY).getFirst() == -1;
-		PackageResourceDisplay.TooltipContext context = orderHovered
-			? PackageResourceDisplay.TooltipContext.STOCK_KEEPER_ORDER
-			: PackageResourceDisplay.TooltipContext.STOCK_KEEPER_INVENTORY;
-		ArrayList<Component> lines = fluidlogistics$getResourceTooltipLines(entry, context);
-		if (!lines.isEmpty()) {
-			graphics.renderComponentTooltip(font, lines, mouseX, mouseY);
-			return;
+		if (getHoveredSlot(mouseX, mouseY).getFirst() == -1) {
+			var amount = PackageResources.formatAmount(
+				entry.stack, entry.count, PackageResourceDisplay.Format.PRECISE);
+			if (amount.isPresent()) {
+				List<Component> lines = Screen.getTooltipFromItem(Minecraft.getInstance(), stack);
+				graphics.renderTooltip(font, fluidlogistics$withResourceAmount(lines, amount.get()),
+					stack.getTooltipImage(), stack, mouseX, mouseY);
+				return;
+			}
 		}
 		original.call(graphics, font, stack, mouseX, mouseY);
 	}
@@ -468,19 +471,12 @@ public abstract class StockKeeperRequestScreenMixin {
 	}
 
 	@Unique
-	private static ArrayList<Component> fluidlogistics$getResourceTooltipLines(
-		BigItemStack entry, PackageResourceDisplay.TooltipContext context) {
-		boolean advanced = Minecraft.getInstance().options.advancedItemTooltips;
-		ArrayList<Component> lines = PackageResources.tooltipOf(
-			entry.stack, entry.count, advanced, context)
-			.map(ArrayList::new)
-			.orElseGet(ArrayList::new);
-		if (lines.isEmpty()) {
-			return lines;
+	private static List<Component> fluidlogistics$withResourceAmount(List<Component> nativeLines, String amount) {
+		if (nativeLines.isEmpty()) {
+			return nativeLines;
 		}
-		if (context == PackageResourceDisplay.TooltipContext.STOCK_KEEPER_CRAFTABLE) {
-			lines.set(0, CreateLang.translateDirect("gui.stock_keeper.craft", lines.getFirst().copy()));
-		}
+		List<Component> lines = new ArrayList<>(nativeLines);
+		lines.add(1, Component.literal(amount).withStyle(ChatFormatting.GRAY));
 		return lines;
 	}
 

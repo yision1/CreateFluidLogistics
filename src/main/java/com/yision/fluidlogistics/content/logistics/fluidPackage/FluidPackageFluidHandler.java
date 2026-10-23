@@ -1,5 +1,9 @@
 package com.yision.fluidlogistics.content.logistics.fluidPackage;
 
+import java.util.List;
+
+import com.yision.fluidlogistics.infrastructure.config.Config;
+
 import net.minecraft.world.item.ItemStack;
 
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -19,24 +23,22 @@ public class FluidPackageFluidHandler implements IFluidHandlerItem {
 
 	@Override
 	public int getTanks() {
-		return 1;
+		return FluidPackageContentHelper.getContainedFluids(container).size();
 	}
 
 	@Override
 	public FluidStack getFluidInTank(int tank) {
-		if (tank != 0) {
+		List<FluidStack> fluids = FluidPackageContentHelper.getContainedFluids(container);
+		if (tank < 0 || tank >= fluids.size()) {
 			return FluidStack.EMPTY;
 		}
-		FluidStack contained = FluidPackageContentHelper.getSingleContainedFluid(container);
-		return contained.getAmount() >= FluidPackageContentHelper.PACKAGE_DRAIN_AMOUNT
-			? contained.copy()
-			: FluidStack.EMPTY;
+		return fluids.get(tank);
 	}
 
 	@Override
 	public int getTankCapacity(int tank) {
 		FluidStack fluid = getFluidInTank(tank);
-		return tank == 0 && !fluid.isEmpty() ? fluid.getAmount() : 0;
+		return fluid.isEmpty() ? 0 : Math.max(Config.getFluidPerPackage(), fluid.getAmount());
 	}
 
 	@Override
@@ -49,26 +51,35 @@ public class FluidPackageFluidHandler implements IFluidHandlerItem {
 		if (maxDrain < FluidPackageContentHelper.PACKAGE_DRAIN_AMOUNT) {
 			return FluidStack.EMPTY;
 		}
-		return FluidPackageContentHelper.drainOneBucket(container, action.simulate());
+		for (int tank = 0; tank < getTanks(); tank++) {
+			FluidStack drained = FluidPackageContentHelper.drainOneBucket(container, tank, action.simulate());
+			if (!drained.isEmpty()) {
+				return drained;
+			}
+		}
+		return FluidStack.EMPTY;
 	}
 
 	@Override
 	public FluidStack drain(FluidStack resource, FluidAction action) {
-		FluidStack contained = FluidPackageContentHelper.getSingleContainedFluid(container);
-		if (contained.isEmpty()) {
-			return FluidStack.EMPTY;
-		}
 		if (resource.getAmount() < FluidPackageContentHelper.PACKAGE_DRAIN_AMOUNT) {
 			return FluidStack.EMPTY;
 		}
-		if (!FluidStack.isSameFluidSameComponents(contained, resource)) {
-			return FluidStack.EMPTY;
+		List<FluidStack> fluids = FluidPackageContentHelper.getContainedFluids(container);
+		for (int tank = 0; tank < fluids.size(); tank++) {
+			if (!FluidStack.isSameFluidSameComponents(fluids.get(tank), resource)) {
+				continue;
+			}
+			FluidStack drained = FluidPackageContentHelper.drainOneBucket(container, tank, action.simulate());
+			if (!drained.isEmpty()) {
+				return drained;
+			}
 		}
-		return FluidPackageContentHelper.drainOneBucket(container, action.simulate());
+		return FluidStack.EMPTY;
 	}
 
 	@Override
 	public boolean isFluidValid(int tank, FluidStack stack) {
-		return tank == 0;
+		return false;
 	}
 }

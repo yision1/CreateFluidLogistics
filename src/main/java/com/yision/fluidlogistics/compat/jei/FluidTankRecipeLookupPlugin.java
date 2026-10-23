@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import com.yision.fluidlogistics.content.logistics.fluidPackage.CompressedTankItem;
+import com.yision.fluidlogistics.api.packager.PackageResourceTypes;
 
 import mezz.jei.api.helpers.IJeiHelpers;
 import mezz.jei.api.neoforge.NeoForgeTypes;
@@ -25,7 +25,6 @@ import net.neoforged.neoforge.fluids.FluidStack;
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 final class FluidTankRecipeLookupPlugin implements IRecipeManagerPlugin {
-
 	private final IFocusFactory focusFactory;
 	private final Supplier<IJeiRuntime> runtimeSupplier;
 
@@ -86,11 +85,7 @@ final class FluidTankRecipeLookupPlugin implements IRecipeManagerPlugin {
 		}
 
 		ItemStack stack = itemStack.get();
-		if (!CompressedTankItem.isFluidStack(stack)) {
-			return Optional.empty();
-		}
-
-		FluidStack fluid = CompressedTankItem.getFluid(stack);
+		FluidStack fluid = PackageResourceTypes.getFluid(stack);
 		if (fluid.isEmpty()) {
 			return Optional.empty();
 		}

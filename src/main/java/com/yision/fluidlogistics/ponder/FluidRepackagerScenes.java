@@ -43,7 +43,6 @@ import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
 public final class FluidRepackagerScenes {
-
 	public static final String FLUID_REPACKAGER = "fluid_repackager/fluid_repackager";
 
 	private FluidRepackagerScenes() {
@@ -117,15 +116,13 @@ public final class FluidRepackagerScenes {
 		FluidPackageContentHelper.setCanonicalContents(fluidPackage, water);
 		ItemStack itemPackage = PackageItem.containing(List.of(saplings.copy()));
 
-		ItemStackHandler mixedContents = FluidPackageContentHelper.createCanonicalContents(water);
-		mixedContents.setStackInSlot(1, saplings.copy());
-		ItemStack mixedPackage = PackageItem.containing(mixedContents);
+		ItemStack mixedPackage = PackageItem.containing(List.of(saplings.copy()));
+		FluidPackageContentHelper.setCanonicalContents(mixedPackage, water);
 		List<ItemStack> splitPackages = PackageResources.splitPackage(mixedPackage);
 
 		ItemStack leaves = new ItemStack(Items.OAK_LEAVES, 16);
-		ItemStackHandler separatingContents = FluidPackageContentHelper.createCanonicalContents(water);
-		separatingContents.setStackInSlot(1, leaves);
-		ItemStack separatingPackage = PackageItem.containing(separatingContents);
+		ItemStack separatingPackage = PackageItem.containing(List.of(leaves));
+		FluidPackageContentHelper.setCanonicalContents(separatingPackage, water);
 		List<ItemStack> separatedPackages = PackageResources.splitPackage(separatingPackage);
 		ItemStack separatedFluidPackage = separatedPackages.get(0);
 		ItemStack separatedItemPackage = separatedPackages.get(1);

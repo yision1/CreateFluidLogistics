@@ -26,10 +26,6 @@ public final class PackageResourceClient {
 		PackageResourceClientRegistry.registerStockKeeperAmountRenderer(resourceTypeId, renderer);
 	}
 
-	public static boolean hasStockKeeperAmountRenderer(ItemStack carrierStack) {
-		return PackageResourceClientRegistry.hasStockKeeperAmountRenderer(carrierStack);
-	}
-
 	public static boolean tryRenderStockKeeperAmount(
 		GuiGraphics graphics, ItemStack carrierStack, int amount) {
 		return PackageResourceClientRegistry.tryRenderStockKeeperAmount(graphics, carrierStack, amount);

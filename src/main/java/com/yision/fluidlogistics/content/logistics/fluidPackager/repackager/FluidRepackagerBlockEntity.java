@@ -23,6 +23,7 @@ import com.simibubi.create.foundation.item.ItemHelper;
 import com.yision.fluidlogistics.api.packager.PackageInspection;
 import com.yision.fluidlogistics.api.packager.PackageResources;
 import com.yision.fluidlogistics.api.packager.PackageUnpackContext;
+import com.yision.fluidlogistics.api.packager.PackageUnpackResult;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageContentHelper;
 import com.yision.fluidlogistics.content.logistics.fluidPackager.PackagerGoggleInfo;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
@@ -125,7 +126,7 @@ public class FluidRepackagerBlockEntity extends PackagerBlockEntity
 			return insertPackageIntoTargetInventory(box, simulate);
 		}
 
-		List<ItemStack> splitResults = PackageResources.splitPackage(box);
+		List<ItemStack> splitResults = splitSafely(box);
 		if (splitResults.isEmpty()) {
 			return false;
 		}
@@ -211,7 +212,7 @@ public class FluidRepackagerBlockEntity extends PackagerBlockEntity
 				continue;
 			}
 
-			List<ItemStack> splitResults = PackageResources.splitPackage(extracted);
+			List<ItemStack> splitResults = splitSafely(extracted);
 			if (splitResults.isEmpty()) {
 				continue;
 			}
@@ -306,23 +307,46 @@ public class FluidRepackagerBlockEntity extends PackagerBlockEntity
 		setChanged();
 	}
 
+	private static List<ItemStack> splitSafely(ItemStack packageStack) {
+		try {
+			return PackageResources.splitPackage(packageStack);
+		} catch (IllegalArgumentException | ArithmeticException exception) {
+			return List.of();
+		}
+	}
+
 	private boolean deliverSinglePackage(ItemStack pkg, BlockPos targetPos, BlockState targetState,
 		BlockEntity targetBE, Direction facing) {
 		PackageInspection inspection = PackageResources.inspectPackage(pkg);
 		if (inspection.hasResources()) {
-			return unpackResourceToTarget(pkg, targetPos, targetState, targetBE, facing, true)
-				&& unpackResourceToTarget(pkg, targetPos, targetState, targetBE, facing, false);
+			if (!unpackResourceToTarget(pkg, targetPos, targetState, targetBE, facing, true).complete()) {
+				return false;
+			}
+			PackageUnpackResult result = unpackResourceToTarget(
+				pkg, targetPos, targetState, targetBE, facing, false);
+			if (!result.complete() && result.transferred() > 0) {
+				ItemStack remainder = result.remainder();
+				pkg.remove(com.simibubi.create.AllDataComponents.PACKAGE_CONTENTS);
+				for (var resource : inspection.resources()) {
+					PackageResources.get(resource.typeId()).orElseThrow().packageComponents().forEach(pkg::remove);
+				}
+				pkg.applyComponents(remainder.getComponentsPatch());
+				setChanged();
+				notifyUpdate();
+			}
+			return result.complete();
 		}
 		return unpackItemsToTarget(pkg, targetPos, targetState, targetBE, facing, true)
 			&& unpackItemsToTarget(pkg, targetPos, targetState, targetBE, facing, false);
 	}
 
-	private boolean unpackResourceToTarget(ItemStack resourcePackage, BlockPos targetPos, BlockState targetState,
+	private PackageUnpackResult unpackResourceToTarget(
+		ItemStack resourcePackage, BlockPos targetPos, BlockState targetState,
 		@Nullable BlockEntity targetBE, Direction facing, boolean simulate) {
 		PackageUnpackContext context = new PackageUnpackContext(
 			level, targetPos, targetState, targetBE, facing, resourcePackage,
 			PackageItem.getOrderContext(resourcePackage));
-		return PackageResources.unpackPackage(context, simulate);
+		return PackageResources.unpackPackageResult(context, simulate);
 	}
 
 	private boolean unpackItemsToTarget(ItemStack itemPackage, BlockPos targetPos, BlockState targetState,
@@ -390,7 +414,6 @@ public class FluidRepackagerBlockEntity extends PackagerBlockEntity
 	}
 
 	private class FluidRepackagerItemHandler implements IItemHandler {
-
 		@Override
 		public int getSlots() {
 			return inventory.getSlots();

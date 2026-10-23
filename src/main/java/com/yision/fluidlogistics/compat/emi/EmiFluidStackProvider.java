@@ -4,8 +4,8 @@ import com.simibubi.create.content.logistics.filter.AttributeFilterScreen;
 import com.simibubi.create.content.logistics.filter.FilterScreen;
 import com.simibubi.create.content.logistics.redstoneRequester.RedstoneRequesterScreen;
 import com.simibubi.create.content.logistics.stockTicker.StockKeeperRequestScreen;
+import com.yision.fluidlogistics.api.packager.PackageResourceTypes;
 import com.yision.fluidlogistics.content.equipment.handPointer.filter.HandPointerFilterScreen;
-import com.yision.fluidlogistics.content.logistics.fluidPackage.CompressedTankItem;
 
 import dev.emi.emi.api.EmiStackProvider;
 import dev.emi.emi.api.neoforge.NeoForgeEmiStack;
@@ -19,7 +19,6 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 public final class EmiFluidStackProvider {
-
 	private EmiFluidStackProvider() {
 	}
 
@@ -34,11 +33,9 @@ public final class EmiFluidStackProvider {
 				continue;
 			}
 			ItemStack ghost = slot.getItem();
-			if (CompressedTankItem.isFluidStack(ghost)) {
-				FluidStack fluid = CompressedTankItem.getFluid(ghost);
-				if (!fluid.isEmpty()) {
-					return new EmiStackInteraction(NeoForgeEmiStack.of(fluid), null, false);
-				}
+			FluidStack fluid = PackageResourceTypes.getFluid(ghost);
+			if (!fluid.isEmpty()) {
+				return new EmiStackInteraction(NeoForgeEmiStack.of(fluid), null, false);
 			}
 		}
 		return EmiStackInteraction.EMPTY;
@@ -46,7 +43,8 @@ public final class EmiFluidStackProvider {
 
 	public static class ResourceGaugeSetFilter
 		implements
-		EmiStackProvider<com.yision.fluidlogistics.content.logistics.factoryGauge.client.ResourceFactoryGaugeSetFilterScreen> {
+		EmiStackProvider<
+			com.yision.fluidlogistics.content.logistics.factoryGauge.client.ResourceFactoryGaugeSetFilterScreen> {
 		public static final ResourceGaugeSetFilter INSTANCE = new ResourceGaugeSetFilter();
 
 		@Override
@@ -104,12 +102,11 @@ public final class EmiFluidStackProvider {
 		}
 
 		private static EmiStackInteraction toInteraction(Object ingredient) {
-			if (ingredient instanceof ItemStack stack && CompressedTankItem.isFluidStack(stack)) {
-				FluidStack fluid = CompressedTankItem.getFluid(stack);
+			if (ingredient instanceof ItemStack stack) {
+				FluidStack fluid = PackageResourceTypes.getFluid(stack);
 				if (!fluid.isEmpty()) {
 					return new EmiStackInteraction(NeoForgeEmiStack.of(fluid), null, false);
 				}
-				return EmiStackInteraction.EMPTY;
 			}
 			if (ingredient instanceof ItemStack itemStack && !itemStack.isEmpty()) {
 				return new EmiStackInteraction(EmiStack.of(itemStack), null, false);

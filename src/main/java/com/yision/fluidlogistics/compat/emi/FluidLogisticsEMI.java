@@ -6,8 +6,10 @@ import com.simibubi.create.content.logistics.redstoneRequester.RedstoneRequester
 import com.simibubi.create.content.logistics.stockTicker.StockKeeperRequestScreen;
 import com.yision.fluidlogistics.content.equipment.handPointer.filter.HandPointerFilterScreen;
 import com.yision.fluidlogistics.content.logistics.factoryGauge.client.ResourceFactoryGaugeSetFilterScreen;
+import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidProxyRegistry;
 import com.yision.fluidlogistics.content.logistics.redstoneRequester.RedstoneRequesterAmountsAccess;
 import com.yision.fluidlogistics.foundation.fluid.FluidAmountHelper;
+import com.yision.fluidlogistics.registry.AllItems;
 
 import dev.emi.emi.api.EmiDragDropHandler;
 import dev.emi.emi.api.EmiEntrypoint;
@@ -17,14 +19,17 @@ import dev.emi.emi.api.EmiRegistry;
 @EmiEntrypoint
 @SuppressWarnings("unused")
 public class FluidLogisticsEMI implements EmiPlugin {
-
-	private static final EmiDragDropHandler<FilterScreen> FILTER_DRAG_DROP = new GhostSlotEmiDragDropHandler<>(
+	private static final EmiDragDropHandler<FilterScreen> FILTER_DRAG_DROP
+		= new GhostSlotEmiDragDropHandler<>(
 		GhostSlotEmiDragDropHandler.AcceptMode.FLUID_ONLY);
-	private static final EmiDragDropHandler<AttributeFilterScreen> ATTRIBUTE_FILTER_DRAG_DROP = new GhostSlotEmiDragDropHandler<>(
+	private static final EmiDragDropHandler<AttributeFilterScreen> ATTRIBUTE_FILTER_DRAG_DROP
+		= new GhostSlotEmiDragDropHandler<>(
 		GhostSlotEmiDragDropHandler.AcceptMode.FLUID_ONLY);
-	private static final EmiDragDropHandler<ResourceFactoryGaugeSetFilterScreen> RESOURCE_GAUGE_SET_FILTER_DRAG_DROP = new GhostSlotEmiDragDropHandler<>(
+	private static final EmiDragDropHandler<ResourceFactoryGaugeSetFilterScreen> RESOURCE_GAUGE_SET_FILTER_DRAG_DROP
+		= new GhostSlotEmiDragDropHandler<>(
 		GhostSlotEmiDragDropHandler.AcceptMode.FLUID_ONLY);
-	private static final EmiDragDropHandler<RedstoneRequesterScreen> REDSTONE_REQUESTER_DRAG_DROP = new GhostSlotEmiDragDropHandler<>(
+	private static final EmiDragDropHandler<RedstoneRequesterScreen> REDSTONE_REQUESTER_DRAG_DROP
+		= new GhostSlotEmiDragDropHandler<>(
 		GhostSlotEmiDragDropHandler.AcceptMode.ITEM_OR_FLUID,
 		(gui, slotIndex, fromFluid) -> {
 			if (!fromFluid) {
@@ -33,11 +38,14 @@ public class FluidLogisticsEMI implements EmiPlugin {
 			((RedstoneRequesterAmountsAccess) gui).fluidlogistics$getAmounts()
 				.set(slotIndex, FluidAmountHelper.DEFAULT_FLUID_REQUEST_AMOUNT);
 		});
-	private static final EmiDragDropHandler<HandPointerFilterScreen> HAND_POINTER_DRAG_DROP = new GhostSlotEmiDragDropHandler<>(
+	private static final EmiDragDropHandler<HandPointerFilterScreen> HAND_POINTER_DRAG_DROP
+		= new GhostSlotEmiDragDropHandler<>(
 		GhostSlotEmiDragDropHandler.AcceptMode.ITEM_OR_FLUID);
 
 	@Override
 	public void register(EmiRegistry registry) {
+		registry.removeEmiStacks(stack -> FluidProxyRegistry.isProxy(stack.getItemStack())
+			|| stack.getItemStack().is(AllItems.COMPRESSED_STORAGE_TANK.get()));
 		registry.addDragDropHandler(FilterScreen.class, FILTER_DRAG_DROP);
 		registry.addDragDropHandler(AttributeFilterScreen.class, ATTRIBUTE_FILTER_DRAG_DROP);
 		registry.addDragDropHandler(ResourceFactoryGaugeSetFilterScreen.class, RESOURCE_GAUGE_SET_FILTER_DRAG_DROP);

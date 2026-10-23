@@ -1,15 +1,13 @@
 package com.yision.fluidlogistics.content.logistics.fluidPackage.client;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.foundation.item.render.CustomRenderedItemModel;
 import com.simibubi.create.foundation.item.render.CustomRenderedItemModelRenderer;
 import com.simibubi.create.foundation.item.render.PartialItemModelRenderer;
+import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageContentHelper;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageItem;
-import com.yision.fluidlogistics.foundation.fluid.FluidDisplayHelper;
 import com.yision.fluidlogistics.foundation.render.FluidItemRenderHelper;
 import com.yision.fluidlogistics.infrastructure.config.Config;
 
@@ -22,11 +20,9 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.items.ItemStackHandler;
 
 @OnlyIn(Dist.CLIENT)
 public class FluidPackageItemRenderer extends CustomRenderedItemModelRenderer {
-
 	private static final float FLUID_INSET = 1f / 128f;
 
 	public static final float FLUID_MIN_XZ = 3f / 16f + FLUID_INSET;
@@ -148,32 +144,7 @@ public class FluidPackageItemRenderer extends CustomRenderedItemModelRenderer {
 	}
 
 	public static List<FluidStack> getContainedFluids(ItemStack box) {
-		List<FluidStack> fluids = new ArrayList<>();
-
-		if (!PackageItem.isPackage(box))
-			return fluids;
-
-		ItemStackHandler contents = PackageItem.getContents(box);
-
-		for (int i = 0; i < contents.getSlots(); i++) {
-			ItemStack slotStack = contents.getStackInSlot(i);
-			FluidStack fluid = FluidDisplayHelper.getPackageDisplayFluid(slotStack);
-			if (!fluid.isEmpty()) {
-				mergeFluid(fluids, fluid);
-			}
-		}
-
-		return fluids;
-	}
-
-	private static void mergeFluid(List<FluidStack> fluids, FluidStack newFluid) {
-		for (FluidStack existing : fluids) {
-			if (FluidStack.isSameFluidSameComponents(existing, newFluid)) {
-				existing.grow(newFluid.getAmount());
-				return;
-			}
-		}
-		fluids.add(newFluid.copy());
+		return FluidPackageContentHelper.getContainedFluids(box);
 	}
 
 	private enum CoordinateMode {

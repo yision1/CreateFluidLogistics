@@ -1,6 +1,6 @@
 package com.yision.fluidlogistics.content.logistics.factoryGauge.client;
 
-import com.yision.fluidlogistics.content.logistics.fluidPackage.CompressedTankItem;
+import com.yision.fluidlogistics.api.packager.PackageResourceTypes;
 import com.yision.fluidlogistics.foundation.render.GuiFluidBlockRenderer;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -15,6 +15,6 @@ public final class FactoryPanelFluidPreviewRenderer {
 
 	public static void render(GuiGraphics graphics, ItemStack resourceKey, int x, int y) {
 		GuiFluidBlockRenderer.render(
-			graphics, CompressedTankItem.getFluid(resourceKey), x, y, PREVIEW_SCALE);
+			graphics, PackageResourceTypes.getFluid(resourceKey), x, y, PREVIEW_SCALE);
 	}
 }

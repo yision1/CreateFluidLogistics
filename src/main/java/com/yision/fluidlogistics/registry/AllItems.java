@@ -17,6 +17,7 @@ import com.yision.fluidlogistics.content.logistics.filter.PackageListFilterItem;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageItem;
 import com.yision.fluidlogistics.content.schematics.FluidSchematicItem;
 import com.yision.fluidlogistics.item.CompressedTankItem;
+import com.yision.fluidlogistics.migration.item.LegacyItemAliases;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -25,11 +26,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import net.neoforged.neoforge.common.Tags.Items;
-import net.neoforged.neoforge.registries.IRegistryExtension;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
 public class AllItems {
-
 	public static final ResourceLocation FLUID_GAUGE_TYPE_ID = FluidLogistics.asResource("fluid");
 	private static final int CREATE_RARE_PACKAGE_CHANCE = 7500;
 
@@ -167,19 +166,8 @@ public class AllItems {
 		return new ItemStack(fluidPackage);
 	}
 
-	@SuppressWarnings("unchecked")
 	public static void registerAliases(RegisterEvent event) {
-		var registry = event.getRegistry(Registries.ITEM);
-		if (registry == null) {
-			return;
-		}
-
-		((IRegistryExtension<Item>) registry).addAlias(
-			FluidLogistics.asResource("rare_fluid_package"),
-			FluidLogistics.asResource("fluid_package"));
-		((IRegistryExtension<Item>) registry).addAlias(
-			FluidLogistics.asResource("rare_fluid_package_1"),
-			FluidLogistics.asResource("fluid_package"));
+		LegacyItemAliases.register(event);
 	}
 
 	public static void register() {

@@ -1,77 +1,91 @@
 package com.yision.fluidlogistics;
 
+import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Supplier;
+
+import org.slf4j.Logger;
+
 import com.mojang.logging.LogUtils;
 import com.simibubi.create.AllFluids;
-import com.simibubi.create.content.kinetics.mechanicalArm.ArmInteractionPointType;
 import com.simibubi.create.api.stress.BlockStressValues;
+import com.simibubi.create.content.kinetics.mechanicalArm.ArmInteractionPointType;
+import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.item.ItemDescription;
 import com.simibubi.create.foundation.item.KineticStats;
 import com.simibubi.create.foundation.item.TooltipModifier;
-import net.createmod.catnip.lang.FontHelper;
-import com.yision.fluidlogistics.infrastructure.config.Config;
-import com.yision.fluidlogistics.infrastructure.data.FluidLogisticsDatagen;
-import com.yision.fluidlogistics.infrastructure.data.FluidLogisticsRegistrate;
-import com.yision.fluidlogistics.api.factorygauge.FactoryGauges;
 import com.yision.fluidlogistics.api.factorygauge.FactoryGaugeType;
-import com.yision.fluidlogistics.api.packager.PackageResources;
-import com.yision.fluidlogistics.api.packager.PackageResourceTypes;
+import com.yision.fluidlogistics.api.factorygauge.FactoryGauges;
 import com.yision.fluidlogistics.api.handpointer.PackagerAddresses;
 import com.yision.fluidlogistics.api.handpointer.crafter.HandPointerCrafterAdapters;
+import com.yision.fluidlogistics.api.packager.PackageResourceTypes;
+import com.yision.fluidlogistics.api.packager.PackageResources;
 import com.yision.fluidlogistics.content.equipment.handPointer.CreateMechanicalCrafterAdapter;
 import com.yision.fluidlogistics.content.fluids.copperBucket.CopperBucketItem;
+import com.yision.fluidlogistics.content.fluids.fluidPort.FluidInventoryAccessPortBlockEntity;
+import com.yision.fluidlogistics.content.fluids.fluidPort.MultiFluidAccessPortBlockEntity;
+import com.yision.fluidlogistics.content.fluids.fluidPump.FluidPumpNetworkUpdater;
+import com.yision.fluidlogistics.content.fluids.horizontalMultiFluidTank.HorizontalMultiFluidTankBlockEntity;
+import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidTankBlockEntity;
+import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidTankItem;
+import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankBlockEntity;
 import com.yision.fluidlogistics.content.fluids.powderSnow.PowderSnowBucketFluidHandler;
 import com.yision.fluidlogistics.content.fluids.waterContainingCopperCasing.WaterContainingCopperCasingFluidHandler;
-import com.yision.fluidlogistics.content.fluids.fluidPump.FluidPumpNetworkUpdater;
+import com.yision.fluidlogistics.content.logistics.copperFrogport.CopperFrogportBlockEntity;
 import com.yision.fluidlogistics.content.logistics.factoryGauge.FactoryGaugeBehaviourAttachment;
 import com.yision.fluidlogistics.content.logistics.factoryGauge.FactoryGaugeLootModifier;
 import com.yision.fluidlogistics.content.logistics.factoryGauge.builtin.FluidContainerProbe;
-import com.yision.fluidlogistics.content.logistics.fluidPackager.FluidPackagerBlockEntity;
-import com.yision.fluidlogistics.content.logistics.copperFrogport.CopperFrogportBlockEntity;
-import com.yision.fluidlogistics.content.logistics.fluidPackager.repackager.FluidRepackagerBlockEntity;
-import com.yision.fluidlogistics.content.logistics.fluidTransporter.FluidTransporterBlockEntity;
-import com.yision.fluidlogistics.content.fluids.horizontalMultiFluidTank.HorizontalMultiFluidTankBlockEntity;
-import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidTankBlockEntity;
-import com.yision.fluidlogistics.content.fluids.fluidPort.FluidInventoryAccessPortBlockEntity;
-import com.yision.fluidlogistics.content.fluids.fluidPort.MultiFluidAccessPortBlockEntity;
-import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankBlockEntity;
-import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperBlockEntity;
-import com.yision.fluidlogistics.content.processing.copperBasin.CopperBasinBlockEntity;
-import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerBlockEntity;
-import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerFuelManager;
-import com.yision.fluidlogistics.infrastructure.network.FluidLogisticsPackets;
-import com.yision.fluidlogistics.registry.FluidLogisticsArmInteractionPointTypes;
-import com.yision.fluidlogistics.registry.AllBlockEntities;
-import com.yision.fluidlogistics.registry.AllBlocks;
-import com.yision.fluidlogistics.registry.AllFluidLogisticsDisplaySources;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.CompressedTankFluidHandler;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.CompressedTankItem;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.CompressedTankTooltipModifier;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageContentHelper;
+import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageEntityFluidHandler;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageFluidHandler;
-import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidTankItem;
+import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidProxyRegistry;
+import com.yision.fluidlogistics.content.logistics.fluidPackager.FluidPackagerBlockEntity;
+import com.yision.fluidlogistics.content.logistics.fluidPackager.repackager.FluidRepackagerBlockEntity;
+import com.yision.fluidlogistics.content.logistics.fluidTransporter.FluidTransporterBlockEntity;
+import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperBlockEntity;
+import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerBlockEntity;
+import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerFuelManager;
+import com.yision.fluidlogistics.content.processing.copperBasin.CopperBasinBlockEntity;
+import com.yision.fluidlogistics.infrastructure.config.Config;
+import com.yision.fluidlogistics.infrastructure.config.FeatureToggle;
+import com.yision.fluidlogistics.infrastructure.data.FluidLogisticsDatagen;
+import com.yision.fluidlogistics.infrastructure.data.FluidLogisticsRegistrate;
+import com.yision.fluidlogistics.infrastructure.network.FluidLogisticsPackets;
+import com.yision.fluidlogistics.registry.AllBlockEntities;
+import com.yision.fluidlogistics.registry.AllBlocks;
+import com.yision.fluidlogistics.registry.AllConditionCodecs;
 import com.yision.fluidlogistics.registry.AllDataComponents;
+import com.yision.fluidlogistics.registry.AllFluidAttributeTypes;
+import com.yision.fluidlogistics.registry.AllFluidLogisticsDisplaySources;
+import com.yision.fluidlogistics.registry.AllFluidLogisticsFanProcessingTypes;
+import com.yision.fluidlogistics.registry.AllFluidLogisticsFluids;
+import com.yision.fluidlogistics.registry.AllFluidLogisticsParticleTypes;
+import com.yision.fluidlogistics.registry.AllFluidLogisticsRecipeTypes;
 import com.yision.fluidlogistics.registry.AllItems;
 import com.yision.fluidlogistics.registry.AllMenuTypes;
 import com.yision.fluidlogistics.registry.AllMountedStorageTypes;
-import com.yision.fluidlogistics.registry.AllConditionCodecs;
-import com.yision.fluidlogistics.registry.AllFluidAttributeTypes;
-import com.yision.fluidlogistics.registry.FluidLogisticsUnpackingHandlers;
-import com.yision.fluidlogistics.registry.AllFluidLogisticsParticleTypes;
-import com.yision.fluidlogistics.registry.AllFluidLogisticsFluids;
-import com.yision.fluidlogistics.registry.AllFluidLogisticsFanProcessingTypes;
-import com.yision.fluidlogistics.registry.AllFluidLogisticsRecipeTypes;
+import com.yision.fluidlogistics.registry.FluidLogisticsArmInteractionPointTypes;
 import com.yision.fluidlogistics.registry.FluidLogisticsPackagePortTargetTypes;
-import com.yision.fluidlogistics.infrastructure.config.FeatureToggle;
+import com.yision.fluidlogistics.registry.FluidLogisticsUnpackingHandlers;
+
+import net.createmod.catnip.lang.FontHelper;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.fluids.FluidStack;
+
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -79,21 +93,16 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.templates.FluidHandlerItemStack;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
-import java.util.Objects;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.Supplier;
-import org.slf4j.Logger;
 
 @Mod(FluidLogistics.MODID)
 public class FluidLogistics {
@@ -163,6 +172,7 @@ public class FluidLogistics {
 		modEventBus.addListener(this::registerCapabilities);
 		modEventBus.addListener(this::hideDisabledItems);
 		modEventBus.addListener(AllItems::registerAliases);
+		modEventBus.addListener(FluidProxyRegistry::register);
 
 		NeoForge.EVENT_BUS.register(this);
 		NeoForge.EVENT_BUS.addListener(this::addReloadListeners);
@@ -208,13 +218,11 @@ public class FluidLogistics {
 				() -> AllDataComponents.COPPER_BUCKET_CONTENT, stack, CopperBucketItem.CAPACITY),
 			AllItems.COPPER_BUCKET.get());
 		event.registerItem(Capabilities.FluidHandler.ITEM,
-			(stack, context) -> new FluidPackageFluidHandler(stack),
-			AllItems.FLUID_PACKAGE.get(),
-			AllItems.FLUID_PACKAGE_EXPOSED.get(),
-			AllItems.FLUID_PACKAGE_OXIDIZED.get(),
-			AllItems.FLUID_PACKAGE_WEATHERED.get(),
-			AllItems.RARE_PIG_PACKAGE.get(),
-			AllItems.RARE_FOX_PACKAGE.get());
+			(stack, context) -> FluidPackageContentHelper.getContainedFluids(stack).isEmpty()
+				? null : new FluidPackageFluidHandler(stack),
+			BuiltInRegistries.ITEM.stream().filter(item -> item instanceof PackageItem).toArray(Item[]::new));
+		event.registerEntity(Capabilities.FluidHandler.ENTITY, com.simibubi.create.AllEntityTypes.PACKAGE.get(),
+			(entity, context) -> new FluidPackageEntityFluidHandler(entity));
 		event.registerItem(Capabilities.FluidHandler.ITEM,
 			(stack, context) -> new PowderSnowBucketFluidHandler(stack),
 			net.minecraft.world.item.Items.POWDER_SNOW_BUCKET);

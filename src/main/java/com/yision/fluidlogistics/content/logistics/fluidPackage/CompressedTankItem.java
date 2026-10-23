@@ -8,6 +8,7 @@ import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.client.CompressedTankItemRenderer;
 import com.yision.fluidlogistics.datacomponent.FluidTankContent;
 import com.yision.fluidlogistics.infrastructure.config.Config;
+import com.yision.fluidlogistics.migration.item.LegacyCompressedTankMigration;
 import com.yision.fluidlogistics.registry.AllDataComponents;
 
 import net.minecraft.ChatFormatting;
@@ -24,13 +25,10 @@ import net.minecraft.world.level.Level;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 public class CompressedTankItem extends Item {
-
 	public CompressedTankItem(Properties properties) {
 		super(properties);
 	}
@@ -114,45 +112,6 @@ public class CompressedTankItem extends Item {
 
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
-		ItemStack heldStack = player.getItemInHand(usedHand);
-
-		FluidStack fluid = getFluid(heldStack);
-
-		if (level.isClientSide()) {
-			return InteractionResultHolder.success(heldStack);
-		}
-
-		boolean transferred = false;
-
-		for (InteractionHand hand : InteractionHand.values()) {
-			if (hand == usedHand)
-				continue;
-
-			ItemStack otherStack = player.getItemInHand(hand);
-			if (otherStack.isEmpty())
-				continue;
-
-			var fluidCap = otherStack.getCapability(Capabilities.FluidHandler.ITEM);
-			if (fluidCap != null) {
-				int filled = fluidCap.fill(fluid, IFluidHandler.FluidAction.EXECUTE);
-				if (filled > 0) {
-					fluid.shrink(filled);
-					transferred = true;
-
-					if (fluid.isEmpty()) {
-						heldStack.remove(AllDataComponents.FLUID_TANK_CONTENT);
-					} else {
-						setFluid(heldStack, fluid);
-					}
-					break;
-				}
-			}
-		}
-
-		if (transferred) {
-			return InteractionResultHolder.success(heldStack);
-		}
-
-		return InteractionResultHolder.pass(heldStack);
+		return LegacyCompressedTankMigration.use(level, player, usedHand);
 	}
 }

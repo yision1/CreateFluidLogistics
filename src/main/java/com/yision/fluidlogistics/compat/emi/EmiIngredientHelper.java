@@ -2,8 +2,7 @@ package com.yision.fluidlogistics.compat.emi;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.yision.fluidlogistics.content.logistics.fluidPackage.CompressedTankItem;
-import com.yision.fluidlogistics.registry.AllItems;
+import com.yision.fluidlogistics.api.packager.PackageResourceTypes;
 
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
@@ -14,7 +13,6 @@ import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 public final class EmiIngredientHelper {
-
 	private EmiIngredientHelper() {
 	}
 
@@ -39,9 +37,7 @@ public final class EmiIngredientHelper {
 	public static ItemStack toGhostStack(EmiIngredient ingredient) {
 		FluidStack fluid = getFirstFluid(ingredient);
 		if (fluid != null) {
-			ItemStack tankStack = new ItemStack(AllItems.COMPRESSED_STORAGE_TANK.get());
-			CompressedTankItem.setFluid(tankStack, fluid.copyWithAmount(1));
-			return tankStack;
+			return PackageResourceTypes.createFluidKey(fluid);
 		}
 
 		for (EmiStack stack : ingredient.getEmiStacks()) {

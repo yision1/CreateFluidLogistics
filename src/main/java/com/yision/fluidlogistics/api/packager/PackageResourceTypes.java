@@ -4,6 +4,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageResourceType;
+import com.yision.fluidlogistics.infrastructure.config.Config;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -30,7 +31,7 @@ public final class PackageResourceTypes {
 	}
 
 	public static int getFluidPerPackage() {
-		return FluidPackageResourceType.getFluidPerPackage();
+		return Config.getFluidPerPackage();
 	}
 
 	@ApiStatus.Internal

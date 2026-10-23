@@ -25,8 +25,7 @@ import com.simibubi.create.foundation.blockEntity.behaviour.inventory.TankManipu
 import com.yision.fluidlogistics.api.packager.PackageResourceTypes;
 import com.yision.fluidlogistics.api.packager.ResourcePackager;
 import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidHandlerHelper;
-import com.yision.fluidlogistics.content.logistics.fluidPackage.CompressedTankItem;
-import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageItem;
+import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageContentHelper;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
 import com.yision.fluidlogistics.util.IPackagerOverrideData;
 
@@ -144,7 +143,7 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
 
 	@Override
 	public boolean unwrapBox(ItemStack box, boolean simulate) {
-		if (!FluidPackageItem.isFluidPackage(box)) {
+		if (FluidPackageContentHelper.getSingleContainedFluid(box).isEmpty()) {
 			return false;
 		}
 		return super.unwrapBox(box, simulate);
@@ -166,7 +165,7 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
 
 	@Override
 	public int extract(ItemStack normalizedKey, int maxAmount, boolean simulate) {
-		if (maxAmount <= 0 || !CompressedTankItem.isFluidStack(normalizedKey)) {
+		if (maxAmount <= 0 || PackageResourceTypes.getFluid(normalizedKey).isEmpty()) {
 			return 0;
 		}
 		FluidAccess fluidAccess = getFluidAccess();
@@ -174,7 +173,7 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
 			return 0;
 		}
 		IFluidHandler handler = fluidAccess.handler();
-		FluidStack target = CompressedTankItem.getFluid(normalizedKey);
+		FluidStack target = PackageResourceTypes.getFluid(normalizedKey);
 		if (InfiniteFluidHandlerHelper.isInfiniteSource(handler, target)) {
 			return maxAmount;
 		}
@@ -186,7 +185,7 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
 
 	@Override
 	public int insert(ItemStack normalizedKey, int maxAmount, boolean simulate) {
-		if (maxAmount <= 0 || !CompressedTankItem.isFluidStack(normalizedKey)) {
+		if (maxAmount <= 0 || PackageResourceTypes.getFluid(normalizedKey).isEmpty()) {
 			return 0;
 		}
 		FluidAccess fluidAccess = getFluidAccess();
@@ -194,7 +193,7 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
 			return 0;
 		}
 		IFluidHandler handler = fluidAccess.handler();
-		FluidStack fluid = CompressedTankItem.getFluid(normalizedKey).copyWithAmount(maxAmount);
+		FluidStack fluid = PackageResourceTypes.getFluid(normalizedKey).copyWithAmount(maxAmount);
 		if (InfiniteFluidHandlerHelper.canAcceptInfinitely(handler, fluid)) {
 			return maxAmount;
 		}
@@ -353,5 +352,4 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
 		inventory.setStackInSlot(0, ItemStack.EMPTY);
 		queuedExitingPackages.clear();
 	}
-
 }

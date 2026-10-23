@@ -3,7 +3,6 @@ package com.yision.fluidlogistics.api.packager;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import com.yision.fluidlogistics.content.logistics.packageResource.PackageResourceKey;
@@ -78,8 +77,12 @@ public final class PackageResources {
 		return REGISTRY.splitPackage(packageStack);
 	}
 
-	public static boolean unpackPackage(PackageUnpackContext context, boolean simulate) {
-		return REGISTRY.unpackPackage(context, simulate);
+	public static PackageUnpackResult unpackPackageResult(PackageUnpackContext context, boolean simulate) {
+		return REGISTRY.unpackPackageResult(context, simulate);
+	}
+
+	public static ItemStack withPackageAmount(ItemStack packageStack, ItemStack key, int amount) {
+		return REGISTRY.withPackageAmount(packageStack, key, amount);
 	}
 
 	public static Optional<PackageResourceDisplay> displayOf(ItemStack carrierOrKey) {
@@ -94,16 +97,12 @@ public final class PackageResources {
 		return REGISTRY.iconOf(carrierOrKey);
 	}
 
-	public static Optional<List<Component>> tooltipOf(
-		ItemStack carrierOrKey, int amount, boolean advanced) {
+	public static Optional<List<Component>> tooltipOf(ItemStack carrierOrKey, int amount, boolean advanced) {
 		return REGISTRY.tooltipOf(carrierOrKey, amount, advanced);
 	}
 
 	public static Optional<List<Component>> tooltipOf(
-		ItemStack carrierOrKey,
-		int amount,
-		boolean advanced,
-		PackageResourceDisplay.TooltipContext context) {
+		ItemStack carrierOrKey, int amount, boolean advanced, PackageResourceDisplay.TooltipContext context) {
 		return REGISTRY.tooltipOf(carrierOrKey, amount, advanced, context);
 	}
 
@@ -125,11 +124,7 @@ public final class PackageResources {
 		return REGISTRY.survivesWater(packageStack);
 	}
 
-	public static PackageResourceType.SawAction sawAction(ItemStack packageStack) {
-		return REGISTRY.sawAction(packageStack);
-	}
-
-	public static Set<ResourceLocation> handleDestroyed(PackageDestroyContext context) {
-		return REGISTRY.handleDestroyed(context);
+	public static void handleDestroyed(PackageDestroyContext context) {
+		REGISTRY.handleDestroyed(context);
 	}
 }

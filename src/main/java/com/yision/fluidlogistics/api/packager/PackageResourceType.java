@@ -1,29 +1,21 @@
 package com.yision.fluidlogistics.api.packager;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.Set;
 
 import org.jetbrains.annotations.Contract;
 
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 public interface PackageResourceType {
-	enum SawAction {
-		DEFAULT,
-		DESTROY_WITHOUT_DROPS
-	}
-
-	enum DropAction {
-		PASS,
-		CONSUME_CARRIERS
-	}
-
 	ResourceLocation id();
 
-	Supplier<? extends Item> carrierItem();
+	Collection<Item> keyItems();
 
 	@Contract(pure = true)
 	boolean isValidCarrier(ItemStack stack);
@@ -40,7 +32,28 @@ public interface PackageResourceType {
 	@Contract(pure = true)
 	int amountOf(ItemStack carrierStack);
 
-	ItemStack createCarrier(ItemStack normalizedKey, int amount);
+	default boolean isPhysicalCarrier(ItemStack stack) {
+		return isValidCarrier(stack);
+	}
+
+	default List<PackageResource> readPackageResources(ItemStack packageStack) {
+		return List.of();
+	}
+
+	default void setPackageResources(ItemStack packageStack, List<PackageResource> resources) {
+		throw new UnsupportedOperationException("resource type does not support combined packages: " + id());
+	}
+
+	default Set<DataComponentType<?>> packageComponents() {
+		return Set.of();
+	}
+
+	default void validatePackage(ItemStack packageStack) {
+	}
+
+	default ItemStack migratePackage(ItemStack packageStack) {
+		return packageStack.copy();
+	}
 
 	int maxPerPackage(ItemStack normalizedKey);
 
@@ -48,7 +61,11 @@ public interface PackageResourceType {
 
 	Optional<PackageResource> readCanonicalPackage(ItemStack packageStack);
 
-	boolean unpack(PackageUnpackContext context, PackageResource resource, boolean simulate);
+	int unpackAmount(PackageUnpackContext context, PackageResource resource, boolean simulate);
+
+	default ItemStack withPackageAmount(ItemStack packageStack, ItemStack key, int amount) {
+		return createPackage(key, amount);
+	}
 
 	PackageResourceDisplay display();
 
@@ -56,11 +73,6 @@ public interface PackageResourceType {
 		return false;
 	}
 
-	default SawAction sawAction(ItemStack packageStack, PackageInspection inspection) {
-		return SawAction.DEFAULT;
-	}
-
-	default DropAction onDestroyed(PackageDestroyContext context, List<PackageResource> resources) {
-		return DropAction.PASS;
+	default void onDestroyed(PackageDestroyContext context, List<PackageResource> resources) {
 	}
 }

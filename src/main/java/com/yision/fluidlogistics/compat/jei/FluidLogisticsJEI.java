@@ -18,9 +18,12 @@ import com.yision.fluidlogistics.content.processing.cooling.BulkCoolingRecipe;
 import com.yision.fluidlogistics.content.equipment.handPointer.filter.HandPointerFilterScreen;
 import com.yision.fluidlogistics.content.logistics.factoryGauge.client.ResourceFactoryGaugeSetFilterScreen;
 import com.yision.fluidlogistics.foundation.fluid.FluidAmountHelper;
+import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidProxyRegistry;
+import com.yision.fluidlogistics.registry.AllItems;
 import com.yision.fluidlogistics.registry.AllBlocks;
 import com.yision.fluidlogistics.registry.AllFluidLogisticsRecipeTypes;
 
+import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.registration.IAdvancedRegistration;
@@ -32,6 +35,7 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import java.util.List;
 import org.jetbrains.annotations.Nullable;
@@ -131,6 +135,10 @@ public class FluidLogisticsJEI implements IModPlugin {
 	@Override
 	public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
 		runtime = jeiRuntime;
+		List<ItemStack> hidden = jeiRuntime.getIngredientManager().getAllIngredients(VanillaTypes.ITEM_STACK).stream()
+			.filter(stack -> FluidProxyRegistry.isProxy(stack) || stack.is(AllItems.COMPRESSED_STORAGE_TANK.get()))
+			.toList();
+		jeiRuntime.getIngredientManager().removeIngredientsAtRuntime(VanillaTypes.ITEM_STACK, hidden);
 	}
 
 	@Override

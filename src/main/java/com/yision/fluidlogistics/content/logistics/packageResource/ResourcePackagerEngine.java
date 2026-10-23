@@ -176,11 +176,11 @@ public final class ResourcePackagerEngine {
 
 	public static boolean unpack(ResourcePackager packager, ItemStack packageStack, boolean simulate) {
 		PackagerBlockEntity owner = packager.owner();
-		if (owner.animationTicks > 0 || !PackageResources.isBootstrapped()) {
+		if (owner.animationTicks > 0 || packageStack.getCount() != 1 || !PackageResources.isBootstrapped()) {
 			return false;
 		}
 		PackageInspection inspection = PackageResources.inspectPackage(packageStack);
-		if (!inspection.canonical() || inspection.hasOrdinaryItems() || inspection.resources().size() != 1) {
+		if (inspection.hasOrdinaryItems() || inspection.resources().size() != 1) {
 			return false;
 		}
 		PackageResource resource = inspection.resources().getFirst();
@@ -189,18 +189,16 @@ public final class ResourcePackagerEngine {
 		}
 		ItemStack key = resource.key();
 		int amount = resource.amount();
-		if (checkedTransfer(packager.insert(key.copy(), amount, true), amount, "insert simulation") != amount) {
-			return false;
-		}
 		if (simulate) {
-			return true;
+			return checkedTransfer(packager.insert(key.copy(), amount, true), amount, "insert simulation") == amount;
 		}
 		int inserted = packager.insert(key.copy(), amount, false);
 		invalidateAvailableResources(packager);
 		inserted = checkedTransfer(inserted, amount, "insert execution");
-		if (inserted != amount) {
-			throw new IllegalStateException("insert execution accepted " + inserted
-				+ " after simulation accepted " + amount);
+		if (inserted < amount) {
+			ItemStack remainder = inserted == 0 ? packageStack.copyWithCount(1)
+				: PackageResources.withPackageAmount(packageStack, key, amount - inserted);
+			owner.queuedExitingPackages.add(new BigItemStack(remainder, 1));
 		}
 		owner.previouslyUnwrapped = packageStack.copyWithCount(1);
 		owner.animationInward = true;
@@ -239,8 +237,8 @@ public final class ResourcePackagerEngine {
 		}
 		PackagingRequest request = queuedRequests.getFirst();
 		PackageResourceType type = matchingType(packager, request.item());
-		if (type == null) {
-			queuedRequests.removeFirst();
+		if (type == null || request.getCount() <= 0) {
+			ResourcePackagingRequestHelper.advanceToNextRequest(queuedRequests);
 			return;
 		}
 		ItemStack key = type.normalizeKey(request.item().copy());
@@ -248,7 +246,7 @@ public final class ResourcePackagerEngine {
 		ExtractedPackage extractedPackage = extractPackage(packager, key, requested);
 		ItemStack packageStack = extractedPackage.stack();
 		if (packageStack.isEmpty()) {
-			queuedRequests.removeFirst();
+			ResourcePackagingRequestHelper.advanceToNextRequest(queuedRequests);
 			return;
 		}
 		ResourcePackagingRequestHelper.consumeFirst(queuedRequests, extractedPackage.amount()).applyTo(packageStack);

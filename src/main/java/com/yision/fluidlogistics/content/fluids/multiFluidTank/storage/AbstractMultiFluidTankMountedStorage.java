@@ -8,9 +8,6 @@ import com.simibubi.create.api.contraption.storage.fluid.MountedFluidStorageType
 import com.simibubi.create.api.contraption.storage.fluid.WrapperMountedFluidStorage;
 import com.yision.fluidlogistics.content.fluids.multiFluidTank.SmartMultiFluidTank;
 
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
@@ -52,24 +49,6 @@ public abstract class AbstractMultiFluidTankMountedStorage<H extends IFluidHandl
 	@Override
 	public void markClean() {
 		this.dirty = false;
-	}
-
-	protected static List<FluidStack> readLegacyFluids(HolderLookup.Provider registries, CompoundTag nbt, int tanks) {
-		List<FluidStack> fluids = new ArrayList<>();
-		CompoundTag fluidsNbt = nbt.getCompound("Fluids");
-		for (int i = 0; i < tanks; i++) {
-			if (fluidsNbt.contains(Integer.toString(i))) {
-				FluidStack fluid = FluidStack.parseOptional(registries, fluidsNbt.getCompound(Integer.toString(i)));
-				fluids.add(fluid);
-			} else {
-				fluids.add(FluidStack.EMPTY);
-			}
-		}
-		return fluids;
-	}
-
-	protected static int readLegacyTanks(CompoundTag nbt) {
-		return nbt.contains("Tanks") ? nbt.getInt("Tanks") : 8;
 	}
 
 	public static final class Handler extends SmartMultiFluidTank {

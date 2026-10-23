@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 
 import com.simibubi.create.content.logistics.stockTicker.StockKeeperRequestScreen;
-import com.yision.fluidlogistics.content.logistics.fluidPackage.CompressedTankItem;
+import com.yision.fluidlogistics.api.packager.PackageResourceTypes;
 
 import mezz.jei.api.gui.handlers.IGuiContainerHandler;
 import mezz.jei.api.runtime.IClickableIngredient;
@@ -14,7 +14,6 @@ import mezz.jei.api.runtime.IJeiRuntime;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 public class StockKeeperRequestFluidGuiHandler implements IGuiContainerHandler<StockKeeperRequestScreen> {
-
 	@Override
 	public Optional<IClickableIngredient<?>> getClickableIngredientUnderMouse(StockKeeperRequestScreen containerScreen,
 		double mouseX, double mouseY) {
@@ -26,13 +25,11 @@ public class StockKeeperRequestFluidGuiHandler implements IGuiContainerHandler<S
 		return containerScreen.getHoveredIngredient((int) mouseX, (int) mouseY)
 			.flatMap(pair -> {
 				Object ingredient = pair.getFirst();
-				if (ingredient instanceof net.minecraft.world.item.ItemStack stack
-					&& CompressedTankItem.isFluidStack(stack)) {
-					FluidStack fluid = CompressedTankItem.getFluid(stack);
-					if (fluid.isEmpty()) {
-						return Optional.empty();
+				if (ingredient instanceof net.minecraft.world.item.ItemStack stack) {
+					FluidStack fluid = PackageResourceTypes.getFluid(stack);
+					if (!fluid.isEmpty()) {
+						ingredient = fluid.copy();
 					}
-					ingredient = fluid.copy();
 				}
 
 				return runtime.getIngredientManager()

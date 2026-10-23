@@ -47,7 +47,6 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 
 @ApiStatus.Internal
 public final class ResourceFactoryGaugeEnvironment {
-
 	public static final ResourceFactoryGaugeEnvironment INSTANCE = new ResourceFactoryGaugeEnvironment();
 
 	private static final ItemStackHandler EMPTY_RESOURCE_HANDLER = new ItemStackHandler(0);
@@ -70,15 +69,6 @@ public final class ResourceFactoryGaugeEnvironment {
 		if (normalizedKey.isEmpty() || !ResourcePackagers.supports(packager, resourceTypeOf(behaviour), normalizedKey))
 			return owner.getAvailableItems();
 		return ResourcePackagerEngine.getLastKnownResources(packager);
-	}
-
-	public int unloadedLinks(ResourceFactoryPanelBehaviour behaviour) {
-		if (!behaviour.panelBE().restocker)
-			return Create.LOGISTICS.getUnloadedLinkCount(behaviour.network);
-
-		PackagerBlockEntity owner = behaviour.panelBE()
-			.getRestockedPackager();
-		return owner == null ? 1 : 0;
 	}
 
 	public ResourceGaugeSnapshot captureMonitor(ResourceFactoryPanelBehaviour behaviour,

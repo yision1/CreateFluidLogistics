@@ -26,6 +26,8 @@ import com.yision.fluidlogistics.api.packager.PackageResourceType;
 import com.yision.fluidlogistics.api.packager.PackageResources;
 import com.yision.fluidlogistics.content.logistics.factoryGauge.ResourceGaugeDecision.ResourceRequestPlan;
 import com.yision.fluidlogistics.content.logistics.packageResource.ResourceRestockSettings;
+import com.yision.fluidlogistics.migration.factoryGauge.LegacyFactoryGaugeMigration;
+import com.yision.fluidlogistics.migration.item.LegacyFluidKeyMigration;
 
 import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.ChatFormatting;
@@ -265,20 +267,16 @@ public class ResourceFactoryPanelBehaviour extends FactoryPanelBehaviour
 
 	@Override
 	public int getPromised() {
-		if (!isResourceGauge())
-			return super.getPromised();
-		if (getWorld().isClientSide())
+		if (isResourceGauge() && getWorld().isClientSide())
 			return resourceRuntime.lastPromised;
 		return super.getPromised();
 	}
 
 	@Override
 	public int getUnloadedLinks() {
-		if (!isResourceGauge())
-			return super.getUnloadedLinks();
-		if (getWorld().isClientSide())
+		if (isResourceGauge() && getWorld().isClientSide())
 			return resourceRuntime.lastUnloadedLinks;
-		return ENVIRONMENT.unloadedLinks(this);
+		return super.getUnloadedLinks();
 	}
 
 	@Override
@@ -545,7 +543,8 @@ public class ResourceFactoryPanelBehaviour extends FactoryPanelBehaviour
 
 		if (owner.getLevel()
 			.getBlockEntity(owner.getBlockPos()
-				.above()) instanceof com.simibubi.create.content.logistics.packagePort.frogport.FrogportBlockEntity fpbe) {
+				.above()) instanceof
+				com.simibubi.create.content.logistics.packagePort.frogport.FrogportBlockEntity fpbe) {
 			if (fpbe.addressFilter != null && !fpbe.addressFilter.isBlank())
 				return fpbe.addressFilter + "";
 		}
@@ -554,13 +553,8 @@ public class ResourceFactoryPanelBehaviour extends FactoryPanelBehaviour
 
 	@Override
 	public void write(CompoundTag nbt, HolderLookup.Provider registries, boolean clientPacket) {
-		if (!isResourceGauge()) {
-			super.write(nbt, registries, clientPacket);
-			return;
-		}
-
 		super.write(nbt, registries, clientPacket);
-		if (!active)
+		if (!isResourceGauge() || !active)
 			return;
 
 		CompoundTag panelTag = nbt.getCompound(ResourceFactoryGaugeNbt.slotTagName(slot));
@@ -571,13 +565,8 @@ public class ResourceFactoryPanelBehaviour extends FactoryPanelBehaviour
 
 	@Override
 	public void writeSafe(CompoundTag nbt, HolderLookup.Provider registries) {
-		if (!isResourceGauge()) {
-			super.writeSafe(nbt, registries);
-			return;
-		}
-
 		super.writeSafe(nbt, registries);
-		if (!active)
+		if (!isResourceGauge() || !active)
 			return;
 
 		CompoundTag panelTag = nbt.getCompound(ResourceFactoryGaugeNbt.slotTagName(slot));
@@ -608,25 +597,22 @@ public class ResourceFactoryPanelBehaviour extends FactoryPanelBehaviour
 			return;
 		}
 
+		activeCraftingArrangement = activeCraftingArrangement.stream()
+			.map(LegacyFluidKeyMigration::normalizeKey)
+			.toList();
 		fluidlogistics$readResourceState(rawSlotTag);
 		fluidlogistics$normalizeLoadedFilter();
 	}
 
 	private void fluidlogistics$readResourceState(CompoundTag rawSlotTag) {
-		CompoundTag stateTag = rawSlotTag.getCompound(ResourceFactoryGaugeNbt.STATE_KEY);
+		CompoundTag stateTag = LegacyFactoryGaugeMigration.readSettings(rawSlotTag);
 
-		int threshold = rawSlotTag.contains(ResourceGaugeHelper.RESTOCK_THRESHOLD_KEY, Tag.TAG_INT)
-			? rawSlotTag.getInt(ResourceGaugeHelper.RESTOCK_THRESHOLD_KEY)
-			: stateTag.contains("RestockThreshold", Tag.TAG_INT) ? stateTag.getInt("RestockThreshold")
-				: ResourceGaugeHelper.DEFAULT_RESTOCK_THRESHOLD;
-		int promiseLimit = rawSlotTag.contains(ResourceGaugeHelper.PROMISE_LIMIT_KEY, Tag.TAG_INT)
-			? rawSlotTag.getInt(ResourceGaugeHelper.PROMISE_LIMIT_KEY)
-			: stateTag.contains("PromiseLimit", Tag.TAG_INT) ? stateTag.getInt("PromiseLimit")
-				: ResourceGaugeHelper.DEFAULT_PROMISE_LIMIT;
-		int additionalStock = rawSlotTag.contains(ResourceGaugeHelper.ADDITIONAL_STOCK_KEY, Tag.TAG_INT)
-			? rawSlotTag.getInt(ResourceGaugeHelper.ADDITIONAL_STOCK_KEY)
-			: stateTag.contains("AdditionalStock", Tag.TAG_INT) ? stateTag.getInt("AdditionalStock")
-				: ResourceGaugeHelper.DEFAULT_ADDITIONAL_STOCK;
+		int threshold = stateTag.contains("RestockThreshold", Tag.TAG_INT) ? stateTag.getInt("RestockThreshold")
+			: ResourceGaugeHelper.DEFAULT_RESTOCK_THRESHOLD;
+		int promiseLimit = stateTag.contains("PromiseLimit", Tag.TAG_INT) ? stateTag.getInt("PromiseLimit")
+			: ResourceGaugeHelper.DEFAULT_PROMISE_LIMIT;
+		int additionalStock = stateTag.contains("AdditionalStock", Tag.TAG_INT) ? stateTag.getInt("AdditionalStock")
+			: ResourceGaugeHelper.DEFAULT_ADDITIONAL_STOCK;
 
 		fluidlogistics$setRestockThreshold(threshold);
 		fluidlogistics$setPromiseLimit(promiseLimit);
@@ -635,9 +621,7 @@ public class ResourceFactoryPanelBehaviour extends FactoryPanelBehaviour
 
 		int remainingAdditionalStock = stateTag.contains("RemainingAdditionalStock", Tag.TAG_INT)
 			? stateTag.getInt("RemainingAdditionalStock")
-			: rawSlotTag.contains(ResourceGaugeHelper.REMAINING_ADDITIONAL_STOCK_KEY, Tag.TAG_INT)
-				? rawSlotTag.getInt(ResourceGaugeHelper.REMAINING_ADDITIONAL_STOCK_KEY)
-				: ResourceGaugeHelper.DEFAULT_ADDITIONAL_STOCK;
+			: ResourceGaugeHelper.DEFAULT_ADDITIONAL_STOCK;
 		resourceRuntime.remainingAdditionalStock = ResourceGaugeHelper.policy(this)
 			.clampAdditionalStock(remainingAdditionalStock);
 		resourceRuntime.lastStored = stateTag.getInt("LastStored");
@@ -714,5 +698,4 @@ public class ResourceFactoryPanelBehaviour extends FactoryPanelBehaviour
 		if (resourceRuntime.remainingAdditionalStock > fluidlogistics$additionalStock)
 			resourceRuntime.remainingAdditionalStock = fluidlogistics$additionalStock;
 	}
-
 }
