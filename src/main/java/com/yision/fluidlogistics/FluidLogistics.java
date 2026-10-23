@@ -21,6 +21,8 @@ import com.yision.fluidlogistics.api.handpointer.PackagerAddresses;
 import com.yision.fluidlogistics.api.handpointer.crafter.HandPointerCrafterAdapters;
 import com.yision.fluidlogistics.api.packager.PackageResourceTypes;
 import com.yision.fluidlogistics.api.packager.PackageResources;
+import com.yision.fluidlogistics.compat.CompatMods;
+import com.yision.fluidlogistics.compat.createdragonsplus.CreateDragonsPlusCompat;
 import com.yision.fluidlogistics.content.equipment.handPointer.CreateMechanicalCrafterAdapter;
 import com.yision.fluidlogistics.content.fluids.copperBucket.CopperBucketItem;
 import com.yision.fluidlogistics.content.fluids.fluidPort.FluidInventoryAccessPortBlockEntity;
@@ -47,9 +49,9 @@ import com.yision.fluidlogistics.content.logistics.fluidPackager.FluidPackagerBl
 import com.yision.fluidlogistics.content.logistics.fluidPackager.repackager.FluidRepackagerBlockEntity;
 import com.yision.fluidlogistics.content.logistics.fluidTransporter.FluidTransporterBlockEntity;
 import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperBlockEntity;
-import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerBlockEntity;
-import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerFuelManager;
 import com.yision.fluidlogistics.content.processing.copperBasin.CopperBasinBlockEntity;
+import com.yision.fluidlogistics.content.processing.snowGolemFreezer.SnowGolemFreezerBlockEntity;
+import com.yision.fluidlogistics.content.processing.snowGolemFreezer.SnowGolemFreezerFuelManager;
 import com.yision.fluidlogistics.infrastructure.config.Config;
 import com.yision.fluidlogistics.infrastructure.config.FeatureToggle;
 import com.yision.fluidlogistics.infrastructure.data.FluidLogisticsDatagen;
@@ -95,7 +97,6 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.NeoForgeMod;
-import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
@@ -139,6 +140,7 @@ public class FluidLogistics {
 		LOOT_MODIFIERS.register(modEventBus);
 		REGISTRATE.registerEventListeners(modEventBus);
 		modEventBus.addListener(FluidLogisticsDatagen::gatherData);
+		modEventBus.addListener(SnowGolemFreezerFuelManager::registerDataMaps);
 
 		AllConditionCodecs.register(modEventBus);
 		AllDataComponents.register(modEventBus);
@@ -175,7 +177,6 @@ public class FluidLogistics {
 		modEventBus.addListener(FluidProxyRegistry::register);
 
 		NeoForge.EVENT_BUS.register(this);
-		NeoForge.EVENT_BUS.addListener(this::addReloadListeners);
 		NeoForge.EVENT_BUS.addListener(FactoryGaugeBehaviourAttachment::onAttachBehaviours);
 		LOGGER.info("FluidLogistics initialized!");
 	}
@@ -187,6 +188,8 @@ public class FluidLogistics {
 			FluidLogisticsPackets.register();
 			ArmInteractionPointType.init();
 			AllMountedStorageTypes.register();
+			if (CompatMods.createDragonsPlusLoaded())
+				CreateDragonsPlusCompat.register();
 			FluidLogisticsUnpackingHandlers.registerDefaults();
 			BlockStressValues.IMPACTS.register(AllBlocks.FLUID_PUMP.get(), () -> 8.0);
 			BlockStressValues.IMPACTS.register(AllBlocks.MECHANICAL_FLUID_GUN.get(), () -> 2.0);
@@ -206,7 +209,7 @@ public class FluidLogistics {
 		SmartHopperBlockEntity.registerCapabilities(event);
 		InfiniteFluidTankBlockEntity.registerCapabilities(event);
 		CopperBasinBlockEntity.registerCapabilities(event);
-		BlazeCoolerBlockEntity.registerCapabilities(event);
+		SnowGolemFreezerBlockEntity.registerCapabilities(event);
 		event.registerBlock(Capabilities.FluidHandler.BLOCK,
 			(level, pos, state, blockEntity, side) -> WaterContainingCopperCasingFluidHandler.INSTANCE,
 			AllBlocks.WATER_CONTAINING_COPPER_CASING.get());
@@ -229,16 +232,15 @@ public class FluidLogistics {
 
 	}
 
-	private void addReloadListeners(final AddReloadListenerEvent event) {
-		event.addListener(BlazeCoolerFuelManager.INSTANCE);
-	}
-
 	private void hideDisabledItems(final BuildCreativeModeTabContentsEvent event) {
         if (!Objects.equals(event.getTabKey(), FLUID_LOGISTICS_TAB) && !Objects.equals(event.getTabKey(), CreativeModeTabs.SEARCH)) {
 			return;
 		}
 
 		removeCreativeItem(event, AllItems.FLUID_SCHEMATIC);
+		if (Objects.equals(event.getTabKey(), FLUID_LOGISTICS_TAB)) {
+			removeCreativeItem(event, AllItems.EMPTY_SNOW_GOLEM_FREEZER, CreativeModeTab.TabVisibility.PARENT_TAB_ONLY);
+		}
 
 		for (FeatureItem fi : FEATURE_ITEMS) {
 			boolean shouldHide;
@@ -255,6 +257,11 @@ public class FluidLogistics {
 
 	private static void removeCreativeItem(
 		BuildCreativeModeTabContentsEvent event, Supplier<? extends ItemLike> item) {
+		removeCreativeItem(event, item, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+	}
+
+	private static void removeCreativeItem(BuildCreativeModeTabContentsEvent event,
+		Supplier<? extends ItemLike> item, CreativeModeTab.TabVisibility visibility) {
 		ItemStack hiddenItem = event.getSearchEntries().stream()
 			.filter(stack -> stack.getItem() == item.get().asItem())
 			.findFirst()
@@ -264,7 +271,7 @@ public class FluidLogistics {
 				.orElse(ItemStack.EMPTY));
 
 		if (!hiddenItem.isEmpty()) {
-			event.remove(hiddenItem, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+			event.remove(hiddenItem, visibility);
 		}
 	}
 
@@ -296,10 +303,10 @@ public class FluidLogistics {
 		new FeatureItem(FeatureToggle.PHANTOM_CHAIN, AllItems.PHANTOM_CHAIN),
 		new FeatureItem(FeatureToggle.FLUID_HATCH, AllBlocks.FLUID_HATCH),
 		new FeatureItem(FeatureToggle.FLUID_FACTORY_GAUGE, AllItems.FLUID_FACTORY_GAUGE),
-		new FeatureItem(FeatureToggle.BLAZE_COOLER, AllBlocks.BLAZE_COOLER),
+		new FeatureItem(FeatureToggle.SNOW_GOLEM_FREEZER, AllBlocks.SNOW_GOLEM_FREEZER),
+		new FeatureItem(FeatureToggle.SNOW_GOLEM_FREEZER, AllItems.EMPTY_SNOW_GOLEM_FREEZER),
 		new FeatureItem(FeatureToggle.COPPER_SCHEMATICANNON, AllBlocks.COPPER_SCHEMATICANNON),
 		new FeatureItem(FeatureToggle.FLUID_SCHEMATIC, AllItems.EMPTY_FLUID_SCHEMATIC),
-		new FeatureItem(FeatureToggle.FROST_CAKE, AllItems.FROST_CAKE),
 		new FeatureItem(FeatureToggle.FLUID_SCHEMATIC, AllItems.FLUID_SCHEMATIC),
 	};
 

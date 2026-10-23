@@ -3,14 +3,12 @@ package com.yision.fluidlogistics.registry;
 import java.util.function.Supplier;
 
 import com.simibubi.create.AllRecipeTypes;
-import com.simibubi.create.content.processing.basin.BasinRecipe;
 import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe;
 import com.simibubi.create.foundation.recipe.IRecipeTypeInfo;
 import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.content.processing.cooling.BulkCoolingRecipe;
 import com.yision.fluidlogistics.content.processing.cooling.CoolingCompactingRecipe;
 import com.yision.fluidlogistics.content.processing.cooling.CoolingMixingRecipe;
-import com.yision.fluidlogistics.content.processing.cooling.CoolingRecipeSerializer;
 import com.yision.fluidlogistics.content.processing.cooling.InactiveBulkCoolingRecipe;
 
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -36,12 +34,11 @@ public enum AllFluidLogisticsRecipeTypes implements IRecipeTypeInfo {
 	private final Supplier<RecipeType<?>> type;
 	private final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<?>> serializer;
 
-	<R extends BasinRecipe> AllFluidLogisticsRecipeTypes(IRecipeTypeInfo backingType,
-		CoolingRecipeSerializer.Factory<R> factory) {
+	AllFluidLogisticsRecipeTypes(IRecipeTypeInfo backingType, StandardProcessingRecipe.Factory<?> factory) {
 		String name = name().toLowerCase(java.util.Locale.ROOT);
 		id = FluidLogistics.asResource(name);
 		type = () -> backingType.getType();
-		serializer = Registers.SERIALIZERS.register(name, () -> new CoolingRecipeSerializer<>(factory));
+		serializer = Registers.SERIALIZERS.register(name, () -> new StandardProcessingRecipe.Serializer<>(factory));
 	}
 
 	AllFluidLogisticsRecipeTypes(StandardProcessingRecipe.Factory<?> factory) {

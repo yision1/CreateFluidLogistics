@@ -21,10 +21,6 @@ public class BulkCoolingRecipe extends StandardProcessingRecipe<SingleRecipeInpu
 		super(recipeType, params);
 	}
 
-	public boolean requiresActiveCooler() {
-        return true;
-	}
-
 	@Override
 	public boolean matches(SingleRecipeInput input, Level level) {
 		return !input.isEmpty() && ingredients.getFirst().test(input.getItem(0));

@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.simibubi.create.content.processing.basin.BasinBlockEntity;
 import com.simibubi.create.content.processing.basin.BasinRecipe;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock.HeatLevel;
-import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerBlockEntity;
+import com.yision.fluidlogistics.content.processing.snowGolemFreezer.SnowGolemFreezerBlockEntity;
 import com.yision.fluidlogistics.content.processing.cooling.CoolingRecipe;
 
 import net.minecraft.world.item.crafting.Recipe;
@@ -21,19 +21,17 @@ public abstract class BasinRecipeMixin {
 		+ "Lnet/minecraft/world/item/crafting/Recipe;Z)Z", at = @At("HEAD"), cancellable = true, remap = false)
 	private static void fluidlogistics$requireRegularCooling(BasinBlockEntity basin, Recipe<?> recipe,
 		boolean simulate, CallbackInfoReturnable<Boolean> cir) {
-		if (!(recipe instanceof CoolingRecipe coolingRecipe))
+		if (!(recipe instanceof CoolingRecipe))
 			return;
 
 		BlockEntity source = basin.getLevel().getBlockEntity(basin.getBlockPos().below());
-		if (!(source instanceof BlazeCoolerBlockEntity cooler)) {
+		if (!(source instanceof SnowGolemFreezerBlockEntity cooler)) {
 			cir.setReturnValue(false);
 			return;
 		}
 
 		HeatLevel coolingLevel = cooler.getHeatLevelFromBlock();
-		boolean validCooling = coolingRecipe.requiresSupercooling()
-			? coolingLevel == HeatLevel.SEETHING
-			: coolingLevel.isAtLeast(HeatLevel.FADING);
+		boolean validCooling = coolingLevel.isAtLeast(HeatLevel.FADING);
 		if (!validCooling)
 			cir.setReturnValue(false);
 	}

@@ -15,6 +15,7 @@ import com.yision.fluidlogistics.content.equipment.handPointer.HandPointerItem;
 import com.yision.fluidlogistics.content.fluids.copperBucket.CopperBucketItem;
 import com.yision.fluidlogistics.content.logistics.filter.PackageListFilterItem;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageItem;
+import com.yision.fluidlogistics.content.processing.snowGolemFreezer.SnowGolemFreezerBlockItem;
 import com.yision.fluidlogistics.content.schematics.FluidSchematicItem;
 import com.yision.fluidlogistics.item.CompressedTankItem;
 import com.yision.fluidlogistics.migration.item.LegacyItemAliases;
@@ -145,9 +146,10 @@ public class AllItems {
 		.setData(ProviderType.LANG, NonNullBiConsumer.noop())
 		.register();
 
-	public static final ItemEntry<Item> FROST_CAKE = REGISTRATE
-		.item("frost_cake", Item::new)
-		.model(AssetLookup.existingItemModel())
+	public static final ItemEntry<SnowGolemFreezerBlockItem> EMPTY_SNOW_GOLEM_FREEZER = REGISTRATE
+		.item("empty_snow_golem_freezer", SnowGolemFreezerBlockItem::empty)
+		.model((context, provider) -> provider.withExistingParent(context.getName(),
+			provider.modLoc("block/snow_golem_freezer/block")))
 		.setData(ProviderType.LANG, NonNullBiConsumer.noop())
 		.register();
 

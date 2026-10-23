@@ -1,0 +1,8 @@
+{
+  "values": {
+    "fluidlogistics:powder_snow": {
+      "amount": 25,
+      "cool_time": 20
+    }
+  }
+}

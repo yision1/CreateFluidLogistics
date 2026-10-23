@@ -90,9 +90,11 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
 			.addStoryBoard(MechanicalFluidGunScenes.MECHANICAL_FLUID_GUN_SETUP,
 				MechanicalFluidGunScenes::setup, FLUIDS, KINETIC_APPLIANCES);
 
-		registration.forComponents(AllBlocks.BLAZE_COOLER)
-			.addStoryBoard(BlazeCoolerScenes.CONVERSION, BlazeCoolerScenes::blazeCooler)
-			.addStoryBoard(BlazeCoolerScenes.FUELING, BlazeCoolerScenes::fueling);
+		registration.forComponents(AllItems.EMPTY_SNOW_GOLEM_FREEZER)
+			.addStoryBoard(SnowGolemFreezerScenes.CAPTURING, SnowGolemFreezerScenes::capturing);
+
+		registration.forComponents(AllBlocks.SNOW_GOLEM_FREEZER)
+			.addStoryBoard(SnowGolemFreezerScenes.FUELING, SnowGolemFreezerScenes::fueling);
 	}
 
 	@Override
@@ -132,6 +134,6 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
 
 		registration.addToTag(ARM_TARGETS)
 			.add(AllBlocks.SMART_HOPPER)
-			.add(AllBlocks.BLAZE_COOLER);
+			.add(AllBlocks.SNOW_GOLEM_FREEZER);
 	}
 }

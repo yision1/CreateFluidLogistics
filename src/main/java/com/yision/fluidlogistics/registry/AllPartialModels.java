@@ -37,18 +37,12 @@ public class AllPartialModels {
 	public static final PartialModel MECHANICAL_FLUID_GUN_GUNPOINT_BOTTOM = block("mechanical_fluid_gun/bottom");
 	public static final PartialModel COPPER_SCHEMATICANNON_CONNECTOR = block("copper_schematicannon/connector");
 	public static final PartialModel COPPER_SCHEMATICANNON_PIPE = block("copper_schematicannon/pipe");
-	public static final PartialModel BLAZE_COOLER_CAGE = block("blaze_cooler/block");
-	public static final PartialModel BLAZE_COOLER_ITEM = block("blaze_cooler/item");
-	public static final PartialModel BLAZE_COOLER_INERT = block("blaze_cooler/blaze/inert");
-	public static final PartialModel BLAZE_COOLER_IDLE = block("blaze_cooler/blaze/idle");
-	public static final PartialModel BLAZE_COOLER_ACTIVE = block("blaze_cooler/blaze/active");
-	public static final PartialModel BLAZE_COOLER_SUPER = block("blaze_cooler/blaze/super");
-	public static final PartialModel BLAZE_COOLER_SUPER_ACTIVE = block("blaze_cooler/blaze/super_active");
-	public static final PartialModel BLAZE_COOLER_RODS = block("blaze_cooler/rods_small");
-	public static final PartialModel BLAZE_COOLER_RODS_2 = block("blaze_cooler/rods_large");
-	public static final PartialModel BLAZE_COOLER_SUPER_RODS = block("blaze_cooler/super_rods_small");
-	public static final PartialModel BLAZE_COOLER_SUPER_RODS_2 = block("blaze_cooler/super_rods_large");
-	public static final PartialModel BLAZE_COOLER_FLAME = block("blaze_cooler/flame");
+
+	public static final PartialModel SNOW_GOLEM_FREEZER_CAGE = block("snow_golem_freezer/block");
+	public static final PartialModel SNOW_GOLEM_FREEZER_INERT = block("snow_golem_freezer/snow_golem/inert");
+	public static final PartialModel SNOW_GOLEM_FREEZER_IDLE = block("snow_golem_freezer/snow_golem/head");
+	public static final PartialModel SNOW_GOLEM_FREEZER_PUMPKIN = block("snow_golem_freezer/snow_golem/pumpkin");
+	public static final PartialModel SNOW_GOLEM_FREEZER_FLAME = block("snow_golem_freezer/flame");
 
 	public static final PartialModel FLUID_PACKAGE = item("fluid_package");
 	public static final PartialModel FLUID_PACKAGE_EXPOSED = item("fluid_package_exposed");
@@ -118,18 +112,11 @@ public class AllPartialModels {
 			MECHANICAL_FLUID_GUN_GUNPOINT_BOTTOM.modelLocation(),
 			COPPER_SCHEMATICANNON_CONNECTOR.modelLocation(),
 			COPPER_SCHEMATICANNON_PIPE.modelLocation(),
-			BLAZE_COOLER_CAGE.modelLocation(),
-			BLAZE_COOLER_ITEM.modelLocation(),
-			BLAZE_COOLER_INERT.modelLocation(),
-			BLAZE_COOLER_IDLE.modelLocation(),
-			BLAZE_COOLER_ACTIVE.modelLocation(),
-			BLAZE_COOLER_SUPER.modelLocation(),
-			BLAZE_COOLER_SUPER_ACTIVE.modelLocation(),
-			BLAZE_COOLER_RODS.modelLocation(),
-			BLAZE_COOLER_RODS_2.modelLocation(),
-			BLAZE_COOLER_SUPER_RODS.modelLocation(),
-			BLAZE_COOLER_SUPER_RODS_2.modelLocation(),
-			BLAZE_COOLER_FLAME.modelLocation());
+			SNOW_GOLEM_FREEZER_CAGE.modelLocation(),
+			SNOW_GOLEM_FREEZER_INERT.modelLocation(),
+			SNOW_GOLEM_FREEZER_IDLE.modelLocation(),
+			SNOW_GOLEM_FREEZER_PUMPKIN.modelLocation(),
+			SNOW_GOLEM_FREEZER_FLAME.modelLocation());
 	}
 
 	public static void register() {

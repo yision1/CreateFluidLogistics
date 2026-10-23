@@ -11,9 +11,4 @@ public class InactiveBulkCoolingRecipe extends BulkCoolingRecipe {
 	public InactiveBulkCoolingRecipe(ProcessingRecipeParams params) {
 		super(AllFluidLogisticsRecipeTypes.INACTIVE_BULK_COOLING, params);
 	}
-
-	@Override
-	public boolean requiresActiveCooler() {
-		return false;
-	}
 }

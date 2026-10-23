@@ -11,10 +11,8 @@ import net.createmod.catnip.render.SpriteShiftEntry;
 import net.createmod.catnip.render.SpriteShifter;
 
 public class AllSpriteShifts {
-	public static final SpriteShiftEntry BLAZE_COOLER_FLAME = SpriteShifter.get(
-		asResource("block/blaze_cooler/flame"), asResource("block/blaze_cooler/flame_scroll"));
-	public static final SpriteShiftEntry BLAZE_COOLER_SUPER_FLAME = SpriteShifter.get(
-		asResource("block/blaze_cooler/flame"), asResource("block/blaze_cooler/super_flame_scroll"));
+	public static final SpriteShiftEntry SNOW_GOLEM_FREEZER_FLAME = SpriteShifter.get(
+		asResource("block/snow_golem_freezer/flame"), asResource("block/snow_golem_freezer/flame_scroll"));
 
 	public static final CTSpriteShiftEntry MULTI_FLUID_TANK = getCT(AllCTTypes.RECTANGLE,
 		"multi_fluid_tank/multi_fluid_tank"),

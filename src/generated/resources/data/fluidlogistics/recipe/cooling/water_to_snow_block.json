@@ -2,7 +2,7 @@
   "neoforge:conditions": [
     {
       "type": "fluidlogistics:feature_enabled",
-      "feature": "fluidlogistics:blaze_cooler"
+      "feature": "fluidlogistics:snow_golem_freezer"
     }
   ],
   "type": "fluidlogistics:cooling_mixing",
@@ -17,6 +17,5 @@
     {
       "id": "minecraft:snow_block"
     }
-  ],
-  "supercooled": false
+  ]
 }

@@ -1,0 +1,19 @@
+{
+  "values": {
+    "minecraft:blue_ice": {
+      "cool_time": 2400
+    },
+    "minecraft:ice": {
+      "cool_time": 600
+    },
+    "minecraft:packed_ice": {
+      "cool_time": 1200
+    },
+    "minecraft:snow_block": {
+      "cool_time": 400
+    },
+    "minecraft:snowball": {
+      "cool_time": 100
+    }
+  }
+}

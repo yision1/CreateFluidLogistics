@@ -32,10 +32,9 @@ public class Config {
 	private static final boolean PHANTOM_CHAIN_ENABLED_DEFAULT = true;
 	private static final boolean FLUID_HATCH_ENABLED_DEFAULT = true;
 	private static final boolean FLUID_FACTORY_GAUGE_ENABLED_DEFAULT = true;
-	private static final boolean BLAZE_COOLER_ENABLED_DEFAULT = true;
+	private static final boolean SNOW_GOLEM_FREEZER_ENABLED_DEFAULT = true;
 	private static final boolean COPPER_SCHEMATICANNON_ENABLED_DEFAULT = true;
 	private static final boolean FLUID_SCHEMATIC_ENABLED_DEFAULT = true;
-	private static final boolean FROST_CAKE_ENABLED_DEFAULT = true;
 
 	private static final int FLUID_PACKAGE_CAPACITY_DEFAULT = 10000;
 	private static final int FLUID_PACKAGE_CAPACITY_MIN = 1;
@@ -62,10 +61,6 @@ public class Config {
 		.translation("fluidlogistics.configuration.useItemRenderingForFluidFactoryGaugeFluid")
 		.define("useItemRenderingForFluidFactoryGaugeFluid",
 			USE_ITEM_RENDERING_FOR_FLUID_FACTORY_GAUGE_FLUID_DEFAULT);
-
-	public static final ModConfigSpec.BooleanValue DISABLE_BLAZE_COOLER_PARTICLES = CLIENT_BUILDER
-		.translation("fluidlogistics.configuration.disableBlazeCoolerParticles")
-		.define("disableBlazeCoolerParticles", false);
 
 	public static final ModConfigSpec CLIENT_SPEC = CLIENT_BUILDER.build();
 
@@ -158,9 +153,9 @@ public class Config {
 		.translation("item.fluidlogistics.fluid_factory_gauge")
 		.define("fluidFactoryGaugeEnabled", FLUID_FACTORY_GAUGE_ENABLED_DEFAULT);
 
-	public static final ModConfigSpec.BooleanValue BLAZE_COOLER_ENABLED = BUILDER
-		.translation("block.fluidlogistics.blaze_cooler")
-		.define("blazeCoolerEnabled", BLAZE_COOLER_ENABLED_DEFAULT);
+	public static final ModConfigSpec.BooleanValue SNOW_GOLEM_FREEZER_ENABLED = BUILDER
+		.translation("block.fluidlogistics.snow_golem_freezer")
+		.define("snowGolemFreezerEnabled", SNOW_GOLEM_FREEZER_ENABLED_DEFAULT);
 
 	public static final ModConfigSpec.BooleanValue COPPER_SCHEMATICANNON_ENABLED = BUILDER
 		.translation("block.fluidlogistics.copper_schematicannon")
@@ -169,10 +164,6 @@ public class Config {
 	public static final ModConfigSpec.BooleanValue FLUID_SCHEMATIC_ENABLED = BUILDER
 		.translation("item.fluidlogistics.empty_fluid_schematic")
 		.define("fluidSchematicEnabled", FLUID_SCHEMATIC_ENABLED_DEFAULT);
-
-	public static final ModConfigSpec.BooleanValue FROST_CAKE_ENABLED = BUILDER
-		.translation("item.fluidlogistics.frost_cake")
-		.define("frostCakeEnabled", FROST_CAKE_ENABLED_DEFAULT);
 
 	static {
 		BUILDER.pop();
@@ -282,10 +273,9 @@ public class Config {
 	private static boolean phantomChainEnabled = PHANTOM_CHAIN_ENABLED_DEFAULT;
 	private static boolean fluidHatchEnabled = FLUID_HATCH_ENABLED_DEFAULT;
 	private static boolean fluidFactoryGaugeEnabled = FLUID_FACTORY_GAUGE_ENABLED_DEFAULT;
-	private static boolean blazeCoolerEnabled = BLAZE_COOLER_ENABLED_DEFAULT;
+	private static boolean snowGolemFreezerEnabled = SNOW_GOLEM_FREEZER_ENABLED_DEFAULT;
 	private static boolean copperSchematicannonEnabled = COPPER_SCHEMATICANNON_ENABLED_DEFAULT;
 	private static boolean fluidSchematicEnabled = FLUID_SCHEMATIC_ENABLED_DEFAULT;
-	private static boolean frostCakeEnabled = FROST_CAKE_ENABLED_DEFAULT;
 	private static int fluidPackageCapacity = FLUID_PACKAGE_CAPACITY_DEFAULT;
 	private static int fluidPumpRange = FLUID_PUMP_RANGE_DEFAULT;
 	private static int handPointerMaxArms = HAND_POINTER_MAX_ARMS_DEFAULT;
@@ -298,7 +288,6 @@ public class Config {
 	private static int infiniteFluidTankCapacity = INFINITE_FLUID_TANK_CAPACITY_DEFAULT;
 	private static InfiniteTankFluidMode infiniteFluidTankAllowedFluids = InfiniteTankFluidMode.FOLLOW_CREATE;
 	private static boolean useItemRenderingForFluidFactoryGaugeFluid = USE_ITEM_RENDERING_FOR_FLUID_FACTORY_GAUGE_FLUID_DEFAULT;
-	private static boolean disableBlazeCoolerParticles = false;
 
 	@SubscribeEvent
 	static void onLoad(final ModConfigEvent.Loading event) {
@@ -331,7 +320,6 @@ public class Config {
 
 	private static void reloadClientValues() {
 		useItemRenderingForFluidFactoryGaugeFluid = USE_ITEM_RENDERING_FOR_FLUID_FACTORY_GAUGE_FLUID.get();
-		disableBlazeCoolerParticles = DISABLE_BLAZE_COOLER_PARTICLES.get();
 	}
 
 	private static void reloadValues() {
@@ -356,10 +344,9 @@ public class Config {
 		phantomChainEnabled = serverValue(PHANTOM_CHAIN_ENABLED);
 		fluidHatchEnabled = serverValue(FLUID_HATCH_ENABLED);
 		fluidFactoryGaugeEnabled = serverValue(FLUID_FACTORY_GAUGE_ENABLED);
-		blazeCoolerEnabled = serverValue(BLAZE_COOLER_ENABLED);
+		snowGolemFreezerEnabled = serverValue(SNOW_GOLEM_FREEZER_ENABLED);
 		copperSchematicannonEnabled = serverValue(COPPER_SCHEMATICANNON_ENABLED);
 		fluidSchematicEnabled = serverValue(FLUID_SCHEMATIC_ENABLED);
-		frostCakeEnabled = serverValue(FROST_CAKE_ENABLED);
 		fluidPackageCapacity = serverValue(FLUID_PACKAGE_CAPACITY);
 		fluidPumpRange = serverValue(FLUID_PUMP_RANGE);
 		handPointerMaxArms = serverValue(HAND_POINTER_MAX_ARMS);
@@ -462,8 +449,8 @@ public class Config {
 		return fluidFactoryGaugeEnabled;
 	}
 
-	public static boolean isBlazeCoolerEnabled() {
-		return blazeCoolerEnabled;
+	public static boolean isSnowGolemFreezerEnabled() {
+		return snowGolemFreezerEnabled;
 	}
 
 	public static boolean isCopperSchematicannonEnabled() {
@@ -472,10 +459,6 @@ public class Config {
 
 	public static boolean isFluidSchematicEnabled() {
 		return fluidSchematicEnabled;
-	}
-
-	public static boolean isFrostCakeEnabled() {
-		return frostCakeEnabled;
 	}
 
 	public static int getFluidPumpRange() {
@@ -520,10 +503,6 @@ public class Config {
 
 	public static InfiniteTankFluidMode getInfiniteFluidTankAllowedFluids() {
 		return infiniteFluidTankAllowedFluids;
-	}
-
-	public static boolean areBlazeCoolerParticlesDisabled() {
-		return disableBlazeCoolerParticles;
 	}
 
 	public static boolean useItemRenderingForFluidFactoryGaugeFluid() {

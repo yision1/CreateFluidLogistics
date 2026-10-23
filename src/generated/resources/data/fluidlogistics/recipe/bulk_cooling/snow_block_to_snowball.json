@@ -2,10 +2,17 @@
   "neoforge:conditions": [
     {
       "type": "fluidlogistics:feature_enabled",
-      "feature": "fluidlogistics:blaze_cooler"
+      "feature": "fluidlogistics:snow_golem_freezer"
+    },
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:mod_loaded",
+        "modid": "create_dragons_plus"
+      }
     }
   ],
-  "type": "fluidlogistics:inactive_bulk_cooling",
+  "type": "fluidlogistics:bulk_cooling",
   "ingredients": [
     {
       "item": "minecraft:snow_block"

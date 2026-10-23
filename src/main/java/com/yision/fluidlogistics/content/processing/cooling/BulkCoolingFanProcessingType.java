@@ -6,10 +6,10 @@ import java.util.Optional;
 import org.jetbrains.annotations.Nullable;
 
 import com.simibubi.create.content.kinetics.fan.processing.FanProcessingType;
-import com.simibubi.create.content.processing.burner.BlazeBurnerBlock.HeatLevel;
-import com.simibubi.create.foundation.recipe.RecipeApplier;
 import com.simibubi.create.foundation.recipe.IRecipeTypeInfo;
-import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerBlockEntity;
+import com.simibubi.create.foundation.recipe.RecipeApplier;
+import com.yision.fluidlogistics.compat.CompatMods;
+import com.yision.fluidlogistics.content.processing.snowGolemFreezer.SnowGolemFreezerBlockEntity;
 import com.yision.fluidlogistics.infrastructure.config.Config;
 import com.yision.fluidlogistics.registry.AllBlocks;
 import com.yision.fluidlogistics.registry.AllFluidLogisticsRecipeTypes;
@@ -31,9 +31,9 @@ public class BulkCoolingFanProcessingType implements FanProcessingType {
 
 	@Override
 	public boolean isValidAt(Level level, BlockPos pos) {
-        return Config.isBlazeCoolerEnabled() && AllBlocks.BLAZE_COOLER.has(level.getBlockState(pos))
-            && level.getBlockEntity(pos) instanceof BlazeCoolerBlockEntity cooler
-            && isValidHeatLevel(cooler.getHeatLevelFromBlock());
+		return Config.isSnowGolemFreezerEnabled() && !CompatMods.createDragonsPlusLoaded()
+			&& AllBlocks.SNOW_GOLEM_FREEZER.has(level.getBlockState(pos))
+			&& level.getBlockEntity(pos) instanceof SnowGolemFreezerBlockEntity;
 	}
 
 	@Override
@@ -90,11 +90,9 @@ public class BulkCoolingFanProcessingType implements FanProcessingType {
 
 	private Optional<RecipeHolder<BulkCoolingRecipe>> findRecipe(ItemStack stack, Level level) {
 		return level.getRecipeManager().getRecipeFor(
-            getRecipeType().getType(), new SingleRecipeInput(stack), level);
-    }
-
-    protected boolean isValidHeatLevel(HeatLevel heatLevel) {
-        return heatLevel.isAtLeast(HeatLevel.FADING);
+			getRecipeType().<SingleRecipeInput, BulkCoolingRecipe>getType(), new SingleRecipeInput(stack), level)
+			.or(() -> level.getRecipeManager().getRecipeFor(
+				AllFluidLogisticsRecipeTypes.INACTIVE_BULK_COOLING.getType(), new SingleRecipeInput(stack), level));
 	}
 
 	protected IRecipeTypeInfo getRecipeType() {
@@ -102,11 +100,11 @@ public class BulkCoolingFanProcessingType implements FanProcessingType {
 	}
 
 	protected int getLightParticleColor() {
-		return 0xB8F4FF;
+		return 0xEBF6FF;
 	}
 
 	protected int getDarkParticleColor() {
-		return 0x3BA8C7;
+		return 0xB4C6D1;
 	}
 
 	protected float getParticleAlpha() {

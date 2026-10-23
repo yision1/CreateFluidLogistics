@@ -1,0 +1,26 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:snow_golem_freezer"
+    },
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:mod_loaded",
+        "modid": "create_dragons_plus"
+      }
+    }
+  ],
+  "type": "fluidlogistics:bulk_cooling",
+  "ingredients": [
+    {
+      "item": "minecraft:blaze_rod"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:breeze_rod"
+    }
+  ]
+}

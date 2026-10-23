@@ -1,0 +1,27 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:snow_golem_freezer"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": {
+      "tag": "c:plates/iron"
+    },
+    "S": {
+      "item": "minecraft:snow_block"
+    }
+  },
+  "pattern": [
+    " I ",
+    "ISI",
+    " I "
+  ],
+  "result": {
+    "count": 1,
+    "id": "fluidlogistics:empty_snow_golem_freezer"
+  }
+}

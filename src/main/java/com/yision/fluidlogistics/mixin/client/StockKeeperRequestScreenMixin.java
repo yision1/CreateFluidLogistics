@@ -21,13 +21,15 @@ import com.simibubi.create.content.logistics.stockTicker.CraftableBigItemStack;
 import com.simibubi.create.content.logistics.stockTicker.StockKeeperRequestScreen;
 import com.simibubi.create.content.logistics.stockTicker.StockTickerBlockEntity;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock.HeatLevel;
+import com.simibubi.create.content.processing.burner.BlazeBurnerBlockEntity;
 import com.yision.fluidlogistics.api.packager.PackageResourceCrafting;
 import com.yision.fluidlogistics.api.packager.PackageResourceCraftingData;
 import com.yision.fluidlogistics.api.packager.PackageResourceDisplay;
 import com.yision.fluidlogistics.api.packager.PackageResources;
 import com.yision.fluidlogistics.api.packager.client.StockKeeperAmountRenderer;
 import com.yision.fluidlogistics.content.logistics.packageResource.client.PackageResourceClientRegistry;
-import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerRenderer;
+import com.yision.fluidlogistics.content.processing.snowGolemFreezer.SnowGolemFreezerRenderer;
+import com.yision.fluidlogistics.content.processing.snowGolemFreezer.SnowGolemFreezerBlockEntity;
 
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import net.createmod.catnip.data.Couple;
@@ -93,8 +95,8 @@ public abstract class StockKeeperRequestScreenMixin {
 		"Lnet/createmod/catnip/render/SuperByteBuffer;", remap = false), remap = false)
 	private SuperByteBuffer fluidlogistics$useCoolerCageInWarehouse(PartialModel model, BlockState state,
 		Operation<SuperByteBuffer> original) {
-		if (com.yision.fluidlogistics.registry.AllBlocks.BLAZE_COOLER.has(state))
-			model = com.yision.fluidlogistics.registry.AllPartialModels.BLAZE_COOLER_CAGE;
+		if (com.yision.fluidlogistics.registry.AllBlocks.SNOW_GOLEM_FREEZER.has(state))
+			model = com.yision.fluidlogistics.registry.AllPartialModels.SNOW_GOLEM_FREEZER_CAGE;
 		return original.call(model, state);
 	}
 
@@ -108,10 +110,11 @@ public abstract class StockKeeperRequestScreenMixin {
 	private void fluidlogistics$renderCoolerInWarehouse(PoseStack poseStack, PoseStack modelTransform,
 		MultiBufferSource bufferSource, Level level, BlockState state, HeatLevel heatLevel, float animation,
 		float horizontalAngle, boolean canDrawFlame, boolean drawGoggles, PartialModel drawHat, int hashCode,
-		Operation<Void> original) {
-		if (com.yision.fluidlogistics.registry.AllBlocks.BLAZE_COOLER.has(state)) {
-			BlazeCoolerRenderer.renderShared(poseStack, bufferSource, level, state, heatLevel, animation,
-				horizontalAngle, canDrawFlame, drawGoggles, drawHat, hashCode);
+		Operation<Void> original, @Local BlazeBurnerBlockEntity keeperBE) {
+		if (com.yision.fluidlogistics.registry.AllBlocks.SNOW_GOLEM_FREEZER.has(state)) {
+			SnowGolemFreezerRenderer.renderShared(poseStack, bufferSource, level, state, heatLevel, animation,
+				horizontalAngle, canDrawFlame, drawGoggles, drawHat, hashCode,
+				keeperBE instanceof SnowGolemFreezerBlockEntity cooler && cooler.hasPumpkinHead());
 			return;
 		}
 		original.call(poseStack, modelTransform, bufferSource, level, state, heatLevel, animation, horizontalAngle,

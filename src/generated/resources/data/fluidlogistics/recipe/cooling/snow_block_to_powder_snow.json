@@ -2,20 +2,11 @@
   "neoforge:conditions": [
     {
       "type": "fluidlogistics:feature_enabled",
-      "feature": "fluidlogistics:blaze_cooler"
+      "feature": "fluidlogistics:snow_golem_freezer"
     }
   ],
   "type": "fluidlogistics:cooling_mixing",
   "ingredients": [
-    {
-      "item": "minecraft:snow_block"
-    },
-    {
-      "item": "minecraft:snow_block"
-    },
-    {
-      "item": "minecraft:snow_block"
-    },
     {
       "item": "minecraft:snow_block"
     },
@@ -27,9 +18,8 @@
   ],
   "results": [
     {
-      "amount": 250,
+      "amount": 500,
       "id": "fluidlogistics:powder_snow"
     }
-  ],
-  "supercooled": false
+  ]
 }

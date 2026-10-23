@@ -6,6 +6,8 @@ import com.simibubi.create.api.registry.CreateBuiltInRegistries;
 import com.simibubi.create.content.kinetics.mechanicalArm.AllArmInteractionPointTypes;
 import com.simibubi.create.content.kinetics.mechanicalArm.ArmInteractionPoint;
 import com.simibubi.create.content.kinetics.mechanicalArm.ArmInteractionPointType;
+import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
+import com.simibubi.create.content.processing.burner.BlazeBurnerBlock.HeatLevel;
 import com.yision.fluidlogistics.FluidLogistics;
 
 import net.minecraft.core.BlockPos;
@@ -24,8 +26,8 @@ public class FluidLogisticsArmInteractionPointTypes {
 		.register("fluid_packager", FluidPackagerType::new);
 	public static final DeferredHolder<ArmInteractionPointType, ArmInteractionPointType> SMART_HOPPER = ARM_INTERACTION_POINT_TYPES
 		.register("smart_hopper", SmartHopperType::new);
-	public static final DeferredHolder<ArmInteractionPointType, ArmInteractionPointType> BLAZE_COOLER = ARM_INTERACTION_POINT_TYPES
-		.register("blaze_cooler", BlazeCoolerType::new);
+	public static final DeferredHolder<ArmInteractionPointType, ArmInteractionPointType> SNOW_GOLEM_FREEZER = ARM_INTERACTION_POINT_TYPES
+		.register("snow_golem_freezer", SnowGolemFreezerType::new);
 
 	private static class FluidPackagerType extends ArmInteractionPointType {
 		@Override
@@ -51,10 +53,11 @@ public class FluidLogisticsArmInteractionPointTypes {
 		}
 	}
 
-	private static class BlazeCoolerType extends ArmInteractionPointType {
+	private static class SnowGolemFreezerType extends ArmInteractionPointType {
 		@Override
 		public boolean canCreatePoint(Level level, BlockPos pos, BlockState state) {
-			return AllBlocks.BLAZE_COOLER.has(state);
+			return AllBlocks.SNOW_GOLEM_FREEZER.has(state)
+				&& state.getValue(BlazeBurnerBlock.HEAT_LEVEL) != HeatLevel.NONE;
 		}
 
 		@Override

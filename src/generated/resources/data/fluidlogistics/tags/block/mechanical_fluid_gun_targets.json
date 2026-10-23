@@ -26,7 +26,7 @@
     "create:belt",
     "create:depot",
     "create:blaze_burner",
-    "fluidlogistics:blaze_cooler",
+    "fluidlogistics:snow_golem_freezer",
     "create:item_drain",
     "minecraft:cauldron",
     "minecraft:water_cauldron",

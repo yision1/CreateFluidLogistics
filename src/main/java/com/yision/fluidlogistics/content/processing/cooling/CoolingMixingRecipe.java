@@ -1,6 +1,7 @@
 package com.yision.fluidlogistics.content.processing.cooling;
 
 import com.simibubi.create.content.kinetics.mixer.MixingRecipe;
+import com.simibubi.create.content.processing.recipe.ProcessingRecipeParams;
 import com.simibubi.create.foundation.recipe.IRecipeTypeInfo;
 import com.yision.fluidlogistics.registry.AllFluidLogisticsRecipeTypes;
 
@@ -8,13 +9,8 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 
 public class CoolingMixingRecipe extends MixingRecipe implements CoolingRecipe {
 
-	public CoolingMixingRecipe(CoolingRecipeParams params) {
+	public CoolingMixingRecipe(ProcessingRecipeParams params) {
 		super(params);
-	}
-
-	@Override
-	public boolean requiresSupercooling() {
-		return ((CoolingRecipeParams) getParams()).supercooled();
 	}
 
 	@Override

@@ -41,10 +41,10 @@ import com.yision.fluidlogistics.content.logistics.fluidTransporter.FluidTranspo
 import com.yision.fluidlogistics.content.logistics.potatoServer.PotatoServerBlockEntity;
 import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperBlockEntity;
 import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperRenderer;
-import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerBlockEntity;
-import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerRenderer;
 import com.yision.fluidlogistics.content.processing.copperBasin.CopperBasinBlockEntity;
 import com.yision.fluidlogistics.content.processing.copperBasin.CopperBasinRenderer;
+import com.yision.fluidlogistics.content.processing.snowGolemFreezer.SnowGolemFreezerBlockEntity;
+import com.yision.fluidlogistics.content.processing.snowGolemFreezer.SnowGolemFreezerRenderer;
 import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonBlockEntity;
 import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonRenderer;
 import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonVisual;
@@ -56,10 +56,10 @@ public class AllBlockEntities {
 		.validBlocks(AllBlocks.POTATO_SERVER)
 		.register();
 
-	public static final BlockEntityEntry<BlazeCoolerBlockEntity> BLAZE_COOLER = REGISTRATE
-		.blockEntity("blaze_cooler", BlazeCoolerBlockEntity::new)
-		.validBlocks(AllBlocks.BLAZE_COOLER)
-		.renderer(() -> BlazeCoolerRenderer::new)
+	public static final BlockEntityEntry<SnowGolemFreezerBlockEntity> SNOW_GOLEM_FREEZER = REGISTRATE
+		.blockEntity("snow_golem_freezer", SnowGolemFreezerBlockEntity::new)
+		.validBlocks(AllBlocks.SNOW_GOLEM_FREEZER)
+		.renderer(() -> SnowGolemFreezerRenderer::new)
 		.register();
 
 	public static final BlockEntityEntry<CopperFrogportBlockEntity> COPPER_FROGPORT = REGISTRATE

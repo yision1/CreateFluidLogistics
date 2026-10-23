@@ -37,10 +37,9 @@ public final class FeatureToggle {
 
 	public static final ResourceLocation FLUID_HATCH = FluidLogistics.asResource("fluid_hatch");
 	public static final ResourceLocation FLUID_FACTORY_GAUGE = FluidLogistics.asResource("fluid_factory_gauge");
-	public static final ResourceLocation BLAZE_COOLER = FluidLogistics.asResource("blaze_cooler");
+	public static final ResourceLocation SNOW_GOLEM_FREEZER = FluidLogistics.asResource("snow_golem_freezer");
 	public static final ResourceLocation COPPER_SCHEMATICANNON = FluidLogistics.asResource("copper_schematicannon");
 	public static final ResourceLocation FLUID_SCHEMATIC = FluidLogistics.asResource("fluid_schematic");
-	public static final ResourceLocation FROST_CAKE = FluidLogistics.asResource("frost_cake");
 
 	private static final Map<ResourceLocation, BooleanSupplier> FEATURE_MAP;
 
@@ -67,10 +66,9 @@ public final class FeatureToggle {
 		map.put(PHANTOM_CHAIN, Config::isPhantomChainEnabled);
 		map.put(FLUID_HATCH, Config::isFluidHatchEnabled);
 		map.put(FLUID_FACTORY_GAUGE, Config::isFluidFactoryGaugeEnabled);
-		map.put(BLAZE_COOLER, Config::isBlazeCoolerEnabled);
+		map.put(SNOW_GOLEM_FREEZER, Config::isSnowGolemFreezerEnabled);
 		map.put(COPPER_SCHEMATICANNON, Config::isCopperSchematicannonEnabled);
 		map.put(FLUID_SCHEMATIC, Config::isFluidSchematicEnabled);
-		map.put(FROST_CAKE, Config::isFrostCakeEnabled);
 		FEATURE_MAP = Collections.unmodifiableMap(map);
 	}
 

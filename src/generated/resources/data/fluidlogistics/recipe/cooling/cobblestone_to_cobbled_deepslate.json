@@ -1,0 +1,24 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:snow_golem_freezer"
+    }
+  ],
+  "type": "fluidlogistics:cooling_compacting",
+  "ingredients": [
+    {
+      "item": "minecraft:cobblestone"
+    },
+    {
+      "type": "fluid_stack",
+      "amount": 250,
+      "fluid": "minecraft:lava"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:cobbled_deepslate"
+    }
+  ]
+}

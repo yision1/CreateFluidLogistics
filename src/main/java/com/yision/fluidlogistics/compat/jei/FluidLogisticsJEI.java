@@ -37,6 +37,8 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import plus.dragons.createdragonsplus.config.CDPConfig;
+import plus.dragons.createdragonsplus.integration.jei.category.FanFreezingCategory;
 import java.util.List;
 import org.jetbrains.annotations.Nullable;
 
@@ -86,14 +88,15 @@ public class FluidLogisticsJEI implements IModPlugin {
 
 	@Override
 	public void registerCategories(IRecipeCategoryRegistration registration) {
-        if (!Config.isBlazeCoolerEnabled())
+		bulkCooling = null;
+		if (!Config.isSnowGolemFreezerEnabled() || CompatMods.createDragonsPlusLoaded())
 			return;
 		bulkCooling = new CreateRecipeCategory.Builder<>(BulkCoolingRecipe.class)
 			.addTypedRecipes(AllFluidLogisticsRecipeTypes.BULK_COOLING)
 			.addTypedRecipes(AllFluidLogisticsRecipeTypes.INACTIVE_BULK_COOLING)
 			.catalystStack(ProcessingViaFanCategory.getFan("fan_cooling"))
-			.catalyst(AllBlocks.BLAZE_COOLER::get)
-			.doubleItemIcon(com.simibubi.create.AllItems.PROPELLER.get(), AllBlocks.BLAZE_COOLER.get())
+			.catalyst(AllBlocks.SNOW_GOLEM_FREEZER::get)
+			.doubleItemIcon(com.simibubi.create.AllItems.PROPELLER.get(), AllBlocks.SNOW_GOLEM_FREEZER.get())
 			.emptyBackground(178, 72)
 			.build(FluidLogistics.asResource("fan_cooling"), FanBulkCoolingCategory::new);
 		registration.addRecipeCategories(bulkCooling);
@@ -101,21 +104,22 @@ public class FluidLogisticsJEI implements IModPlugin {
 
 	@Override
 	public void registerRecipes(IRecipeRegistration registration) {
-		if (!Config.isBlazeCoolerEnabled())
+		if (!Config.isSnowGolemFreezerEnabled())
 			return;
+		if (bulkCooling != null)
 			bulkCooling.registerRecipes(registration);
 		registration.addRecipes(MYSTERY_CONVERSION, List.of(
-			ConversionRecipe.create(com.simibubi.create.AllBlocks.BLAZE_BURNER.asStack(),
-				AllBlocks.BLAZE_COOLER.asStack()),
-			ConversionRecipe.create(AllBlocks.BLAZE_COOLER.asStack(),
-                com.simibubi.create.AllBlocks.BLAZE_BURNER.asStack())
-        ));
+			ConversionRecipe.create(AllItems.EMPTY_SNOW_GOLEM_FREEZER.asStack(),
+				AllBlocks.SNOW_GOLEM_FREEZER.asStack())));
 	}
 
 	@Override
 	public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        if (Config.isBlazeCoolerEnabled())
+		if (bulkCooling != null)
 			bulkCooling.registerCatalysts(registration);
+		if (Config.isSnowGolemFreezerEnabled() && CompatMods.createDragonsPlusLoaded()
+			&& CDPConfig.recipes().enableBulkFreezing.get())
+			registration.addRecipeCatalyst(AllBlocks.SNOW_GOLEM_FREEZER.asStack(), FanFreezingCategory.TYPE);
 		for (RecipeType<RecipeHolder<BasinRecipe>> recipeType : BASIN_RECIPE_TYPES)
 			registration.addRecipeCatalyst(AllBlocks.COPPER_BASIN.asStack(), recipeType);
 	}

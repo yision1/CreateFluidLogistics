@@ -13,7 +13,7 @@ import com.simibubi.create.api.registry.CreateRegistries;
 import com.simibubi.create.content.fluids.PipeAttachmentModel;
 import com.simibubi.create.content.processing.basin.BasinGenerator;
 import com.simibubi.create.content.processing.basin.BasinMovementBehaviour;
-import com.simibubi.create.content.processing.burner.BlazeBurnerBlockItem;
+import com.yision.fluidlogistics.content.processing.snowGolemFreezer.SnowGolemFreezerBlockItem;
 import com.simibubi.create.foundation.data.AssetLookup;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.data.SharedProperties;
@@ -58,9 +58,9 @@ import com.yision.fluidlogistics.content.logistics.fluidTransporter.FluidTranspo
 import com.yision.fluidlogistics.content.logistics.potatoServer.PotatoServerBlock;
 import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperBlock;
 import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperGenerator;
-import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerBlock;
-import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerMovementBehaviour;
 import com.yision.fluidlogistics.content.processing.copperBasin.CopperBasinBlock;
+import com.yision.fluidlogistics.content.processing.snowGolemFreezer.SnowGolemFreezerBlock;
+import com.yision.fluidlogistics.content.processing.snowGolemFreezer.SnowGolemFreezerMovementBehaviour;
 import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonBlock;
 
 import net.minecraft.client.renderer.RenderType;
@@ -122,22 +122,22 @@ public class AllBlocks {
 		.build()
 		.register();
 
-	public static final BlockEntry<BlazeCoolerBlock> BLAZE_COOLER = REGISTRATE
-		.block("blaze_cooler", BlazeCoolerBlock::new)
+	public static final BlockEntry<SnowGolemFreezerBlock> SNOW_GOLEM_FREEZER = REGISTRATE
+		.block("snow_golem_freezer", SnowGolemFreezerBlock::new)
 		.initialProperties(SharedProperties::softMetal)
 		.properties(p -> p.mapColor(MapColor.ICE).lightLevel(state -> 0))
 		.transform(pickaxeOnly())
 		.setData(ProviderType.LANG, NonNullBiConsumer.noop())
 		.addLayer(() -> RenderType::cutoutMipped)
 		.tag(AllBlockTags.FAN_TRANSPARENT.tag)
-		.loot((loot, block) -> loot.dropSelf(block))
+		.loot((loot, block) -> loot.add(block, SnowGolemFreezerBlock.buildLootTable()))
 		.blockstate((context, provider) -> provider.simpleBlock(context.getEntry(),
-			provider.models().getExistingFile(provider.modLoc("block/blaze_cooler/block"))))
-		.onRegister(b -> MovementBehaviour.REGISTRY.register(b, new BlazeCoolerMovementBehaviour()))
+			provider.models().getExistingFile(provider.modLoc("block/snow_golem_freezer/block"))))
+		.onRegister(b -> MovementBehaviour.REGISTRY.register(b, new SnowGolemFreezerMovementBehaviour()))
 		.onRegister(interactionBehaviour(new ConductorBlockInteractionBehavior.BlazeBurner()))
-		.item(BlazeBurnerBlockItem::withBlaze)
+		.item(SnowGolemFreezerBlockItem::withSnowGolem)
 		.model((context, provider) -> provider.withExistingParent(context.getName(),
-			provider.modLoc("block/blaze_cooler/item")))
+			provider.modLoc("block/snow_golem_freezer/item")))
 		.build()
 		.register();
 

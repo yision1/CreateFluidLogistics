@@ -37,7 +37,7 @@ public final class FluidLogisticsRegistrate extends CreateRegistrate {
 		"fluid_packager",
 		"fluid_repackager",
 		"copper_frogport",
-		"blaze_cooler");
+		"snow_golem_freezer");
 
 	private final DataProviderInitializer dataGenInitializer = new LanglessDataProviderInitializer();
 

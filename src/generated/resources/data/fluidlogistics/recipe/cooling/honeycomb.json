@@ -1,0 +1,25 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:snow_golem_freezer"
+    }
+  ],
+  "type": "fluidlogistics:cooling_compacting",
+  "ingredients": [
+    {
+      "item": "minecraft:honeycomb"
+    },
+    {
+      "type": "neoforge:tag",
+      "amount": 250,
+      "tag": "c:honey"
+    }
+  ],
+  "results": [
+    {
+      "count": 2,
+      "id": "minecraft:honeycomb"
+    }
+  ]
+}

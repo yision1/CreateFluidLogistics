@@ -1,0 +1,23 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:snow_golem_freezer"
+    },
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create_dragons_plus"
+    }
+  ],
+  "type": "create_dragons_plus:freezing",
+  "ingredients": [
+    {
+      "item": "minecraft:snowball"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:snow"
+    }
+  ]
+}

@@ -16,7 +16,6 @@
         "kinetics.ChainConveyorBlockMixin",
         "kinetics.ChainConveyorConnectionPacketMixin",
         "processing.BasinRecipeMixin",
-        "processing.BlazeBurnerBlockEntityMixin",
         "logistics.AttributeFilterItemStackMixin",
         "logistics.FactoryPanelConfigurationPacketMixin",
         "logistics.FactoryGaugeHostBlockMixin",
