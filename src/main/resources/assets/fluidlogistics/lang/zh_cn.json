@@ -80,6 +80,7 @@
   "create.fluidlogistics.hand_pointer.frogport.selected": "点击锁链以更新",
   "create.fluidlogistics.hand_pointer.logistics.added": "已添加到当前物流网络",
   "create.fluidlogistics.hand_pointer.logistics.hover_network_size": "已加载 %s 个链接",
+  "create.fluidlogistics.hand_pointer.logistics.hover_unloaded_link": "未加载链接：%s (%s, %s, %s)",
   "create.fluidlogistics.hand_pointer.logistics.hover_will_connect": "点击以加入当前物流网络",
   "create.fluidlogistics.hand_pointer.logistics.hover_will_disconnect": "点击以移出当前物流网络",
   "create.fluidlogistics.hand_pointer.logistics.no_panel_at_slot": "该槽位没有启用的工厂仪表",

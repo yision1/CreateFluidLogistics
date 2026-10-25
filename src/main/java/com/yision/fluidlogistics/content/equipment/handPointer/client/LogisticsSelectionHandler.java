@@ -21,6 +21,7 @@ import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.yision.fluidlogistics.content.equipment.handPointer.logistics.LogisticsLinkResolver;
 import com.yision.fluidlogistics.content.equipment.handPointer.network.HandPointerLogisticsNetworkPacket;
+import com.yision.fluidlogistics.content.equipment.handPointer.network.HandPointerNetworkStatusPacket;
 
 import net.createmod.catnip.animation.AnimationTickHolder;
 import net.createmod.catnip.outliner.Outliner;
@@ -28,6 +29,7 @@ import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
@@ -49,6 +51,8 @@ public class LogisticsSelectionHandler {
 	private static final int STATUS_INVALID_COLOR = 0xFF6171;
 	private static final int RANGE = 64;
 	private static final int SCAN_INTERVAL = 10;
+	private static final int NETWORK_STATUS_INTERVAL = 20;
+	private static final int NETWORK_STATUS_TIMEOUT = 60;
 	private static final int PENDING_OVERRIDE_TICKS = 200;
 	private static final int HOVER_KEY_OFFSET = 2000;
 	private static final float SELECTED_LINE_WIDTH = 1 / 32f;
@@ -60,6 +64,12 @@ public class LogisticsSelectionHandler {
 	private static BlockPos cacheCenter;
 	private static int lastScanTick = -SCAN_INTERVAL;
 	private static int hoverStatusUpdateCounter;
+	private static HighlightTarget statusTarget;
+	private static UUID statusNetworkId;
+	private static int statusRequestId;
+	private static int statusRequestTicks;
+	private static int statusAge;
+	private static HandPointerNetworkStatusPacket.Response networkStatus;
 	private static final Map<HighlightTarget, PendingMembership> pendingMembership = new HashMap<>();
 
 	private record HighlightTarget(BlockPos pos, FactoryPanelBlock.PanelSlot slot) {
@@ -114,7 +124,7 @@ public class LogisticsSelectionHandler {
 		nearbyLogisticsCache.clear();
 		pendingMembership.clear();
 		cacheCenter = null;
-		hoverStatusUpdateCounter = 0;
+		clearHoverPreview();
 		Outliner.getInstance().remove("HandPointerLogisticsHighlight");
 	}
 
@@ -124,6 +134,25 @@ public class LogisticsSelectionHandler {
 
 	public static void clearHoverPreview() {
 		hoverStatusUpdateCounter = 0;
+		clearNetworkStatus();
+	}
+
+	private static void clearNetworkStatus() {
+		statusTarget = null;
+		statusNetworkId = null;
+		networkStatus = null;
+		statusRequestTicks = 0;
+		statusAge = 0;
+		statusRequestId++;
+	}
+
+	public static void receiveNetworkStatus(HandPointerNetworkStatusPacket.Response response) {
+		if (statusTarget == null || response.requestId() != statusRequestId
+			|| !response.networkId().equals(statusNetworkId)) {
+			return;
+		}
+		networkStatus = response;
+		statusAge = 0;
 	}
 
 	public static boolean isLogisticsBlockEntity(BlockEntity be) {
@@ -227,12 +256,12 @@ public class LogisticsSelectionHandler {
 		cleanupPendingMembership(level);
 		UUID hoveredNetwork = effectiveNetworkId(primaryTarget, resolved.get().networkId());
 		if (selectedNetworkId == null) {
-			int loadedLinks = drawNetworkOutlines(mc, hoveredNetwork, flashingHighlightColor(), null);
-			sendHoverStatus(player, "fluidlogistics.hand_pointer.logistics.hover_network_size",
-				HIGHLIGHT_COLOR_1, loadedLinks);
+			drawNetworkOutlines(mc, hoveredNetwork, flashingHighlightColor(), null);
+			displayNetworkStatus(player, primaryTarget, hoveredNetwork);
 			return;
 		}
 
+		clearNetworkStatus();
 		boolean sameNetwork = selectedNetworkId.equals(hoveredNetwork);
 		int color = sameNetwork ? STATUS_INVALID_COLOR : STATUS_CONNECTABLE_COLOR;
 		if (resolved.get().panel() != null && !player.isShiftKeyDown()) {
@@ -243,6 +272,35 @@ public class LogisticsSelectionHandler {
 		sendHoverStatus(player, sameNetwork
 			? "fluidlogistics.hand_pointer.logistics.hover_will_disconnect"
 			: "fluidlogistics.hand_pointer.logistics.hover_will_connect", color);
+	}
+
+	private static void displayNetworkStatus(LocalPlayer player, HighlightTarget target, UUID networkId) {
+		if (!target.equals(statusTarget) || !networkId.equals(statusNetworkId)) {
+			clearHoverPreview();
+			statusTarget = target;
+			statusNetworkId = networkId;
+		}
+		if (statusRequestTicks-- <= 0) {
+			FactoryPanelBlock.PanelSlot slot = target.panelSlot()
+				? target.slot() : FactoryPanelBlock.PanelSlot.BOTTOM_LEFT;
+			CatnipServices.NETWORK.sendToServer(
+				new HandPointerNetworkStatusPacket(target.pos(), slot, statusRequestId));
+			statusRequestTicks = NETWORK_STATUS_INTERVAL - 1;
+		}
+		if (networkStatus == null || ++statusAge > NETWORK_STATUS_TIMEOUT) {
+			return;
+		}
+
+		GlobalPos unloadedLink = networkStatus.unloadedLink();
+		if (unloadedLink != null) {
+			BlockPos pos = unloadedLink.pos();
+			sendHoverStatus(player, "fluidlogistics.hand_pointer.logistics.hover_unloaded_link",
+				STATUS_INVALID_COLOR, unloadedLink.dimension().location().toString(),
+				pos.getX(), pos.getY(), pos.getZ());
+			return;
+		}
+		sendHoverStatus(player, "fluidlogistics.hand_pointer.logistics.hover_network_size",
+			HIGHLIGHT_COLOR_1, networkStatus.loadedLinks());
 	}
 
 	private static int drawNetworkOutlines(Minecraft mc, UUID networkId, int color, HoverExclusion hoverExclusion) {

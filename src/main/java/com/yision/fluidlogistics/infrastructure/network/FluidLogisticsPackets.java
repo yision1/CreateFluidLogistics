@@ -11,6 +11,7 @@ import com.yision.fluidlogistics.content.equipment.handPointer.network.HandPoint
 import com.yision.fluidlogistics.content.equipment.handPointer.network.HandPointerFrogportConnectionPacket;
 import com.yision.fluidlogistics.content.equipment.handPointer.network.HandPointerLogisticsNetworkPacket;
 import com.yision.fluidlogistics.content.equipment.handPointer.network.HandPointerMailboxStationConnectionPacket;
+import com.yision.fluidlogistics.content.equipment.handPointer.network.HandPointerNetworkStatusPacket;
 import com.yision.fluidlogistics.content.equipment.handPointer.network.HandPointerOpenFilterMenuPacket;
 import com.yision.fluidlogistics.content.equipment.handPointer.network.HandPointerPackagerTogglePacket;
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.network.MechanicalFluidGunPackets;
@@ -49,6 +50,9 @@ public enum FluidLogisticsPackets implements BasePacketPayload.PacketTypeProvide
 		HandPointerMailboxStationConnectionPacket.STREAM_CODEC),
 	HAND_POINTER_LOGISTICS_NETWORK(HandPointerLogisticsNetworkPacket.class,
 		HandPointerLogisticsNetworkPacket.STREAM_CODEC),
+	HAND_POINTER_NETWORK_STATUS(HandPointerNetworkStatusPacket.class, HandPointerNetworkStatusPacket.STREAM_CODEC),
+	HAND_POINTER_NETWORK_STATUS_RESPONSE(HandPointerNetworkStatusPacket.Response.class,
+		HandPointerNetworkStatusPacket.Response.STREAM_CODEC),
 	HAND_POINTER_CLEAR_CLIPBOARD_ADDRESS(HandPointerClearClipboardAddressPacket.class,
 		HandPointerClearClipboardAddressPacket.STREAM_CODEC),
 	HAND_POINTER_OPEN_FILTER_MENU(HandPointerOpenFilterMenuPacket.class, HandPointerOpenFilterMenuPacket.STREAM_CODEC),
