@@ -1,5 +1,6 @@
 {
   "block.fluidlogistics.copper_basin": "Bacia de Cobre",
+  "block.fluidlogistics.copper_basket": "Cesto de cobre",
   "block.fluidlogistics.copper_frogport": "Rã-Porto Revestida de Cobre",
   "block.fluidlogistics.copper_schematicannon": "Canhão de Esquemas Revestido de Cobre",
   "block.fluidlogistics.copper_schematicannon.tooltip.behaviour1": "Abre a _Interface_",

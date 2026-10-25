@@ -26,6 +26,7 @@ public final class FeatureToggle {
 	public static final ResourceLocation INFINITE_FLUID_TANK = FluidLogistics.asResource("infinite_fluid_tank");
 	public static final ResourceLocation WATER_CONTAINING_COPPER_CASING = FluidLogistics
 		.asResource("water_containing_copper_casing");
+	public static final ResourceLocation COPPER_BASKET = FluidLogistics.asResource("copper_basket");
 	public static final ResourceLocation COPPER_BASIN = FluidLogistics.asResource("copper_basin");
 	public static final ResourceLocation MECHANICAL_FLUID_GUN = FluidLogistics.asResource("mechanical_fluid_gun");
 	public static final ResourceLocation HAND_POINTER = FluidLogistics.asResource("hand_pointer");
@@ -57,6 +58,7 @@ public final class FeatureToggle {
 		map.put(INFINITE_FLUID_TANK, Config::isInfiniteFluidTankEnabled);
 		map.put(WATER_CONTAINING_COPPER_CASING, Config::isWaterContainingCopperCasingEnabled);
 		map.put(COPPER_BASIN, Config::isCopperBasinEnabled);
+		map.put(COPPER_BASKET, Config::isCopperBasketEnabled);
 		map.put(MECHANICAL_FLUID_GUN, Config::isMechanicalFluidGunEnabled);
 		map.put(HAND_POINTER, Config::isHandPointerEnabled);
 		map.put(COPPER_FROGPORT, Config::isCopperFrogportEnabled);

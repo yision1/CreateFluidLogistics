@@ -1,5 +1,6 @@
 {
   "block.fluidlogistics.copper_basin": "Мідна чаша",
+  "block.fluidlogistics.copper_basket": "Мідний кошик",
   "block.fluidlogistics.copper_frogport": "Мідний жаб’ячий порт",
   "block.fluidlogistics.copper_schematicannon": "Мідна наміткова гармата",
   "block.fluidlogistics.copper_schematicannon.tooltip.behaviour1": "Відкриває _інтерфейс_",

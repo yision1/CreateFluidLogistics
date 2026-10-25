@@ -34,6 +34,7 @@ import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidT
 import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankBlockEntity;
 import com.yision.fluidlogistics.content.fluids.powderSnow.PowderSnowBucketFluidHandler;
 import com.yision.fluidlogistics.content.fluids.waterContainingCopperCasing.WaterContainingCopperCasingFluidHandler;
+import com.yision.fluidlogistics.content.logistics.copperBasket.CopperBasketBlockEntity;
 import com.yision.fluidlogistics.content.logistics.copperFrogport.CopperFrogportBlockEntity;
 import com.yision.fluidlogistics.content.logistics.factoryGauge.FactoryGaugeBehaviourAttachment;
 import com.yision.fluidlogistics.content.logistics.factoryGauge.FactoryGaugeLootModifier;
@@ -207,6 +208,7 @@ public class FluidLogistics {
 		MultiFluidAccessPortBlockEntity.registerCapabilities(event);
 		FluidInventoryAccessPortBlockEntity.registerCapabilities(event);
 		SmartHopperBlockEntity.registerCapabilities(event);
+		CopperBasketBlockEntity.registerCapabilities(event);
 		InfiniteFluidTankBlockEntity.registerCapabilities(event);
 		CopperBasinBlockEntity.registerCapabilities(event);
 		SnowGolemFreezerBlockEntity.registerCapabilities(event);
@@ -240,6 +242,9 @@ public class FluidLogistics {
 		removeCreativeItem(event, AllItems.FLUID_SCHEMATIC);
 		if (Objects.equals(event.getTabKey(), FLUID_LOGISTICS_TAB)) {
 			removeCreativeItem(event, AllItems.EMPTY_SNOW_GOLEM_FREEZER, CreativeModeTab.TabVisibility.PARENT_TAB_ONLY);
+			if (!CompatMods.farmersDelightLoaded()) {
+				removeCreativeItem(event, AllBlocks.COPPER_BASKET, CreativeModeTab.TabVisibility.PARENT_TAB_ONLY);
+			}
 		}
 
 		for (FeatureItem fi : FEATURE_ITEMS) {
@@ -290,6 +295,7 @@ public class FluidLogistics {
 		new FeatureItem(FeatureToggle.INFINITE_FLUID_TANK, AllBlocks.INFINITE_FLUID_TANK),
 		new FeatureItem(FeatureToggle.WATER_CONTAINING_COPPER_CASING, AllBlocks.WATER_CONTAINING_COPPER_CASING),
 		new FeatureItem(FeatureToggle.COPPER_BASIN, AllBlocks.COPPER_BASIN),
+		new FeatureItem(FeatureToggle.COPPER_BASKET, AllBlocks.COPPER_BASKET),
 		new FeatureItem(FeatureToggle.MECHANICAL_FLUID_GUN, AllBlocks.MECHANICAL_FLUID_GUN),
 		new FeatureItem(FeatureToggle.HAND_POINTER, AllItems.HAND_POINTER),
 		new FeatureItem(FeatureToggle.COPPER_FROGPORT, AllBlocks.COPPER_FROGPORT),

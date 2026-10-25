@@ -1,5 +1,6 @@
 {
   "block.fluidlogistics.copper_basin": "구리 대야",
+  "block.fluidlogistics.copper_basket": "구리 바구니",
   "block.fluidlogistics.copper_frogport": "구리 개구리포트",
   "block.fluidlogistics.copper_schematicannon": "구리 설계도 대포",
   "block.fluidlogistics.copper_schematicannon.tooltip.behaviour1": "설정 창을 엽니다.",

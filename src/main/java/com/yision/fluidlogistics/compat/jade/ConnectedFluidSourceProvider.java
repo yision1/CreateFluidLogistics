@@ -10,6 +10,7 @@ import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.Mechanical
 import com.yision.fluidlogistics.content.fluids.faucet.FaucetBlockEntity;
 import com.yision.fluidlogistics.content.fluids.fluidHatch.FluidHatchBlockEntity;
 import com.yision.fluidlogistics.content.fluids.fluidPort.FluidPort;
+import com.yision.fluidlogistics.content.logistics.copperBasket.CopperBasketBlockEntity;
 import com.yision.fluidlogistics.foundation.fluid.MergedFluidDisplayHandler;
 
 import net.minecraft.nbt.CompoundTag;
@@ -69,6 +70,10 @@ public enum ConnectedFluidSourceProvider
 	private static DisplaySource getDisplaySource(Accessor<?> accessor) {
 		if (!(accessor instanceof BlockAccessor blockAccessor)) {
 			return null;
+		}
+
+		if (blockAccessor.getBlockEntity() instanceof CopperBasketBlockEntity basket) {
+			return withoutEmptyCapacity(basket.getFluids());
 		}
 
 		if (blockAccessor.getBlockEntity() instanceof FaucetBlockEntity faucet) {

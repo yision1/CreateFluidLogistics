@@ -1,5 +1,6 @@
 {
   "block.fluidlogistics.copper_basin": "Kopparkärl",
+  "block.fluidlogistics.copper_basket": "Kopparkorg",
   "block.fluidlogistics.copper_frogport": "Kopparklädd grodport",
   "block.fluidlogistics.copper_schematicannon": "Kopparklädd ritningskanon",
   "block.fluidlogistics.copper_schematicannon.tooltip.behaviour1": "Öppnar _gränssnittet_",

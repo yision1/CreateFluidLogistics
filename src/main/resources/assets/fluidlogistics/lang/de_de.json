@@ -1,5 +1,6 @@
 {
   "block.fluidlogistics.copper_basin": "Kupferbecken",
+  "block.fluidlogistics.copper_basket": "Kupferkorb",
   "block.fluidlogistics.copper_frogport": "Kupfer-Frosch-Anschluss",
   "block.fluidlogistics.copper_schematicannon": "Kupferbauplankanone",
   "block.fluidlogistics.copper_schematicannon.tooltip.behaviour1": "Öffnet das _Interface_",

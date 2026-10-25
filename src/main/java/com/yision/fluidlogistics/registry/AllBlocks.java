@@ -47,6 +47,7 @@ import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankMod
 import com.yision.fluidlogistics.content.fluids.redstoneFluidValve.RedstoneFluidValveBlock;
 import com.yision.fluidlogistics.content.fluids.waterContainingCopperCasing.WaterContainingCopperCasingBlock;
 import com.yision.fluidlogistics.content.fluids.waterContainingCopperCasing.WaterContainingCopperCasingItem;
+import com.yision.fluidlogistics.content.logistics.copperBasket.CopperBasketBlock;
 import com.yision.fluidlogistics.content.logistics.copperFrogport.CopperFrogportBlock;
 import com.yision.fluidlogistics.content.logistics.copperFrogport.CopperFrogportItem;
 import com.yision.fluidlogistics.content.logistics.fluidPackager.FluidPackagerBlock;
@@ -468,6 +469,29 @@ public class AllBlocks {
 		.item(WaterContainingCopperCasingItem::new)
 		.model((ctx, prov) -> prov.withExistingParent(ctx.getName(),
 			prov.modLoc("block/water_containing_copper_casing/block")))
+		.build()
+		.register();
+
+	public static final BlockEntry<CopperBasketBlock> COPPER_BASKET = REGISTRATE
+		.block("copper_basket", CopperBasketBlock::new)
+		.initialProperties(SharedProperties::copperMetal)
+		.properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false)
+			.sound(SoundType.WOOD))
+		.transform(pickaxeOnly())
+		.setData(ProviderType.LANG, NonNullBiConsumer.noop())
+		.addLayer(() -> RenderType::cutoutMipped)
+		.blockstate((ctx, prov) -> prov.getVariantBuilder(ctx.get()).forAllStatesExcept(state -> {
+			Direction facing = state.getValue(CopperBasketBlock.FACING);
+			return ConfiguredModel.builder()
+				.modelFile(prov.models().getExistingFile(prov.modLoc("block/copper_basket/block")))
+				.rotationX(facing == Direction.UP ? 0 : facing == Direction.DOWN ? 180 : 90)
+				.rotationY(facing.getAxis().isVertical() ? 0 : ((int) facing.toYRot() + 180) % 360)
+				.build();
+		}, CopperBasketBlock.POWERED, CopperBasketBlock.WATERLOGGED))
+		.loot((loot, block) -> loot.dropSelf(block))
+		.item()
+		.properties(p -> p.stacksTo(64))
+		.model((ctx, prov) -> prov.withExistingParent(ctx.getName(), prov.modLoc("block/copper_basket/block")))
 		.build()
 		.register();
 

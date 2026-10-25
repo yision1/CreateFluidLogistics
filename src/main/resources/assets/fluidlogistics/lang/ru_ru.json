@@ -1,5 +1,6 @@
 {
   "block.fluidlogistics.copper_basin": "Медная чаша",
+  "block.fluidlogistics.copper_basket": "Медная корзина",
   "block.fluidlogistics.copper_frogport": "Квакопорт (Медь)",
   "block.fluidlogistics.copper_schematicannon": "Медная строительная пушка",
   "block.fluidlogistics.copper_schematicannon.tooltip.behaviour1": "Открывает _интерфейс_.",

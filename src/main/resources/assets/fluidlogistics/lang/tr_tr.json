@@ -1,5 +1,6 @@
 {
   "block.fluidlogistics.copper_basin": "Bakır Hazne",
+  "block.fluidlogistics.copper_basket": "Bakır Sepet",
   "block.fluidlogistics.copper_frogport": "Bakır Kaplı Paketçi Vırakport",
   "block.fluidlogistics.copper_schematicannon": "Bakır Kaplı Tasarı Topu",
   "block.fluidlogistics.copper_schematicannon.tooltip.behaviour1": "_Arayüz_ açılır",

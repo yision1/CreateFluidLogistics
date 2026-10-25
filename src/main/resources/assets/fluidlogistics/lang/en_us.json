@@ -1,5 +1,6 @@
 {
   "block.fluidlogistics.copper_basin": "Copper Basin",
+  "block.fluidlogistics.copper_basket": "Copper Basket",
   "block.fluidlogistics.copper_frogport": "Copper Frogport",
   "block.fluidlogistics.copper_schematicannon": "Copper Schematicannon",
   "block.fluidlogistics.copper_schematicannon.tooltip.behaviour1": "Opens the _Interface_",

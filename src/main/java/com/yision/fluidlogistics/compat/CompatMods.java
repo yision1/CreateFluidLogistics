@@ -5,6 +5,7 @@ import net.neoforged.fml.ModList;
 public final class CompatMods {
 	public static final String CREATE_ENCHANTMENT_INDUSTRY = "create_enchantment_industry";
 	public static final String CREATE_DRAGONS_PLUS = "create_dragons_plus";
+	public static final String FARMERS_DELIGHT = "farmersdelight";
 	public static final String JEI = "jei";
 	public static final String EMI = "emi";
 
@@ -17,6 +18,10 @@ public final class CompatMods {
 
 	public static boolean createDragonsPlusLoaded() {
 		return ModList.get().isLoaded(CREATE_DRAGONS_PLUS);
+	}
+
+	public static boolean farmersDelightLoaded() {
+		return ModList.get().isLoaded(FARMERS_DELIGHT);
 	}
 
 	public static boolean jeiLoaded() {

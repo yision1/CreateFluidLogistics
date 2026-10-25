@@ -29,6 +29,19 @@ public class FluidLogisticsArmInteractionPointTypes {
 	public static final DeferredHolder<ArmInteractionPointType, ArmInteractionPointType> SNOW_GOLEM_FREEZER = ARM_INTERACTION_POINT_TYPES
 		.register("snow_golem_freezer", SnowGolemFreezerType::new);
 
+	public static final DeferredHolder<ArmInteractionPointType, ArmInteractionPointType> COPPER_BASKET = ARM_INTERACTION_POINT_TYPES
+		.register("copper_basket", () -> new ArmInteractionPointType() {
+			@Override
+			public boolean canCreatePoint(Level level, BlockPos pos, BlockState state) {
+				return AllBlocks.COPPER_BASKET.has(state);
+			}
+
+			@Override
+			public ArmInteractionPoint createPoint(Level level, BlockPos pos, BlockState state) {
+				return new ArmInteractionPoint(this, level, pos, state);
+			}
+		});
+
 	private static class FluidPackagerType extends ArmInteractionPointType {
 		@Override
 		public boolean canCreatePoint(Level level, BlockPos pos, BlockState state) {

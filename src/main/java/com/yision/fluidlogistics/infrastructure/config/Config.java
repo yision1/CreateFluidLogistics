@@ -23,6 +23,7 @@ public class Config {
 	private static final boolean INFINITE_FLUID_TANK_ENABLED_DEFAULT = true;
 	private static final boolean WATER_CONTAINING_COPPER_CASING_ENABLED_DEFAULT = true;
 	private static final boolean COPPER_BASIN_ENABLED_DEFAULT = true;
+	private static final boolean COPPER_BASKET_ENABLED_DEFAULT = true;
 	private static final boolean MECHANICAL_FLUID_GUN_ENABLED_DEFAULT = true;
 	private static final boolean HAND_POINTER_ENABLED_DEFAULT = true;
 	private static final boolean COPPER_FROGPORT_ENABLED_DEFAULT = true;
@@ -112,6 +113,10 @@ public class Config {
 	public static final ModConfigSpec.BooleanValue WATER_CONTAINING_COPPER_CASING_ENABLED = BUILDER
 		.translation("block.fluidlogistics.water_containing_copper_casing")
 		.define("waterContainingCopperCasingEnabled", WATER_CONTAINING_COPPER_CASING_ENABLED_DEFAULT);
+
+	public static final ModConfigSpec.BooleanValue COPPER_BASKET_ENABLED = BUILDER
+		.translation("block.fluidlogistics.copper_basket")
+		.define("copperBasketEnabled", COPPER_BASKET_ENABLED_DEFAULT);
 
 	public static final ModConfigSpec.BooleanValue COPPER_BASIN_ENABLED = BUILDER
 		.translation("block.fluidlogistics.copper_basin")
@@ -264,6 +269,7 @@ public class Config {
 	private static boolean infiniteFluidTankEnabled = INFINITE_FLUID_TANK_ENABLED_DEFAULT;
 	private static boolean waterContainingCopperCasingEnabled = WATER_CONTAINING_COPPER_CASING_ENABLED_DEFAULT;
 	private static boolean copperBasinEnabled = COPPER_BASIN_ENABLED_DEFAULT;
+	private static boolean copperBasketEnabled = COPPER_BASKET_ENABLED_DEFAULT;
 	private static boolean mechanicalFluidGunEnabled = MECHANICAL_FLUID_GUN_ENABLED_DEFAULT;
 	private static boolean handPointerEnabled = HAND_POINTER_ENABLED_DEFAULT;
 	private static boolean copperFrogportEnabled = COPPER_FROGPORT_ENABLED_DEFAULT;
@@ -335,6 +341,7 @@ public class Config {
 		infiniteFluidTankEnabled = serverValue(INFINITE_FLUID_TANK_ENABLED);
 		waterContainingCopperCasingEnabled = serverValue(WATER_CONTAINING_COPPER_CASING_ENABLED);
 		copperBasinEnabled = serverValue(COPPER_BASIN_ENABLED);
+		copperBasketEnabled = serverValue(COPPER_BASKET_ENABLED);
 		mechanicalFluidGunEnabled = serverValue(MECHANICAL_FLUID_GUN_ENABLED);
 		handPointerEnabled = serverValue(HAND_POINTER_ENABLED);
 		copperFrogportEnabled = serverValue(COPPER_FROGPORT_ENABLED);
@@ -407,6 +414,10 @@ public class Config {
 
 	public static boolean isWaterContainingCopperCasingEnabled() {
 		return waterContainingCopperCasingEnabled;
+	}
+
+	public static boolean isCopperBasketEnabled() {
+		return copperBasketEnabled;
 	}
 
 	public static boolean isCopperBasinEnabled() {

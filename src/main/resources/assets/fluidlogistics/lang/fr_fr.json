@@ -1,5 +1,6 @@
 {
   "block.fluidlogistics.copper_basin": "Bassin en cuivre",
+  "block.fluidlogistics.copper_basket": "Panier en cuivre",
   "block.fluidlogistics.copper_frogport": "Crapauport en cuivre",
   "block.fluidlogistics.copper_schematicannon": "Schémacanon en cuivre",
   "block.fluidlogistics.copper_schematicannon.tooltip.behaviour1": "Ouvre l'_interface_",

@@ -3,38 +3,32 @@ package com.yision.fluidlogistics.content.processing.copperBasin;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.simibubi.create.content.kinetics.belt.behaviour.DirectBeltInputBehaviour;
+import org.jetbrains.annotations.Nullable;
+
 import com.simibubi.create.content.processing.basin.BasinBlock;
 import com.simibubi.create.content.processing.basin.BasinBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
-import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
-import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTankBehaviour;
 import com.simibubi.create.foundation.fluid.CombinedTankWrapper;
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
-import com.yision.fluidlogistics.content.processing.copperBasin.CopperBasinCapacity;
 
-import net.createmod.catnip.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
+
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
 public class CopperBasinBlockEntity extends BasinBlockEntity {
-
-	private FilteringBehaviour filtering;
-
 	@Nullable
 	private BlockCapabilityCache<IFluidHandler, @Nullable Direction> outputTargetCache;
 	@Nullable
@@ -46,28 +40,23 @@ public class CopperBasinBlockEntity extends BasinBlockEntity {
 
 	@Override
 	public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
-		behaviours.add(new DirectBeltInputBehaviour(this));
-
-		filtering = new FilteringBehaviour(this, new CopperBasinValueBox())
-			.withCallback($ -> notifyChangeOfContents())
-			.forRecipes();
-		behaviours.add(filtering);
+		super.addBehaviours(behaviours);
+		behaviours.remove(inputTank);
+		behaviours.remove(outputTank);
 
 		inputTank = new SmartFluidTankBehaviour(
 			SmartFluidTankBehaviour.INPUT,
 			this,
 			2,
 			CopperBasinCapacity.SLOT_CAPACITY,
-			true
-		).whenFluidUpdates(this::notifyChangeOfContents);
+			true).whenFluidUpdates(this::notifyChangeOfContents);
 
 		outputTank = new SmartFluidTankBehaviour(
 			SmartFluidTankBehaviour.OUTPUT,
 			this,
 			2,
 			CopperBasinCapacity.SLOT_CAPACITY,
-			true
-		).whenFluidUpdates(this::notifyChangeOfContents)
+			true).whenFluidUpdates(this::notifyChangeOfContents)
 			.forbidInsertion();
 
 		behaviours.add(inputTank);
@@ -75,21 +64,7 @@ public class CopperBasinBlockEntity extends BasinBlockEntity {
 
 		fluidCapability = new CombinedTankWrapper(
 			outputTank.getCapability(),
-			inputTank.getCapability()
-		);
-	}
-
-	@Override
-	public FilteringBehaviour getFilter() {
-		return filtering;
-	}
-
-	@Override
-	public void clearContent() {
-		spoutputBuffer.clear();
-		inputInventory.clearContent();
-		outputInventory.clearContent();
-		filtering.setFilter(ItemStack.EMPTY);
+			inputTank.getCapability());
 	}
 
 	@Override
@@ -237,7 +212,7 @@ public class CopperBasinBlockEntity extends BasinBlockEntity {
 				.copy();
 			if (available.isEmpty())
 				continue;
-			if (movePartialFluid(sourceTank, targetTank, available.getAmount()) > 0) {
+			if (movePartialFluid(sourceTank, targetTank, available) > 0) {
 				notifyChangeOfContents();
 				notifyUpdate();
 				return;
@@ -245,8 +220,8 @@ public class CopperBasinBlockEntity extends BasinBlockEntity {
 		}
 	}
 
-	private static int movePartialFluid(IFluidHandler sourceTank, IFluidHandler targetTank, int maxAmount) {
-		FluidStack available = sourceTank.drain(maxAmount, FluidAction.SIMULATE);
+	private static int movePartialFluid(IFluidHandler sourceTank, IFluidHandler targetTank, FluidStack requested) {
+		FluidStack available = sourceTank.drain(requested, FluidAction.SIMULATE);
 		if (available.isEmpty())
 			return 0;
 
@@ -265,9 +240,17 @@ public class CopperBasinBlockEntity extends BasinBlockEntity {
 
 	private static boolean acceptFluidsIntoOutputTank(List<FluidStack> outputFluids, boolean simulate,
 		IFluidHandler targetTank) {
+		if (simulate) {
+			IFluidHandler[] tanks = new IFluidHandler[targetTank.getTanks()];
+			for (int i = 0; i < tanks.length; i++) {
+				FluidTank copy = new FluidTank(targetTank.getTankCapacity(i));
+				copy.setFluid(targetTank.getFluidInTank(i).copy());
+				tanks[i] = copy;
+			}
+			targetTank = new CombinedTankWrapper(tanks).enforceVariety();
+		}
 		for (FluidStack fluidStack : outputFluids) {
-			FluidAction action = simulate ? FluidAction.SIMULATE : FluidAction.EXECUTE;
-			if (fillTarget(targetTank, fluidStack.copy(), action) != fluidStack.getAmount())
+			if (fillTarget(targetTank, fluidStack.copy(), FluidAction.EXECUTE) != fluidStack.getAmount())
 				return false;
 		}
 		return true;
@@ -283,26 +266,10 @@ public class CopperBasinBlockEntity extends BasinBlockEntity {
 		event.registerBlockEntity(
 			Capabilities.ItemHandler.BLOCK,
 			AllBlockEntities.COPPER_BASIN.get(),
-			(be, context) -> be.itemCapability
-		);
+			(be, context) -> be.itemCapability);
 		event.registerBlockEntity(
 			Capabilities.FluidHandler.BLOCK,
 			AllBlockEntities.COPPER_BASIN.get(),
-			(be, context) -> be.fluidCapability
-		);
+			(be, context) -> be.fluidCapability);
 	}
-
-	static class CopperBasinValueBox extends ValueBoxTransform.Sided {
-
-		@Override
-		protected Vec3 getSouthLocation() {
-			return VecHelper.voxelSpace(8, 12, 16.05);
-		}
-
-		@Override
-		protected boolean isSideActive(BlockState state, Direction direction) {
-			return direction.getAxis()
-				.isHorizontal();
-	}
-}
 }

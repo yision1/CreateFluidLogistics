@@ -1,5 +1,6 @@
 {
   "block.fluidlogistics.copper_basin": "銅の鉢",
+  "block.fluidlogistics.copper_basket": "銅のかご",
   "block.fluidlogistics.copper_frogport": "銅製の小包配送ガエル",
   "block.fluidlogistics.copper_schematicannon": "銅張り概略図砲",
   "block.fluidlogistics.copper_schematicannon.tooltip.behaviour1": "_UI_を開きます。",

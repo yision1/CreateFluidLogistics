@@ -1,5 +1,6 @@
 {
   "block.fluidlogistics.copper_basin": "Miedziany tygiel",
+  "block.fluidlogistics.copper_basket": "Miedziany kosz",
   "block.fluidlogistics.copper_frogport": "Miedziany żabołap",
   "block.fluidlogistics.copper_schematicannon": "Miedziana schematoarmata",
   "block.fluidlogistics.copper_schematicannon.tooltip.behaviour1": "Otwiera _interfejs_.",

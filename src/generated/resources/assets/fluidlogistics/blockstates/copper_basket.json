@@ -1,0 +1,30 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "fluidlogistics:block/copper_basket/block",
+      "x": 180
+    },
+    "facing=east": {
+      "model": "fluidlogistics:block/copper_basket/block",
+      "x": 90,
+      "y": 90
+    },
+    "facing=north": {
+      "model": "fluidlogistics:block/copper_basket/block",
+      "x": 90
+    },
+    "facing=south": {
+      "model": "fluidlogistics:block/copper_basket/block",
+      "x": 90,
+      "y": 180
+    },
+    "facing=up": {
+      "model": "fluidlogistics:block/copper_basket/block"
+    },
+    "facing=west": {
+      "model": "fluidlogistics:block/copper_basket/block",
+      "x": 90,
+      "y": 270
+    }
+  }
+}

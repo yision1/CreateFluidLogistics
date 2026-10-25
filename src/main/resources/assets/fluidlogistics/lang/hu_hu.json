@@ -1,5 +1,6 @@
 {
   "block.fluidlogistics.copper_basin": "Rézteknő",
+  "block.fluidlogistics.copper_basket": "Rézkosár",
   "block.fluidlogistics.copper_frogport": "Rézburkolatú csomag békabemenet",
   "block.fluidlogistics.copper_schematicannon": "Rézburkolatú tervrajzágyú",
   "block.fluidlogistics.copper_schematicannon.tooltip.behaviour1": "Megnyitja a _kezelőfelületet_",

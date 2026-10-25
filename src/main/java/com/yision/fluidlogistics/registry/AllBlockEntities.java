@@ -27,6 +27,8 @@ import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankRen
 import com.yision.fluidlogistics.content.fluids.redstoneFluidValve.RedstoneFluidValveBlockEntity;
 import com.yision.fluidlogistics.content.fluids.redstoneFluidValve.RedstoneFluidValveRenderer;
 import com.yision.fluidlogistics.content.fluids.waterContainingCopperCasing.WaterContainingCopperCasingBlock;
+import com.yision.fluidlogistics.content.logistics.copperBasket.CopperBasketBlockEntity;
+import com.yision.fluidlogistics.content.logistics.copperBasket.CopperBasketRenderer;
 import com.yision.fluidlogistics.content.logistics.copperFrogport.CopperFrogportBlockEntity;
 import com.yision.fluidlogistics.content.logistics.copperFrogport.CopperFrogportRenderer;
 import com.yision.fluidlogistics.content.logistics.copperFrogport.CopperFrogportVisual;
@@ -122,6 +124,12 @@ public class AllBlockEntities {
 	public static final BlockEntityEntry<FluidInventoryAccessPortBlockEntity> FLUID_INVENTORY_ACCESS_PORT = REGISTRATE
 		.blockEntity("fluid_inventory_access_port", FluidInventoryAccessPortBlockEntity::new)
 		.validBlocks(AllBlocks.FLUID_INVENTORY_ACCESS_PORT)
+		.register();
+
+	public static final BlockEntityEntry<CopperBasketBlockEntity> COPPER_BASKET = REGISTRATE
+		.blockEntity("copper_basket", CopperBasketBlockEntity::new)
+		.validBlocks(AllBlocks.COPPER_BASKET)
+		.renderer(() -> CopperBasketRenderer::new)
 		.register();
 
 	public static final BlockEntityEntry<SmartHopperBlockEntity> SMART_HOPPER = REGISTRATE
