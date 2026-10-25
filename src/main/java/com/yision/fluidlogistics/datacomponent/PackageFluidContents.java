@@ -3,7 +3,6 @@ package com.yision.fluidlogistics.datacomponent;
 import java.util.List;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -21,13 +20,8 @@ public record PackageFluidContents(List<FluidTankContent> tanks) {
 		}
 	}
 
-	private static final Codec<PackageFluidContents> LIST_CODEC = RecordCodecBuilder.create(instance -> instance
-		.group(FluidTankContent.CODEC.listOf().fieldOf("fluids").forGetter(PackageFluidContents::tanks))
-		.apply(instance, PackageFluidContents::new));
-
-	public static final Codec<PackageFluidContents> CODEC = Codec.withAlternative(
-		LIST_CODEC, FluidTankContent.CODEC.xmap(content -> new PackageFluidContents(List.of(content)),
-			contents -> contents.tanks().getFirst()));
+	public static final Codec<PackageFluidContents> CODEC = FluidTankContent.CODEC.listOf()
+		.xmap(PackageFluidContents::new, PackageFluidContents::tanks);
 
 	public static final StreamCodec<RegistryFriendlyByteBuf, PackageFluidContents> STREAM_CODEC
 		= FluidTankContent.STREAM_CODEC.apply(ByteBufCodecs.list())
