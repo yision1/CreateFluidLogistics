@@ -3,6 +3,7 @@
     "create:basin",
     "fluidlogistics:smart_hopper",
     "fluidlogistics:copper_basin",
+    "fluidlogistics:copper_basket",
     {
       "id": "createmoremachines:brass_basin",
       "required": false
