@@ -12,16 +12,9 @@ public class PackagerGoggleInfo {
 	public static void addToTooltip(List<Component> tooltip, String address, boolean isManualOverride,
 		boolean isRepackager, boolean isLinkedToNetwork, int cachedPackageCount) {
 		if (isLinkedToNetwork) {
-			CreateLang.builder()
-				.translate("goggles.packager_title")
-				.style(ChatFormatting.WHITE)
-				.forGoggles(tooltip);
-
-			CreateLang.builder()
-				.translate("goggles.linked_to_network")
-				.style(ChatFormatting.GREEN)
-				.forGoggles(tooltip, 1);
-		} else if (isRepackager) {
+			return;
+		}
+		if (isRepackager) {
 			CreateLang.builder()
 				.translate("goggles.repackager_title")
 				.style(ChatFormatting.WHITE)
@@ -83,40 +76,32 @@ public class PackagerGoggleInfo {
 	public static void addFluidPackagerToTooltip(List<Component> tooltip, String address, boolean isManualOverride,
 		boolean isLinkedToNetwork) {
 		if (isLinkedToNetwork) {
-			CreateLang.builder()
-				.translate("goggles.fluid_packager_title")
-				.style(ChatFormatting.WHITE)
-				.forGoggles(tooltip);
+			return;
+		}
 
+		CreateLang.builder()
+			.translate("goggles.fluid_packager_title")
+			.style(ChatFormatting.WHITE)
+			.forGoggles(tooltip);
+
+		CreateLang.builder()
+			.translate("goggles.address_label")
+			.style(ChatFormatting.GRAY)
+			.forGoggles(tooltip);
+
+		if (address != null && !address.isBlank()) {
 			CreateLang.builder()
-				.translate("goggles.linked_to_network")
-				.style(ChatFormatting.GREEN)
+				.text(address)
+				.style(ChatFormatting.GOLD)
 				.forGoggles(tooltip, 1);
 		} else {
 			CreateLang.builder()
-				.translate("goggles.fluid_packager_title")
-				.style(ChatFormatting.WHITE)
-				.forGoggles(tooltip);
-
-			CreateLang.builder()
-				.translate("goggles.address_label")
-				.style(ChatFormatting.GRAY)
-				.forGoggles(tooltip);
-
-			if (address != null && !address.isBlank()) {
-				CreateLang.builder()
-					.text(address)
-					.style(ChatFormatting.GOLD)
-					.forGoggles(tooltip, 1);
-			} else {
-				CreateLang.builder()
-					.translate("goggles.no_address")
-					.style(ChatFormatting.DARK_GRAY)
-					.forGoggles(tooltip, 1);
-			}
+				.translate("goggles.no_address")
+				.style(ChatFormatting.DARK_GRAY)
+				.forGoggles(tooltip, 1);
 		}
 
-		if (!isLinkedToNetwork && isManualOverride) {
+		if (isManualOverride) {
 			addManualOverrideLine(tooltip);
 		}
 	}

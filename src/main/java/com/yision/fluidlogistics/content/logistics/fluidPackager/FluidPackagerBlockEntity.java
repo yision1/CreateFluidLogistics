@@ -98,12 +98,16 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
 			address = overrideData.clipboardAddress();
 		}
 
+		if (address.isBlank() && !overrideData.fluidlogistics$isManualOverrideLocked()) {
+			return false;
+		}
+
 		BlockState state = getBlockState();
 		boolean linked = state.hasProperty(FluidPackagerBlock.LINKED)
 			&& state.getValue(FluidPackagerBlock.LINKED);
 		PackagerGoggleInfo.addFluidPackagerToTooltip(
 			tooltip, address, overrideData.fluidlogistics$isManualOverrideLocked(), linked);
-		return true;
+		return !linked;
 	}
 
 	private IPackagerOverrideData fluidlogistics$overrideData() {

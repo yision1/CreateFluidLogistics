@@ -216,9 +216,13 @@ public class PackagerBlockEntityMixin implements IPackagerOverrideData, IHaveGog
 			address = fluidlogistics$clipboardAddress;
 		}
 
+		if (address.isBlank() && !fluidlogistics$manualOverrideLocked) {
+			return false;
+		}
+
 		PackagerGoggleInfo.addToTooltip(tooltip, address, fluidlogistics$manualOverrideLocked, isRepackager,
 			isLinkedToNetwork);
-		return true;
+		return !isLinkedToNetwork;
 	}
 
 	@Unique
