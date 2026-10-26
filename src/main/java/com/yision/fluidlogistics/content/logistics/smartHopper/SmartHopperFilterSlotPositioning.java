@@ -2,6 +2,7 @@ package com.yision.fluidlogistics.content.logistics.smartHopper;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
+
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.math.AngleHelper;
 import net.createmod.catnip.math.VecHelper;
@@ -20,11 +21,11 @@ public class SmartHopperFilterSlotPositioning extends ValueBoxTransform.Sided {
 		float y = 13;
 
 		return switch (side) {
-			case NORTH -> VecHelper.voxelSpace(8, y, 0.5);
-			case SOUTH -> VecHelper.voxelSpace(8, y, 15.5);
-			case EAST -> VecHelper.voxelSpace(15.5f, y, 8);
-			case WEST -> VecHelper.voxelSpace(0.5f, y, 8);
-			default -> VecHelper.voxelSpace(8, y, 8);
+		case NORTH -> VecHelper.voxelSpace(8, y, 0.5);
+		case SOUTH -> VecHelper.voxelSpace(8, y, 15.5);
+		case EAST -> VecHelper.voxelSpace(15.5f, y, 8);
+		case WEST -> VecHelper.voxelSpace(0.5f, y, 8);
+		default -> VecHelper.voxelSpace(8, y, 8);
 		};
 	}
 
@@ -37,9 +38,7 @@ public class SmartHopperFilterSlotPositioning extends ValueBoxTransform.Sided {
 	public void rotate(LevelAccessor level, BlockPos pos, BlockState state, PoseStack ms) {
 		Direction side = getSide();
 
-		TransformStack.of(ms)
-			.rotateYDegrees(AngleHelper.horizontalAngle(side) + 180)
-			.rotateXDegrees(0);
+		TransformStack.of(ms).rotateYDegrees(AngleHelper.horizontalAngle(side) + 180).rotateXDegrees(0);
 	}
 
 	@Override

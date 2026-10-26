@@ -1,0 +1,22 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "fluidlogistics:block/snow_golem_freezer/snow_golem/head",
+	"textures": {
+		"head": "fluidlogistics:block/snow_golem_freezer/snow_golem_inert",
+		"particle": "fluidlogistics:block/snow_golem_freezer/snow_golem_inert"
+	},
+	"elements": [
+		{
+			"from": [5, 6, 5],
+			"to": [11, 12, 11],
+			"faces": {
+				"north": {"uv": [3, 3, 6, 6], "texture": "#head"},
+				"east": {"uv": [0, 3, 3, 6], "texture": "#head"},
+				"south": {"uv": [9, 3, 12, 6], "texture": "#head"},
+				"west": {"uv": [6, 3, 9, 6], "texture": "#head"},
+				"up": {"uv": [3, 0, 6, 3], "texture": "#head"},
+				"down": {"uv": [6, 0, 9, 3], "texture": "#head"}
+			}
+		}
+	]
+}

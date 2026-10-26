@@ -6,6 +6,7 @@ import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidT
 import com.yision.fluidlogistics.content.fluids.waterContainingCopperCasing.WaterContainingCopperCasingFluidHandler;
 
 import net.minecraft.world.level.material.Fluids;
+
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 

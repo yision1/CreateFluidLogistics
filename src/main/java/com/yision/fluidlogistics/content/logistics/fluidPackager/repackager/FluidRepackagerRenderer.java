@@ -9,19 +9,19 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider.Con
 
 public class FluidRepackagerRenderer extends FluidPackagerRenderer<FluidRepackagerBlockEntity> {
 
-    public FluidRepackagerRenderer(Context context) {
-        super(context, AllPartialModels.FLUID_REPACKAGER_TRAY, false);
-    }
+	public FluidRepackagerRenderer(Context context) {
+		super(context, AllPartialModels.FLUID_REPACKAGER_TRAY, false);
+	}
 
-    public static PartialModel getTrayModel() {
-        return AllPartialModels.FLUID_REPACKAGER_TRAY;
-    }
+	public static PartialModel getTrayModel() {
+		return AllPartialModels.FLUID_REPACKAGER_TRAY;
+	}
 
-    public static PartialModel getHatchModel(FluidRepackagerBlockEntity be) {
-        return getSharedHatchModel(be);
-    }
+	public static PartialModel getHatchModel(FluidRepackagerBlockEntity be) {
+		return getSharedHatchModel(be);
+	}
 
-    public static boolean isHatchOpen(FluidRepackagerBlockEntity be) {
-        return PackagerRenderer.isHatchOpen(be);
-    }
+	public static boolean isHatchOpen(FluidRepackagerBlockEntity be) {
+		return PackagerRenderer.isHatchOpen(be);
+	}
 }

@@ -16,13 +16,11 @@ public final class PhantomChainVisibility {
 	public static boolean isRevealing() {
 		Minecraft mc = Minecraft.getInstance();
 		LocalPlayer player = mc.player;
-		return player != null
-			&& (AllItems.PHANTOM_CHAIN.isIn(player.getMainHandItem())
-				|| AllItems.PHANTOM_CHAIN.isIn(player.getOffhandItem()));
+		return player != null && (AllItems.PHANTOM_CHAIN.isIn(player.getMainHandItem())
+			|| AllItems.PHANTOM_CHAIN.isIn(player.getOffhandItem()));
 	}
 
 	public static boolean shouldRenderConnection(ChainConveyorBlockEntity be, BlockPos connection) {
-		return isRevealing()
-			|| !((PhantomChainConveyorAccess) be).fluidlogistics$isPhantomConnection(connection);
+		return isRevealing() || !((PhantomChainConveyorAccess) be).fluidlogistics$isPhantomConnection(connection);
 	}
 }

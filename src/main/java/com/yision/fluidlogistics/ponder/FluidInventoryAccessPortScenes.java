@@ -5,6 +5,7 @@ import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 import com.yision.fluidlogistics.content.fluids.fluidInventoryAccessPort.FluidInventoryAccessPortBlock;
 import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankBlockEntity;
 import com.yision.fluidlogistics.registry.AllBlocks;
+
 import net.createmod.ponder.api.PonderPalette;
 import net.createmod.ponder.api.scene.SceneBuilder;
 import net.createmod.ponder.api.scene.SceneBuildingUtil;
@@ -16,6 +17,7 @@ import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 
@@ -54,20 +56,14 @@ public class FluidInventoryAccessPortScenes {
 		fillSource(scene, sourceTank, Fluids.LAVA);
 		scene.idle(10);
 
-		scene.overlay()
-			.showText(90)
-			.text("Accessing fluid containers can sometimes be troublesome")
-			.placeNearTarget()
+		scene.overlay().showText(90).text("Accessing fluid containers can sometimes be troublesome").placeNearTarget()
 			.pointAt(util.vector().topOf(sourceTank));
 		scene.idle(100);
 
 		scene.world().showSection(portS, Direction.EAST);
 		scene.idle(20);
-		scene.overlay()
-			.showText(90)
-			.text("Fluid Inventory Access Ports can extend fluid containers for easier access")
-			.placeNearTarget()
-			.pointAt(util.vector().blockSurface(portPos, Direction.WEST));
+		scene.overlay().showText(90).text("Fluid Inventory Access Ports can extend fluid containers for easier access")
+			.placeNearTarget().pointAt(util.vector().blockSurface(portPos, Direction.WEST));
 		scene.idle(100);
 
 		scene.world().showSection(northBranchS, Direction.SOUTH);
@@ -79,12 +75,8 @@ public class FluidInventoryAccessPortScenes {
 		scene.overlay().showOutline(PonderPalette.GREEN, "north", northBranchS, 80);
 		scene.overlay().showOutline(PonderPalette.BLUE, "west", westBranchS, 80);
 		scene.overlay().showOutline(PonderPalette.OUTPUT, "south", southBranchS, 80);
-		scene.overlay()
-			.showText(80)
-			.text("Fluid Inventory Access Ports can access fluids from any side")
-			.attachKeyFrame()
-			.placeNearTarget()
-			.pointAt(util.vector().topOf(portPos));
+		scene.overlay().showText(80).text("Fluid Inventory Access Ports can access fluids from any side")
+			.attachKeyFrame().placeNearTarget().pointAt(util.vector().topOf(portPos));
 		scene.idle(90);
 
 		for (int i = 0; i < 3; i++) {
@@ -105,61 +97,56 @@ public class FluidInventoryAccessPortScenes {
 
 		BlockPos leverPos = util.grid().at(4, 2, 3);
 		Selection leverS = util.select().position(leverPos);
-		scene.world().setBlock(leverPos, Blocks.LEVER.defaultBlockState()
-			.setValue(BlockStateProperties.ATTACH_FACE, AttachFace.WALL)
-			.setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.WEST)
-			.setValue(BlockStateProperties.POWERED, false), false);
+		scene.world().setBlock(leverPos,
+			Blocks.LEVER.defaultBlockState().setValue(BlockStateProperties.ATTACH_FACE, AttachFace.WALL)
+				.setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.WEST)
+				.setValue(BlockStateProperties.POWERED, false),
+			false);
 		scene.world().showSection(leverS, Direction.DOWN);
 		scene.idle(20);
-		scene.overlay()
-			.showText(80)
-			.text("Fluid Inventory Access Ports can also be disabled by redstone signals")
-			.attachKeyFrame()
-			.placeNearTarget()
-			.pointAt(util.vector().centerOf(leverPos));
+		scene.overlay().showText(80).text("Fluid Inventory Access Ports can also be disabled by redstone signals")
+			.attachKeyFrame().placeNearTarget().pointAt(util.vector().centerOf(leverPos));
 		scene.idle(90);
 		scene.world().modifyBlock(leverPos, state -> state.cycle(BlockStateProperties.POWERED), false);
-		scene.world().modifyBlock(portPos,
-			state -> state.setValue(FluidInventoryAccessPortBlock.ATTACHED, false), false);
+		scene.world().modifyBlock(portPos, state -> state.setValue(FluidInventoryAccessPortBlock.ATTACHED, false),
+			false);
 		scene.idle(30);
 
 		scene.world().hideSection(leverS, Direction.UP);
 		scene.idle(10);
 		scene.world().setBlock(leverPos, Blocks.AIR.defaultBlockState(), false);
-		scene.world().modifyBlock(portPos,
-			state -> state.setValue(FluidInventoryAccessPortBlock.ATTACHED, true), false);
+		scene.world().modifyBlock(portPos, state -> state.setValue(FluidInventoryAccessPortBlock.ATTACHED, true),
+			false);
 
 		BlockPos chainedPortPos = util.grid().at(3, 1, 3);
 		Selection chainedPortS = util.select().position(chainedPortPos);
-		scene.world().setBlock(chainedPortPos, AllBlocks.FLUID_INVENTORY_ACCESS_PORT.getDefaultState()
-			.setValue(FluidInventoryAccessPortBlock.FACING, Direction.EAST)
-			.setValue(FluidInventoryAccessPortBlock.TARGET, AttachFace.WALL)
-			.setValue(FluidInventoryAccessPortBlock.ATTACHED, false), false);
+		scene.world().setBlock(chainedPortPos,
+			AllBlocks.FLUID_INVENTORY_ACCESS_PORT.getDefaultState()
+				.setValue(FluidInventoryAccessPortBlock.FACING, Direction.EAST)
+				.setValue(FluidInventoryAccessPortBlock.TARGET, AttachFace.WALL)
+				.setValue(FluidInventoryAccessPortBlock.ATTACHED, false),
+			false);
 		scene.world().showSection(chainedPortS, Direction.EAST);
 		scene.idle(20);
-		scene.overlay()
-			.showOutlineWithText(chainedPortS.add(portS), 80)
-			.text("Note that Fluid Inventory Access Ports cannot be chained")
-			.colored(PonderPalette.RED)
-			.attachKeyFrame()
-			.placeNearTarget()
-			.pointAt(util.vector().centerOf(chainedPortPos));
+		scene.overlay().showOutlineWithText(chainedPortS.add(portS), 80)
+			.text("Note that Fluid Inventory Access Ports cannot be chained").colored(PonderPalette.RED)
+			.attachKeyFrame().placeNearTarget().pointAt(util.vector().centerOf(chainedPortPos));
 		scene.idle(90);
 
 		BlockPos topPortPos = util.grid().at(5, 3, 3);
 		Selection topPortS = util.select().position(topPortPos);
-		scene.world().setBlock(topPortPos, AllBlocks.FLUID_INVENTORY_ACCESS_PORT.getDefaultState()
-			.setValue(FluidInventoryAccessPortBlock.FACING, Direction.NORTH)
-			.setValue(FluidInventoryAccessPortBlock.TARGET, AttachFace.FLOOR)
-			.setValue(FluidInventoryAccessPortBlock.ATTACHED, true), false);
+		scene.world().setBlock(topPortPos,
+			AllBlocks.FLUID_INVENTORY_ACCESS_PORT.getDefaultState()
+				.setValue(FluidInventoryAccessPortBlock.FACING, Direction.NORTH)
+				.setValue(FluidInventoryAccessPortBlock.TARGET, AttachFace.FLOOR)
+				.setValue(FluidInventoryAccessPortBlock.ATTACHED, true),
+			false);
 		scene.world().showSection(topPortS, Direction.DOWN);
 		scene.idle(20);
 		scene.overlay().showOutline(PonderPalette.OUTPUT, "multiple_ports", topPortS.add(portS), 90);
-		scene.overlay()
-			.showText(90)
+		scene.overlay().showText(90)
 			.text("However, one fluid container can connect to multiple Fluid Inventory Access Ports at the same time")
-			.placeNearTarget()
-			.pointAt(util.vector().centerOf(topPortPos));
+			.placeNearTarget().pointAt(util.vector().centerOf(topPortPos));
 		scene.idle(100);
 
 		scene.markAsFinished();
@@ -173,8 +160,7 @@ public class FluidInventoryAccessPortScenes {
 		}
 	}
 
-	private static void transferFluid(CreateSceneBuilder scene, BlockPos sourceTank, BlockPos targetTank,
-		Fluid fluid) {
+	private static void transferFluid(CreateSceneBuilder scene, BlockPos sourceTank, BlockPos targetTank, Fluid fluid) {
 		scene.world().modifyBlockEntity(sourceTank, MultiFluidTankBlockEntity.class,
 			be -> be.getTankInventory().drain(new FluidStack(fluid, 1000), FluidAction.EXECUTE));
 		scene.world().modifyBlockEntity(targetTank, FluidTankBlockEntity.class,

@@ -11,6 +11,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -20,34 +21,34 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = FluidLogistics.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ClipboardPasteHandler {
 
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-        if (event.getHand() != InteractionHand.MAIN_HAND) {
-            return;
-        }
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
+		if (event.getHand() != InteractionHand.MAIN_HAND) {
+			return;
+		}
 
-        ItemStack heldItem = event.getItemStack();
-        if (!AllBlocks.CLIPBOARD.isIn(heldItem)) {
-            return;
-        }
-        if (event.getEntity().isShiftKeyDown()) {
-            return;
-        }
+		ItemStack heldItem = event.getItemStack();
+		if (!AllBlocks.CLIPBOARD.isIn(heldItem)) {
+			return;
+		}
+		if (event.getEntity().isShiftKeyDown()) {
+			return;
+		}
 
-        Level level = event.getLevel();
-        BlockPos pos = event.getPos();
-        if (!PackagerAddresses.isTarget(level, pos)) {
-            return;
-        }
+		Level level = event.getLevel();
+		BlockPos pos = event.getPos();
+		if (!PackagerAddresses.isTarget(level, pos)) {
+			return;
+		}
 
-        event.setCanceled(true);
-        event.setCancellationResult(InteractionResult.SUCCESS);
+		event.setCanceled(true);
+		event.setCancellationResult(InteractionResult.SUCCESS);
 
-        if (!level.isClientSide()) {
-            return;
-        }
+		if (!level.isClientSide()) {
+			return;
+		}
 
-        event.getEntity().swing(event.getHand());
-        FluidLogisticsPackets.getChannel().sendToServer(new ClipboardSetAddressPacket(pos));
-    }
+		event.getEntity().swing(event.getHand());
+		FluidLogisticsPackets.getChannel().sendToServer(new ClipboardSetAddressPacket(pos));
+	}
 }

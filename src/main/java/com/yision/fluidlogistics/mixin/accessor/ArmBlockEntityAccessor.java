@@ -13,15 +13,15 @@ import net.minecraft.nbt.ListTag;
 @Mixin(value = ArmBlockEntity.class, remap = false)
 public interface ArmBlockEntityAccessor {
 
-    @Accessor("inputs")
-    List<ArmInteractionPoint> getInputs();
+	@Accessor("inputs")
+	List<ArmInteractionPoint> getInputs();
 
-    @Accessor("outputs")
-    List<ArmInteractionPoint> getOutputs();
+	@Accessor("outputs")
+	List<ArmInteractionPoint> getOutputs();
 
-    @Accessor("interactionPointTag")
-    void setInteractionPointTag(ListTag tag);
+	@Accessor("interactionPointTag")
+	void setInteractionPointTag(ListTag tag);
 
-    @Accessor("updateInteractionPoints")
-    void setUpdateInteractionPoints(boolean updateInteractionPoints);
+	@Accessor("updateInteractionPoints")
+	void setUpdateInteractionPoints(boolean updateInteractionPoints);
 }

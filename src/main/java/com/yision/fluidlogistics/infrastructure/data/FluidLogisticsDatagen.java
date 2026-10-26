@@ -14,12 +14,12 @@ import com.google.gson.JsonParser;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
+
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.fml.loading.FMLPaths;
 
 public class FluidLogisticsDatagen {
-	private static final Path DATA_TEMPLATES = FMLPaths.GAMEDIR.get().getParent()
-		.resolve("src/datagen/resources/data");
+	private static final Path DATA_TEMPLATES = FMLPaths.GAMEDIR.get().getParent().resolve("src/datagen/resources/data");
 
 	public static void gatherData(GatherDataEvent event) {
 		event.getGenerator().addProvider(event.includeServer(),
@@ -36,11 +36,9 @@ public class FluidLogisticsDatagen {
 		@Override
 		public CompletableFuture<?> run(CachedOutput cache) {
 			try (Stream<Path> paths = Files.walk(DATA_TEMPLATES)) {
-				return CompletableFuture.allOf(paths
-					.filter(Files::isRegularFile)
-					.filter(path -> path.toString().endsWith(".json"))
-					.map(path -> (CompletableFuture<?>) save(cache, path))
-					.toArray(CompletableFuture[]::new));
+				return CompletableFuture
+					.allOf(paths.filter(Files::isRegularFile).filter(path -> path.toString().endsWith(".json"))
+						.map(path -> (CompletableFuture<?>) save(cache, path)).toArray(CompletableFuture[]::new));
 			} catch (IOException exception) {
 				throw new UncheckedIOException("Failed to read data templates from " + DATA_TEMPLATES, exception);
 			}

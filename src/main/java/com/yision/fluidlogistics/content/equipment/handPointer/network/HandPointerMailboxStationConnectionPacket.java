@@ -20,131 +20,131 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
+
 import net.minecraftforge.network.NetworkEvent.Context;
 
 public class HandPointerMailboxStationConnectionPacket extends SimplePacketBase {
 
-    private static final int MAX_POSITIONS = 64;
+	private static final int MAX_POSITIONS = 64;
 
-    private final List<BlockPos> mailboxPositions;
-    private final BlockPos stationPos;
+	private final List<BlockPos> mailboxPositions;
+	private final BlockPos stationPos;
 
-    public HandPointerMailboxStationConnectionPacket(Collection<BlockPos> mailboxPositions, BlockPos stationPos) {
-        this.mailboxPositions = List.copyOf(mailboxPositions);
-        this.stationPos = stationPos;
-    }
+	public HandPointerMailboxStationConnectionPacket(Collection<BlockPos> mailboxPositions, BlockPos stationPos) {
+		this.mailboxPositions = List.copyOf(mailboxPositions);
+		this.stationPos = stationPos;
+	}
 
-    public HandPointerMailboxStationConnectionPacket(BlockPos mailboxPos, BlockPos stationPos) {
-        this(List.of(mailboxPos), stationPos);
-    }
+	public HandPointerMailboxStationConnectionPacket(BlockPos mailboxPos, BlockPos stationPos) {
+		this(List.of(mailboxPos), stationPos);
+	}
 
-    public HandPointerMailboxStationConnectionPacket(FriendlyByteBuf buffer) {
-        int count = buffer.readVarInt();
-        if (count < 0 || count > MAX_POSITIONS) {
-            throw new IllegalArgumentException("Mailbox position count exceeds maximum: " + count);
-        }
-        List<BlockPos> positions = new ArrayList<>(count);
-        for (int i = 0; i < count; i++) {
-            positions.add(buffer.readBlockPos());
-        }
-        this.mailboxPositions = positions;
-        this.stationPos = buffer.readBlockPos();
-    }
+	public HandPointerMailboxStationConnectionPacket(FriendlyByteBuf buffer) {
+		int count = buffer.readVarInt();
+		if (count < 0 || count > MAX_POSITIONS) {
+			throw new IllegalArgumentException("Mailbox position count exceeds maximum: " + count);
+		}
+		List<BlockPos> positions = new ArrayList<>(count);
+		for (int i = 0; i < count; i++) {
+			positions.add(buffer.readBlockPos());
+		}
+		this.mailboxPositions = positions;
+		this.stationPos = buffer.readBlockPos();
+	}
 
-    @Override
-    public void write(FriendlyByteBuf buffer) {
-        buffer.writeVarInt(mailboxPositions.size());
-        for (BlockPos mailboxPos : mailboxPositions) {
-            buffer.writeBlockPos(mailboxPos);
-        }
-        buffer.writeBlockPos(stationPos);
-    }
+	@Override
+	public void write(FriendlyByteBuf buffer) {
+		buffer.writeVarInt(mailboxPositions.size());
+		for (BlockPos mailboxPos : mailboxPositions) {
+			buffer.writeBlockPos(mailboxPos);
+		}
+		buffer.writeBlockPos(stationPos);
+	}
 
-    @Override
-    public boolean handle(Context context) {
-        context.enqueueWork(() -> {
-            ServerPlayer player = context.getSender();
-            if (player == null) {
-                return;
-            }
+	@Override
+	public boolean handle(Context context) {
+		context.enqueueWork(() -> {
+			ServerPlayer player = context.getSender();
+			if (player == null) {
+				return;
+			}
 
-            Level level = player.level();
-            if (!HandPointerInteractionGuard.canUseHandPointer(player, stationPos)) {
-                return;
-            }
+			Level level = player.level();
+			if (!HandPointerInteractionGuard.canUseHandPointer(player, stationPos)) {
+				return;
+			}
 
-            BlockEntity stationBE = level.getBlockEntity(stationPos);
-            if (!(stationBE instanceof StationBlockEntity station)) {
-                return;
-            }
+			BlockEntity stationBE = level.getBlockEntity(stationPos);
+			if (!(stationBE instanceof StationBlockEntity station)) {
+				return;
+			}
 
-            GlobalStation newGlobalStation = station.getStation();
-            if (newGlobalStation == null) {
-                return;
-            }
+			GlobalStation newGlobalStation = station.getStation();
+			if (newGlobalStation == null) {
+				return;
+			}
 
-            LinkedHashSet<BlockPos> uniqueMailboxes = new LinkedHashSet<>(mailboxPositions);
-            if (uniqueMailboxes.isEmpty() || uniqueMailboxes.size() > Config.getHandPointerMaxMailboxes()) {
-                return;
-            }
+			LinkedHashSet<BlockPos> uniqueMailboxes = new LinkedHashSet<>(mailboxPositions);
+			if (uniqueMailboxes.isEmpty() || uniqueMailboxes.size() > Config.getHandPointerMaxMailboxes()) {
+				return;
+			}
 
-            List<PendingMailboxUpdate> pendingUpdates = new ArrayList<>(uniqueMailboxes.size());
-            for (BlockPos mailboxPos : uniqueMailboxes) {
-                if (!level.isLoaded(mailboxPos)) {
-                    return;
-                }
+			List<PendingMailboxUpdate> pendingUpdates = new ArrayList<>(uniqueMailboxes.size());
+			for (BlockPos mailboxPos : uniqueMailboxes) {
+				if (!level.isLoaded(mailboxPos)) {
+					return;
+				}
 
-                BlockEntity mailboxBE = level.getBlockEntity(mailboxPos);
-                if (!(mailboxBE instanceof PostboxBlockEntity postbox)) {
-                    return;
-                }
+				BlockEntity mailboxBE = level.getBlockEntity(mailboxPos);
+				if (!(mailboxBE instanceof PostboxBlockEntity postbox)) {
+					return;
+				}
 
-                if (isStationAlreadyConnected(postbox, mailboxPos, stationPos)) {
-                    return;
-                }
+				if (isStationAlreadyConnected(postbox, mailboxPos, stationPos)) {
+					return;
+				}
 
-                PackagePortTarget.TrainStationFrogportTarget target =
-                    new PackagePortTarget.TrainStationFrogportTarget(stationPos.subtract(mailboxPos));
+				PackagePortTarget.TrainStationFrogportTarget target = new PackagePortTarget.TrainStationFrogportTarget(
+					stationPos.subtract(mailboxPos));
 
-                Vec3 targetLocation = target.getExactTargetLocation(postbox, level, mailboxPos);
-                if (targetLocation == Vec3.ZERO || !HandPointerPackagePortRules.isWithinRange(
-                    targetLocation.x, targetLocation.y, targetLocation.z,
-                    mailboxPos.getX(), mailboxPos.getY(), mailboxPos.getZ(),
-                    AllConfigs.server().logistics.packagePortRange.get())) {
-                    return;
-                }
+				Vec3 targetLocation = target.getExactTargetLocation(postbox, level, mailboxPos);
+				if (targetLocation == Vec3.ZERO || !HandPointerPackagePortRules.isWithinRange(targetLocation.x,
+					targetLocation.y, targetLocation.z, mailboxPos.getX(), mailboxPos.getY(), mailboxPos.getZ(),
+					AllConfigs.server().logistics.packagePortRange.get())) {
+					return;
+				}
 
-                pendingUpdates.add(new PendingMailboxUpdate(mailboxPos, postbox, target, newGlobalStation));
-            }
+				pendingUpdates.add(new PendingMailboxUpdate(mailboxPos, postbox, target, newGlobalStation));
+			}
 
-            for (PendingMailboxUpdate update : pendingUpdates) {
-                if (update.postbox.target != null) {
-                    update.postbox.target.deregister(update.postbox, level, update.mailboxPos);
-                }
+			for (PendingMailboxUpdate update : pendingUpdates) {
+				if (update.postbox.target != null) {
+					update.postbox.target.deregister(update.postbox, level, update.mailboxPos);
+				}
 
-                GlobalStation oldGlobalStation = update.postbox.trackedGlobalStation.get();
-                if (oldGlobalStation != null && oldGlobalStation != update.newGlobalStation) {
-                    oldGlobalStation.connectedPorts.remove(update.mailboxPos);
-                }
+				GlobalStation oldGlobalStation = update.postbox.trackedGlobalStation.get();
+				if (oldGlobalStation != null && oldGlobalStation != update.newGlobalStation) {
+					oldGlobalStation.connectedPorts.remove(update.mailboxPos);
+				}
 
-                update.target.setup(update.postbox, level, update.mailboxPos);
-                update.postbox.target = update.target;
-                update.target.register(update.postbox, level, update.mailboxPos);
-                update.postbox.notifyUpdate();
-            }
-        });
-        return true;
-    }
+				update.target.setup(update.postbox, level, update.mailboxPos);
+				update.postbox.target = update.target;
+				update.target.register(update.postbox, level, update.mailboxPos);
+				update.postbox.notifyUpdate();
+			}
+		});
+		return true;
+	}
 
-    private static boolean isStationAlreadyConnected(PostboxBlockEntity postbox, BlockPos mailboxPos, BlockPos stationPos) {
-        if (!(postbox.target instanceof PackagePortTarget.TrainStationFrogportTarget stationTarget)) {
-            return false;
-        }
-        return mailboxPos.offset(stationTarget.relativePos).equals(stationPos);
-    }
+	private static boolean isStationAlreadyConnected(PostboxBlockEntity postbox, BlockPos mailboxPos,
+		BlockPos stationPos) {
+		if (!(postbox.target instanceof PackagePortTarget.TrainStationFrogportTarget stationTarget)) {
+			return false;
+		}
+		return mailboxPos.offset(stationTarget.relativePos).equals(stationPos);
+	}
 
-    private record PendingMailboxUpdate(BlockPos mailboxPos, PostboxBlockEntity postbox,
-                                        PackagePortTarget.TrainStationFrogportTarget target,
-                                        GlobalStation newGlobalStation) {
-    }
+	private record PendingMailboxUpdate(BlockPos mailboxPos, PostboxBlockEntity postbox,
+		PackagePortTarget.TrainStationFrogportTarget target, GlobalStation newGlobalStation) {
+	}
 }

@@ -110,34 +110,18 @@ public class ChainConveyorBlockEntityMixin implements PhantomChainConveyorAccess
 		fluidlogistics$phantomConnections.addAll(transformed);
 	}
 
-	@WrapOperation(
-		method = "chainDestroyed",
-		at = @At(
-			value = "INVOKE",
-			target = "Lcom/simibubi/create/content/kinetics/chainConveyor/ChainConveyorBlockEntity;forPointsAlongChains(Lnet/minecraft/core/BlockPos;ILjava/util/function/Consumer;)Z"
-		),
-		remap = false
-	)
+	@WrapOperation(method = "chainDestroyed", at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/kinetics/chainConveyor/ChainConveyorBlockEntity;forPointsAlongChains(Lnet/minecraft/core/BlockPos;ILjava/util/function/Consumer;)Z"), remap = false)
 	private boolean fluidlogistics$dropPhantomChainAlong(ChainConveyorBlockEntity instance, BlockPos connection,
-														 int positions, Consumer<Vec3> callback,
-														 Operation<Boolean> original, BlockPos target) {
+		int positions, Consumer<Vec3> callback, Operation<Boolean> original, BlockPos target) {
 		if (!fluidlogistics$phantomConnections.contains(target)) {
 			return original.call(instance, connection, positions, callback);
 		}
-		return original.call(instance, connection, positions, (Consumer<Vec3>) vec -> instance.getLevel()
-			.addFreshEntity(new ItemEntity(instance.getLevel(), vec.x, vec.y, vec.z,
-				new ItemStack(AllItems.PHANTOM_CHAIN.get()))));
+		return original.call(instance, connection, positions,
+			(Consumer<Vec3>) vec -> instance.getLevel().addFreshEntity(
+				new ItemEntity(instance.getLevel(), vec.x, vec.y, vec.z, new ItemStack(AllItems.PHANTOM_CHAIN.get()))));
 	}
 
-	@ModifyExpressionValue(
-		method = "chainDestroyed",
-		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/world/level/block/Block;asItem()Lnet/minecraft/world/item/Item;",
-			remap = true
-		),
-		remap = false
-	)
+	@ModifyExpressionValue(method = "chainDestroyed", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/Block;asItem()Lnet/minecraft/world/item/Item;", remap = true), remap = false)
 	private Item fluidlogistics$dropPhantomChainFallback(Item original, BlockPos target) {
 		if (fluidlogistics$phantomConnections.contains(target)) {
 			return AllItems.PHANTOM_CHAIN.get();

@@ -6,6 +6,7 @@ import com.simibubi.create.infrastructure.config.AllConfigs;
 import com.yision.fluidlogistics.config.Config;
 
 import net.minecraft.world.level.material.Fluid;
+
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
 
@@ -44,25 +45,18 @@ public final class InfiniteFluidSupplyRules {
 	}
 
 	public static String formatBuckets(int amount) {
-		return BigDecimal.valueOf(amount, 3)
-			.stripTrailingZeros()
-			.toPlainString() + "B";
+		return BigDecimal.valueOf(amount, 3).stripTrailingZeros().toPlainString() + "B";
 	}
 
 	public static boolean canSupplyInfinitely(Fluid fluid) {
-		return fluid != null
-			&& isInfiniteSourceEnabled()
-			&& Config.getInfiniteFluidTankAllowedFluids().test(fluid);
+		return fluid != null && isInfiniteSourceEnabled() && Config.getInfiniteFluidTankAllowedFluids().test(fluid);
 	}
 
 	public static boolean canEnterInfiniteTank(FluidStack stack) {
-		return !stack.isEmpty()
-			&& isInfiniteSourceEnabled()
-			&& canSupplyInfinitely(stack.getFluid());
+		return !stack.isEmpty() && isInfiniteSourceEnabled() && canSupplyInfinitely(stack.getFluid());
 	}
 
 	public static boolean isInfiniteSupply(FluidStack stack) {
-		return canEnterInfiniteTank(stack)
-			&& stack.getAmount() >= getRequiredAmount();
+		return canEnterInfiniteTank(stack) && stack.getAmount() >= getRequiredAmount();
 	}
 }

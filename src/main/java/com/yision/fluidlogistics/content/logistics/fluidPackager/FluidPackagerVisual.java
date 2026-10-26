@@ -20,100 +20,87 @@ import net.createmod.catnip.math.AngleHelper;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
 
-public class FluidPackagerVisual<T extends PackagerBlockEntity> extends AbstractBlockEntityVisual<T> implements SimpleDynamicVisual {
-    public final TransformedInstance hatch;
-    public final TransformedInstance tray;
+public class FluidPackagerVisual<T extends PackagerBlockEntity> extends AbstractBlockEntityVisual<T>
+	implements SimpleDynamicVisual {
+	public final TransformedInstance hatch;
+	public final TransformedInstance tray;
 
-    public float lastTrayOffset = Float.NaN;
-    public PartialModel lastHatchPartial;
-    private final PartialModel trayModel;
-    private final boolean hideTrayAfterHalfway;
+	public float lastTrayOffset = Float.NaN;
+	public PartialModel lastHatchPartial;
+	private final PartialModel trayModel;
+	private final boolean hideTrayAfterHalfway;
 
-    @SuppressWarnings("unchecked")
-    public FluidPackagerVisual(VisualizationContext ctx, FluidPackagerBlockEntity blockEntity, float partialTick) {
-        this(ctx, (T) blockEntity, partialTick, AllPartialModels.FLUID_PACKAGER_TRAY, true);
-    }
+	@SuppressWarnings("unchecked")
+	public FluidPackagerVisual(VisualizationContext ctx, FluidPackagerBlockEntity blockEntity, float partialTick) {
+		this(ctx, (T) blockEntity, partialTick, AllPartialModels.FLUID_PACKAGER_TRAY, true);
+	}
 
-    protected FluidPackagerVisual(VisualizationContext ctx, T blockEntity, float partialTick, PartialModel trayModel,
-                                  boolean hideTrayAfterHalfway) {
-        super(ctx, blockEntity, partialTick);
-        this.trayModel = trayModel;
-        this.hideTrayAfterHalfway = hideTrayAfterHalfway;
+	protected FluidPackagerVisual(VisualizationContext ctx, T blockEntity, float partialTick, PartialModel trayModel,
+		boolean hideTrayAfterHalfway) {
+		super(ctx, blockEntity, partialTick);
+		this.trayModel = trayModel;
+		this.hideTrayAfterHalfway = hideTrayAfterHalfway;
 
-        lastHatchPartial = FluidPackagerRenderer.getSharedHatchModel(blockEntity);
-        hatch = instancerProvider().instancer(InstanceTypes.TRANSFORMED, Models.partial(lastHatchPartial))
-                .createInstance();
+		lastHatchPartial = FluidPackagerRenderer.getSharedHatchModel(blockEntity);
+		hatch = instancerProvider().instancer(InstanceTypes.TRANSFORMED, Models.partial(lastHatchPartial))
+			.createInstance();
 
-        tray = instancerProvider().instancer(InstanceTypes.TRANSFORMED, Models.partial(trayModel))
-                .createInstance();
+		tray = instancerProvider().instancer(InstanceTypes.TRANSFORMED, Models.partial(trayModel)).createInstance();
 
-        Direction facing = blockState.getValue(PackagerBlock.FACING)
-                .getOpposite();
+		Direction facing = blockState.getValue(PackagerBlock.FACING).getOpposite();
 
-        var lowerCorner = Vec3.atLowerCornerOf(facing.getNormal());
-        hatch.setIdentityTransform()
-                .translate(getVisualPosition())
-                .translate(lowerCorner
-                        .scale(.49999f))
-                .rotateYCenteredDegrees(AngleHelper.horizontalAngle(facing))
-                .rotateXCenteredDegrees(AngleHelper.verticalAngle(facing))
-                .setChanged();
+		var lowerCorner = Vec3.atLowerCornerOf(facing.getNormal());
+		hatch.setIdentityTransform().translate(getVisualPosition()).translate(lowerCorner.scale(.49999f))
+			.rotateYCenteredDegrees(AngleHelper.horizontalAngle(facing))
+			.rotateXCenteredDegrees(AngleHelper.verticalAngle(facing)).setChanged();
 
-        animate(partialTick);
-    }
+		animate(partialTick);
+	}
 
-    @Override
-    public void beginFrame(Context ctx) {
-        animate(ctx.partialTick());
-    }
+	@Override
+	public void beginFrame(Context ctx) {
+		animate(ctx.partialTick());
+	}
 
-    public void animate(float partialTick) {
-        var hatchPartial = FluidPackagerRenderer.getSharedHatchModel(blockEntity);
+	public void animate(float partialTick) {
+		var hatchPartial = FluidPackagerRenderer.getSharedHatchModel(blockEntity);
 
-        if (hatchPartial != this.lastHatchPartial) {
-            instancerProvider().instancer(InstanceTypes.TRANSFORMED, Models.partial(hatchPartial))
-                    .stealInstance(hatch);
+		if (hatchPartial != this.lastHatchPartial) {
+			instancerProvider().instancer(InstanceTypes.TRANSFORMED, Models.partial(hatchPartial)).stealInstance(hatch);
 
-            this.lastHatchPartial = hatchPartial;
-        }
+			this.lastHatchPartial = hatchPartial;
+		}
 
-        float trayOffset = blockEntity.getTrayOffset(partialTick);
+		float trayOffset = blockEntity.getTrayOffset(partialTick);
 
-        if (trayOffset != lastTrayOffset) {
-            Direction facing = blockState.getValue(PackagerBlock.FACING)
-                    .getOpposite();
+		if (trayOffset != lastTrayOffset) {
+			Direction facing = blockState.getValue(PackagerBlock.FACING).getOpposite();
 
-            var lowerCorner = Vec3.atLowerCornerOf(facing.getNormal());
+			var lowerCorner = Vec3.atLowerCornerOf(facing.getNormal());
 
-            if (!hideTrayAfterHalfway || trayOffset <= 0.5f) {
-                tray.setIdentityTransform()
-                        .translate(getVisualPosition())
-                        .translate(lowerCorner.scale(trayOffset))
-                        .rotateYCenteredDegrees(facing.toYRot())
-                        .setChanged();
-            } else {
-                tray.setIdentityTransform()
-                        .translate(getVisualPosition())
-                        .translate(0, -1000, 0)
-                        .setChanged();
-            }
+			if (!hideTrayAfterHalfway || trayOffset <= 0.5f) {
+				tray.setIdentityTransform().translate(getVisualPosition()).translate(lowerCorner.scale(trayOffset))
+					.rotateYCenteredDegrees(facing.toYRot()).setChanged();
+			} else {
+				tray.setIdentityTransform().translate(getVisualPosition()).translate(0, -1000, 0).setChanged();
+			}
 
-            lastTrayOffset = trayOffset;
-        }
-    }
+			lastTrayOffset = trayOffset;
+		}
+	}
 
-    @Override
-    public void updateLight(float partialTick) {
-        relight(hatch, tray);
-    }
+	@Override
+	public void updateLight(float partialTick) {
+		relight(hatch, tray);
+	}
 
-    @Override
-    protected void _delete() {
-        hatch.delete();
-        tray.delete();
-    }
+	@Override
+	protected void _delete() {
+		hatch.delete();
+		tray.delete();
+	}
 
-    @Override
-    public void collectCrumblingInstances(Consumer<@Nullable Instance> consumer) {
-    }
+	@Override
+	public void collectCrumblingInstances(Consumer<@Nullable Instance> consumer) {
+	}
 }

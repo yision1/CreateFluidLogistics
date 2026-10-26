@@ -4,5 +4,5 @@ import java.util.List;
 
 public interface RedstoneRequesterAmountsAccess {
 
-    List<Integer> fluidlogistics$getAmounts();
+	List<Integer> fluidlogistics$getAmounts();
 }

@@ -1,7 +1,7 @@
 package com.yision.fluidlogistics.api.handpointer;
 
 public interface PackagerAddress {
-    String clipboardAddress();
+	String clipboardAddress();
 
-    void setClipboardAddress(String address);
+	void setClipboardAddress(String address);
 }

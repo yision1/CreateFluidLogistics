@@ -3,9 +3,11 @@ package com.yision.fluidlogistics.content.logistics.smartHopper;
 import com.simibubi.create.foundation.data.SpecialBlockStateGen;
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
+
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+
 import net.minecraftforge.client.model.generators.ModelFile;
 
 public class SmartHopperGenerator extends SpecialBlockStateGen {

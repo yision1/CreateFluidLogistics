@@ -10,6 +10,6 @@ import com.simibubi.create.content.logistics.redstoneRequester.RedstoneRequester
 @Mixin(value = RedstoneRequesterScreen.class, remap = false)
 public interface RedstoneRequesterScreenAccessor {
 
-    @Accessor("amounts")
-    List<Integer> getAmounts();
+	@Accessor("amounts")
+	List<Integer> getAmounts();
 }

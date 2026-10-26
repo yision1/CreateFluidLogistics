@@ -8,13 +8,11 @@ import net.minecraft.world.item.CreativeModeTab;
 
 @Mixin(CreativeModeInventoryScreen.class)
 public interface CreativeModeInventoryScreenAccessor {
-    @Accessor("selectedTab")
-    static CreativeModeTab fluidLogistics$getSelectedTab() {
-        throw new AssertionError();
-    }
+	@Accessor("selectedTab")
+	static CreativeModeTab fluidLogistics$getSelectedTab() {
+		throw new AssertionError();
+	}
 
-    @Accessor("scrollOffs")
-    float fluidLogistics$getScrollOffset();
+	@Accessor("scrollOffs")
+	float fluidLogistics$getScrollOffset();
 }
-
-

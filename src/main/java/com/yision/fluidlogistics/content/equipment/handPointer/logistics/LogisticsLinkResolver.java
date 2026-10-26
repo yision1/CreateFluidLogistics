@@ -20,55 +20,48 @@ import net.minecraft.world.phys.Vec3;
 
 public final class LogisticsLinkResolver {
 
-    public record ResolvedLink(
-        UUID networkId,
-        boolean global,
-        @Nullable FactoryPanelBehaviour panel,
-        @Nullable LogisticallyLinkedBehaviour behaviour
-    ) {
-    }
+	public record ResolvedLink(UUID networkId, boolean global, @Nullable FactoryPanelBehaviour panel,
+		@Nullable LogisticallyLinkedBehaviour behaviour) {
+	}
 
-    private LogisticsLinkResolver() {
-    }
+	private LogisticsLinkResolver() {
+	}
 
-    public static Optional<ResolvedLink> resolve(Level level, BlockPos pos, @Nullable BlockState state,
-                                                 @Nullable Vec3 clickLocation) {
-        FactoryPanelBlock.PanelSlot slot = state != null && clickLocation != null
-            ? FactoryPanelBlock.getTargetedSlot(pos, state, clickLocation)
-            : FactoryPanelBlock.PanelSlot.BOTTOM_LEFT;
-        return resolve(level, pos, slot);
-    }
+	public static Optional<ResolvedLink> resolve(Level level, BlockPos pos, @Nullable BlockState state,
+		@Nullable Vec3 clickLocation) {
+		FactoryPanelBlock.PanelSlot slot = state != null && clickLocation != null
+			? FactoryPanelBlock.getTargetedSlot(pos, state, clickLocation)
+			: FactoryPanelBlock.PanelSlot.BOTTOM_LEFT;
+		return resolve(level, pos, slot);
+	}
 
-    public static Optional<ResolvedLink> resolve(Level level, BlockPos pos, @Nullable FactoryPanelBlock.PanelSlot slot) {
-        if (level == null || pos == null || !level.isLoaded(pos)) {
-            return Optional.empty();
-        }
+	public static Optional<ResolvedLink> resolve(Level level, BlockPos pos,
+		@Nullable FactoryPanelBlock.PanelSlot slot) {
+		if (level == null || pos == null || !level.isLoaded(pos)) {
+			return Optional.empty();
+		}
 
-        BlockEntity be = level.getBlockEntity(pos);
-        if (be instanceof FactoryPanelBlockEntity panel) {
-            return resolvePanel(panel, slot)
-                .map(fp -> new ResolvedLink(fp.network, false, fp, null));
-        }
+		BlockEntity be = level.getBlockEntity(pos);
+		if (be instanceof FactoryPanelBlockEntity panel) {
+			return resolvePanel(panel, slot).map(fp -> new ResolvedLink(fp.network, false, fp, null));
+		}
 
-        LogisticallyLinkedBehaviour behaviour =
-            BlockEntityBehaviour.get(level, pos, LogisticallyLinkedBehaviour.TYPE);
-        if (behaviour == null) {
-            return Optional.empty();
-        }
+		LogisticallyLinkedBehaviour behaviour = BlockEntityBehaviour.get(level, pos, LogisticallyLinkedBehaviour.TYPE);
+		if (behaviour == null) {
+			return Optional.empty();
+		}
 
-        boolean global = ((LogisticallyLinkedBehaviourAccessor) behaviour).fluidlogistics$isGlobal();
-        return Optional.of(new ResolvedLink(behaviour.freqId, global, null, behaviour));
-    }
+		boolean global = ((LogisticallyLinkedBehaviourAccessor) behaviour).fluidlogistics$isGlobal();
+		return Optional.of(new ResolvedLink(behaviour.freqId, global, null, behaviour));
+	}
 
-    public static Optional<FactoryPanelBehaviour> resolvePanel(FactoryPanelBlockEntity panel,
-                                                               @Nullable FactoryPanelBlock.PanelSlot slot) {
-        if (panel.panels == null || panel.panels.isEmpty()) {
-            return Optional.empty();
-        }
+	public static Optional<FactoryPanelBehaviour> resolvePanel(FactoryPanelBlockEntity panel,
+		@Nullable FactoryPanelBlock.PanelSlot slot) {
+		if (panel.panels == null || panel.panels.isEmpty()) {
+			return Optional.empty();
+		}
 
-        FactoryPanelBehaviour fp = slot == null ? null : panel.panels.get(slot);
-        return fp != null && fp.isActive()
-            ? Optional.of(fp)
-            : Optional.empty();
-    }
+		FactoryPanelBehaviour fp = slot == null ? null : panel.panels.get(slot);
+		return fp != null && fp.isActive() ? Optional.of(fp) : Optional.empty();
+	}
 }

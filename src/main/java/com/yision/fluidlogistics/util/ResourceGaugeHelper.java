@@ -10,44 +10,41 @@ import com.yision.fluidlogistics.content.logistics.packageResource.ResourceResto
 import net.minecraft.world.item.ItemStack;
 
 public final class ResourceGaugeHelper {
-    public static final String RESTOCK_THRESHOLD_KEY = "FluidRestockThreshold";
-    public static final String PROMISE_LIMIT_KEY = "FluidPromiseLimit";
-    public static final String ADDITIONAL_STOCK_KEY = "FluidAdditionalStock";
-    public static final String REMAINING_ADDITIONAL_STOCK_KEY = "FluidRemainingAdditionalStock";
+	public static final String RESTOCK_THRESHOLD_KEY = "FluidRestockThreshold";
+	public static final String PROMISE_LIMIT_KEY = "FluidPromiseLimit";
+	public static final String ADDITIONAL_STOCK_KEY = "FluidAdditionalStock";
+	public static final String REMAINING_ADDITIONAL_STOCK_KEY = "FluidRemainingAdditionalStock";
 
-    public static final int DEFAULT_RESTOCK_THRESHOLD = 0;
-    public static final int DEFAULT_PROMISE_LIMIT = -1;
-    public static final int DEFAULT_ADDITIONAL_STOCK = 0;
+	public static final int DEFAULT_RESTOCK_THRESHOLD = 0;
+	public static final int DEFAULT_PROMISE_LIMIT = -1;
+	public static final int DEFAULT_ADDITIONAL_STOCK = 0;
 
-    private ResourceGaugeHelper() {
-    }
+	private ResourceGaugeHelper() {
+	}
 
-    public static PackageResourceDisplay.FactoryPanelRestockPolicy policy(FactoryPanelBehaviour behaviour) {
-        ItemStack filter = behaviour.getFilter();
-        return PackageResources.displayOf(filter)
-                .map(display -> display.factoryPanelRestockPolicy(filter))
-                .orElseGet(PackageResourceDisplay.FactoryPanelRestockPolicy::standard);
-    }
+	public static PackageResourceDisplay.FactoryPanelRestockPolicy policy(FactoryPanelBehaviour behaviour) {
+		ItemStack filter = behaviour.getFilter();
+		return PackageResources.displayOf(filter).map(display -> display.factoryPanelRestockPolicy(filter))
+			.orElseGet(PackageResourceDisplay.FactoryPanelRestockPolicy::standard);
+	}
 
-    public static boolean hasConfigurableSettings(FactoryPanelBehaviour behaviour) {
-        return policy(behaviour).hasConfigurableSettings();
-    }
+	public static boolean hasConfigurableSettings(FactoryPanelBehaviour behaviour) {
+		return policy(behaviour).hasConfigurableSettings();
+	}
 
-    public static boolean isResourceRestocker(FactoryPanelBehaviour behaviour) {
-        return behaviour.panelBE().restocker
-                && PackageResources.displayOf(behaviour.getFilter()).isPresent();
-    }
+	public static boolean isResourceRestocker(FactoryPanelBehaviour behaviour) {
+		return behaviour.panelBE().restocker && PackageResources.displayOf(behaviour.getFilter()).isPresent();
+	}
 
-    public static void applyPanelSetting(
-            FactoryPanelBehaviour behaviour,
-            BiPredicate<PackageResourceDisplay.FactoryPanelRestockPolicy, ResourceRestockSettings> updater) {
-        if (!(behaviour instanceof ResourceRestockSettings settings)) {
-            return;
-        }
-        if (!updater.test(policy(behaviour), settings)) {
-            return;
-        }
-        behaviour.resetTimerSlightly();
-        behaviour.panelBE().notifyUpdate();
-    }
+	public static void applyPanelSetting(FactoryPanelBehaviour behaviour,
+		BiPredicate<PackageResourceDisplay.FactoryPanelRestockPolicy, ResourceRestockSettings> updater) {
+		if (!(behaviour instanceof ResourceRestockSettings settings)) {
+			return;
+		}
+		if (!updater.test(policy(behaviour), settings)) {
+			return;
+		}
+		behaviour.resetTimerSlightly();
+		behaviour.panelBE().notifyUpdate();
+	}
 }

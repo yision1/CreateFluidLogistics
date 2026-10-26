@@ -24,6 +24,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
+
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.data.ModelData;
@@ -32,43 +33,29 @@ import net.minecraftforge.client.model.data.ModelData;
 @Mixin(FactoryPanelModel.class)
 public abstract class FactoryGaugeHostModelMixin {
 
-    @Inject(
-        method = "gatherModelData",
-        at = @At("RETURN"),
-        remap = false
-    )
-    private void fluidlogistics$collectGaugeTypes(ModelData.Builder builder, BlockAndTintGetter world,
-        BlockPos pos, BlockState state, ModelData blockEntityData, CallbackInfoReturnable<ModelData.Builder> cir) {
-        Map<PanelSlot, ResourceLocation> types = ResourceFactoryGaugeModel.collectGaugeTypes(world, pos);
-        if (types.isEmpty())
-            return;
-        builder.with(ResourceFactoryGaugeModel.GAUGE_TYPE_PROPERTY, types);
-    }
+	@Inject(method = "gatherModelData", at = @At("RETURN"), remap = false)
+	private void fluidlogistics$collectGaugeTypes(ModelData.Builder builder, BlockAndTintGetter world, BlockPos pos,
+		BlockState state, ModelData blockEntityData, CallbackInfoReturnable<ModelData.Builder> cir) {
+		Map<PanelSlot, ResourceLocation> types = ResourceFactoryGaugeModel.collectGaugeTypes(world, pos);
+		if (types.isEmpty())
+			return;
+		builder.with(ResourceFactoryGaugeModel.GAUGE_TYPE_PROPERTY, types);
+	}
 
-    @WrapOperation(
-        method = "addPanel",
-        at = @At(
-            value = "INVOKE",
-            target = "Ldev/engine_room/flywheel/lib/model/baked/PartialModel;get()"
-                + "Lnet/minecraft/client/resources/model/BakedModel;",
-            remap = false
-        ),
-        remap = false
-    )
-    private BakedModel fluidlogistics$useTypedPanelModel(PartialModel partial, Operation<BakedModel> original,
-        @Local(argsOnly = true) PanelSlot slot, @Local(argsOnly = true) PanelType type,
-        @Local(argsOnly = true) PanelState panelState, @Local(argsOnly = true) ModelData data) {
-        Map<PanelSlot, ResourceLocation> types = data.get(ResourceFactoryGaugeModel.GAUGE_TYPE_PROPERTY);
-        if (types != null) {
-            ResourceLocation typeId = types.get(slot);
-            if (typeId != null) {
-                FactoryGaugeModelSet models = FactoryGaugeClient.modelsFor(typeId)
-                    .orElse(null);
-                if (models != null)
-                    partial = ResourceFactoryGaugeModel.panelFor(models, type, panelState);
-            }
-        }
-        return original.call(partial);
-    }
+	@WrapOperation(method = "addPanel", at = @At(value = "INVOKE", target = "Ldev/engine_room/flywheel/lib/model/baked/PartialModel;get()"
+		+ "Lnet/minecraft/client/resources/model/BakedModel;", remap = false), remap = false)
+	private BakedModel fluidlogistics$useTypedPanelModel(PartialModel partial, Operation<BakedModel> original,
+		@Local(argsOnly = true) PanelSlot slot, @Local(argsOnly = true) PanelType type,
+		@Local(argsOnly = true) PanelState panelState, @Local(argsOnly = true) ModelData data) {
+		Map<PanelSlot, ResourceLocation> types = data.get(ResourceFactoryGaugeModel.GAUGE_TYPE_PROPERTY);
+		if (types != null) {
+			ResourceLocation typeId = types.get(slot);
+			if (typeId != null) {
+				FactoryGaugeModelSet models = FactoryGaugeClient.modelsFor(typeId).orElse(null);
+				if (models != null)
+					partial = ResourceFactoryGaugeModel.panelFor(models, type, panelState);
+			}
+		}
+		return original.call(partial);
+	}
 }
-

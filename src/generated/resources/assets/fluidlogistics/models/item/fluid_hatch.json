@@ -1,3 +1,3 @@
 {
-  "parent": "fluidlogistics:block/fluid_hatch/block_closed"
+	"parent": "fluidlogistics:block/fluid_hatch/block_closed"
 }

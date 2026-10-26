@@ -10,31 +10,31 @@ import net.minecraft.world.item.ItemStack;
 
 public class ClipboardAddressUtil {
 
-    private ClipboardAddressUtil() {
-    }
+	private ClipboardAddressUtil() {
+	}
 
-    public static @Nullable String extractFirstAddress(ItemStack clipboardItem) {
-        if (clipboardItem == null || clipboardItem.isEmpty()) {
-            return null;
-        }
+	public static @Nullable String extractFirstAddress(ItemStack clipboardItem) {
+		if (clipboardItem == null || clipboardItem.isEmpty()) {
+			return null;
+		}
 
-        List<List<ClipboardEntry>> pages = ClipboardEntry.readAll(clipboardItem);
-        if (pages.isEmpty()) {
-            return null;
-        }
+		List<List<ClipboardEntry>> pages = ClipboardEntry.readAll(clipboardItem);
+		if (pages.isEmpty()) {
+			return null;
+		}
 
-        for (List<ClipboardEntry> page : pages) {
-            for (ClipboardEntry entry : page) {
-                String text = entry.text.getString();
-                if (text != null && text.startsWith("#") && text.length() > 1) {
-                    String candidate = text.substring(1).stripLeading();
-                    if (!candidate.isBlank()) {
-                        return candidate;
-                    }
-                }
-            }
-        }
+		for (List<ClipboardEntry> page : pages) {
+			for (ClipboardEntry entry : page) {
+				String text = entry.text.getString();
+				if (text != null && text.startsWith("#") && text.length() > 1) {
+					String candidate = text.substring(1).stripLeading();
+					if (!candidate.isBlank()) {
+						return candidate;
+					}
+				}
+			}
+		}
 
-        return null;
-    }
+		return null;
+	}
 }

@@ -8,12 +8,11 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public final class PackagerTargetHelper {
 
-    private PackagerTargetHelper() {
-    }
+	private PackagerTargetHelper() {
+	}
 
-    public static boolean isToggleTarget(BlockEntity blockEntity, BlockState state) {
-        return blockEntity instanceof PackagerBlockEntity
-            && state.getBlock() instanceof PackagerBlock
-            && state.hasProperty(PackagerBlock.POWERED);
-    }
+	public static boolean isToggleTarget(BlockEntity blockEntity, BlockState state) {
+		return blockEntity instanceof PackagerBlockEntity && state.getBlock() instanceof PackagerBlock
+			&& state.hasProperty(PackagerBlock.POWERED);
+	}
 }

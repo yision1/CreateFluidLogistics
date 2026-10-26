@@ -11,28 +11,28 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 public interface ResourcePackager {
-    record Snapshot(@Nullable Object storageIdentity, InventorySummary resources) {
-        public Snapshot {
-            resources = Objects.requireNonNull(resources, "resources").copy();
-        }
+	record Snapshot(@Nullable Object storageIdentity, InventorySummary resources) {
+		public Snapshot {
+			resources = Objects.requireNonNull(resources, "resources").copy();
+		}
 
-        @Override
-        public InventorySummary resources() {
-            return resources.copy();
-        }
+		@Override
+		public InventorySummary resources() {
+			return resources.copy();
+		}
 
-        public static Snapshot empty(@Nullable Object storageIdentity) {
-            return new Snapshot(storageIdentity, InventorySummary.EMPTY);
-        }
-    }
+		public static Snapshot empty(@Nullable Object storageIdentity) {
+			return new Snapshot(storageIdentity, InventorySummary.EMPTY);
+		}
+	}
 
-    PackagerBlockEntity owner();
+	PackagerBlockEntity owner();
 
-    ResourceLocation resourceTypeId();
+	ResourceLocation resourceTypeId();
 
-    Snapshot scan();
+	Snapshot scan();
 
-    int extract(ItemStack normalizedKey, int maxAmount, boolean simulate);
+	int extract(ItemStack normalizedKey, int maxAmount, boolean simulate);
 
-    int insert(ItemStack normalizedKey, int maxAmount, boolean simulate);
+	int insert(ItemStack normalizedKey, int maxAmount, boolean simulate);
 }

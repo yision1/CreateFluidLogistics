@@ -7,15 +7,15 @@ import net.minecraft.world.item.ItemStack;
 
 public class CopperSchematicannonInventory extends SchematicannonInventory {
 
-    public CopperSchematicannonInventory(CopperSchematicannonBlockEntity blockEntity) {
-        super(blockEntity);
-    }
+	public CopperSchematicannonInventory(CopperSchematicannonBlockEntity blockEntity) {
+		super(blockEntity);
+	}
 
-    @Override
-    public boolean isItemValid(int slot, ItemStack stack) {
-        if (slot == 0) {
-            return AllItems.FLUID_SCHEMATIC.isIn(stack);
-        }
-        return super.isItemValid(slot, stack);
-    }
+	@Override
+	public boolean isItemValid(int slot, ItemStack stack) {
+		if (slot == 0) {
+			return AllItems.FLUID_SCHEMATIC.isIn(stack);
+		}
+		return super.isItemValid(slot, stack);
+	}
 }

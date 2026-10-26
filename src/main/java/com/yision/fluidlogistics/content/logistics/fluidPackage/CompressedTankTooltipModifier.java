@@ -9,27 +9,28 @@ import net.createmod.catnip.lang.FontHelper.Palette;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 
 public class CompressedTankTooltipModifier extends ItemDescription.Modifier {
 
-    public CompressedTankTooltipModifier(Item item, Palette palette) {
-        super(item, palette);
-    }
+	public CompressedTankTooltipModifier(Item item, Palette palette) {
+		super(item, palette);
+	}
 
-    @Override
-    public void modify(ItemTooltipEvent context) {
-        ItemStack stack = context.getItemStack();
-        List<Component> fluidTooltip =
-            FluidTooltipHelper.getCompressedTankTooltipLines(stack, context.getFlags(), false);
+	@Override
+	public void modify(ItemTooltipEvent context) {
+		ItemStack stack = context.getItemStack();
+		List<Component> fluidTooltip = FluidTooltipHelper.getCompressedTankTooltipLines(stack, context.getFlags(),
+			false);
 
-        if (!fluidTooltip.isEmpty()) {
-            List<Component> tooltip = context.getToolTip();
-            tooltip.clear();
-            tooltip.addAll(fluidTooltip);
-            return;
-        }
+		if (!fluidTooltip.isEmpty()) {
+			List<Component> tooltip = context.getToolTip();
+			tooltip.clear();
+			tooltip.addAll(fluidTooltip);
+			return;
+		}
 
-        super.modify(context);
-    }
+		super.modify(context);
+	}
 }

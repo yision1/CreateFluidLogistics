@@ -18,65 +18,65 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
+
 import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.client.model.data.ModelProperty;
 
 public abstract class AbstractMultiFluidTankModel extends CTModel {
 
-    protected static final ModelProperty<CullData> CULL_PROPERTY = new ModelProperty<>();
+	protected static final ModelProperty<CullData> CULL_PROPERTY = new ModelProperty<>();
 
-    protected AbstractMultiFluidTankModel(BakedModel originalModel, CTSpriteShiftEntry side, CTSpriteShiftEntry top,
-            CTSpriteShiftEntry inner, ConnectedTextureBehaviour behaviour) {
-        super(originalModel, behaviour);
-    }
+	protected AbstractMultiFluidTankModel(BakedModel originalModel, CTSpriteShiftEntry side, CTSpriteShiftEntry top,
+		CTSpriteShiftEntry inner, ConnectedTextureBehaviour behaviour) {
+		super(originalModel, behaviour);
+	}
 
-    protected abstract CullData createCullData();
+	protected abstract CullData createCullData();
 
-    protected abstract boolean shouldCheck(Direction direction, BlockState state);
+	protected abstract boolean shouldCheck(Direction direction, BlockState state);
 
-    @Override
-    protected ModelData.Builder gatherModelData(ModelData.Builder builder, BlockAndTintGetter world, BlockPos pos,
-            BlockState state, ModelData blockEntityData) {
-        super.gatherModelData(builder, world, pos, state, blockEntityData);
-        CullData cullData = createCullData();
-        for (Direction d : Iterate.directions) {
-            if (!shouldCheck(d, state)) {
-                continue;
-            }
-            cullData.setCulled(d, ConnectivityHandler.isConnected(world, pos, pos.relative(d)));
-        }
-        return builder.with(CULL_PROPERTY, cullData);
-    }
+	@Override
+	protected ModelData.Builder gatherModelData(ModelData.Builder builder, BlockAndTintGetter world, BlockPos pos,
+		BlockState state, ModelData blockEntityData) {
+		super.gatherModelData(builder, world, pos, state, blockEntityData);
+		CullData cullData = createCullData();
+		for (Direction d : Iterate.directions) {
+			if (!shouldCheck(d, state)) {
+				continue;
+			}
+			cullData.setCulled(d, ConnectivityHandler.isConnected(world, pos, pos.relative(d)));
+		}
+		return builder.with(CULL_PROPERTY, cullData);
+	}
 
-    @Override
-    public List<BakedQuad> getQuads(BlockState state, Direction side, RandomSource rand, ModelData extraData,
-            RenderType renderType) {
-        if (side != null) {
-            return Collections.emptyList();
-        }
+	@Override
+	public List<BakedQuad> getQuads(BlockState state, Direction side, RandomSource rand, ModelData extraData,
+		RenderType renderType) {
+		if (side != null) {
+			return Collections.emptyList();
+		}
 
-        List<BakedQuad> quads = new ArrayList<>();
-        for (Direction d : Iterate.directions) {
-            if (extraData.has(CULL_PROPERTY) && extraData.get(CULL_PROPERTY)
-                    .isCulled(d)) {
-                continue;
-            }
-            quads.addAll(super.getQuads(state, d, rand, extraData, renderType));
-        }
-        quads.addAll(super.getQuads(state, null, rand, extraData, renderType));
-        return quads;
-    }
+		List<BakedQuad> quads = new ArrayList<>();
+		for (Direction d : Iterate.directions) {
+			if (extraData.has(CULL_PROPERTY) && extraData.get(CULL_PROPERTY).isCulled(d)) {
+				continue;
+			}
+			quads.addAll(super.getQuads(state, d, rand, extraData, renderType));
+		}
+		quads.addAll(super.getQuads(state, null, rand, extraData, renderType));
+		return quads;
+	}
 
-    public abstract static class CullData {
-        protected final boolean[] culledFaces;
+	public abstract static class CullData {
+		protected final boolean[] culledFaces;
 
-        protected CullData(int size) {
-            culledFaces = new boolean[size];
-            java.util.Arrays.fill(culledFaces, false);
-        }
+		protected CullData(int size) {
+			culledFaces = new boolean[size];
+			java.util.Arrays.fill(culledFaces, false);
+		}
 
-        public abstract void setCulled(Direction face, boolean cull);
+		public abstract void setCulled(Direction face, boolean cull);
 
-        public abstract boolean isCulled(Direction face);
-    }
+		public abstract boolean isCulled(Direction face);
+	}
 }

@@ -6,5 +6,5 @@ import net.minecraftforge.fluids.FluidStack;
 
 public interface SharedCapacityFluidHandler {
 
-    boolean canFillAll(List<FluidStack> fluids);
+	boolean canFillAll(List<FluidStack> fluids);
 }

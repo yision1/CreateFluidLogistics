@@ -18,36 +18,18 @@ import net.minecraft.world.item.Item;
 @Mixin(value = ChainConveyorBlock.class, remap = false)
 public class ChainConveyorBlockMixin {
 
-	@ModifyExpressionValue(
-		method = "use",
-		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/world/item/ItemStack;is(Lnet/minecraft/world/item/Item;)Z",
-			remap = true
-		),
-		remap = true
-	)
-	private boolean fluidlogistics$useOnPhantomChain(boolean original,
-													 @Local(argsOnly = true) Player pPlayer,
-													 @Local(argsOnly = true) InteractionHand pHand) {
+	@ModifyExpressionValue(method = "use", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;is(Lnet/minecraft/world/item/Item;)Z", remap = true), remap = true)
+	private boolean fluidlogistics$useOnPhantomChain(boolean original, @Local(argsOnly = true) Player pPlayer,
+		@Local(argsOnly = true) InteractionHand pHand) {
 		if (original) {
 			return true;
 		}
 		return AllItems.PHANTOM_CHAIN.isIn(pPlayer.getItemInHand(pHand));
 	}
 
-	@ModifyExpressionValue(
-		method = "lambda$onSneakWrenched$1",
-		at = @At(
-			value = "FIELD",
-			target = "Lnet/minecraft/world/item/Items;CHAIN:Lnet/minecraft/world/item/Item;",
-			remap = true
-		),
-		remap = false
-	)
+	@ModifyExpressionValue(method = "lambda$onSneakWrenched$1", at = @At(value = "FIELD", target = "Lnet/minecraft/world/item/Items;CHAIN:Lnet/minecraft/world/item/Item;", remap = true), remap = false)
 	private static Item fluidlogistics$returnPhantomChainOnWrench(Item original,
-																  @Local(argsOnly = true) ChainConveyorBlockEntity be,
-																  @Local(ordinal = 0) BlockPos targetPos) {
+		@Local(argsOnly = true) ChainConveyorBlockEntity be, @Local(ordinal = 0) BlockPos targetPos) {
 		if (((PhantomChainConveyorAccess) be).fluidlogistics$isPhantomConnection(targetPos)) {
 			return AllItems.PHANTOM_CHAIN.get();
 		}

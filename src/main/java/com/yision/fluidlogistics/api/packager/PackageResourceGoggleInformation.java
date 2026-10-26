@@ -7,9 +7,6 @@ import net.minecraft.world.item.ItemStack;
 
 @FunctionalInterface
 public interface PackageResourceGoggleInformation {
-    boolean addToGoggleTooltip(
-            List<Component> tooltip,
-            boolean isPlayerSneaking,
-            ItemStack packageStack,
-            List<PackageResource> resources);
+	boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking, ItemStack packageStack,
+		List<PackageResource> resources);
 }

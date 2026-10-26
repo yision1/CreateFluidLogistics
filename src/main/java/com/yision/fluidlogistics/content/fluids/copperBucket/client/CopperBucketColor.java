@@ -7,32 +7,32 @@ import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+
 import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.fluids.FluidStack;
 
 public class CopperBucketColor implements ItemColor {
 
-    private static final int FLUID_TINT_INDEX = 1;
+	private static final int FLUID_TINT_INDEX = 1;
 
-    @Override
-    public int getColor(ItemStack stack, int tintIndex) {
-        FluidStack fluid = CopperBucketItem.getFluid(stack);
-        if (fluid.isEmpty()) {
-            return 0xFFFFFFFF;
-        }
+	@Override
+	public int getColor(ItemStack stack, int tintIndex) {
+		FluidStack fluid = CopperBucketItem.getFluid(stack);
+		if (fluid.isEmpty()) {
+			return 0xFFFFFFFF;
+		}
 
-        if (tintIndex == FLUID_TINT_INDEX) {
-            return IClientFluidTypeExtensions.of(fluid.getFluid()).getTintColor(fluid);
-        }
+		if (tintIndex == FLUID_TINT_INDEX) {
+			return IClientFluidTypeExtensions.of(fluid.getFluid()).getTintColor(fluid);
+		}
 
-        Item bucketItem = fluid.getFluid().getBucket();
-        if (bucketItem != Items.AIR && bucketItem != stack.getItem()) {
-            int bucketColor = Minecraft.getInstance().getItemColors()
-                    .getColor(new ItemStack(bucketItem), tintIndex);
-            if (bucketColor != -1) {
-                return bucketColor;
-            }
-        }
-        return 0xFFFFFFFF;
-    }
+		Item bucketItem = fluid.getFluid().getBucket();
+		if (bucketItem != Items.AIR && bucketItem != stack.getItem()) {
+			int bucketColor = Minecraft.getInstance().getItemColors().getColor(new ItemStack(bucketItem), tintIndex);
+			if (bucketColor != -1) {
+				return bucketColor;
+			}
+		}
+		return 0xFFFFFFFF;
+	}
 }

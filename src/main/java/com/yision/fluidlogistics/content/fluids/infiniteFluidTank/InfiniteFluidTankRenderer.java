@@ -8,6 +8,7 @@ import net.createmod.catnip.platform.ForgeCatnipServices;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.util.Mth;
+
 import net.minecraftforge.fluids.FluidStack;
 
 public class InfiniteFluidTankRenderer extends SafeBlockEntityRenderer<InfiniteFluidTankBlockEntity> {
@@ -17,7 +18,7 @@ public class InfiniteFluidTankRenderer extends SafeBlockEntityRenderer<InfiniteF
 
 	@Override
 	protected void renderSafe(InfiniteFluidTankBlockEntity be, float partialTicks, PoseStack ms,
-							  MultiBufferSource buffer, int light, int overlay) {
+		MultiBufferSource buffer, int light, int overlay) {
 		LerpedFloat fluidLevel = be.getFluidLevel();
 		if (fluidLevel == null)
 			return;
@@ -53,8 +54,8 @@ public class InfiniteFluidTankRenderer extends SafeBlockEntityRenderer<InfiniteF
 
 		ms.pushPose();
 		ms.translate(0, clampedLevel - totalHeight, 0);
-		ForgeCatnipServices.FLUID_RENDERER.renderFluidBox(fluidStack, xMin, yMin, zMin, xMax, yMax, zMax,
-			buffer, ms, light, false, true);
+		ForgeCatnipServices.FLUID_RENDERER.renderFluidBox(fluidStack, xMin, yMin, zMin, xMax, yMax, zMax, buffer, ms,
+			light, false, true);
 		ms.popPose();
 	}
 }

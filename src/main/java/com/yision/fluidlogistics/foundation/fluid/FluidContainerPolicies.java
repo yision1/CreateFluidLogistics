@@ -9,13 +9,13 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 public final class FluidContainerPolicies {
-    public static final TagKey<Block> FAUCET_FILLABLE = TagKey.create(
-        Registries.BLOCK, FluidLogistics.asResource("faucet_fillable"));
+	public static final TagKey<Block> FAUCET_FILLABLE = TagKey.create(Registries.BLOCK,
+		FluidLogistics.asResource("faucet_fillable"));
 
-    private FluidContainerPolicies() {
-    }
+	private FluidContainerPolicies() {
+	}
 
-    public static boolean allowsFaucet(BlockState state) {
-        return Config.getFaucetFluidContainerMode().test(state, FAUCET_FILLABLE);
-    }
+	public static boolean allowsFaucet(BlockState state) {
+		return Config.getFaucetFluidContainerMode().test(state, FAUCET_FILLABLE);
+	}
 }

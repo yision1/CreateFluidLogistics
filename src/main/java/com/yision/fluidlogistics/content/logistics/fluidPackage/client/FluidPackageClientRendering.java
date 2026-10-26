@@ -8,31 +8,29 @@ import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageItem
 import dev.engine_room.flywheel.api.visual.EntityVisual;
 import dev.engine_room.flywheel.api.visualization.VisualizationContext;
 import dev.engine_room.flywheel.lib.visualization.SimpleEntityVisualizer;
+
 import net.minecraftforge.client.event.EntityRenderersEvent;
 
 public final class FluidPackageClientRendering {
 
-    private FluidPackageClientRendering() {
-    }
+	private FluidPackageClientRendering() {
+	}
 
-    public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerEntityRenderer(AllEntityTypes.PACKAGE.get(), FluidAwarePackageRenderer::new);
-    }
+	public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
+		event.registerEntityRenderer(AllEntityTypes.PACKAGE.get(), FluidAwarePackageRenderer::new);
+	}
 
-    public static void registerFlywheelVisualizer() {
-        SimpleEntityVisualizer.builder(AllEntityTypes.PACKAGE.get())
-            .factory(FluidPackageClientRendering::createPackageVisual)
-            .neverSkipVanillaRender()
-            .apply();
-    }
+	public static void registerFlywheelVisualizer() {
+		SimpleEntityVisualizer.builder(AllEntityTypes.PACKAGE.get())
+			.factory(FluidPackageClientRendering::createPackageVisual).neverSkipVanillaRender().apply();
+	}
 
-    private static EntityVisual<? super PackageEntity> createPackageVisual(VisualizationContext context,
-                                                                          PackageEntity entity,
-                                                                          float partialTick) {
-        if (!entity.box.isEmpty() && entity.box.getItem() instanceof FluidPackageItem) {
-            return new EmptyPackageVisual();
-        }
+	private static EntityVisual<? super PackageEntity> createPackageVisual(VisualizationContext context,
+		PackageEntity entity, float partialTick) {
+		if (!entity.box.isEmpty() && entity.box.getItem() instanceof FluidPackageItem) {
+			return new EmptyPackageVisual();
+		}
 
-        return new PackageVisual(context, entity, partialTick);
-    }
+		return new PackageVisual(context, entity, partialTick);
+	}
 }

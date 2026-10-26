@@ -7,22 +7,22 @@ import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlockEntit
 
 public final class FactoryGaugeBehaviourAttachment {
 
-    private FactoryGaugeBehaviourAttachment() {
-        throw new AssertionError("This class should not be instantiated");
-    }
+	private FactoryGaugeBehaviourAttachment() {
+		throw new AssertionError("This class should not be instantiated");
+	}
 
-    public static void onAttachBehaviours(BlockEntityBehaviourEvent<FactoryPanelBlockEntity> event) {
-        FactoryPanelBlockEntity be = event.getBlockEntity();
-        for (PanelSlot slot : PanelSlot.values()) {
-            FactoryPanelBehaviour old = be.panels.get(slot);
-            if (old == null || old.getClass() != FactoryPanelBehaviour.class)
-                continue;
+	public static void onAttachBehaviours(BlockEntityBehaviourEvent<FactoryPanelBlockEntity> event) {
+		FactoryPanelBlockEntity be = event.getBlockEntity();
+		for (PanelSlot slot : PanelSlot.values()) {
+			FactoryPanelBehaviour old = be.panels.get(slot);
+			if (old == null || old.getClass() != FactoryPanelBehaviour.class)
+				continue;
 
-            ResourceFactoryPanelBehaviour replacement =
-                ResourceFactoryPanelBehaviour.migrateRuntimeState(be, slot, old);
+			ResourceFactoryPanelBehaviour replacement = ResourceFactoryPanelBehaviour.migrateRuntimeState(be, slot,
+				old);
 
-            be.panels.put(slot, replacement);
-            event.attach(replacement);
-        }
-    }
+			be.panels.put(slot, replacement);
+			event.attach(replacement);
+		}
+	}
 }

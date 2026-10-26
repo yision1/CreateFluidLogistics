@@ -8,6 +8,5 @@ import net.minecraft.world.level.Level;
 @FunctionalInterface
 public interface FactoryGaugeFilterResolver {
 
-    Optional<ItemStack> resolve(Level level, ItemStack candidateCopy);
+	Optional<ItemStack> resolve(Level level, ItemStack candidateCopy);
 }
-

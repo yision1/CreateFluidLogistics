@@ -4,6 +4,7 @@ import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.block.ProperWaterloggedBlock;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -29,49 +30,32 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 @SuppressWarnings("deprecation")
-public class SmartHopperBlock extends Block implements IWrenchable, IBE<SmartHopperBlockEntity>,
-	ProperWaterloggedBlock {
+public class SmartHopperBlock extends Block
+	implements IWrenchable, IBE<SmartHopperBlockEntity>, ProperWaterloggedBlock {
 
 	public static final DirectionProperty FACING = BlockStateProperties.FACING_HOPPER;
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 	public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
-	private static final VoxelShape SHAPE_DOWN = Shapes.or(
-		Block.box(0, 10, 0, 16, 16, 16),
-		Block.box(4, 4, 4, 12, 10, 12),
-		Block.box(6, 0, 6, 10, 4, 10)
-	);
+	private static final VoxelShape SHAPE_DOWN = Shapes.or(Block.box(0, 10, 0, 16, 16, 16),
+		Block.box(4, 4, 4, 12, 10, 12), Block.box(6, 0, 6, 10, 4, 10));
 
-	private static final VoxelShape SHAPE_NORTH = Shapes.or(
-		Block.box(0, 10, 0, 16, 16, 16),
-		Block.box(4, 4, 4, 12, 10, 12),
-		Block.box(6, 5, 0, 10, 9, 4)
-	);
+	private static final VoxelShape SHAPE_NORTH = Shapes.or(Block.box(0, 10, 0, 16, 16, 16),
+		Block.box(4, 4, 4, 12, 10, 12), Block.box(6, 5, 0, 10, 9, 4));
 
-	private static final VoxelShape SHAPE_SOUTH = Shapes.or(
-		Block.box(0, 10, 0, 16, 16, 16),
-		Block.box(4, 4, 4, 12, 10, 12),
-		Block.box(6, 5, 12, 10, 9, 16)
-	);
+	private static final VoxelShape SHAPE_SOUTH = Shapes.or(Block.box(0, 10, 0, 16, 16, 16),
+		Block.box(4, 4, 4, 12, 10, 12), Block.box(6, 5, 12, 10, 9, 16));
 
-	private static final VoxelShape SHAPE_WEST = Shapes.or(
-		Block.box(0, 10, 0, 16, 16, 16),
-		Block.box(4, 4, 4, 12, 10, 12),
-		Block.box(0, 5, 6, 4, 9, 10)
-	);
+	private static final VoxelShape SHAPE_WEST = Shapes.or(Block.box(0, 10, 0, 16, 16, 16),
+		Block.box(4, 4, 4, 12, 10, 12), Block.box(0, 5, 6, 4, 9, 10));
 
-	private static final VoxelShape SHAPE_EAST = Shapes.or(
-		Block.box(0, 10, 0, 16, 16, 16),
-		Block.box(4, 4, 4, 12, 10, 12),
-		Block.box(12, 5, 6, 16, 9, 10)
-	);
+	private static final VoxelShape SHAPE_EAST = Shapes.or(Block.box(0, 10, 0, 16, 16, 16),
+		Block.box(4, 4, 4, 12, 10, 12), Block.box(12, 5, 6, 16, 9, 10));
 
 	public SmartHopperBlock(Properties properties) {
 		super(properties);
-		registerDefaultState(defaultBlockState()
-			.setValue(FACING, Direction.DOWN)
-			.setValue(POWERED, false)
-			.setValue(WATERLOGGED, false));
+		registerDefaultState(
+			defaultBlockState().setValue(FACING, Direction.DOWN).setValue(POWERED, false).setValue(WATERLOGGED, false));
 	}
 
 	@Override
@@ -85,9 +69,7 @@ public class SmartHopperBlock extends Block implements IWrenchable, IBE<SmartHop
 			facing = Direction.DOWN;
 		}
 
-		return defaultBlockState()
-			.setValue(FACING, facing)
-			.setValue(POWERED, level.hasNeighborSignal(pos))
+		return defaultBlockState().setValue(FACING, facing).setValue(POWERED, level.hasNeighborSignal(pos))
 			.setValue(WATERLOGGED, waterlogged);
 	}
 
@@ -102,8 +84,8 @@ public class SmartHopperBlock extends Block implements IWrenchable, IBE<SmartHop
 	}
 
 	@Override
-	public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
-		LevelAccessor level, BlockPos currentPos, BlockPos neighborPos) {
+	public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level,
+		BlockPos currentPos, BlockPos neighborPos) {
 		updateWater(level, state, currentPos);
 		return state;
 	}
@@ -136,22 +118,22 @@ public class SmartHopperBlock extends Block implements IWrenchable, IBE<SmartHop
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
 		return switch (state.getValue(FACING)) {
-			case NORTH -> SHAPE_NORTH;
-			case SOUTH -> SHAPE_SOUTH;
-			case WEST -> SHAPE_WEST;
-			case EAST -> SHAPE_EAST;
-			default -> SHAPE_DOWN;
+		case NORTH -> SHAPE_NORTH;
+		case SOUTH -> SHAPE_SOUTH;
+		case WEST -> SHAPE_WEST;
+		case EAST -> SHAPE_EAST;
+		default -> SHAPE_DOWN;
 		};
 	}
 
 	@Override
-	public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos,
-		CollisionContext context) {
+	public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
 		return getShape(state, level, pos, context);
 	}
 
 	@Override
-	public boolean isPathfindable(BlockState state, BlockGetter level, BlockPos pos, PathComputationType pathComputationType) {
+	public boolean isPathfindable(BlockState state, BlockGetter level, BlockPos pos,
+		PathComputationType pathComputationType) {
 		return false;
 	}
 
@@ -167,11 +149,11 @@ public class SmartHopperBlock extends Block implements IWrenchable, IBE<SmartHop
 
 	private static Direction getNextFacing(Direction facing) {
 		return switch (facing) {
-			case DOWN -> Direction.NORTH;
-			case NORTH -> Direction.EAST;
-			case EAST -> Direction.SOUTH;
-			case SOUTH -> Direction.WEST;
-			default -> Direction.DOWN;
+		case DOWN -> Direction.NORTH;
+		case NORTH -> Direction.EAST;
+		case EAST -> Direction.SOUTH;
+		case SOUTH -> Direction.WEST;
+		default -> Direction.DOWN;
 		};
 	}
 

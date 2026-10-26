@@ -10,6 +10,7 @@ import com.yision.fluidlogistics.util.FluidDisplayHelper;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fluids.FluidStack;
@@ -17,23 +18,21 @@ import net.minecraftforge.fluids.FluidStack;
 @OnlyIn(Dist.CLIENT)
 public class CompressedTankItemRenderer extends CustomRenderedItemModelRenderer {
 
-    @Override
-    protected void render(ItemStack stack, CustomRenderedItemModel model, PartialItemModelRenderer renderer,
-            ItemDisplayContext displayContext, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
-        FluidStack fluid = FluidDisplayHelper.getDisplayFluid(stack);
-        if (!fluid.isEmpty() && shouldRenderFluidIcon(displayContext)) {
-            float halfSize = displayContext == ItemDisplayContext.FIXED ? 0.375f : 0.5f;
-            FluidSlotRenderer.renderFluidItemIcon(fluid, ms, buffer, light, halfSize);
-            return;
-        }
+	@Override
+	protected void render(ItemStack stack, CustomRenderedItemModel model, PartialItemModelRenderer renderer,
+		ItemDisplayContext displayContext, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
+		FluidStack fluid = FluidDisplayHelper.getDisplayFluid(stack);
+		if (!fluid.isEmpty() && shouldRenderFluidIcon(displayContext)) {
+			float halfSize = displayContext == ItemDisplayContext.FIXED ? 0.375f : 0.5f;
+			FluidSlotRenderer.renderFluidItemIcon(fluid, ms, buffer, light, halfSize);
+			return;
+		}
 
-        renderer.render(model.getOriginalModel(), light);
-    }
+		renderer.render(model.getOriginalModel(), light);
+	}
 
-    private static boolean shouldRenderFluidIcon(ItemDisplayContext displayContext) {
-        return displayContext == ItemDisplayContext.GUI
-                || displayContext == ItemDisplayContext.GROUND
-                || displayContext == ItemDisplayContext.FIXED
-                || displayContext == ItemDisplayContext.HEAD;
-    }
+	private static boolean shouldRenderFluidIcon(ItemDisplayContext displayContext) {
+		return displayContext == ItemDisplayContext.GUI || displayContext == ItemDisplayContext.GROUND
+			|| displayContext == ItemDisplayContext.FIXED || displayContext == ItemDisplayContext.HEAD;
+	}
 }

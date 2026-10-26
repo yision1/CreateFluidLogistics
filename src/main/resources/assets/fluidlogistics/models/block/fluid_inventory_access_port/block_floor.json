@@ -1,6 +1,5 @@
 {
-	"format_version": "1.21.11",
-	"credit": "Adapted from user-provided Blockbench model",
+	"credit": "Made with Blockbench",
 	"parent": "block/block",
 	"textures": {
 		"particle": "fluidlogistics:block/fluid_inventory_access_port/fluid_inventory_access_port_front",

@@ -29,144 +29,144 @@ import net.minecraft.world.level.block.state.BlockState;
 
 @ApiStatus.Internal
 public final class PackagerAddressRegistry {
-    private static final PackagerAddressRegistry INSTANCE = new PackagerAddressRegistry();
+	private static final PackagerAddressRegistry INSTANCE = new PackagerAddressRegistry();
 
-    private final List<Supplier<? extends Block>> targetBlocks = new ArrayList<>();
-    private Set<Block> resolvedTargetBlocks = Set.of();
-    private boolean targetBlocksDirty = true;
+	private final List<Supplier<? extends Block>> targetBlocks = new ArrayList<>();
+	private Set<Block> resolvedTargetBlocks = Set.of();
+	private boolean targetBlocksDirty = true;
 
-    public static PackagerAddressRegistry instance() {
-        return INSTANCE;
-    }
+	public static PackagerAddressRegistry instance() {
+		return INSTANCE;
+	}
 
-    public static PackagerAddressRegistry create() {
-        return new PackagerAddressRegistry();
-    }
+	public static PackagerAddressRegistry create() {
+		return new PackagerAddressRegistry();
+	}
 
-    public synchronized void register(Supplier<? extends Block> block) {
-        Objects.requireNonNull(block, "packager address block supplier");
-        if (targetBlocks.contains(block)) {
-            throw new IllegalStateException("duplicate packager address block supplier");
-        }
-        targetBlocks.add(block);
-        targetBlocksDirty = true;
-    }
+	public synchronized void register(Supplier<? extends Block> block) {
+		Objects.requireNonNull(block, "packager address block supplier");
+		if (targetBlocks.contains(block)) {
+			throw new IllegalStateException("duplicate packager address block supplier");
+		}
+		targetBlocks.add(block);
+		targetBlocksDirty = true;
+	}
 
-    public boolean isTarget(Level level, BlockPos pos) {
-        return findTarget(level, pos) != null;
-    }
+	public boolean isTarget(Level level, BlockPos pos) {
+		return findTarget(level, pos) != null;
+	}
 
-    public EditResult set(Level level, BlockPos pos, String address) {
-        Objects.requireNonNull(address, "address");
-        if (address.isBlank()) {
-            throw new IllegalArgumentException("packager address must not be blank");
-        }
+	public EditResult set(Level level, BlockPos pos, String address) {
+		Objects.requireNonNull(address, "address");
+		if (address.isBlank()) {
+			throw new IllegalArgumentException("packager address must not be blank");
+		}
 
-        Target target = findTarget(level, pos);
-        if (target == null) {
-            return EditResult.NOT_TARGET;
-        }
-        if (hasSignAddress(level, pos)) {
-            return EditResult.SIGN_CONTROLLED;
-        }
-        if (isNetworkLinked(target.state())) {
-            return EditResult.NETWORK_LINKED;
-        }
+		Target target = findTarget(level, pos);
+		if (target == null) {
+			return EditResult.NOT_TARGET;
+		}
+		if (hasSignAddress(level, pos)) {
+			return EditResult.SIGN_CONTROLLED;
+		}
+		if (isNetworkLinked(target.state())) {
+			return EditResult.NETWORK_LINKED;
+		}
 
-        update(target, address, false);
-        return EditResult.UPDATED;
-    }
+		update(target, address, false);
+		return EditResult.UPDATED;
+	}
 
-    public EditResult clear(Level level, BlockPos pos) {
-        Target target = findTarget(level, pos);
-        if (target == null) {
-            return EditResult.NOT_TARGET;
-        }
-        if (isNetworkLinked(target.state())) {
-            return EditResult.NETWORK_LINKED;
-        }
-        if (hasSignAddress(level, pos)) {
-            return EditResult.SIGN_CONTROLLED;
-        }
-        if (target.address().clipboardAddress().isBlank()) {
-            return EditResult.ALREADY_EMPTY;
-        }
+	public EditResult clear(Level level, BlockPos pos) {
+		Target target = findTarget(level, pos);
+		if (target == null) {
+			return EditResult.NOT_TARGET;
+		}
+		if (isNetworkLinked(target.state())) {
+			return EditResult.NETWORK_LINKED;
+		}
+		if (hasSignAddress(level, pos)) {
+			return EditResult.SIGN_CONTROLLED;
+		}
+		if (target.address().clipboardAddress().isBlank()) {
+			return EditResult.ALREADY_EMPTY;
+		}
 
-        update(target, "", true);
-        return EditResult.UPDATED;
-    }
+		update(target, "", true);
+		return EditResult.UPDATED;
+	}
 
-    @Nullable
-    private Target findTarget(Level level, BlockPos pos) {
-        Objects.requireNonNull(level, "level");
-        Objects.requireNonNull(pos, "pos");
-        if (!level.isLoaded(pos)) {
-            return null;
-        }
+	@Nullable
+	private Target findTarget(Level level, BlockPos pos) {
+		Objects.requireNonNull(level, "level");
+		Objects.requireNonNull(pos, "pos");
+		if (!level.isLoaded(pos)) {
+			return null;
+		}
 
-        BlockState state = level.getBlockState(pos);
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (!(blockEntity instanceof PackagerAddress address) || !isRegistered(state.getBlock())) {
-            return null;
-        }
-        return new Target(blockEntity, state, address);
-    }
+		BlockState state = level.getBlockState(pos);
+		BlockEntity blockEntity = level.getBlockEntity(pos);
+		if (!(blockEntity instanceof PackagerAddress address) || !isRegistered(state.getBlock())) {
+			return null;
+		}
+		return new Target(blockEntity, state, address);
+	}
 
-    private synchronized boolean isRegistered(Block block) {
-        if (targetBlocksDirty) {
-            Set<Block> resolved = Collections.newSetFromMap(new IdentityHashMap<>());
-            for (Supplier<? extends Block> supplier : targetBlocks) {
-                resolved.add(Objects.requireNonNull(supplier.get(), "registered packager address block"));
-            }
-            resolvedTargetBlocks = resolved;
-            targetBlocksDirty = false;
-        }
-        return resolvedTargetBlocks.contains(block);
-    }
+	private synchronized boolean isRegistered(Block block) {
+		if (targetBlocksDirty) {
+			Set<Block> resolved = Collections.newSetFromMap(new IdentityHashMap<>());
+			for (Supplier<? extends Block> supplier : targetBlocks) {
+				resolved.add(Objects.requireNonNull(supplier.get(), "registered packager address block"));
+			}
+			resolvedTargetBlocks = resolved;
+			targetBlocksDirty = false;
+		}
+		return resolvedTargetBlocks.contains(block);
+	}
 
-    private static boolean isNetworkLinked(BlockState state) {
-        return state.hasProperty(PackagerBlock.LINKED) && state.getValue(PackagerBlock.LINKED);
-    }
+	private static boolean isNetworkLinked(BlockState state) {
+		return state.hasProperty(PackagerBlock.LINKED) && state.getValue(PackagerBlock.LINKED);
+	}
 
-    private static void update(Target target, String address, boolean refreshSignAddress) {
-        target.address().setClipboardAddress(address);
-        if (target.blockEntity() instanceof PackagerBlockEntity packager) {
-            packager.signBasedAddress = address;
-            if (refreshSignAddress) {
-                packager.updateSignAddress();
-            }
-            packager.setChanged();
-            packager.notifyUpdate();
-            return;
-        }
+	private static void update(Target target, String address, boolean refreshSignAddress) {
+		target.address().setClipboardAddress(address);
+		if (target.blockEntity() instanceof PackagerBlockEntity packager) {
+			packager.signBasedAddress = address;
+			if (refreshSignAddress) {
+				packager.updateSignAddress();
+			}
+			packager.setChanged();
+			packager.notifyUpdate();
+			return;
+		}
 
-        BlockEntity blockEntity = target.blockEntity();
-        blockEntity.setChanged();
-        Level level = blockEntity.getLevel();
-        if (level != null) {
-            level.sendBlockUpdated(blockEntity.getBlockPos(), target.state(), target.state(), Block.UPDATE_ALL);
-        }
-    }
+		BlockEntity blockEntity = target.blockEntity();
+		blockEntity.setChanged();
+		Level level = blockEntity.getLevel();
+		if (level != null) {
+			level.sendBlockUpdated(blockEntity.getBlockPos(), target.state(), target.state(), Block.UPDATE_ALL);
+		}
+	}
 
-    private static boolean hasSignAddress(Level level, BlockPos pos) {
-        for (Direction direction : Iterate.directions) {
-            BlockEntity blockEntity = level.getBlockEntity(pos.relative(direction));
-            if (!(blockEntity instanceof SignBlockEntity sign)) {
-                continue;
-            }
+	private static boolean hasSignAddress(Level level, BlockPos pos) {
+		for (Direction direction : Iterate.directions) {
+			BlockEntity blockEntity = level.getBlockEntity(pos.relative(direction));
+			if (!(blockEntity instanceof SignBlockEntity sign)) {
+				continue;
+			}
 
-            for (boolean front : Iterate.trueAndFalse) {
-                SignText text = sign.getText(front);
-                for (Component component : text.getMessages(false)) {
-                    if (!component.getString().isBlank()) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
+			for (boolean front : Iterate.trueAndFalse) {
+				SignText text = sign.getText(front);
+				for (Component component : text.getMessages(false)) {
+					if (!component.getString().isBlank()) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
 
-    private record Target(BlockEntity blockEntity, BlockState state, PackagerAddress address) {
-    }
+	private record Target(BlockEntity blockEntity, BlockState state, PackagerAddress address) {
+	}
 }

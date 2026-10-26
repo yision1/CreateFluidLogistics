@@ -17,21 +17,15 @@ import com.yision.fluidlogistics.content.logistics.packageResource.ResourcePacka
 
 @Mixin(LogisticsManager.class)
 public abstract class LogisticsManagerMixin {
-    @Redirect(
-            method = "findPackagersForRequest",
-            at = @At(value = "NEW", target = "Ljava/util/HashMap;"),
-            remap = false)
-    private static HashMap<?, ?> fluidlogistics$preserveLinkPriority() {
-        return new LinkedHashMap<>();
-    }
+	@Redirect(method = "findPackagersForRequest", at = @At(value = "NEW", target = "Ljava/util/HashMap;"), remap = false)
+	private static HashMap<?, ?> fluidlogistics$preserveLinkPriority() {
+		return new LinkedHashMap<>();
+	}
 
-    @Inject(method = "getInventoryIdentifierFromLink", at = @At("HEAD"), cancellable = true, remap = false)
-    private static void fluidlogistics$identifyResourcePackagerInventory(
-            LogisticallyLinkedBehaviour link,
-            CallbackInfoReturnable<InventoryIdentifier> cir) {
-        ResourcePackagers.fromLink(link)
-            .map(ResourcePackagers::storageIdentity)
-            .map(ResourcePackagerInventoryIdentifier::new)
-            .ifPresent(cir::setReturnValue);
-    }
+	@Inject(method = "getInventoryIdentifierFromLink", at = @At("HEAD"), cancellable = true, remap = false)
+	private static void fluidlogistics$identifyResourcePackagerInventory(LogisticallyLinkedBehaviour link,
+		CallbackInfoReturnable<InventoryIdentifier> cir) {
+		ResourcePackagers.fromLink(link).map(ResourcePackagers::storageIdentity)
+			.map(ResourcePackagerInventoryIdentifier::new).ifPresent(cir::setReturnValue);
+	}
 }

@@ -1,6 +1,5 @@
 {
-	"format_version": "1.21.11",
-	"credit": "Adapted from user-provided Blockbench model",
+	"credit": "Made with Blockbench",
 	"parent": "block/block",
 	"ambientocclusion": false,
 	"render_type": "minecraft:cutout",

@@ -19,6 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
@@ -48,30 +49,25 @@ public class InfiniteFluidTankItem extends BlockItem {
 
 	@Override
 	public void appendHoverText(ItemStack stack, Level level, List<Component> tooltipComponents,
-	                            TooltipFlag tooltipFlag) {
+		TooltipFlag tooltipFlag) {
 		super.appendHoverText(stack, level, tooltipComponents, tooltipFlag);
 
 		FluidStack fluid = getContainedFluid(stack);
 		if (fluid.isEmpty())
 			return;
 
-		tooltipComponents.add(fluid.getDisplayName()
-			.copy()
-			.withStyle(ChatFormatting.GRAY));
+		tooltipComponents.add(fluid.getDisplayName().copy().withStyle(ChatFormatting.GRAY));
 
 		if (isInfiniteSupply(fluid)) {
-			tooltipComponents.add(CreateLang.translateDirect("hint.hose_pulley.title")
-				.withStyle(ChatFormatting.GOLD));
+			tooltipComponents.add(CreateLang.translateDirect("hint.hose_pulley.title").withStyle(ChatFormatting.GOLD));
 			return;
 		}
 
 		tooltipComponents.add(Component.empty()
 			.append(Component.literal(InfiniteFluidSupplyRules.formatBuckets(fluid.getAmount()))
 				.withStyle(ChatFormatting.GOLD))
-			.append(Component.literal(" / ")
-				.withStyle(ChatFormatting.GRAY))
-			.append(Component.literal(InfiniteFluidSupplyRules.getRequiredAmountText())
-				.withStyle(ChatFormatting.DARK_GRAY)));
+			.append(Component.literal(" / ").withStyle(ChatFormatting.GRAY)).append(Component
+				.literal(InfiniteFluidSupplyRules.getRequiredAmountText()).withStyle(ChatFormatting.DARK_GRAY)));
 	}
 
 	@Override

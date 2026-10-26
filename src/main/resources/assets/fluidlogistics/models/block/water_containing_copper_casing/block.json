@@ -1,12 +1,12 @@
 {
-  "parent": "minecraft:block/block",
-  "credit": "Made with Blockbench",
-  "textures": {
-    "0": "fluidlogistics:block/water_containing_copper_casing/water_containing_copper_casing",
-    "1": "fluidlogistics:block/water_containing_copper_casing/water_containing_copper_casing_leaves",
-    "particle": "fluidlogistics:block/water_containing_copper_casing/water_containing_copper_casing"
-  },
-  "elements": [
+	"credit": "Made with Blockbench",
+	"parent": "minecraft:block/block",
+	"textures": {
+		"0": "fluidlogistics:block/water_containing_copper_casing/water_containing_copper_casing",
+		"1": "fluidlogistics:block/water_containing_copper_casing/water_containing_copper_casing_leaves",
+		"particle": "fluidlogistics:block/water_containing_copper_casing/water_containing_copper_casing"
+	},
+	"elements": [
 		{
 			"from": [0.25, 0.25, 0.25],
 			"to": [15.75, 15.75, 15.75],
