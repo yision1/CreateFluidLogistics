@@ -2,6 +2,8 @@ package com.yision.fluidlogistics.content.logistics.factoryGauge;
 
 import java.util.Map;
 
+import org.jetbrains.annotations.Nullable;
+
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBehaviour;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlock.PanelSlot;
@@ -18,6 +20,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class RegisteredFactoryGaugeItem extends FactoryPanelBlockItem {
 
@@ -33,13 +36,28 @@ public class RegisteredFactoryGaugeItem extends FactoryPanelBlockItem {
 	}
 
 	@Override
+	@Nullable
+	protected BlockState getPlacementState(BlockPlaceContext context) {
+		BlockState state = context.getLevel().getBlockState(context.getClickedPos());
+		if (state.is(getBlock()))
+			return canPlace(context, state) ? state : null;
+		return super.getPlacementState(context);
+	}
+
+	@Override
 	public InteractionResult place(BlockPlaceContext context) {
+		BlockPos pos = context.getClickedPos();
+		if (context.getLevel().getBlockEntity(pos) instanceof FactoryPanelBlockEntity)
+			return FactoryGauges.get(gaugeTypeId)
+				.map(type -> FactoryGaugeHostHooks.useRegisteredGaugeOnExistingHost(type, context, pos)
+					.result())
+				.orElse(InteractionResult.FAIL);
+
 		InteractionResult result = super.place(context);
 		if (!result.consumesAction())
 			return result;
 
-        if (!(context.getLevel().getBlockEntity(context.getClickedPos())
-            instanceof FactoryPanelBlockEntity be))
+		if (!(context.getLevel().getBlockEntity(context.getClickedPos()) instanceof FactoryPanelBlockEntity be))
 			return result;
 
 		for (PanelSlot slot : PanelSlot.values()) {
@@ -47,8 +65,7 @@ public class RegisteredFactoryGaugeItem extends FactoryPanelBlockItem {
 			if (behaviour == null || !behaviour.isActive())
 				continue;
 
-            ResourceFactoryPanelBehaviour resource =
-                FactoryGaugeHostHooks.ensureResourceBehaviour(be, slot);
+			ResourceFactoryPanelBehaviour resource = FactoryGaugeHostHooks.ensureResourceBehaviour(be, slot);
 			if (resource.isResourceGauge())
 				continue;
 

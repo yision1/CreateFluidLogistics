@@ -347,6 +347,7 @@ public final class FluidPackageResourceType {
 
 	private static final class FluidResourceDisplay implements PackageResourceDisplay {
 		private static final int MAX_FACTORY_PANEL_AMOUNT = 100 * FluidAmountHelper.MB_PER_BUCKET;
+		private static final int MAX_FACTORY_PANEL_SETTING_AMOUNT = 1000 * FluidAmountHelper.MB_PER_BUCKET;
 		private static final List<FactoryPanelUnit> FACTORY_PANEL_UNITS = List.of(
 			new FactoryPanelUnit("mB", 10, 10),
 			new FactoryPanelUnit(" B", 10 * FluidAmountHelper.MB_PER_BUCKET, 10));
@@ -397,7 +398,7 @@ public final class FluidPackageResourceType {
 			long configuredBatch = (long) Config.getFluidPerPackage() * 100L;
 			int batchLimit = (int) Math.clamp(configuredBatch, 1L, MAX_FACTORY_PANEL_AMOUNT);
 			return new FactoryPanelRestockPolicy(
-				true, true, true, MAX_FACTORY_PANEL_AMOUNT, batchLimit);
+				true, true, true, MAX_FACTORY_PANEL_SETTING_AMOUNT, batchLimit);
 		}
 
 		@Override
