@@ -17,7 +17,6 @@ import snownee.jade.api.WailaPlugin;
 
 @WailaPlugin
 public class FluidLogisticsJadePlugin implements IWailaPlugin {
-
 	@Override
 	public void register(IWailaCommonRegistration registration) {
 		registration.registerFluidStorage(MultiFluidTankProvider.INSTANCE, Block.class);

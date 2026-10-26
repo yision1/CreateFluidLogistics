@@ -110,19 +110,21 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 public class FluidLogistics {
 	public static final String MODID = "fluidlogistics";
 	public static final Logger LOGGER = LogUtils.getLogger();
-    private static final ResourceKey<net.minecraft.world.item.CreativeModeTab> FLUID_LOGISTICS_TAB =
-            ResourceKey.create(Registries.CREATIVE_MODE_TAB, asResource("fluidlogistics_tab"));
-    private static final DeferredRegister<CreativeModeTab> CREATIVE_TABS =
-            DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
+	private static final ResourceKey<net.minecraft.world.item.CreativeModeTab> FLUID_LOGISTICS_TAB = ResourceKey
+		.create(Registries.CREATIVE_MODE_TAB, asResource("fluidlogistics_tab"));
+	private static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister
+		.create(Registries.CREATIVE_MODE_TAB, MODID);
 
-    public static final Supplier<CreativeModeTab> FLUID_LOGISTICS_CREATIVE_TAB =
-            CREATIVE_TABS.register("fluidlogistics_tab", () -> CreativeModeTab.builder()
+	public static final Supplier<CreativeModeTab> FLUID_LOGISTICS_CREATIVE_TAB = CREATIVE_TABS
+		.register("fluidlogistics_tab", () -> CreativeModeTab.builder()
 			.title(Component.translatable("itemGroup.fluidlogistics.fluidlogistics_tab"))
 			.icon(() -> createRandomFluidPackage(Config.getFluidPerPackage()))
 			.build());
 
-    private static final DeferredRegister<com.mojang.serialization.MapCodec<? extends net.neoforged.neoforge.common.loot.IGlobalLootModifier>>
-            LOOT_MODIFIERS = DeferredRegister.create(NeoForgeRegistries.GLOBAL_LOOT_MODIFIER_SERIALIZERS, MODID);
+	private static final DeferredRegister<
+		com.mojang.serialization.MapCodec<? extends net.neoforged.neoforge.common.loot.IGlobalLootModifier>>
+		LOOT_MODIFIERS = DeferredRegister
+		.create(NeoForgeRegistries.GLOBAL_LOOT_MODIFIER_SERIALIZERS, MODID);
 
 	public static final CreateRegistrate REGISTRATE = FluidLogisticsRegistrate.create(MODID)
 		.setTooltipModifierFactory(item -> {
@@ -235,7 +237,8 @@ public class FluidLogistics {
 	}
 
 	private void hideDisabledItems(final BuildCreativeModeTabContentsEvent event) {
-        if (!Objects.equals(event.getTabKey(), FLUID_LOGISTICS_TAB) && !Objects.equals(event.getTabKey(), CreativeModeTabs.SEARCH)) {
+		if (!Objects.equals(event.getTabKey(), FLUID_LOGISTICS_TAB)
+			&& !Objects.equals(event.getTabKey(), CreativeModeTabs.SEARCH)) {
 			return;
 		}
 
@@ -280,7 +283,8 @@ public class FluidLogistics {
 		}
 	}
 
-    record FeatureItem(ResourceLocation feature, Supplier<? extends ItemLike> item) {}
+	record FeatureItem(ResourceLocation feature, Supplier<? extends ItemLike> item) {
+	}
 
 	private static final FeatureItem[] FEATURE_ITEMS = {
 		new FeatureItem(FeatureToggle.FLUID_TRANSPORTER, AllBlocks.FLUID_TRANSPORTER),
