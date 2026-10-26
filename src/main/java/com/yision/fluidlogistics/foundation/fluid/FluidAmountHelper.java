@@ -122,6 +122,12 @@ public final class FluidAmountHelper {
 		return adjustByDelta(currentAmount, delta, minAmount, maxAmount, steps);
 	}
 
+	public static int adjustStockKeeperFluidInventoryAmount(int currentAmount, boolean forward, boolean shift,
+		boolean control, int minAmount, int maxAmount, int steps) {
+		int step = shift ? 16 * MB_PER_BUCKET : getStockKeeperFluidRequestStep(false, control);
+		return adjustByDelta(currentAmount, step * (forward ? 1 : -1), minAmount, maxAmount, steps);
+	}
+
 	private static int adjustByDelta(int currentAmount, int delta, int minAmount, int maxAmount, int steps) {
 		int safeSteps = Math.max(0, steps);
 		long newAmount;

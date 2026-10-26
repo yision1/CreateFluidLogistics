@@ -232,7 +232,13 @@ public abstract class StockKeeperRequestScreenMixin {
 			return;
 		}
 
-		int delta = fluidlogistics$getResourceRecipeStepAmount(cbis.stack);
+		if (button == 1 && cbis.count == 0) {
+			recipesToOrder.remove(cbis);
+			cir.setReturnValue(true);
+			return;
+		}
+
+		int delta = fluidlogistics$getResourceRecipeStepAmount(cbis);
 		if (button == 1) {
 			delta = -delta;
 		}
@@ -261,7 +267,7 @@ public abstract class StockKeeperRequestScreenMixin {
 			return;
 		}
 
-		int delta = fluidlogistics$getResourceRecipeStepAmount(cbis.stack) * steps;
+		int delta = fluidlogistics$getResourceRecipeStepAmount(cbis) * steps;
 		if (scrollY < 0) {
 			delta = -delta;
 		}
@@ -525,8 +531,13 @@ public abstract class StockKeeperRequestScreenMixin {
 	}
 
 	@Unique
-	private int fluidlogistics$getResourceRecipeStepAmount(ItemStack stack) {
-		return PackageResources.adjustAmount(stack, new PackageResourceDisplay.Adjustment(
+	private int fluidlogistics$getResourceRecipeStepAmount(CraftableBigItemStack cbis) {
+		if (!Screen.hasShiftDown() && !Screen.hasControlDown()) {
+			return PackageResourceCrafting.get(cbis)
+				.map(PackageResourceCraftingData::outputCount)
+				.orElse(1);
+		}
+		return PackageResources.adjustAmount(cbis.stack, new PackageResourceDisplay.Adjustment(
 			0,
 			true,
 			Screen.hasShiftDown(),
@@ -605,10 +616,6 @@ public abstract class StockKeeperRequestScreenMixin {
 				itemsToOrder.add(existingOrder);
 			}
 			existingOrder.count += delta;
-		}
-
-		if (cbis.count <= 0) {
-			recipesToOrder.remove(cbis);
 		}
 
 		fluidlogistics$updateCraftableAmountsWithCustomEntries();

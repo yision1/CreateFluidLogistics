@@ -404,8 +404,17 @@ public final class FluidPackageResourceType {
 		@Override
 		public int adjust(ItemStack normalizedKey, Adjustment adjustment) {
 			Objects.requireNonNull(adjustment, "adjustment");
-			if (adjustment.interaction() == Interaction.STOCK_KEEPER
-				|| adjustment.interaction() == Interaction.STOCK_KEEPER_INVENTORY) {
+			if (adjustment.interaction() == Interaction.STOCK_KEEPER_INVENTORY) {
+				return FluidAmountHelper.adjustStockKeeperFluidInventoryAmount(
+					adjustment.currentAmount(),
+					adjustment.forward(),
+					adjustment.shift(),
+					adjustment.control(),
+					adjustment.minAmount(),
+					adjustment.maxAmount(),
+					adjustment.steps());
+			}
+			if (adjustment.interaction() == Interaction.STOCK_KEEPER) {
 				return FluidAmountHelper.adjustStockKeeperFluidRequestAmount(
 					adjustment.currentAmount(),
 					adjustment.forward(),
