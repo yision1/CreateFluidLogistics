@@ -1,11 +1,12 @@
 {
-  "parent": "block/block",
-  "textures": {
-    "1": "fluidlogistics:block/copper_basin/basin",
-    "2": "fluidlogistics:block/copper_basin/basin_canal",
-    "particle": "fluidlogistics:block/copper_basin/basin"
-  },
-  "elements": [
+	"credit": "Made with Blockbench",
+	"parent": "block/block",
+	"textures": {
+		"1": "fluidlogistics:block/copper_basin/basin",
+		"2": "fluidlogistics:block/copper_basin/basin_canal",
+		"particle": "fluidlogistics:block/copper_basin/basin"
+	},
+	"elements": [
 		{
 			"name": "Basin",
 			"from": [0, 2, 0],

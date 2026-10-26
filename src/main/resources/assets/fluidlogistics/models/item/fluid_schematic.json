@@ -1,6 +1,6 @@
 {
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "fluidlogistics:item/fluid_schematic"
-  }
+	"parent": "minecraft:item/generated",
+	"textures": {
+		"layer0": "fluidlogistics:item/fluid_schematic"
+	}
 }

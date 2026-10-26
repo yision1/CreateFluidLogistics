@@ -1,20 +1,21 @@
 {
-  "textures": {
-    "head": "fluidlogistics:block/snow_golem_freezer/snow_golem",
-    "particle": "fluidlogistics:block/snow_golem_freezer/snow_golem"
-  },
-  "elements": [
-    {
-      "from": [4, 6, 4],
-      "to": [12, 14, 12],
-      "faces": {
-        "north": {"uv": [4, 4, 8, 8], "texture": "#head"},
-        "east": {"uv": [0, 4, 4, 8], "texture": "#head"},
-        "south": {"uv": [12, 4, 16, 8], "texture": "#head"},
-        "west": {"uv": [8, 4, 12, 8], "texture": "#head"},
-        "up": {"uv": [4, 0, 8, 4], "texture": "#head"},
-        "down": {"uv": [8, 0, 12, 4], "texture": "#head"}
-      }
-    }
-  ]
+	"credit": "Made with Blockbench",
+	"textures": {
+		"head": "fluidlogistics:block/snow_golem_freezer/snow_golem",
+		"particle": "fluidlogistics:block/snow_golem_freezer/snow_golem"
+	},
+	"elements": [
+		{
+			"from": [4, 6, 4],
+			"to": [12, 14, 12],
+			"faces": {
+				"north": {"uv": [4, 4, 8, 8], "texture": "#head"},
+				"east": {"uv": [0, 4, 4, 8], "texture": "#head"},
+				"south": {"uv": [12, 4, 16, 8], "texture": "#head"},
+				"west": {"uv": [8, 4, 12, 8], "texture": "#head"},
+				"up": {"uv": [4, 0, 8, 4], "texture": "#head"},
+				"down": {"uv": [8, 0, 12, 4], "texture": "#head"}
+			}
+		}
+	]
 }

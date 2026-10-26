@@ -1,29 +1,32 @@
 {
-  "parent": "block/block",
-  "loader": "neoforge:composite",
-  "textures": {
-    "particle": "fluidlogistics:block/snow_golem_freezer/snow_golem_freezer_brazier"
-  },
-  "children": {
-    "cage": {
-      "parent": "fluidlogistics:block/snow_golem_freezer/block"
-    },
-    "head": {
-      "parent": "fluidlogistics:block/snow_golem_freezer/snow_golem/head",
-      "transform": {
-        "rotation": {"y": 180},
-        "origin": "center"
-      }
-    }
-  },
-  "display": {
-    "gui": {
-      "rotation": [30, 315, 0],
-      "scale": [0.7, 0.7, 0.7]
-    },
-    "fixed": {
-      "rotation": [0, 180, 0],
-      "scale": [0.5, 0.5, 0.5]
-    }
-  }
+	"credit": "Made with Blockbench",
+	"parent": "block/block",
+	"textures": {
+		"particle": "fluidlogistics:block/snow_golem_freezer/snow_golem_freezer_brazier"
+	},
+	"display": {
+		"gui": {
+			"rotation": [30, 315, 0],
+			"scale": [0.7, 0.7, 0.7]
+		},
+		"fixed": {
+			"rotation": [0, 180, 0],
+			"scale": [0.5, 0.5, 0.5]
+		}
+	},
+	"loader": "neoforge:composite",
+	"children": {
+		"cage": {
+			"parent": "fluidlogistics:block/snow_golem_freezer/block"
+		},
+		"head": {
+			"parent": "fluidlogistics:block/snow_golem_freezer/snow_golem/head",
+			"transform": {
+				"rotation": {
+					"y": 180
+				},
+				"origin": "center"
+			}
+		}
+	}
 }

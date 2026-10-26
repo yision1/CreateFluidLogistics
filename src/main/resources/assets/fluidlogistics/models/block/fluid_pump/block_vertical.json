@@ -1,4 +1,5 @@
 {
+	"credit": "Made with Blockbench",
 	"parent": "minecraft:block/block",
 	"textures": {
 		"2": "fluidlogistics:block/fluid_pump/fluid_pump",

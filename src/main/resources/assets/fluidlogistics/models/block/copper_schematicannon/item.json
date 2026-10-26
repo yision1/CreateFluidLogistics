@@ -1,5 +1,4 @@
 {
-	"format_version": "1.21.11",
 	"credit": "Made with Blockbench",
 	"parent": "block/block",
 	"texture_size": [32, 32],
@@ -7,9 +6,9 @@
 		"0": "create:block/andesite_casing_short",
 		"3": "fluidlogistics:block/copper_schematicannon/copper_schematicannon",
 		"4": "fluidlogistics:block/copper_schematicannon/copper_schematicannon_top",
-		"10": "fluidlogistics:block/copper_schematicannon/copper_schematicannon_connector",
 		"7": "create:block/schematicannon",
 		"8": "block/stone",
+		"10": "fluidlogistics:block/copper_schematicannon/copper_schematicannon_connector",
 		"particle": "block/spruce_log"
 	},
 	"elements": [

@@ -1,12 +1,12 @@
 {
 	"credit": "Made with Blockbench",
+	"render_type": "minecraft:cutout",
 	"textures": {
 		"0": "create:block/port2",
 		"1": "fluidlogistics:block/copper_frogport/port",
 		"2": "create:block/froggles",
 		"particle": "create:block/port2"
 	},
-	"render_type": "minecraft:cutout",
 	"elements": [
 		{
 			"from": [2, 9, 2],

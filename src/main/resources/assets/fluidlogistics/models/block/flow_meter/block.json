@@ -1,10 +1,9 @@
 {
-	"format_version": "1.21.11",
 	"credit": "Made with Blockbench",
 	"parent": "block/block",
 	"textures": {
-    "2": "fluidlogistics:block/flow_meter/gauge",
-    "particle": "fluidlogistics:block/flow_meter/gauge"
+		"2": "fluidlogistics:block/flow_meter/gauge",
+		"particle": "fluidlogistics:block/flow_meter/gauge"
 	},
 	"elements": [
 		{
