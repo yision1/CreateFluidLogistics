@@ -1,0 +1,154 @@
+{
+	"credit": "Made with Blockbench",
+	"textures": {
+		"1": "create:block/cam_linkage",
+		"4": "fluidlogistics:block/steam_engine/details",
+		"particle": "create:block/copper_underside"
+	},
+	"elements": [
+		{
+			"from": [2, 5.0, 5.0],
+			"to": [3, 6.0, 11.0],
+			"faces": {
+				"north": {"uv": [10.5, 4, 11, 4.5], "texture": "#1"},
+				"south": {"uv": [9.5, 4, 10, 4.5], "texture": "#1"},
+				"west": {"uv": [11, 4, 14, 4.5], "texture": "#1"},
+				"down": {"uv": [11, 4.5, 14, 5], "rotation": 270, "texture": "#1"}
+			}
+		},
+		{
+			"from": [2, 6.0, 5.0],
+			"to": [3, 11.0, 11.0],
+			"faces": {
+				"north": {"uv": [10.5, 1.5, 11, 4], "texture": "#1"},
+				"south": {"uv": [9.5, 1.5, 10, 4], "texture": "#1"},
+				"west": {"uv": [11, 1.5, 14, 4], "texture": "#1"},
+				"up": {"uv": [11, 0, 14, 0.5], "rotation": 270, "texture": "#1"}
+			}
+		},
+		{
+			"from": [3, 0.0, 5.0],
+			"to": [5, 5.0, 11.0],
+			"faces": {
+				"north": {"uv": [8, 0, 10, 5], "rotation": 180, "texture": "#4"},
+				"south": {"uv": [10, 0, 8, 5], "rotation": 180, "texture": "#4"},
+				"west": {"uv": [11, 1.5, 14, 4], "rotation": 180, "texture": "#1"},
+				"down": {"uv": [11, 0, 14, 1], "rotation": 270, "texture": "#1"}
+			}
+		},
+		{
+			"from": [3, 5.0, 5.0],
+			"to": [5, 6.0, 11.0],
+			"faces": {
+				"north": {"uv": [8, 5, 10, 6], "rotation": 180, "texture": "#4"},
+				"south": {"uv": [10, 5, 8, 6], "rotation": 180, "texture": "#4"}
+			}
+		},
+		{
+			"from": [3, 6.0, 5.0],
+			"to": [5, 11.0, 11.0],
+			"faces": {
+				"north": {"uv": [9.5, 1.5, 10.5, 4], "texture": "#1"},
+				"east": {"uv": [11, 1.5, 14, 4], "texture": "#1"},
+				"south": {"uv": [10, 1.5, 11, 4], "texture": "#1"},
+				"up": {"uv": [11, 0.5, 14, 1.5], "rotation": 270, "texture": "#1"}
+			}
+		},
+		{
+			"from": [5, 0.0, 5.0],
+			"to": [6, 5.0, 11.0],
+			"faces": {
+				"north": {"uv": [10, 0, 11, 5], "rotation": 180, "texture": "#4"},
+				"east": {"uv": [11, 1.5, 14, 4], "rotation": 180, "texture": "#1"},
+				"south": {"uv": [11, 0, 10, 5], "rotation": 180, "texture": "#4"},
+				"down": {"uv": [11, 1, 14, 1.5], "rotation": 270, "texture": "#1"}
+			}
+		},
+		{
+			"from": [5, 5.0, 5.0],
+			"to": [6, 6.0, 11.0],
+			"faces": {
+				"north": {"uv": [10, 5, 11, 6], "rotation": 180, "texture": "#4"},
+				"east": {"uv": [11, 4, 14, 4.5], "rotation": 180, "texture": "#1"},
+				"south": {"uv": [11, 5, 10, 6], "rotation": 180, "texture": "#4"},
+				"up": {"uv": [11, 5.5, 14, 6], "rotation": 270, "texture": "#1"}
+			}
+		},
+		{
+			"from": [10, 0.0, 5.0],
+			"to": [11, 5.0, 11.0],
+			"faces": {
+				"north": {"uv": [10, 5, 11, 0], "texture": "#4"},
+				"south": {"uv": [10, 0, 11, 5], "rotation": 180, "texture": "#4"},
+				"west": {"uv": [11, 1.5, 14, 4], "rotation": 180, "texture": "#1"},
+				"down": {"uv": [11, 0, 14, 0.5], "rotation": 270, "texture": "#1"}
+			}
+		},
+		{
+			"from": [10, 5.0, 5.0],
+			"to": [11, 6.0, 11.0],
+			"faces": {
+				"north": {"uv": [10, 6, 11, 5], "texture": "#4"},
+				"south": {"uv": [10, 5, 11, 6], "rotation": 180, "texture": "#4"},
+				"west": {"uv": [11, 4, 14, 4.5], "rotation": 180, "texture": "#1"},
+				"up": {"uv": [11, 4.5, 14, 5], "rotation": 270, "texture": "#1"}
+			}
+		},
+		{
+			"from": [11, 0.0, 5.0],
+			"to": [13, 5.0, 11.0],
+			"faces": {
+				"north": {"uv": [8, 5, 10, 0], "texture": "#4"},
+				"east": {"uv": [11, 1.5, 14, 4], "rotation": 180, "texture": "#1"},
+				"south": {"uv": [8, 0, 10, 5], "rotation": 180, "texture": "#4"},
+				"down": {"uv": [11, 0.5, 14, 1.5], "rotation": 270, "texture": "#1"}
+			}
+		},
+		{
+			"from": [11, 5.0, 5.0],
+			"to": [13, 6.0, 11.0],
+			"faces": {
+				"north": {"uv": [8, 6, 10, 5], "texture": "#4"},
+				"south": {"uv": [8, 5, 10, 6], "rotation": 180, "texture": "#4"}
+			}
+		},
+		{
+			"from": [11, 6.0, 5.0],
+			"to": [13, 11.0, 11.0],
+			"faces": {
+				"north": {"uv": [10, 1.5, 11, 4], "texture": "#1"},
+				"south": {"uv": [9.5, 1.5, 10.5, 4], "texture": "#1"},
+				"west": {"uv": [11, 1.5, 14, 4], "texture": "#1"},
+				"up": {"uv": [11, 0, 14, 1], "rotation": 270, "texture": "#1"}
+			}
+		},
+		{
+			"from": [13, 5.0, 5.0],
+			"to": [14, 6.0, 11.0],
+			"faces": {
+				"north": {"uv": [9.5, 4, 10, 4.5], "texture": "#1"},
+				"east": {"uv": [11, 4, 14, 4.5], "texture": "#1"},
+				"south": {"uv": [10.5, 4, 11, 4.5], "texture": "#1"},
+				"down": {"uv": [11, 5.5, 14, 6], "rotation": 270, "texture": "#1"}
+			}
+		},
+		{
+			"from": [13, 6.0, 5.0],
+			"to": [14, 11.0, 11.0],
+			"faces": {
+				"north": {"uv": [9.5, 1.5, 10, 4], "texture": "#1"},
+				"east": {"uv": [11, 1.5, 14, 4], "texture": "#1"},
+				"south": {"uv": [10.5, 1.5, 11, 4], "texture": "#1"},
+				"up": {"uv": [11, 1, 14, 1.5], "rotation": 270, "texture": "#1"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "Shaft Connector",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+		}
+	]
+}

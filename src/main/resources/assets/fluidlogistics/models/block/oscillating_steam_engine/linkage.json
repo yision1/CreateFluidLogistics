@@ -1,0 +1,29 @@
+{
+	"credit": "Made with Blockbench",
+	"textures": {
+		"1": "create:block/cam_linkage",
+		"particle": "create:block/copper_underside"
+	},
+	"elements": [
+		{
+			"from": [6, 5, 4],
+			"to": [10, 11, 12],
+			"faces": {
+				"north": {"uv": [8.5, 11, 10.5, 14], "texture": "#1"},
+				"east": {"uv": [10.5, 11, 14.5, 14], "texture": "#1"},
+				"south": {"uv": [8.5, 11, 10.5, 14], "texture": "#1"},
+				"west": {"uv": [10.5, 11, 14.5, 14], "texture": "#1"},
+				"up": {"uv": [10.5, 9, 14.5, 11], "rotation": 90, "texture": "#1"},
+				"down": {"uv": [10.5, 14, 14.5, 16], "rotation": 90, "texture": "#1"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "Linkage",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [0]
+		}
+	]
+}

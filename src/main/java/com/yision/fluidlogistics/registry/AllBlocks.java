@@ -10,6 +10,7 @@ import com.simibubi.create.api.behaviour.display.DisplaySource;
 import com.simibubi.create.api.behaviour.interaction.ConductorBlockInteractionBehavior;
 import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
 import com.simibubi.create.api.registry.CreateRegistries;
+import com.simibubi.create.api.stress.BlockStressValues;
 import com.simibubi.create.content.fluids.PipeAttachmentModel;
 import com.simibubi.create.content.processing.basin.BasinGenerator;
 import com.simibubi.create.content.processing.basin.BasinMovementBehaviour;
@@ -47,6 +48,7 @@ import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankMod
 import com.yision.fluidlogistics.content.fluids.redstoneFluidValve.RedstoneFluidValveBlock;
 import com.yision.fluidlogistics.content.fluids.waterContainingCopperCasing.WaterContainingCopperCasingBlock;
 import com.yision.fluidlogistics.content.fluids.waterContainingCopperCasing.WaterContainingCopperCasingItem;
+import com.yision.fluidlogistics.content.kinetics.oscillatingSteamEngine.OscillatingSteamEngineBlock;
 import com.yision.fluidlogistics.content.logistics.copperBasket.CopperBasketBlock;
 import com.yision.fluidlogistics.content.logistics.copperFrogport.CopperFrogportBlock;
 import com.yision.fluidlogistics.content.logistics.copperFrogport.CopperFrogportItem;
@@ -83,6 +85,21 @@ import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 
 public class AllBlocks {
+
+	public static final BlockEntry<OscillatingSteamEngineBlock> OSCILLATING_STEAM_ENGINE = REGISTRATE
+		.block("oscillating_steam_engine", OscillatingSteamEngineBlock::new)
+		.initialProperties(SharedProperties::copperMetal)
+		.properties(p -> p.noOcclusion())
+		.transform(pickaxeOnly())
+		.blockstate((context, provider) -> provider.simpleBlock(context.get(),
+			provider.models().getExistingFile(provider.modLoc("block/oscillating_steam_engine/block"))))
+		.onRegister(block -> BlockStressValues.CAPACITIES.register(block,
+			() -> BlockStressValues.getCapacity(com.simibubi.create.AllBlocks.STEAM_ENGINE.get())))
+		.onRegister(BlockStressValues.setGeneratorSpeed(64, true))
+		.item()
+		.model(AssetLookup::customItemModel)
+		.build()
+		.register();
 
 	public static final BlockEntry<PotatoServerBlock> POTATO_SERVER = REGISTRATE
 		.block("potato_server", PotatoServerBlock::new)

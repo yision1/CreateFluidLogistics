@@ -19,6 +19,7 @@ public class Config {
 	private static final boolean MULTI_FLUID_ACCESS_PORT_ENABLED_DEFAULT = true;
 	private static final boolean FLUID_INVENTORY_ACCESS_PORT_ENABLED_DEFAULT = true;
 	private static final boolean SMART_HOPPER_ENABLED_DEFAULT = true;
+	private static final boolean OSCILLATING_STEAM_ENGINE_ENABLED_DEFAULT = true;
 	private static final boolean FLUID_PUMP_ENABLED_DEFAULT = true;
 	private static final boolean INFINITE_FLUID_TANK_ENABLED_DEFAULT = true;
 	private static final boolean WATER_CONTAINING_COPPER_CASING_ENABLED_DEFAULT = true;
@@ -101,6 +102,10 @@ public class Config {
 	public static final ModConfigSpec.BooleanValue SMART_HOPPER_ENABLED = BUILDER
 		.translation("block.fluidlogistics.smart_hopper")
 		.define("smartHopperEnabled", SMART_HOPPER_ENABLED_DEFAULT);
+
+	public static final ModConfigSpec.BooleanValue OSCILLATING_STEAM_ENGINE_ENABLED = BUILDER
+		.translation("block.fluidlogistics.oscillating_steam_engine")
+		.define("oscillatingSteamEngineEnabled", OSCILLATING_STEAM_ENGINE_ENABLED_DEFAULT);
 
 	public static final ModConfigSpec.BooleanValue FLUID_PUMP_ENABLED = BUILDER
 		.translation("block.fluidlogistics.fluid_pump")
@@ -265,6 +270,7 @@ public class Config {
 	private static boolean multiFluidAccessPortEnabled = MULTI_FLUID_ACCESS_PORT_ENABLED_DEFAULT;
 	private static boolean fluidInventoryAccessPortEnabled = FLUID_INVENTORY_ACCESS_PORT_ENABLED_DEFAULT;
 	private static boolean smartHopperEnabled = SMART_HOPPER_ENABLED_DEFAULT;
+	private static boolean oscillatingSteamEngineEnabled = OSCILLATING_STEAM_ENGINE_ENABLED_DEFAULT;
 	private static boolean fluidPumpEnabled = FLUID_PUMP_ENABLED_DEFAULT;
 	private static boolean infiniteFluidTankEnabled = INFINITE_FLUID_TANK_ENABLED_DEFAULT;
 	private static boolean waterContainingCopperCasingEnabled = WATER_CONTAINING_COPPER_CASING_ENABLED_DEFAULT;
@@ -337,6 +343,7 @@ public class Config {
 		multiFluidAccessPortEnabled = serverValue(MULTI_FLUID_ACCESS_PORT_ENABLED);
 		fluidInventoryAccessPortEnabled = serverValue(FLUID_INVENTORY_ACCESS_PORT_ENABLED);
 		smartHopperEnabled = serverValue(SMART_HOPPER_ENABLED);
+		oscillatingSteamEngineEnabled = serverValue(OSCILLATING_STEAM_ENGINE_ENABLED);
 		fluidPumpEnabled = serverValue(FLUID_PUMP_ENABLED);
 		infiniteFluidTankEnabled = serverValue(INFINITE_FLUID_TANK_ENABLED);
 		waterContainingCopperCasingEnabled = serverValue(WATER_CONTAINING_COPPER_CASING_ENABLED);
@@ -402,6 +409,10 @@ public class Config {
 
 	public static boolean isSmartHopperEnabled() {
 		return smartHopperEnabled;
+	}
+
+	public static boolean isOscillatingSteamEngineEnabled() {
+		return oscillatingSteamEngineEnabled;
 	}
 
 	public static boolean isFluidPumpEnabled() {

@@ -15,6 +15,12 @@ import net.minecraft.world.item.ItemStack;
 
 public class AllPartialModels {
 
+	public static final PartialModel OSCILLATING_ENGINE_HOUSING = block("oscillating_steam_engine/block");
+	public static final PartialModel OSCILLATING_ENGINE_CYLINDER = block("oscillating_steam_engine/cylinder");
+	public static final PartialModel OSCILLATING_ENGINE_PISTON = block("oscillating_steam_engine/piston");
+	public static final PartialModel OSCILLATING_ENGINE_LINKAGE = block("oscillating_steam_engine/linkage");
+	public static final PartialModel OSCILLATING_ENGINE_CONNECTOR = block("oscillating_steam_engine/shaft_connector");
+
 	public static final PartialModel FLOW_METER_HEAD = block("flow_meter/head");
 	public static final PartialModel FLOW_METER_DIAL = block("flow_meter/dial");
 	public static final PartialModel REDSTONE_FLUID_VALVE_POINTER = block("redstone_fluid_valve/pointer");
@@ -83,6 +89,11 @@ public class AllPartialModels {
 
 	public static List<ResourceLocation> customModelLocations() {
 		return List.of(
+			OSCILLATING_ENGINE_HOUSING.modelLocation(),
+			OSCILLATING_ENGINE_CYLINDER.modelLocation(),
+			OSCILLATING_ENGINE_PISTON.modelLocation(),
+			OSCILLATING_ENGINE_LINKAGE.modelLocation(),
+			OSCILLATING_ENGINE_CONNECTOR.modelLocation(),
 			FLOW_METER_HEAD.modelLocation(),
 			FLOW_METER_DIAL.modelLocation(),
 			REDSTONE_FLUID_VALVE_POINTER.modelLocation(),

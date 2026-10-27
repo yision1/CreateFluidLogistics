@@ -20,6 +20,7 @@ public final class FluidLogisticsRegistrate extends CreateRegistrate {
 		"copper_basin",
 		"smart_hopper",
 		"fluid_pump",
+		"oscillating_steam_engine",
 		"flow_meter",
 		"redstone_fluid_valve",
 		"potato_server",

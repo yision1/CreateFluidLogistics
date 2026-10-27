@@ -296,6 +296,7 @@ public class FluidLogistics {
 		new FeatureItem(FeatureToggle.FLUID_INVENTORY_ACCESS_PORT, AllBlocks.FLUID_INVENTORY_ACCESS_PORT),
 		new FeatureItem(FeatureToggle.SMART_HOPPER, AllBlocks.SMART_HOPPER),
 		new FeatureItem(FeatureToggle.FLUID_PUMP, AllBlocks.FLUID_PUMP),
+		new FeatureItem(FeatureToggle.OSCILLATING_STEAM_ENGINE, AllBlocks.OSCILLATING_STEAM_ENGINE),
 		new FeatureItem(FeatureToggle.INFINITE_FLUID_TANK, AllBlocks.INFINITE_FLUID_TANK),
 		new FeatureItem(FeatureToggle.WATER_CONTAINING_COPPER_CASING, AllBlocks.WATER_CONTAINING_COPPER_CASING),
 		new FeatureItem(FeatureToggle.COPPER_BASIN, AllBlocks.COPPER_BASIN),

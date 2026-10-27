@@ -27,6 +27,9 @@ import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankRen
 import com.yision.fluidlogistics.content.fluids.redstoneFluidValve.RedstoneFluidValveBlockEntity;
 import com.yision.fluidlogistics.content.fluids.redstoneFluidValve.RedstoneFluidValveRenderer;
 import com.yision.fluidlogistics.content.fluids.waterContainingCopperCasing.WaterContainingCopperCasingBlock;
+import com.yision.fluidlogistics.content.kinetics.oscillatingSteamEngine.OscillatingSteamEngineBlockEntity;
+import com.yision.fluidlogistics.content.kinetics.oscillatingSteamEngine.OscillatingSteamEngineRenderer;
+import com.yision.fluidlogistics.content.kinetics.oscillatingSteamEngine.OscillatingSteamEngineVisual;
 import com.yision.fluidlogistics.content.logistics.copperBasket.CopperBasketBlockEntity;
 import com.yision.fluidlogistics.content.logistics.copperBasket.CopperBasketRenderer;
 import com.yision.fluidlogistics.content.logistics.copperFrogport.CopperFrogportBlockEntity;
@@ -52,6 +55,13 @@ import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonR
 import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonVisual;
 
 public class AllBlockEntities {
+
+	public static final BlockEntityEntry<OscillatingSteamEngineBlockEntity> OSCILLATING_STEAM_ENGINE = REGISTRATE
+		.blockEntity("oscillating_steam_engine", OscillatingSteamEngineBlockEntity::new)
+		.visual(() -> OscillatingSteamEngineVisual::new, true)
+		.validBlocks(AllBlocks.OSCILLATING_STEAM_ENGINE)
+		.renderer(() -> OscillatingSteamEngineRenderer::new)
+		.register();
 
 	public static final BlockEntityEntry<PotatoServerBlockEntity> POTATO_SERVER = REGISTRATE
 		.blockEntity("potato_server", PotatoServerBlockEntity::new)

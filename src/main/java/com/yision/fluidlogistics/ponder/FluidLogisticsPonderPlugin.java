@@ -18,6 +18,7 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
 	public static final ResourceLocation LOGISTICS = Create.asResource("logistics");
 	public static final ResourceLocation FLUIDS = Create.asResource("fluids");
 	public static final ResourceLocation ARM_TARGETS = Create.asResource("arm_targets");
+	public static final ResourceLocation KINETIC_SOURCES = Create.asResource("kinetic_sources");
 	public static final ResourceLocation KINETIC_APPLIANCES = Create.asResource("kinetic_appliances");
 	public static final ResourceLocation DISPLAY_SOURCES = Create.asResource("display_sources");
 
@@ -30,6 +31,9 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
 	public void registerScenes(PonderSceneRegistrationHelper<ResourceLocation> helper) {
 		PonderSceneRegistrationHelper<ItemProviderEntry<?, ?>> registration = helper
 			.withKeyFunction(RegistryEntry::getId);
+
+		registration.forComponents(AllBlocks.OSCILLATING_STEAM_ENGINE)
+			.addStoryBoard(OscillatingSteamEngineScenes.SETUP, OscillatingSteamEngineScenes::setup, FLUIDS);
 
 		registration.forComponents(AllBlocks.FLUID_PACKAGER)
 			.addStoryBoard(FluidPackagerScenes.FLUID_PACKAGER, FluidPackagerScenes::fluidPackager)
@@ -123,6 +127,9 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
 			.add(AllBlocks.FLOW_METER)
 			.add(AllBlocks.REDSTONE_FLUID_VALVE)
 			.add(AllBlocks.MECHANICAL_FLUID_GUN);
+
+		registration.addToTag(KINETIC_SOURCES)
+			.add(AllBlocks.OSCILLATING_STEAM_ENGINE);
 
 		registration.addToTag(KINETIC_APPLIANCES)
 			.add(AllBlocks.FLUID_PUMP)
