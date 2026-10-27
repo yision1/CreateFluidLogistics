@@ -3,30 +3,34 @@ package com.yision.fluidlogistics.util;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.CompressedTankItem;
 
 import net.minecraft.world.item.ItemStack;
+
 import net.minecraftforge.fluids.FluidStack;
 
 public final class FluidDisplayHelper {
 
-    private FluidDisplayHelper() {
-    }
+	private FluidDisplayHelper() {
+	}
 
-    public static boolean shouldDisplayAsFluid(ItemStack stack) {
-        return CompressedTankItem.isFluidStack(stack);
-    }
+	public static boolean shouldDisplayAsFluid(ItemStack stack) {
+		return !getDisplayFluid(stack).isEmpty();
+	}
 
-    public static FluidStack getDisplayFluid(ItemStack stack) {
-        return shouldDisplayAsFluid(stack) ? CompressedTankItem.getFluid(stack).copy() : FluidStack.EMPTY;
-    }
+	public static FluidStack getDisplayFluid(ItemStack stack) {
+		if (com.yision.fluidlogistics.content.logistics.fluidPackage.FluidProxyRegistry.isProxy(stack)) {
+			return com.yision.fluidlogistics.content.logistics.fluidPackage.FluidProxyRegistry.getFluid(stack);
+		}
+		return CompressedTankItem.isFluidStack(stack) ? CompressedTankItem.getFluid(stack).copy() : FluidStack.EMPTY;
+	}
 
-    public static boolean shouldDisplayAsFluidInPackage(ItemStack stack) {
-        return shouldDisplayAsFluid(stack);
-    }
+	public static boolean shouldDisplayAsFluidInPackage(ItemStack stack) {
+		return shouldDisplayAsFluid(stack);
+	}
 
-    public static FluidStack getPackageDisplayFluid(ItemStack stack) {
-        return getDisplayFluid(stack);
-    }
+	public static FluidStack getPackageDisplayFluid(ItemStack stack) {
+		return getDisplayFluid(stack);
+	}
 
-    public static ItemStack getPackageDisplayStack(ItemStack stack) {
-        return stack;
-    }
+	public static ItemStack getPackageDisplayStack(ItemStack stack) {
+		return stack;
+	}
 }

@@ -4,8 +4,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.item.render.CustomRenderedItemModel;
 import com.simibubi.create.foundation.item.render.CustomRenderedItemModelRenderer;
 import com.simibubi.create.foundation.item.render.PartialItemModelRenderer;
-import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidTankItem;
 import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidSupplyRules;
+import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidTankItem;
 import com.yision.fluidlogistics.render.FluidItemRenderHelper;
 
 import net.createmod.catnip.platform.ForgeCatnipServices;
@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fluids.FluidStack;
@@ -22,8 +23,7 @@ public class InfiniteFluidTankItemRenderer extends CustomRenderedItemModelRender
 
 	@Override
 	protected void render(ItemStack stack, CustomRenderedItemModel model, PartialItemModelRenderer renderer,
-	                      ItemDisplayContext displayContext, PoseStack ms, MultiBufferSource buffer, int light,
-	                      int overlay) {
+		ItemDisplayContext displayContext, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
 		renderer.render(model.getOriginalModel(), light);
 
 		FluidStack fluid = InfiniteFluidTankItem.getContainedFluid(stack);
@@ -34,7 +34,7 @@ public class InfiniteFluidTankItemRenderer extends CustomRenderedItemModelRender
 	}
 
 	private static void renderFluidInTank(FluidStack fluid, PoseStack ms, MultiBufferSource buffer, int light,
-	                                      ItemDisplayContext displayContext) {
+		ItemDisplayContext displayContext) {
 		float capHeight = 1 / 4f;
 		float tankHullWidth = 1 / 16f + 1 / 128f;
 		float minPuddleHeight = 1 / 16f;

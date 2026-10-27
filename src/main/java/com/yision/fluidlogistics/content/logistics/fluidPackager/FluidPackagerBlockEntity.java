@@ -25,8 +25,6 @@ import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.yision.fluidlogistics.api.packager.PackageResourceTypes;
 import com.yision.fluidlogistics.api.packager.ResourcePackager;
 import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidHandlerHelper;
-import com.yision.fluidlogistics.content.logistics.fluidPackage.CompressedTankItem;
-import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageItem;
 import com.yision.fluidlogistics.util.IPackagerOverrideData;
 
 import net.createmod.catnip.data.Iterate;
@@ -40,307 +38,306 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+
 public class FluidPackagerBlockEntity extends PackagerBlockEntity
-        implements Clearable, ResourcePackager, IHaveGoggleInformation {
+	implements Clearable, ResourcePackager, IHaveGoggleInformation {
 
-    public TankManipulationBehaviour fluidTarget;
+	public TankManipulationBehaviour fluidTarget;
 
-    public FluidPackagerBlockEntity(BlockEntityType<?> typeIn, BlockPos pos, BlockState state) {
-        super(typeIn, pos, state);
-    }
+	public FluidPackagerBlockEntity(BlockEntityType<?> typeIn, BlockPos pos, BlockState state) {
+		super(typeIn, pos, state);
+	}
 
-    public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-    }
+	@Override
+	public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
+		behaviours.add(fluidTarget = new TankManipulationBehaviour(this, InterfaceProvider.oppositeOfBlockFacing())
+			.withFilter(this::supportsFluidTarget));
+		targetInventory = new InvManipulationBehaviour(this, InterfaceProvider.oppositeOfBlockFacing())
+			.withFilter(this::supportsItemTarget);
+		behaviours.add(targetInventory);
+		behaviours.add(new AdvancementBehaviour(this, AllAdvancements.PACKAGER));
+		behaviours.add(computerBehaviour = ComputerCraftProxy.behaviour(this));
+	}
 
-    @Override
-    public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
-        behaviours.add(fluidTarget = new TankManipulationBehaviour(this, InterfaceProvider.oppositeOfBlockFacing())
-                .withFilter(this::supportsFluidTarget));
-        targetInventory = new InvManipulationBehaviour(this, InterfaceProvider.oppositeOfBlockFacing())
-                .withFilter(this::supportsItemTarget);
-        behaviours.add(targetInventory);
-        behaviours.add(new AdvancementBehaviour(this, AllAdvancements.PACKAGER));
-        behaviours.add(computerBehaviour = ComputerCraftProxy.behaviour(this));
-    }
+	@Override
 
-    @Override
-    public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-        IPackagerOverrideData overrideData = fluidlogistics$overrideData();
-        String address = signBasedAddress;
-        if (level != null && level.isClientSide) {
-            String scannedAddress = findSignAddress();
-            if (!scannedAddress.isBlank()) {
-                address = scannedAddress;
-            } else if (address.isBlank()) {
-                address = overrideData.clipboardAddress();
-            }
-        } else if (address.isBlank()) {
-            address = overrideData.clipboardAddress();
-        }
+	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
+		IPackagerOverrideData overrideData = fluidlogistics$overrideData();
+		String address = signBasedAddress;
+		if (level != null && level.isClientSide) {
+			String scannedAddress = findSignAddress();
+			if (!scannedAddress.isBlank()) {
+				address = scannedAddress;
+			} else if (address.isBlank()) {
+				address = overrideData.clipboardAddress();
+			}
+		} else if (address.isBlank()) {
+			address = overrideData.clipboardAddress();
+		}
 
-        BlockState state = getBlockState();
-        boolean linked = state.hasProperty(FluidPackagerBlock.LINKED)
-                && state.getValue(FluidPackagerBlock.LINKED);
-        PackagerGoggleInfo.addFluidPackagerToTooltip(
-                tooltip, address, overrideData.fluidlogistics$isManualOverrideLocked(), linked);
-        return true;
-    }
+		if (address.isBlank() && !overrideData.fluidlogistics$isManualOverrideLocked()) {
+			return false;
+		}
 
-    private IPackagerOverrideData fluidlogistics$overrideData() {
-        return (IPackagerOverrideData) (Object) this;
-    }
+		BlockState state = getBlockState();
+		boolean linked = state.hasProperty(FluidPackagerBlock.LINKED) && state.getValue(FluidPackagerBlock.LINKED);
+		PackagerGoggleInfo.addFluidPackagerToTooltip(tooltip, address,
+			overrideData.fluidlogistics$isManualOverrideLocked(), linked);
+		return !linked;
+	}
 
-    private String findSignAddress() {
-        if (level == null) {
-            return "";
-        }
-        for (Direction side : Iterate.directions) {
-            String address = getSign(side);
-            if (address != null && !address.isBlank()) {
-                return address;
-            }
-        }
-        return "";
-    }
+	private IPackagerOverrideData fluidlogistics$overrideData() {
+		return (IPackagerOverrideData) (Object) this;
+	}
 
-    private boolean supportsFluidTarget(@Nullable BlockEntity target) {
-        return !(target instanceof PortableFluidInterfaceBlockEntity);
-    }
+	private String findSignAddress() {
+		if (level == null) {
+			return "";
+		}
+		for (Direction side : Iterate.directions) {
+			String address = getSign(side);
+			if (address != null && !address.isBlank()) {
+				return address;
+			}
+		}
+		return "";
+	}
 
-    private boolean supportsItemTarget(@Nullable BlockEntity target) {
-        return target != null && !(target instanceof PortableFluidInterfaceBlockEntity);
-    }
+	private boolean supportsFluidTarget(@Nullable BlockEntity target) {
+		return !(target instanceof PortableFluidInterfaceBlockEntity);
+	}
 
-    @Override
-    public PackagerBlockEntity owner() {
-        return this;
-    }
+	private boolean supportsItemTarget(@Nullable BlockEntity target) {
+		return target != null && !(target instanceof PortableFluidInterfaceBlockEntity);
+	}
 
-    @Override
-    public ResourceLocation resourceTypeId() {
-        return PackageResourceTypes.FLUID;
-    }
+	@Override
+	public PackagerBlockEntity owner() {
+		return this;
+	}
 
-    @Override
-    public boolean unwrapBox(ItemStack box, boolean simulate) {
-        if (!FluidPackageItem.isFluidPackage(box)) {
-            return false;
-        }
-        return super.unwrapBox(box, simulate);
-    }
+	@Override
+	public ResourceLocation resourceTypeId() {
+		return PackageResourceTypes.FLUID;
+	}
 
-    @Override
-    public Snapshot scan() {
-        FluidAccess fluidAccess = getFluidAccess();
-        if (fluidAccess == null) {
-            return Snapshot.empty(null);
-        }
-        IFluidHandler fluidHandler = fluidAccess.handler();
-        InventorySummary summary = new InventorySummary();
-        for (Map.Entry<FluidTypeKey, Integer> entry : scanAvailableFluids(fluidHandler).entrySet()) {
-            summary.add(PackageResourceTypes.createFluidKey(entry.getKey().template()), entry.getValue());
-        }
-        return new Snapshot(fluidAccess.storageIdentity(), summary);
-    }
+	@Override
+	public boolean unwrapBox(ItemStack box, boolean simulate) {
+		if (com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageContentHelper
+			.getSingleContainedFluid(box).isEmpty()) {
+			return false;
+		}
+		return super.unwrapBox(box, simulate);
+	}
 
-    @Override
-    public int extract(ItemStack normalizedKey, int maxAmount, boolean simulate) {
-        if (maxAmount <= 0 || !CompressedTankItem.isFluidStack(normalizedKey)) {
-            return 0;
-        }
-        FluidAccess fluidAccess = getFluidAccess();
-        if (fluidAccess == null) {
-            return 0;
-        }
-        IFluidHandler handler = fluidAccess.handler();
-        FluidStack target = CompressedTankItem.getFluid(normalizedKey);
-        if (InfiniteFluidHandlerHelper.isInfiniteSource(handler, target)) {
-            return maxAmount;
-        }
-        FluidStack drained = handler.drain(
-                FluidHelper.copyStackWithAmount(target, maxAmount),
-                simulate ? FluidAction.SIMULATE : FluidAction.EXECUTE);
-        return target.isFluidEqual(drained) && FluidStack.areFluidStackTagsEqual(target, drained)
-                ? drained.getAmount() : 0;
-    }
+	@Override
+	public Snapshot scan() {
+		FluidAccess fluidAccess = getFluidAccess();
+		if (fluidAccess == null) {
+			return Snapshot.empty(null);
+		}
+		IFluidHandler fluidHandler = fluidAccess.handler();
+		InventorySummary summary = new InventorySummary();
+		for (Map.Entry<FluidTypeKey, Integer> entry : scanAvailableFluids(fluidHandler).entrySet()) {
+			summary.add(PackageResourceTypes.createFluidKey(entry.getKey().template()), entry.getValue());
+		}
+		return new Snapshot(fluidAccess.storageIdentity(), summary);
+	}
 
-    @Override
-    public int insert(ItemStack normalizedKey, int maxAmount, boolean simulate) {
-        if (maxAmount <= 0 || !CompressedTankItem.isFluidStack(normalizedKey)) {
-            return 0;
-        }
-        FluidAccess fluidAccess = getFluidAccess();
-        if (fluidAccess == null) {
-            return 0;
-        }
-        IFluidHandler handler = fluidAccess.handler();
-        FluidStack fluid = FluidHelper.copyStackWithAmount(
-                CompressedTankItem.getFluid(normalizedKey), maxAmount);
-        if (InfiniteFluidHandlerHelper.canAcceptInfinitely(handler, fluid)) {
-            return maxAmount;
-        }
-        int filled = handler.fill(fluid, simulate ? FluidAction.SIMULATE : FluidAction.EXECUTE);
-        return Math.max(0, Math.min(maxAmount, filled));
-    }
+	@Override
+	public int extract(ItemStack normalizedKey, int maxAmount, boolean simulate) {
+		if (maxAmount <= 0 || PackageResourceTypes.getFluid(normalizedKey).isEmpty()) {
+			return 0;
+		}
+		FluidAccess fluidAccess = getFluidAccess();
+		if (fluidAccess == null) {
+			return 0;
+		}
+		IFluidHandler handler = fluidAccess.handler();
+		FluidStack target = PackageResourceTypes.getFluid(normalizedKey);
+		if (InfiniteFluidHandlerHelper.isInfiniteSource(handler, target)) {
+			return maxAmount;
+		}
+		FluidStack drained = handler.drain(FluidHelper.copyStackWithAmount(target, maxAmount),
+			simulate ? FluidAction.SIMULATE : FluidAction.EXECUTE);
+		return target.isFluidEqual(drained) && FluidStack.areFluidStackTagsEqual(target, drained) ? drained.getAmount()
+			: 0;
+	}
 
-    private Map<FluidTypeKey, Integer> scanAvailableFluids(IFluidHandler fluidHandler) {
-        int tankCount = safeGetTanks(fluidHandler);
-        if (tankCount == 0) {
-            return Map.of();
-        }
-        Map<FluidTypeKey, Integer> scanned = new LinkedHashMap<>();
-        for (int tank = 0; tank < tankCount; tank++) {
-            FluidStack fluid = safeGetFluidInTank(fluidHandler, tank);
-            if (fluid.isEmpty()) {
-                continue;
-            }
-            FluidTypeKey key = FluidTypeKey.of(fluid);
-            int amount = InfiniteFluidHandlerHelper.getStockAmount(fluidHandler, fluid);
-            scanned.merge(key, amount, FluidPackagerBlockEntity::mergeFluidAmounts);
-        }
-        return scanned.isEmpty() ? Map.of() : scanned;
-    }
+	@Override
+	public int insert(ItemStack normalizedKey, int maxAmount, boolean simulate) {
+		if (maxAmount <= 0 || PackageResourceTypes.getFluid(normalizedKey).isEmpty()) {
+			return 0;
+		}
+		FluidAccess fluidAccess = getFluidAccess();
+		if (fluidAccess == null) {
+			return 0;
+		}
+		IFluidHandler handler = fluidAccess.handler();
+		FluidStack fluid = FluidHelper.copyStackWithAmount(PackageResourceTypes.getFluid(normalizedKey), maxAmount);
+		if (InfiniteFluidHandlerHelper.canAcceptInfinitely(handler, fluid)) {
+			return maxAmount;
+		}
+		int filled = handler.fill(fluid, simulate ? FluidAction.SIMULATE : FluidAction.EXECUTE);
+		return Math.max(0, Math.min(maxAmount, filled));
+	}
 
-    @Nullable
-    private FluidAccess getFluidAccess() {
-        if (level == null) {
-            return null;
-        }
-        BlockPos targetPos = fluidTarget.getTarget().getConnectedPos();
-        if (!level.isLoaded(targetPos)) {
-            return null;
-        }
-        BlockEntity target = level.getBlockEntity(targetPos);
-        if (target == null) {
-            return null;
-        }
-        if (target instanceof IMultiBlockEntityContainer.Fluid multiblock) {
-            BlockEntity controller = multiblock.getControllerBE();
-            if (controller != null) {
-                IFluidHandler controllerHandler = controller
-                        .getCapability(ForgeCapabilities.FLUID_HANDLER)
-                        .orElse(null);
-                if (controllerHandler != null) {
-                    return new FluidAccess(controller, controllerHandler);
-                }
-            }
-        }
-        IFluidHandler fluidHandler = fluidTarget.getInventory();
-        if (fluidHandler == null) {
-            fluidTarget.findNewCapability();
-            fluidHandler = fluidTarget.getInventory();
-        }
-        if (fluidHandler == null && level.getBlockState(targetPos).hasProperty(BlockStateProperties.LEVEL_HONEY)) {
-            fluidHandler = new BeehiveFluidHandler(level, targetPos);
-        }
-        return fluidHandler == null ? null : new FluidAccess(target, fluidHandler);
-    }
+	private Map<FluidTypeKey, Integer> scanAvailableFluids(IFluidHandler fluidHandler) {
+		int tankCount = safeGetTanks(fluidHandler);
+		if (tankCount == 0) {
+			return Map.of();
+		}
+		Map<FluidTypeKey, Integer> scanned = new LinkedHashMap<>();
+		for (int tank = 0; tank < tankCount; tank++) {
+			FluidStack fluid = safeGetFluidInTank(fluidHandler, tank);
+			if (fluid.isEmpty()) {
+				continue;
+			}
+			FluidTypeKey key = FluidTypeKey.of(fluid);
+			int amount = InfiniteFluidHandlerHelper.getStockAmount(fluidHandler, fluid);
+			scanned.merge(key, amount, FluidPackagerBlockEntity::mergeFluidAmounts);
+		}
+		return scanned.isEmpty() ? Map.of() : scanned;
+	}
 
-    private record FluidAccess(BlockEntity storageIdentity, IFluidHandler handler) {
-    }
+	@Nullable
+	private FluidAccess getFluidAccess() {
+		if (level == null) {
+			return null;
+		}
+		BlockPos targetPos = fluidTarget.getTarget().getConnectedPos();
+		if (!level.isLoaded(targetPos)) {
+			return null;
+		}
+		BlockEntity target = level.getBlockEntity(targetPos);
+		if (target == null) {
+			return null;
+		}
+		if (target instanceof IMultiBlockEntityContainer.Fluid multiblock) {
+			BlockEntity controller = multiblock.getControllerBE();
+			if (controller != null) {
+				IFluidHandler controllerHandler = controller.getCapability(ForgeCapabilities.FLUID_HANDLER)
+					.orElse(null);
+				if (controllerHandler != null) {
+					return new FluidAccess(controller, controllerHandler);
+				}
+			}
+		}
+		IFluidHandler fluidHandler = fluidTarget.getInventory();
+		if (fluidHandler == null) {
+			fluidTarget.findNewCapability();
+			fluidHandler = fluidTarget.getInventory();
+		}
+		if (fluidHandler == null && level.getBlockState(targetPos).hasProperty(BlockStateProperties.LEVEL_HONEY)) {
+			fluidHandler = new BeehiveFluidHandler(level, targetPos);
+		}
+		return fluidHandler == null ? null : new FluidAccess(target, fluidHandler);
+	}
 
-    private record BeehiveFluidHandler(Level level, BlockPos pos) implements IFluidHandler {
-        private static final int HONEY_AMOUNT = 250;
+	private record FluidAccess(BlockEntity storageIdentity, IFluidHandler handler) {
+	}
 
-        @Override
-        public int getTanks() {
-            return 1;
-        }
+	private record BeehiveFluidHandler(Level level, BlockPos pos) implements IFluidHandler {
+		private static final int HONEY_AMOUNT = 250;
 
-        @Override
-        public FluidStack getFluidInTank(int tank) {
-            if (tank != 0 || !level.isLoaded(pos)) {
-                return FluidStack.EMPTY;
-            }
-            BlockState state = level.getBlockState(pos);
-            return state.hasProperty(BlockStateProperties.LEVEL_HONEY)
-                    ? VanillaFluidTargets.drainBlock(level, pos, state, true) : FluidStack.EMPTY;
-        }
+		@Override
+		public int getTanks() {
+			return 1;
+		}
 
-        @Override
-        public int getTankCapacity(int tank) {
-            return tank == 0 ? HONEY_AMOUNT : 0;
-        }
+		@Override
+		public FluidStack getFluidInTank(int tank) {
+			if (tank != 0 || !level.isLoaded(pos)) {
+				return FluidStack.EMPTY;
+			}
+			BlockState state = level.getBlockState(pos);
+			return state.hasProperty(BlockStateProperties.LEVEL_HONEY)
+				? VanillaFluidTargets.drainBlock(level, pos, state, true)
+				: FluidStack.EMPTY;
+		}
 
-        @Override
-        public boolean isFluidValid(int tank, FluidStack stack) {
-            return false;
-        }
+		@Override
+		public int getTankCapacity(int tank) {
+			return tank == 0 ? HONEY_AMOUNT : 0;
+		}
 
-        @Override
-        public int fill(FluidStack resource, FluidAction action) {
-            return 0;
-        }
+		@Override
+		public boolean isFluidValid(int tank, FluidStack stack) {
+			return false;
+		}
 
-        @Override
-        public FluidStack drain(FluidStack resource, FluidAction action) {
-            if (!resource.isFluidEqual(getFluidInTank(0))) {
-                return FluidStack.EMPTY;
-            }
-            return drain(resource.getAmount(), action);
-        }
+		@Override
+		public int fill(FluidStack resource, FluidAction action) {
+			return 0;
+		}
 
-        @Override
-        public FluidStack drain(int maxDrain, FluidAction action) {
-            if (maxDrain != HONEY_AMOUNT || level.isClientSide || getFluidInTank(0).isEmpty()) {
-                return FluidStack.EMPTY;
-            }
-            return VanillaFluidTargets.drainBlock(level, pos, level.getBlockState(pos), action.simulate());
-        }
-    }
+		@Override
+		public FluidStack drain(FluidStack resource, FluidAction action) {
+			if (!resource.isFluidEqual(getFluidInTank(0))) {
+				return FluidStack.EMPTY;
+			}
+			return drain(resource.getAmount(), action);
+		}
 
-    private static int mergeFluidAmounts(int existingAmount, int addedAmount) {
-        if (existingAmount >= BigItemStack.INF || addedAmount >= BigItemStack.INF) {
-            return BigItemStack.INF;
-        }
-        return (int) Math.min(BigItemStack.INF, (long) existingAmount + addedAmount);
-    }
+		@Override
+		public FluidStack drain(int maxDrain, FluidAction action) {
+			if (maxDrain != HONEY_AMOUNT || level.isClientSide || getFluidInTank(0).isEmpty()) {
+				return FluidStack.EMPTY;
+			}
+			return VanillaFluidTargets.drainBlock(level, pos, level.getBlockState(pos), action.simulate());
+		}
+	}
 
-    private record FluidTypeKey(FluidStack template) {
-        private static FluidTypeKey of(FluidStack stack) {
-            return new FluidTypeKey(FluidHelper.copyStackWithAmount(stack, 1));
-        }
+	private static int mergeFluidAmounts(int existingAmount, int addedAmount) {
+		if (existingAmount >= BigItemStack.INF || addedAmount >= BigItemStack.INF) {
+			return BigItemStack.INF;
+		}
+		return (int) Math.min(BigItemStack.INF, (long) existingAmount + addedAmount);
+	}
 
-        @Override
-        public boolean equals(Object obj) {
-            return obj instanceof FluidTypeKey other
-                    && template.isFluidEqual(other.template)
-                    && FluidStack.areFluidStackTagsEqual(template, other.template);
-        }
+	private record FluidTypeKey(FluidStack template) {
+		private static FluidTypeKey of(FluidStack stack) {
+			return new FluidTypeKey(FluidHelper.copyStackWithAmount(stack, 1));
+		}
 
-        @Override
-        public int hashCode() {
-            return Objects.hash(template.getFluid(), template.getTag());
-        }
-    }
+		@Override
+		public boolean equals(Object obj) {
+			return obj instanceof FluidTypeKey other && template.isFluidEqual(other.template)
+				&& FluidStack.areFluidStackTagsEqual(template, other.template);
+		}
 
-    private static int safeGetTanks(IFluidHandler handler) {
-        try {
-            return handler.getTanks();
-        } catch (IllegalStateException exception) {
-            return 0;
-        }
-    }
+		@Override
+		public int hashCode() {
+			return Objects.hash(template.getFluid(), template.getTag());
+		}
+	}
 
-    private static FluidStack safeGetFluidInTank(IFluidHandler handler, int tank) {
-        try {
-            return handler.getFluidInTank(tank);
-        } catch (IllegalStateException exception) {
-            return FluidStack.EMPTY;
-        }
-    }
+	private static int safeGetTanks(IFluidHandler handler) {
+		try {
+			return handler.getTanks();
+		} catch (IllegalStateException exception) {
+			return 0;
+		}
+	}
 
-    @Override
-    public void clearContent() {
-        inventory.setStackInSlot(0, ItemStack.EMPTY);
-        queuedExitingPackages.clear();
-    }
+	private static FluidStack safeGetFluidInTank(IFluidHandler handler, int tank) {
+		try {
+			return handler.getFluidInTank(tank);
+		} catch (IllegalStateException exception) {
+			return FluidStack.EMPTY;
+		}
+	}
+
+	@Override
+	public void clearContent() {
+		inventory.setStackInSlot(0, ItemStack.EMPTY);
+		queuedExitingPackages.clear();
+	}
 
 }

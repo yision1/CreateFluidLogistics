@@ -5,7 +5,9 @@
       "conditions": {
         "items": [
           {
-            "items": "create:spout"
+            "items": [
+              "create:spout"
+            ]
           }
         ]
       },

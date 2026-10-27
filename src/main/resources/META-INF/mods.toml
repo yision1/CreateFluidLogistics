@@ -41,3 +41,17 @@ config="fluidlogistics.mixins.json"
     versionRange="[1.1.22,)"
     ordering="AFTER"
     side="CLIENT"
+
+[[dependencies.${mod_id}]]
+    modId="create_enchantment_industry"
+    mandatory=false
+    versionRange="[${create_enchantment_industry_version},)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="create_dragons_plus"
+    mandatory=false
+    versionRange="[${create_dragons_plus_version},)"
+    ordering="AFTER"
+    side="BOTH"

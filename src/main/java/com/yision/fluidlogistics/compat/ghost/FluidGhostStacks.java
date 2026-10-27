@@ -1,31 +1,28 @@
 package com.yision.fluidlogistics.compat.ghost;
 
-import com.simibubi.create.foundation.fluid.FluidHelper;
-import com.yision.fluidlogistics.content.logistics.fluidPackage.CompressedTankItem;
-import com.yision.fluidlogistics.registry.AllItems;
+import com.yision.fluidlogistics.api.packager.PackageResourceTypes;
+import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidProxyRegistry;
 
 import net.minecraft.world.item.ItemStack;
+
 import net.minecraftforge.fluids.FluidStack;
 
 public final class FluidGhostStacks {
+	private FluidGhostStacks() {
+	}
 
-    private FluidGhostStacks() {
-    }
+	public static ItemStack fromFluid(FluidStack fluid) {
+		return PackageResourceTypes.createFluidKey(fluid);
+	}
 
-    public static ItemStack fromFluid(FluidStack fluid) {
-        ItemStack stack = new ItemStack(AllItems.COMPRESSED_STORAGE_TANK.get());
-        CompressedTankItem.setFluid(stack, FluidHelper.copyStackWithAmount(fluid, 1));
-        return stack;
-    }
+	public static boolean isFluidGhost(ItemStack stack) {
+		return FluidProxyRegistry.isProxy(stack);
+	}
 
-    public static boolean isFluidGhost(ItemStack stack) {
-        return CompressedTankItem.isFluidStack(stack);
-    }
-
-    public static FluidStack getFluid(ItemStack stack) {
-        if (!isFluidGhost(stack)) {
-            return FluidStack.EMPTY;
-        }
-        return CompressedTankItem.getFluid(stack);
-    }
+	public static FluidStack getFluid(ItemStack stack) {
+		if (!isFluidGhost(stack)) {
+			return FluidStack.EMPTY;
+		}
+		return PackageResourceTypes.getFluid(stack);
+	}
 }

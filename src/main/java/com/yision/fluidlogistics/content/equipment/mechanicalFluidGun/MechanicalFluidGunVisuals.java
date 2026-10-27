@@ -1,8 +1,10 @@
 package com.yision.fluidlogistics.content.equipment.mechanicalFluidGun;
 
-import com.yision.fluidlogistics.network.FluidLogisticsPackets;
+import org.jetbrains.annotations.Nullable;
+
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.network.MechanicalFluidGunPackets;
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.particle.MechanicalFluidGunStreamParticleData;
+import com.yision.fluidlogistics.network.FluidLogisticsPackets;
 
 import net.createmod.catnip.animation.LerpedFloat;
 import net.minecraft.core.BlockPos;
@@ -14,8 +16,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+
 import net.minecraftforge.fluids.FluidStack;
-import org.jetbrains.annotations.Nullable;
 
 class MechanicalFluidGunVisuals {
 
@@ -74,15 +76,17 @@ class MechanicalFluidGunVisuals {
 		pitch.tickChaser();
 	}
 
-	void spawnClientSprayParticles(Level level, BlockPos gunPos, BlockState blockState,
-								   @Nullable Vec3 aimPoint) {
-		if (!spraying || renderingFluid.isEmpty() || aimPoint == null) return;
+	void spawnClientSprayParticles(Level level, BlockPos gunPos, BlockState blockState, @Nullable Vec3 aimPoint) {
+		if (!spraying || renderingFluid.isEmpty() || aimPoint == null)
+			return;
 
 		Vec3 nozzle = MechanicalFluidGunTarget.getNozzleWorldPos(gunPos, blockState, yaw.getValue(), pitch.getValue());
 		Vec3 motion = aimPoint.subtract(nozzle);
-		if (motion.lengthSqr() < 0.001) return;
+		if (motion.lengthSqr() < 0.001)
+			return;
 		int particleCount = getStreamParticleCount(level, gunPos);
-		if (particleCount == 0) return;
+		if (particleCount == 0)
+			return;
 
 		double travelDistance = motion.length();
 		Vec3 direction = motion.normalize();
@@ -97,8 +101,7 @@ class MechanicalFluidGunVisuals {
 			double trail = STREAM_TRAIL_START
 				+ (STREAM_TRAIL_END - STREAM_TRAIL_START) * ((i + level.random.nextDouble()) / particleCount);
 			double radius = STREAM_BASE_RADIUS + (STREAM_END_RADIUS - STREAM_BASE_RADIUS) * trail;
-			Vec3 offset = side.scale(randomSigned(level, radius))
-				.add(up.scale(randomSigned(level, radius)));
+			Vec3 offset = side.scale(randomSigned(level, radius)).add(up.scale(randomSigned(level, radius)));
 			Vec3 pos = nozzle.lerp(aimPoint, trail).add(offset);
 			double forwardSpeed = STREAM_PARTICLE_SPEED + level.random.nextDouble() * STREAM_SPEED_VARIANCE;
 			double remainingForwardDistance = travelDistance * (1.0 - trail);
@@ -108,19 +111,21 @@ class MechanicalFluidGunVisuals {
 				.add(side.scale(randomSigned(level, STREAM_SPREAD_SPEED)))
 				.add(up.scale(randomSigned(level, STREAM_SPREAD_SPEED)));
 
-			level.addParticle(new MechanicalFluidGunStreamParticleData(renderingFluid),
-				pos.x, pos.y, pos.z, velocity.x, velocity.y, velocity.z);
+			level.addParticle(new MechanicalFluidGunStreamParticleData(renderingFluid), pos.x, pos.y, pos.z, velocity.x,
+				velocity.y, velocity.z);
 		}
 	}
 
 	private static int getStreamParticleCount(Level level, BlockPos gunPos) {
-		Player nearestPlayer = level.getNearestPlayer(gunPos.getX() + 0.5, gunPos.getY() + 0.5,
-			gunPos.getZ() + 0.5, 64, false);
-		if (nearestPlayer == null) return 0;
-		double distanceSqr = nearestPlayer.distanceToSqr(gunPos.getX() + 0.5, gunPos.getY() + 0.5,
-			gunPos.getZ() + 0.5);
-		if (distanceSqr <= 16 * 16) return STREAM_PARTICLES_NEAR;
-		if (distanceSqr <= 32 * 32) return STREAM_PARTICLES_MID;
+		Player nearestPlayer = level.getNearestPlayer(gunPos.getX() + 0.5, gunPos.getY() + 0.5, gunPos.getZ() + 0.5, 64,
+			false);
+		if (nearestPlayer == null)
+			return 0;
+		double distanceSqr = nearestPlayer.distanceToSqr(gunPos.getX() + 0.5, gunPos.getY() + 0.5, gunPos.getZ() + 0.5);
+		if (distanceSqr <= 16 * 16)
+			return STREAM_PARTICLES_NEAR;
+		if (distanceSqr <= 32 * 32)
+			return STREAM_PARTICLES_MID;
 		return STREAM_PARTICLES_FAR;
 	}
 
@@ -144,8 +149,8 @@ class MechanicalFluidGunVisuals {
 	}
 
 	static int getTransientSprayTicks(float speed) {
-		return MechanicalFluidGunCycle.getSpeedAdjustedInterval(
-			MechanicalFluidGunProcessor.TRANSFER_INTERVAL, Math.abs(speed)) + SPRAY_VISUAL_EXTRA_TICKS;
+		return MechanicalFluidGunCycle.getSpeedAdjustedInterval(MechanicalFluidGunProcessor.TRANSFER_INTERVAL,
+			Math.abs(speed)) + SPRAY_VISUAL_EXTRA_TICKS;
 	}
 
 	private static int getItemCompletionSprayTicks(float speed) {
@@ -154,8 +159,10 @@ class MechanicalFluidGunVisuals {
 	}
 
 	boolean tickTransientSpray(boolean isFillingItem, Runnable onSprayComplete) {
-		if (!spraying || isFillingItem || !advanceTargetAfterSpray) return false;
-		if (sprayTicks > 0) sprayTicks--;
+		if (!spraying || isFillingItem || !advanceTargetAfterSpray)
+			return false;
+		if (sprayTicks > 0)
+			sprayTicks--;
 		if (sprayTicks <= 0) {
 			boolean shouldAdvance = advanceTargetAfterSpray;
 			completeTransientSpray();
@@ -182,18 +189,21 @@ class MechanicalFluidGunVisuals {
 	}
 
 	void spawnServerSprayParticles(Level level, BlockPos gunPos, @Nullable Vec3 aimPoint) {
-		if (!(level instanceof ServerLevel)) return;
-		if (aimPoint == null) return;
+		if (!(level instanceof ServerLevel))
+			return;
+		if (aimPoint == null)
+			return;
 		FluidStack fluid = renderingFluid;
-		if (fluid.isEmpty()) return;
+		if (fluid.isEmpty())
+			return;
 
-		MechanicalFluidGunPackets.SprayParticlePacket packet =
-			new MechanicalFluidGunPackets.SprayParticlePacket(aimPoint, fluid.copy());
+		MechanicalFluidGunPackets.SprayParticlePacket packet = new MechanicalFluidGunPackets.SprayParticlePacket(
+			aimPoint, fluid.copy());
 		FluidLogisticsPackets.sendToNear(level, aimPoint, 64, packet);
 	}
 
-	void updateTargetAngles(BlockPos gunPos, BlockState blockState,
-							@Nullable Vec3 aimPoint, boolean isCycleActive, boolean isFillingItem, float speed) {
+	void updateTargetAngles(BlockPos gunPos, BlockState blockState, @Nullable Vec3 aimPoint, boolean isCycleActive,
+		boolean isFillingItem, float speed) {
 		if (aimPoint != null && isCycleActive && speed == 0) {
 			yaw.chase(yaw.getValue(), 0, LerpedFloat.Chaser.EXP);
 			pitch.chase(pitch.getValue(), 0, LerpedFloat.Chaser.EXP);
@@ -211,8 +221,8 @@ class MechanicalFluidGunVisuals {
 	}
 
 	private static float getActiveChaseSpeed(float speed) {
-		return Mth.clamp(MechanicalFluidGunCycle.getArmMovementProgressStep(speed) * 2.5f,
-			MIN_ACTIVE_CHASE_SPEED, MAX_ACTIVE_CHASE_SPEED);
+		return Mth.clamp(MechanicalFluidGunCycle.getArmMovementProgressStep(speed) * 2.5f, MIN_ACTIVE_CHASE_SPEED,
+			MAX_ACTIVE_CHASE_SPEED);
 	}
 
 	static float computeIdleYaw(BlockState state) {
@@ -224,10 +234,10 @@ class MechanicalFluidGunVisuals {
 			? state.getValue(MechanicalFluidGunBlock.FACING)
 			: Direction.NORTH;
 		return switch (facing) {
-			case SOUTH -> 180f;
-			case EAST -> -90f;
-			case WEST -> 90f;
-			default -> 0f;
+		case SOUTH -> 180f;
+		case EAST -> -90f;
+		case WEST -> 90f;
+		default -> 0f;
 		};
 	}
 

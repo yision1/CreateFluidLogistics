@@ -11,12 +11,11 @@ import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.Mechanical
 import com.yision.fluidlogistics.content.fluids.FluidPort;
 import com.yision.fluidlogistics.content.fluids.faucet.FaucetBlockEntity;
 import com.yision.fluidlogistics.content.fluids.fluidHatch.FluidHatchBlockEntity;
+import com.yision.fluidlogistics.content.logistics.copperBasket.CopperBasketBlockEntity;
 import com.yision.fluidlogistics.util.MergedFluidDisplayHandler;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
 import snownee.jade.api.Accessor;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IServerDataProvider;
@@ -26,8 +25,11 @@ import snownee.jade.api.view.FluidView;
 import snownee.jade.api.view.IClientExtensionProvider;
 import snownee.jade.api.view.ViewGroup;
 
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+
 public enum ConnectedFluidSourceProvider
-		implements IServerDataProvider<BlockAccessor>, IClientExtensionProvider<CompoundTag, FluidView> {
+	implements IServerDataProvider<BlockAccessor>, IClientExtensionProvider<CompoundTag, FluidView> {
 	INSTANCE;
 
 	private static final ResourceLocation UID = FluidLogistics.asResource("connected_fluid_source");
@@ -52,6 +54,11 @@ public enum ConnectedFluidSourceProvider
 		List<ViewGroup<CompoundTag>> groups = source.hideEmptyCapacity()
 			? fromFluidHandlerWithoutEmptyCapacity(source.handler())
 			: fromFluidHandler(source.handler());
+		if (groups.isEmpty()) {
+			data.remove("JadeFluidStorage");
+			data.remove("JadeFluidStorageUid");
+			return;
+		}
 		if (ViewGroup.saveList(data, "JadeFluidStorage", groups, Function.identity())) {
 			data.putString("JadeFluidStorageUid", UID.toString());
 		}
@@ -64,6 +71,10 @@ public enum ConnectedFluidSourceProvider
 
 	@Nullable
 	private static DisplaySource getDisplaySource(BlockAccessor accessor) {
+		if (accessor.getBlockEntity() instanceof CopperBasketBlockEntity basket) {
+			return withoutEmptyCapacity(basket.getFluids());
+		}
+
 		if (accessor.getBlockEntity() instanceof FaucetBlockEntity faucet) {
 			return withoutEmptyCapacity(faucet.getFluidDisplayCapability());
 		}
@@ -93,8 +104,7 @@ public enum ConnectedFluidSourceProvider
 		List<CompoundTag> views = new ArrayList<>();
 		for (int tank = 0; tank < handler.getTanks(); tank++) {
 			FluidStack fluid = handler.getFluidInTank(tank);
-			JadeFluidObject fluidObject = fluid.isEmpty()
-				? JadeFluidObject.empty()
+			JadeFluidObject fluidObject = fluid.isEmpty() ? JadeFluidObject.empty()
 				: JadeFluidObject.of(fluid.getFluid(), fluid.getAmount(), fluid.getTag());
 			views.add(FluidView.writeDefault(fluidObject, handler.getTankCapacity(tank)));
 		}
@@ -108,11 +118,7 @@ public enum ConnectedFluidSourceProvider
 			if (fluid.isEmpty()) {
 				continue;
 			}
-			JadeFluidObject fluidObject = JadeFluidObject.of(
-				fluid.getFluid(),
-				fluid.getAmount(),
-				fluid.getTag()
-			);
+			JadeFluidObject fluidObject = JadeFluidObject.of(fluid.getFluid(), fluid.getAmount(), fluid.getTag());
 			views.add(FluidView.writeDefault(fluidObject, fluid.getAmount()));
 		}
 		return views.isEmpty() ? List.of() : List.of(new ViewGroup<>(views));

@@ -1,0 +1,24 @@
+{
+  "type": "fluidlogistics:cooling_compacting",
+  "conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:snow_golem_freezer"
+    }
+  ],
+  "ingredients": [
+    {
+      "item": "minecraft:cobblestone"
+    },
+    {
+      "type": "fluid_stack",
+      "amount": 250,
+      "fluid": "minecraft:lava"
+    }
+  ],
+  "results": [
+    {
+      "item": "minecraft:cobbled_deepslate"
+    }
+  ]
+}

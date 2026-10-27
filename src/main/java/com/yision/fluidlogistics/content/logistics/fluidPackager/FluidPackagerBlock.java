@@ -24,119 +24,117 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.common.util.FakePlayer;
+
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.FakePlayer;
 
 @SuppressWarnings("deprecation")
 public class FluidPackagerBlock extends PackagerBlock {
 
-    public FluidPackagerBlock(Properties properties) {
-        super(properties);
-    }
+	public FluidPackagerBlock(Properties properties) {
+		super(properties);
+	}
 
-    @Override
-    public BlockState getStateForPlacement(BlockPlaceContext context) {
-        Direction preferredFacing = null;
-        Level level = context.getLevel();
+	@Override
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		Direction preferredFacing = null;
+		Level level = context.getLevel();
 
-        for (Direction face : context.getNearestLookingDirections()) {
-            BlockEntity be = level.getBlockEntity(context.getClickedPos().relative(face));
-            if (be instanceof FluidPackagerBlockEntity)
-                continue;
-            if ((be != null && be.hasLevel()
-                    && (be.getCapability(ForgeCapabilities.FLUID_HANDLER, face.getOpposite()).isPresent()
-                        || be.getCapability(ForgeCapabilities.FLUID_HANDLER, null).isPresent()))
-                    || level.getBlockState(context.getClickedPos().relative(face))
-                        .hasProperty(BlockStateProperties.LEVEL_HONEY)) {
-                preferredFacing = face.getOpposite();
-                break;
-            }
-        }
+		for (Direction face : context.getNearestLookingDirections()) {
+			BlockEntity be = level.getBlockEntity(context.getClickedPos().relative(face));
+			if (be instanceof FluidPackagerBlockEntity)
+				continue;
+			if ((be != null && be.hasLevel()
+				&& (be.getCapability(ForgeCapabilities.FLUID_HANDLER, face.getOpposite()).isPresent()
+					|| be.getCapability(ForgeCapabilities.FLUID_HANDLER, null).isPresent()))
+				|| level.getBlockState(context.getClickedPos().relative(face))
+					.hasProperty(BlockStateProperties.LEVEL_HONEY)) {
+				preferredFacing = face.getOpposite();
+				break;
+			}
+		}
 
-        Player player = context.getPlayer();
-        if (preferredFacing == null) {
-            Direction facing = context.getNearestLookingDirection();
-            preferredFacing = player != null && player.isShiftKeyDown() ? facing : facing.getOpposite();
-        }
+		Player player = context.getPlayer();
+		if (preferredFacing == null) {
+			Direction facing = context.getNearestLookingDirection();
+			preferredFacing = player != null && player.isShiftKeyDown() ? facing : facing.getOpposite();
+		}
 
-        if (player != null && !(player instanceof FakePlayer)) {
-            if (blocksPortableFluidInterfacePort(level, context.getClickedPos())) {
-                CreateLang.translate("fluid_packager.no_portable_fluid_interface")
-                        .sendStatus(player);
-                return null;
-            }
+		if (player != null && !(player instanceof FakePlayer)) {
+			if (blocksPortableFluidInterfacePort(level, context.getClickedPos())) {
+				CreateLang.translate("fluid_packager.no_portable_fluid_interface").sendStatus(player);
+				return null;
+			}
 
-            BlockPos targetPos = context.getClickedPos().relative(preferredFacing.getOpposite());
-            if (AllBlocks.PORTABLE_FLUID_INTERFACE.has(level.getBlockState(targetPos))) {
-                CreateLang.translate("fluid_packager.no_portable_fluid_interface")
-                        .sendStatus(player);
-                return null;
-            }
-        }
+			BlockPos targetPos = context.getClickedPos().relative(preferredFacing.getOpposite());
+			if (AllBlocks.PORTABLE_FLUID_INTERFACE.has(level.getBlockState(targetPos))) {
+				CreateLang.translate("fluid_packager.no_portable_fluid_interface").sendStatus(player);
+				return null;
+			}
+		}
 
-        return defaultBlockState()
-                .setValue(POWERED, level.hasNeighborSignal(context.getClickedPos()))
-                .setValue(FACING, preferredFacing);
-    }
+		return defaultBlockState().setValue(POWERED, level.hasNeighborSignal(context.getClickedPos())).setValue(FACING,
+			preferredFacing);
+	}
 
-    private boolean blocksPortableFluidInterfacePort(Level level, BlockPos pos) {
-        for (Direction direction : Direction.values()) {
-            BlockEntity blockEntity = level.getBlockEntity(pos.relative(direction));
-            if (blockEntity instanceof FluidPort port
-                    && port.blocksFluidPackagerPlacement(direction.getOpposite())) {
-                return true;
-            }
-        }
-        return false;
-    }
+	private boolean blocksPortableFluidInterfacePort(Level level, BlockPos pos) {
+		for (Direction direction : Direction.values()) {
+			BlockEntity blockEntity = level.getBlockEntity(pos.relative(direction));
+			if (blockEntity instanceof FluidPort port && port.blocksFluidPackagerPlacement(direction.getOpposite())) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-    @Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        ItemStack stack = player.getItemInHand(hand);
+	@Override
+	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+		BlockHitResult hitResult) {
+		ItemStack stack = player.getItemInHand(hand);
 
-        if (AllItems.WRENCH.isIn(stack))
-            return InteractionResult.PASS;
-        
-        if (com.yision.fluidlogistics.registry.AllItems.FLUID_FACTORY_GAUGE.isIn(stack))
-            return InteractionResult.PASS;
-        if (AllBlocks.STOCK_LINK.isIn(stack) && !(state.hasProperty(LINKED) && state.getValue(LINKED)))
-            return InteractionResult.PASS;
-        if (AllBlocks.PACKAGE_FROGPORT.isIn(stack) || COPPER_FROGPORT.isIn(stack))
-            return InteractionResult.PASS;
+		if (AllItems.WRENCH.isIn(stack))
+			return InteractionResult.PASS;
 
-        if (onBlockEntityUse(level, pos, be -> {
-            if (be.heldBox.isEmpty()) {
-                if (be.animationTicks > 0)
-                    return InteractionResult.SUCCESS;
-                if (level.isClientSide())
-                    return InteractionResult.SUCCESS;
-                if (!be.unwrapBox(stack.copy(), true))
-                    return InteractionResult.SUCCESS;
-                be.unwrapBox(stack.copy(), false);
-                be.triggerStockCheck();
-                stack.shrink(1);
-                AllSoundEvents.DEPOT_PLOP.playOnServer(level, pos);
-                if (stack.isEmpty())
-                    player.setItemInHand(hand, ItemStack.EMPTY);
-                return InteractionResult.SUCCESS;
-            }
-            if (be.animationTicks > 0)
-                return InteractionResult.SUCCESS;
-            if (!level.isClientSide()) {
-                player.getInventory().placeItemBackInInventory(be.heldBox.copy());
-                AllSoundEvents.playItemPickup(player);
-                be.heldBox = ItemStack.EMPTY;
-                be.notifyUpdate();
-            }
-            return InteractionResult.SUCCESS;
-        }).consumesAction())
-            return InteractionResult.SUCCESS;
+		if (com.yision.fluidlogistics.registry.AllItems.FLUID_FACTORY_GAUGE.isIn(stack))
+			return InteractionResult.PASS;
+		if (AllBlocks.STOCK_LINK.isIn(stack) && !(state.hasProperty(LINKED) && state.getValue(LINKED)))
+			return InteractionResult.PASS;
+		if (AllBlocks.PACKAGE_FROGPORT.isIn(stack) || COPPER_FROGPORT.isIn(stack))
+			return InteractionResult.PASS;
 
-        return InteractionResult.SUCCESS;
-    }
+		if (onBlockEntityUse(level, pos, be -> {
+			if (be.heldBox.isEmpty()) {
+				if (be.animationTicks > 0)
+					return InteractionResult.SUCCESS;
+				if (level.isClientSide())
+					return InteractionResult.SUCCESS;
+				if (!be.unwrapBox(stack.copy(), true))
+					return InteractionResult.SUCCESS;
+				be.unwrapBox(stack.copy(), false);
+				be.triggerStockCheck();
+				stack.shrink(1);
+				AllSoundEvents.DEPOT_PLOP.playOnServer(level, pos);
+				if (stack.isEmpty())
+					player.setItemInHand(hand, ItemStack.EMPTY);
+				return InteractionResult.SUCCESS;
+			}
+			if (be.animationTicks > 0)
+				return InteractionResult.SUCCESS;
+			if (!level.isClientSide()) {
+				player.getInventory().placeItemBackInInventory(be.heldBox.copy());
+				AllSoundEvents.playItemPickup(player);
+				be.heldBox = ItemStack.EMPTY;
+				be.notifyUpdate();
+			}
+			return InteractionResult.SUCCESS;
+		}).consumesAction())
+			return InteractionResult.SUCCESS;
 
-    @Override
-    public BlockEntityType<? extends PackagerBlockEntity> getBlockEntityType() {
-        return AllBlockEntities.FLUID_PACKAGER.get();
-    }
+		return InteractionResult.SUCCESS;
+	}
+
+	@Override
+	public BlockEntityType<? extends PackagerBlockEntity> getBlockEntityType() {
+		return AllBlockEntities.FLUID_PACKAGER.get();
+	}
 }

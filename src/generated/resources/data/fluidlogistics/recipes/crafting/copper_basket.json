@@ -1,0 +1,34 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:copper_basket"
+    },
+    {
+      "type": "forge:not",
+      "value": {
+        "type": "forge:mod_loaded",
+        "modid": "farmersdelight"
+      }
+    }
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "F": {
+      "tag": "create:dyed_table_cloths"
+    }
+  },
+  "pattern": [
+    "C C",
+    "F F",
+    "CFC"
+  ],
+  "result": {
+    "count": 1,
+    "item": "fluidlogistics:copper_basket"
+  }
+}

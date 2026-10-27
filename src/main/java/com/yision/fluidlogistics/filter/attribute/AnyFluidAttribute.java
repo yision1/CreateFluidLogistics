@@ -1,14 +1,17 @@
 package com.yision.fluidlogistics.filter.attribute;
 
+import java.util.List;
+
+import org.jetbrains.annotations.NotNull;
+
 import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttribute;
 import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttributeType;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.fluids.FluidStack;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+import net.minecraftforge.fluids.FluidStack;
 
 public final class AnyFluidAttribute implements FluidAttribute {
 	private final Type type;
@@ -50,9 +53,7 @@ public final class AnyFluidAttribute implements FluidAttribute {
 
 		@Override
 		public List<ItemAttribute> getAllAttributes(ItemStack stack, Level level) {
-			return FluidAttributeHelper.extractFluids(stack, level).isEmpty()
-				? List.of()
-				: List.of(attribute);
+			return FluidAttributeHelper.extractFluids(stack, level).isEmpty() ? List.of() : List.of(attribute);
 		}
 	}
 }

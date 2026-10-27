@@ -3,14 +3,15 @@ package com.yision.fluidlogistics.content.processing.copperBasin;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.content.processing.basin.BasinBlockEntity;
 import com.simibubi.create.content.processing.basin.BasinRenderer;
-import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTankBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTankBehaviour.TankSegment;
+import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTankBehaviour;
 import com.yision.fluidlogistics.content.processing.copperBasin.CopperBasinCapacity;
 
 import net.createmod.catnip.platform.ForgeCatnipServices;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.util.Mth;
+
 import net.minecraftforge.fluids.FluidStack;
 
 public class CopperBasinRenderer extends BasinRenderer {

@@ -17,14 +17,14 @@ import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.block.ProperWaterloggedBlock;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
-import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.fluid.FluidHelper.FluidExchange;
+import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.yision.fluidlogistics.content.fluids.itemTransfer.HatchStyleItemTransfer;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
 
+import net.createmod.catnip.math.VoxelShaper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.createmod.catnip.math.VoxelShaper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -50,6 +50,7 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fluids.FluidStack;
@@ -57,218 +58,209 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 
 @SuppressWarnings("deprecation")
 public class FluidHatchBlock extends DirectedDirectionalBlock
-        implements IBE<FluidHatchBlockEntity>, IWrenchable, ProperWaterloggedBlock {
-    private static final int OPEN_TICKS = 10;
-    private static final VoxelShaper WALL_SHAPE = new AllShapes.Builder(Block.box(1, 0, 0, 15, 16, 2))
-            .add(2, 2, 0, 14, 13, 3.8)
-            .add(2, 4, 0, 14, 11, 5.8)
-            .add(2, 6, 0, 14, 9, 7.8)
-            .forHorizontal(Direction.NORTH);
-    private static final VoxelShaper FLOOR_SHAPE = new AllShapes.Builder(Block.box(1, 0, 0, 15, 2, 16))
-            .add(2, 0, 3, 14, 3.8, 14)
-            .add(2, 0, 5, 14, 5.8, 12)
-            .add(2, 0, 7, 14, 7.8, 10)
-            .forHorizontal(Direction.NORTH);
-    private static final VoxelShaper CEILING_SHAPE = new AllShapes.Builder(Block.box(1, 14, 0, 15, 16, 16))
-            .add(2, 12.2, 2, 14, 16, 13)
-            .add(2, 10.2, 4, 14, 16, 11)
-            .add(2, 8.2, 6, 14, 16, 9)
-            .forHorizontal(Direction.SOUTH);
+	implements IBE<FluidHatchBlockEntity>, IWrenchable, ProperWaterloggedBlock {
+	private static final int OPEN_TICKS = 10;
+	private static final VoxelShaper WALL_SHAPE = new AllShapes.Builder(Block.box(1, 0, 0, 15, 16, 2))
+		.add(2, 2, 0, 14, 13, 3.8).add(2, 4, 0, 14, 11, 5.8).add(2, 6, 0, 14, 9, 7.8).forHorizontal(Direction.NORTH);
+	private static final VoxelShaper FLOOR_SHAPE = new AllShapes.Builder(Block.box(1, 0, 0, 15, 2, 16))
+		.add(2, 0, 3, 14, 3.8, 14).add(2, 0, 5, 14, 5.8, 12).add(2, 0, 7, 14, 7.8, 10).forHorizontal(Direction.NORTH);
+	private static final VoxelShaper CEILING_SHAPE = new AllShapes.Builder(Block.box(1, 14, 0, 15, 16, 16))
+		.add(2, 12.2, 2, 14, 16, 13).add(2, 10.2, 4, 14, 16, 11).add(2, 8.2, 6, 14, 16, 9)
+		.forHorizontal(Direction.SOUTH);
 
-    public static final BooleanProperty OPEN = BooleanProperty.create("open");
+	public static final BooleanProperty OPEN = BooleanProperty.create("open");
 
-    public FluidHatchBlock(Properties properties) {
-        super(properties);
-        registerDefaultState(defaultBlockState()
-                .setValue(FACING, Direction.NORTH)
-                .setValue(TARGET, AttachFace.WALL)
-                .setValue(OPEN, false)
-                .setValue(WATERLOGGED, false));
-    }
+	public FluidHatchBlock(Properties properties) {
+		super(properties);
+		registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH).setValue(TARGET, AttachFace.WALL)
+			.setValue(OPEN, false).setValue(WATERLOGGED, false));
+	}
 
-    @Override
-    protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
-        super.createBlockStateDefinition(builder.add(OPEN, WATERLOGGED));
-    }
+	@Override
+	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
+		super.createBlockStateDefinition(builder.add(OPEN, WATERLOGGED));
+	}
 
-    @Override
-    public BlockState getStateForPlacement(BlockPlaceContext context) {
-        Direction clickedFace = context.getClickedFace();
-        AttachFace target = clickedFace == Direction.UP ? AttachFace.FLOOR
-                : clickedFace == Direction.DOWN ? AttachFace.CEILING : AttachFace.WALL;
-        Direction facing = clickedFace.getAxis().isVertical()
-                ? context.getHorizontalDirection()
-                : clickedFace.getOpposite();
-        return withWater(defaultBlockState()
-                .setValue(FACING, facing)
-                .setValue(TARGET, target)
-                .setValue(OPEN, false), context);
-    }
+	@Override
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		Direction clickedFace = context.getClickedFace();
+		AttachFace target = clickedFace == Direction.UP ? AttachFace.FLOOR
+			: clickedFace == Direction.DOWN ? AttachFace.CEILING : AttachFace.WALL;
+		Direction facing = clickedFace.getAxis().isVertical() ? context.getHorizontalDirection()
+			: clickedFace.getOpposite();
+		return withWater(defaultBlockState().setValue(FACING, facing).setValue(TARGET, target).setValue(OPEN, false),
+			context);
+	}
 
-    @Override
-    public FluidState getFluidState(BlockState state) {
-        return fluidState(state);
-    }
+	@Override
+	public FluidState getFluidState(BlockState state) {
+		return fluidState(state);
+	}
 
-    @Override
-    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
-        updateWater(level, state, pos);
-        return state;
-    }
+	@Override
+	public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level,
+		BlockPos pos, BlockPos neighborPos) {
+		updateWater(level, state, pos);
+		return state;
+	}
 
-    public static void pulseOpen(Level level, BlockPos pos) {
-        pulseOpen(level, pos, OPEN_TICKS);
-    }
+	public static void pulseOpen(Level level, BlockPos pos) {
+		pulseOpen(level, pos, OPEN_TICKS);
+	}
 
-    static void pulseOpen(Level level, BlockPos pos, int ticks) {
-        if (!(level instanceof ServerLevel serverLevel))
-            return;
-        BlockState state = level.getBlockState(pos);
-        if (!(state.getBlock() instanceof FluidHatchBlock))
-            return;
-        FluidHatchBlockEntity hatch = level.getBlockEntity(pos) instanceof FluidHatchBlockEntity fluidHatch
-                ? fluidHatch
-                : null;
-        if (hatch != null) {
-            hatch.extendOpen(serverLevel, ticks);
-        }
-        boolean wasOpen = state.getValue(OPEN);
-        if (!wasOpen) {
-            level.setBlockAndUpdate(pos, state.setValue(OPEN, true));
-            AllSoundEvents.ITEM_HATCH.playOnServer(level, pos);
-        }
-        if (hatch != null) {
-            if (!wasOpen || !hatch.hasScheduledCloseTick(serverLevel)) {
-                scheduleCloseTick(serverLevel, pos, state.getBlock(), hatch);
-            }
-            return;
-        }
-        serverLevel.scheduleTick(pos, state.getBlock(), ticks);
-    }
+	static void pulseOpen(Level level, BlockPos pos, int ticks) {
+		if (!(level instanceof ServerLevel serverLevel))
+			return;
+		BlockState state = level.getBlockState(pos);
+		if (!(state.getBlock() instanceof FluidHatchBlock))
+			return;
+		FluidHatchBlockEntity hatch = level.getBlockEntity(pos) instanceof FluidHatchBlockEntity fluidHatch ? fluidHatch
+			: null;
+		if (hatch != null) {
+			hatch.extendOpen(serverLevel, ticks);
+		}
+		boolean wasOpen = state.getValue(OPEN);
+		if (!wasOpen) {
+			level.setBlockAndUpdate(pos, state.setValue(OPEN, true));
+			AllSoundEvents.ITEM_HATCH.playOnServer(level, pos);
+		}
+		if (hatch != null) {
+			if (!wasOpen || !hatch.hasScheduledCloseTick(serverLevel)) {
+				scheduleCloseTick(serverLevel, pos, state.getBlock(), hatch);
+			}
+			return;
+		}
+		serverLevel.scheduleTick(pos, state.getBlock(), ticks);
+	}
 
-    @Override
-    public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        if (!state.getValue(OPEN))
-            return;
-        FluidHatchBlockEntity hatch = level.getBlockEntity(pos) instanceof FluidHatchBlockEntity fluidHatch
-                ? fluidHatch
-                : null;
-        if (hatch != null && hatch.shouldRemainOpen(level)) {
-            if (!hatch.hasScheduledCloseTick(level)) {
-                scheduleCloseTick(level, pos, this, hatch);
-            }
-            return;
-        }
-        if (hatch != null) {
-            hatch.clearOpenPulse();
-        }
-        level.setBlockAndUpdate(pos, state.setValue(OPEN, false));
-    }
+	@Override
+	public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+		if (!state.getValue(OPEN))
+			return;
+		FluidHatchBlockEntity hatch = level.getBlockEntity(pos) instanceof FluidHatchBlockEntity fluidHatch ? fluidHatch
+			: null;
+		if (hatch != null && hatch.shouldRemainOpen(level)) {
+			if (!hatch.hasScheduledCloseTick(level)) {
+				scheduleCloseTick(level, pos, this, hatch);
+			}
+			return;
+		}
+		if (hatch != null) {
+			hatch.clearOpenPulse();
+		}
+		level.setBlockAndUpdate(pos, state.setValue(OPEN, false));
+	}
 
-    private static void scheduleCloseTick(ServerLevel level, BlockPos pos, Block block, FluidHatchBlockEntity hatch) {
-        int delay = hatch.getRemainingOpenTicks(level);
-        hatch.markCloseTickScheduled(level, delay);
-        level.scheduleTick(pos, block, delay);
-    }
+	private static void scheduleCloseTick(ServerLevel level, BlockPos pos, Block block, FluidHatchBlockEntity hatch) {
+		int delay = hatch.getRemainingOpenTicks(level);
+		hatch.markCloseTickScheduled(level, delay);
+		level.scheduleTick(pos, block, delay);
+	}
 
-    @Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
-            InteractionHand hand, BlockHitResult hitResult) {
-        if (level.isClientSide())
-            return InteractionResult.SUCCESS;
+	@Override
+	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+		BlockHitResult hitResult) {
+		if (level.isClientSide())
+			return InteractionResult.SUCCESS;
 
-        if (player instanceof FakePlayer)
-            return InteractionResult.SUCCESS;
+		if (player instanceof FakePlayer)
+			return InteractionResult.SUCCESS;
 
-        ItemStack stack = player.getItemInHand(hand);
+		ItemStack stack = player.getItemInHand(hand);
 
-        BlockEntity blockEntity = level.getBlockEntity(pos.relative(getTargetDirection(state)));
-        if (blockEntity == null)
-            return InteractionResult.FAIL;
+		BlockEntity blockEntity = level.getBlockEntity(pos.relative(getTargetDirection(state)));
+		if (blockEntity == null)
+			return InteractionResult.FAIL;
 
-        IFluidHandler tankCapability = blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, null).orElse(null);
-        if (tankCapability == null)
-            return InteractionResult.FAIL;
+		IFluidHandler tankCapability = blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, null).orElse(null);
+		if (tankCapability == null)
+			return InteractionResult.FAIL;
 
-        FilteringBehaviour filter = BlockEntityBehaviour.get(level, pos, FilteringBehaviour.TYPE);
-        if (filter == null)
-            return InteractionResult.FAIL;
+		FilteringBehaviour filter = BlockEntityBehaviour.get(level, pos, FilteringBehaviour.TYPE);
+		if (filter == null)
+			return InteractionResult.FAIL;
 
-        boolean tankIsCreative = blockEntity instanceof CreativeFluidTankBlockEntity;
-        Runnable onChanged = () -> {
-            blockEntity.setChanged();
-            if (level instanceof ServerLevel serverLevel)
-                serverLevel.getChunkSource().blockChanged(blockEntity.getBlockPos());
-        };
+		boolean tankIsCreative = blockEntity instanceof CreativeFluidTankBlockEntity;
+		Runnable onChanged = () -> {
+			blockEntity.setChanged();
+			if (level instanceof ServerLevel serverLevel)
+				serverLevel.getChunkSource().blockChanged(blockEntity.getBlockPos());
+		};
 
-        FluidExchange exchange;
-        FluidStack fluidStack;
-        if (player.isSecondaryUseActive()) {
-            if (!(fluidStack = HatchStyleItemTransfer.tryFillItem(level, player, hand, stack, tankCapability, filter, tankIsCreative, onChanged)).isEmpty()) {
-                exchange = FluidExchange.TANK_TO_ITEM;
-            } else if (!(fluidStack = HatchStyleItemTransfer.tryEmptyItem(level, player, hand, stack, tankCapability, filter, tankIsCreative, onChanged)).isEmpty()) {
-                exchange = FluidExchange.ITEM_TO_TANK;
-            } else {
-                exchange = null;
-            }
-        } else {
-            if (!(fluidStack = HatchStyleItemTransfer.tryEmptyItem(level, player, hand, stack, tankCapability, filter, tankIsCreative, onChanged)).isEmpty()) {
-                exchange = FluidExchange.ITEM_TO_TANK;
-            } else if (!(fluidStack = HatchStyleItemTransfer.tryFillItem(level, player, hand, stack, tankCapability, filter, tankIsCreative, onChanged)).isEmpty()) {
-                exchange = FluidExchange.TANK_TO_ITEM;
-            } else {
-                exchange = null;
-            }
-        }
-        if (exchange == null) {
-            if (HatchStyleItemTransfer.canItemBeEmptied(level, stack) || HatchStyleItemTransfer.canItemBeFilled(level, stack))
-                return InteractionResult.SUCCESS;
-            return InteractionResult.FAIL;
-        }
+		FluidExchange exchange;
+		FluidStack fluidStack;
+		if (player.isSecondaryUseActive()) {
+			if (!(fluidStack = HatchStyleItemTransfer.tryFillItem(level, player, hand, stack, tankCapability, filter,
+				tankIsCreative, onChanged)).isEmpty()) {
+				exchange = FluidExchange.TANK_TO_ITEM;
+			} else if (!(fluidStack = HatchStyleItemTransfer.tryEmptyItem(level, player, hand, stack, tankCapability,
+				filter, tankIsCreative, onChanged)).isEmpty()) {
+				exchange = FluidExchange.ITEM_TO_TANK;
+			} else {
+				exchange = null;
+			}
+		} else {
+			if (!(fluidStack = HatchStyleItemTransfer.tryEmptyItem(level, player, hand, stack, tankCapability, filter,
+				tankIsCreative, onChanged)).isEmpty()) {
+				exchange = FluidExchange.ITEM_TO_TANK;
+			} else if (!(fluidStack = HatchStyleItemTransfer.tryFillItem(level, player, hand, stack, tankCapability,
+				filter, tankIsCreative, onChanged)).isEmpty()) {
+				exchange = FluidExchange.TANK_TO_ITEM;
+			} else {
+				exchange = null;
+			}
+		}
+		if (exchange == null) {
+			if (HatchStyleItemTransfer.canItemBeEmptied(level, stack)
+				|| HatchStyleItemTransfer.canItemBeFilled(level, stack))
+				return InteractionResult.SUCCESS;
+			return InteractionResult.FAIL;
+		}
 
-        SoundEvent soundevent = switch (exchange) {
-            case ITEM_TO_TANK -> FluidHelper.getEmptySound(fluidStack);
-            case TANK_TO_ITEM -> FluidHelper.getFillSound(fluidStack);
-        };
-        if (soundevent != null) {
-            float pitch = Mth.clamp(1 - (fluidStack.getAmount() / (FluidTankBlockEntity.getCapacityMultiplier() * 16f)), 0, 1);
-            pitch /= 1.5f;
-            pitch += .5f;
-            pitch += (level.random.nextFloat() - .5f) / 4f;
-            level.playSound(null, pos, soundevent, SoundSource.BLOCKS, .5f, pitch);
-        }
+		SoundEvent soundevent = switch (exchange) {
+		case ITEM_TO_TANK -> FluidHelper.getEmptySound(fluidStack);
+		case TANK_TO_ITEM -> FluidHelper.getFillSound(fluidStack);
+		};
+		if (soundevent != null) {
+			float pitch = Mth.clamp(1 - (fluidStack.getAmount() / (FluidTankBlockEntity.getCapacityMultiplier() * 16f)),
+				0, 1);
+			pitch /= 1.5f;
+			pitch += .5f;
+			pitch += (level.random.nextFloat() - .5f) / 4f;
+			level.playSound(null, pos, soundevent, SoundSource.BLOCKS, .5f, pitch);
+		}
 
-        pulseOpen(level, pos);
-        return InteractionResult.SUCCESS;
-    }
+		pulseOpen(level, pos);
+		return InteractionResult.SUCCESS;
+	}
 
-    @Override
-    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        VoxelShaper shape = switch (state.getValue(TARGET)) {
-            case FLOOR -> FLOOR_SHAPE;
-            case CEILING -> CEILING_SHAPE;
-            case WALL -> WALL_SHAPE;
-        };
-        return shape.get(state.getValue(FACING));
-    }
+	@Override
+	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+		VoxelShaper shape = switch (state.getValue(TARGET)) {
+		case FLOOR -> FLOOR_SHAPE;
+		case CEILING -> CEILING_SHAPE;
+		case WALL -> WALL_SHAPE;
+		};
+		return shape.get(state.getValue(FACING));
+	}
 
-    @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        IBE.onRemove(state, level, pos, newState);
-    }
+	@Override
+	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+		IBE.onRemove(state, level, pos, newState);
+	}
 
-    @Override
-    public Class<FluidHatchBlockEntity> getBlockEntityClass() {
-        return FluidHatchBlockEntity.class;
-    }
+	@Override
+	public Class<FluidHatchBlockEntity> getBlockEntityClass() {
+		return FluidHatchBlockEntity.class;
+	}
 
-    @Override
-    public BlockEntityType<? extends FluidHatchBlockEntity> getBlockEntityType() {
-        return AllBlockEntities.FLUID_HATCH.get();
-    }
+	@Override
+	public BlockEntityType<? extends FluidHatchBlockEntity> getBlockEntityType() {
+		return AllBlockEntities.FLUID_HATCH.get();
+	}
 
-    @Override
-    public boolean isPathfindable(BlockState state, BlockGetter reader, BlockPos pos, PathComputationType type) {
-        return false;
-    }
+	@Override
+	public boolean isPathfindable(BlockState state, BlockGetter reader, BlockPos pos, PathComputationType type) {
+		return false;
+	}
 }

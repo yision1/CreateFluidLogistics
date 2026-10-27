@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "tag": "forge:nuggets/copper"
+    },
+    "W": {
+      "tag": "minecraft:wool"
+    }
+  },
+  "pattern": [
+    "CWC"
+  ],
+  "result": {
+    "count": 1,
+    "item": "fluidlogistics:package_list_filter"
+  }
+}

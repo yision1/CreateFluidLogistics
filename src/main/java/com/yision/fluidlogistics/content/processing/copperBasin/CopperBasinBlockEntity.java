@@ -4,40 +4,35 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.simibubi.create.content.kinetics.belt.behaviour.DirectBeltInputBehaviour;
+import javax.annotation.Nullable;
+
 import com.simibubi.create.content.processing.basin.BasinBlock;
 import com.simibubi.create.content.processing.basin.BasinBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
-import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
-import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTankBehaviour;
 import com.simibubi.create.foundation.fluid.CombinedTankWrapper;
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.yision.fluidlogistics.content.processing.copperBasin.CopperBasinCapacity;
 import com.yision.fluidlogistics.util.SidedCapabilityCache;
 
-import javax.annotation.Nullable;
-
-import net.createmod.catnip.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
+
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.templates.FluidTank;
 
 public class CopperBasinBlockEntity extends BasinBlockEntity {
 
-	private FilteringBehaviour filtering;
-
-	private final SidedCapabilityCache<IFluidHandler> outputTargetCache =
-		new SidedCapabilityCache<>(ForgeCapabilities.FLUID_HANDLER);
+	private final SidedCapabilityCache<IFluidHandler> outputTargetCache = new SidedCapabilityCache<>(
+		ForgeCapabilities.FLUID_HANDLER);
 
 	public CopperBasinBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
@@ -45,29 +40,15 @@ public class CopperBasinBlockEntity extends BasinBlockEntity {
 
 	@Override
 	public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
-		behaviours.add(new DirectBeltInputBehaviour(this));
+		super.addBehaviours(behaviours);
+		behaviours.remove(inputTank);
+		behaviours.remove(outputTank);
 
-		filtering = new FilteringBehaviour(this, new CopperBasinValueBox())
-			.withCallback($ -> notifyChangeOfContents())
-			.forRecipes();
-		behaviours.add(filtering);
+		inputTank = new SmartFluidTankBehaviour(SmartFluidTankBehaviour.INPUT, this, 2,
+			CopperBasinCapacity.SLOT_CAPACITY, true).whenFluidUpdates(this::notifyChangeOfContents);
 
-		inputTank = new SmartFluidTankBehaviour(
-			SmartFluidTankBehaviour.INPUT,
-			this,
-			2,
-			CopperBasinCapacity.SLOT_CAPACITY,
-			true
-		).whenFluidUpdates(this::notifyChangeOfContents);
-
-		outputTank = new SmartFluidTankBehaviour(
-			SmartFluidTankBehaviour.OUTPUT,
-			this,
-			2,
-			CopperBasinCapacity.SLOT_CAPACITY,
-			true
-		).whenFluidUpdates(this::notifyChangeOfContents)
-			.forbidInsertion();
+		outputTank = new SmartFluidTankBehaviour(SmartFluidTankBehaviour.OUTPUT, this, 2,
+			CopperBasinCapacity.SLOT_CAPACITY, true).whenFluidUpdates(this::notifyChangeOfContents).forbidInsertion();
 
 		behaviours.add(inputTank);
 		behaviours.add(outputTank);
@@ -77,11 +58,6 @@ public class CopperBasinBlockEntity extends BasinBlockEntity {
 			LazyOptional<? extends IFluidHandler> outputCap = outputTank.getCapability();
 			return new CombinedTankWrapper(outputCap.orElse(null), inputCap.orElse(null));
 		});
-	}
-
-	@Override
-	public FilteringBehaviour getFilter() {
-		return filtering;
 	}
 
 	@Override
@@ -96,8 +72,7 @@ public class CopperBasinBlockEntity extends BasinBlockEntity {
 
 	private static void replaceGoggleTitle(List<Component> tooltip, int titleIndex) {
 		List<Component> title = new ArrayList<>();
-		CreateLang.translate("gui.goggles.copper_basin_contents")
-			.forGoggles(title);
+		CreateLang.translate("gui.goggles.copper_basin_contents").forGoggles(title);
 		if (!title.isEmpty())
 			tooltip.set(titleIndex, title.get(0));
 	}
@@ -132,9 +107,7 @@ public class CopperBasinBlockEntity extends BasinBlockEntity {
 	@Override
 	public float getTotalFluidUnits(float partialTicks) {
 		if (level != null && level.isClientSide)
-			return shouldRenderCopperBasinMixedSurfaceParticles()
-				? CopperBasinCapacity.RENDER_FULL_CAPACITY
-				: 0;
+			return shouldRenderCopperBasinMixedSurfaceParticles() ? CopperBasinCapacity.RENDER_FULL_CAPACITY : 0;
 
 		return super.getTotalFluidUnits(partialTicks);
 	}
@@ -207,8 +180,7 @@ public class CopperBasinBlockEntity extends BasinBlockEntity {
 		if (direction == Direction.DOWN)
 			return;
 
-		BlockPos targetPos = worldPosition.below()
-			.relative(direction);
+		BlockPos targetPos = worldPosition.below().relative(direction);
 
 		IFluidHandler sourceTank = outputTank.getCapability().orElse(null);
 		if (sourceTank == null)
@@ -219,10 +191,10 @@ public class CopperBasinBlockEntity extends BasinBlockEntity {
 			return;
 
 		for (int slot = 0; slot < sourceTank.getTanks(); slot++) {
-			FluidStack available = sourceTank.getFluidInTank(slot);
+			FluidStack available = sourceTank.getFluidInTank(slot).copy();
 			if (available.isEmpty())
 				continue;
-			if (movePartialFluid(sourceTank, targetTank, available.getAmount()) > 0) {
+			if (movePartialFluid(sourceTank, targetTank, available) > 0) {
 				notifyChangeOfContents();
 				notifyUpdate();
 				return;
@@ -230,8 +202,8 @@ public class CopperBasinBlockEntity extends BasinBlockEntity {
 		}
 	}
 
-	private static int movePartialFluid(IFluidHandler sourceTank, IFluidHandler targetTank, int maxAmount) {
-		FluidStack available = sourceTank.drain(maxAmount, FluidAction.SIMULATE);
+	private static int movePartialFluid(IFluidHandler sourceTank, IFluidHandler targetTank, FluidStack requested) {
+		FluidStack available = sourceTank.drain(requested, FluidAction.SIMULATE);
 		if (available.isEmpty())
 			return 0;
 
@@ -258,9 +230,17 @@ public class CopperBasinBlockEntity extends BasinBlockEntity {
 
 	private static boolean acceptFluidsIntoOutputTank(List<FluidStack> outputFluids, boolean simulate,
 		IFluidHandler targetTank) {
+		if (simulate) {
+			IFluidHandler[] tanks = new IFluidHandler[targetTank.getTanks()];
+			for (int i = 0; i < tanks.length; i++) {
+				FluidTank copy = new FluidTank(targetTank.getTankCapacity(i));
+				copy.setFluid(targetTank.getFluidInTank(i).copy());
+				tanks[i] = copy;
+			}
+			targetTank = new CombinedTankWrapper(tanks).enforceVariety();
+		}
 		for (FluidStack fluidStack : outputFluids) {
-			FluidAction action = simulate ? FluidAction.SIMULATE : FluidAction.EXECUTE;
-			if (fillTarget(targetTank, fluidStack.copy(), action) != fluidStack.getAmount())
+			if (fillTarget(targetTank, fluidStack.copy(), FluidAction.EXECUTE) != fluidStack.getAmount())
 				return false;
 		}
 		return true;
@@ -272,17 +252,4 @@ public class CopperBasinBlockEntity extends BasinBlockEntity {
 			: targetTank.fill(fluidStack, action);
 	}
 
-	static class CopperBasinValueBox extends ValueBoxTransform.Sided {
-
-		@Override
-		protected Vec3 getSouthLocation() {
-			return VecHelper.voxelSpace(8, 12, 16.05);
-		}
-
-		@Override
-		protected boolean isSideActive(BlockState state, Direction direction) {
-			return direction.getAxis()
-				.isHorizontal();
-		}
-	}
 }

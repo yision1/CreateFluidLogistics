@@ -12,79 +12,72 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraftforge.fml.ModList;
+
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.ModList;
 
 public final class FluidTooltipHelper {
 
-    private FluidTooltipHelper() {
-    }
+	private FluidTooltipHelper() {
+	}
 
-    public static List<Component> getTooltipLines(FluidStack fluid, TooltipFlag tooltipFlag) {
-        return getTooltipLines(fluid, tooltipFlag, true);
-    }
+	public static List<Component> getTooltipLines(FluidStack fluid, TooltipFlag tooltipFlag) {
+		return getTooltipLines(fluid, tooltipFlag, true);
+	}
 
-    public static List<Component> getTooltipLines(FluidStack fluid, TooltipFlag tooltipFlag, boolean includeModName) {
-        if (fluid.isEmpty()) {
-            return List.of();
-        }
+	public static List<Component> getTooltipLines(FluidStack fluid, TooltipFlag tooltipFlag, boolean includeModName) {
+		if (fluid.isEmpty()) {
+			return List.of();
+		}
 
-        List<Component> lines = new ArrayList<>();
-        lines.add(fluid.getDisplayName().copy());
+		List<Component> lines = new ArrayList<>();
+		lines.add(fluid.getDisplayName().copy());
 
-        ResourceLocation fluidId = BuiltInRegistries.FLUID.getKey(fluid.getFluid());
-        if (tooltipFlag.isAdvanced() && fluidId != null) {
-            lines.add(Component.literal(fluidId.toString())
-                    .withStyle(ChatFormatting.DARK_GRAY));
-        }
+		ResourceLocation fluidId = BuiltInRegistries.FLUID.getKey(fluid.getFluid());
+		if (tooltipFlag.isAdvanced() && fluidId != null) {
+			lines.add(Component.literal(fluidId.toString()).withStyle(ChatFormatting.DARK_GRAY));
+		}
 
-        addAdvancedTagLines(lines, fluid, tooltipFlag);
+		addAdvancedTagLines(lines, fluid, tooltipFlag);
 
-        if (includeModName) {
-            String namespace = fluidId != null ? fluidId.getNamespace() : "minecraft";
-            String modName = getModName(namespace);
-            lines.add(Component.literal(modName)
-                    .withStyle(ChatFormatting.BLUE, ChatFormatting.ITALIC));
-        }
-        return lines;
-    }
+		if (includeModName) {
+			String namespace = fluidId != null ? fluidId.getNamespace() : "minecraft";
+			String modName = getModName(namespace);
+			lines.add(Component.literal(modName).withStyle(ChatFormatting.BLUE, ChatFormatting.ITALIC));
+		}
+		return lines;
+	}
 
-    public static List<Component> getCompressedTankTooltipLines(ItemStack stack, TooltipFlag tooltipFlag) {
-        return getCompressedTankTooltipLines(stack, tooltipFlag, true);
-    }
+	public static List<Component> getCompressedTankTooltipLines(ItemStack stack, TooltipFlag tooltipFlag) {
+		return getCompressedTankTooltipLines(stack, tooltipFlag, true);
+	}
 
-    public static List<Component> getCompressedTankTooltipLines(ItemStack stack, TooltipFlag tooltipFlag,
-            boolean includeModName) {
-        FluidStack fluid = getCompressedTankFluid(stack);
-        return fluid.isEmpty() ? List.of() : getTooltipLines(fluid, tooltipFlag, includeModName);
-    }
+	public static List<Component> getCompressedTankTooltipLines(ItemStack stack, TooltipFlag tooltipFlag,
+		boolean includeModName) {
+		FluidStack fluid = getCompressedTankFluid(stack);
+		return fluid.isEmpty() ? List.of() : getTooltipLines(fluid, tooltipFlag, includeModName);
+	}
 
-    public static FluidStack getCompressedTankFluid(ItemStack stack) {
-        if (!CompressedTankItem.isFluidStack(stack)) {
-            return FluidStack.EMPTY;
-        }
-        return CompressedTankItem.getFluid(stack);
-    }
+	public static FluidStack getCompressedTankFluid(ItemStack stack) {
+		return com.yision.fluidlogistics.util.FluidDisplayHelper.getDisplayFluid(stack);
+	}
 
-    public static void addAdvancedTagLines(List<Component> lines, FluidStack fluid, TooltipFlag tooltipFlag) {
-        if (!tooltipFlag.isAdvanced() || fluid.isEmpty()) {
-            return;
-        }
+	public static void addAdvancedTagLines(List<Component> lines, FluidStack fluid, TooltipFlag tooltipFlag) {
+		if (!tooltipFlag.isAdvanced() || fluid.isEmpty()) {
+			return;
+		}
 
-        CompoundTag tag = fluid.getTag();
-        if (tag != null && !tag.isEmpty()) {
-            lines.add(Component.translatable("item.nbt_tags", tag.size())
-                    .withStyle(ChatFormatting.DARK_GRAY));
-        }
-    }
+		CompoundTag tag = fluid.getTag();
+		if (tag != null && !tag.isEmpty()) {
+			lines.add(Component.translatable("item.nbt_tags", tag.size()).withStyle(ChatFormatting.DARK_GRAY));
+		}
+	}
 
-    private static String getModName(String namespace) {
-        if ("minecraft".equals(namespace)) {
-            return "Minecraft";
-        }
-        return ModList.get()
-                .getModContainerById(namespace)
-                .map(container -> container.getModInfo().getDisplayName())
-                .orElse(namespace);
-    }
+	private static String getModName(String namespace) {
+		if ("minecraft".equals(namespace)) {
+			return "Minecraft";
+		}
+		return ModList.get().getModContainerById(namespace).map(container -> container.getModInfo().getDisplayName())
+			.orElse(namespace);
+	}
 }

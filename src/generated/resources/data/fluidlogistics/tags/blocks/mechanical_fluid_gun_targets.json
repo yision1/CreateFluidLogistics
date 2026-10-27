@@ -4,11 +4,11 @@
     "create:basin",
     "fluidlogistics:smart_hopper",
     "fluidlogistics:copper_basin",
-    "fluidlogistics:multi_fluid_access_port",
+    "fluidlogistics:copper_basket",
     "create:belt",
     "create:depot",
     "create:blaze_burner",
-    "fluidlogistics:blaze_cooler",
+    "fluidlogistics:snow_golem_freezer",
     "create:item_drain",
     "minecraft:cauldron",
     "minecraft:water_cauldron",
@@ -68,6 +68,26 @@
       "id": "create_enchantment_industry:blaze_enchanter",
       "required": false
     },
-    "fluidlogistics:fluid_hatch"
+    "fluidlogistics:fluid_hatch",
+    {
+      "id": "createmoremachines:brass_basin",
+      "required": false
+    },
+    {
+      "id": "createmoremachines:netherite_basin",
+      "required": false
+    },
+    {
+      "id": "createmoremachines:end_basin",
+      "required": false
+    },
+    {
+      "id": "createmoremachines:beyond_basin",
+      "required": false
+    },
+    {
+      "id": "createmoremachines:creative_basin",
+      "required": false
+    }
   ]
 }

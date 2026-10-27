@@ -11,8 +11,8 @@ import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.fluid.SmartFluidTank;
 import com.simibubi.create.foundation.utility.CreateLang;
-import com.yision.fluidlogistics.registry.AllBlockEntities;
 import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidSupplyRules;
+import com.yision.fluidlogistics.registry.AllBlockEntities;
 
 import net.createmod.catnip.animation.LerpedFloat;
 import net.minecraft.ChatFormatting;
@@ -22,6 +22,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
@@ -42,7 +43,8 @@ public class InfiniteFluidTankBlockEntity extends SmartBlockEntity implements IH
 
 	public InfiniteFluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
-		tankInventory = new InfiniteSmartFluidTank(InfiniteFluidSupplyRules.getRequiredAmount(), this::onFluidStackChanged);
+		tankInventory = new InfiniteSmartFluidTank(InfiniteFluidSupplyRules.getRequiredAmount(),
+			this::onFluidStackChanged);
 		fluidCapability = LazyOptional.of(() -> tankInventory);
 		forceFluidLevelUpdate = true;
 	}
@@ -181,9 +183,7 @@ public class InfiniteFluidTankBlockEntity extends SmartBlockEntity implements IH
 
 		if (isInfiniteMode()) {
 			containedFluidTooltip(tooltip, isPlayerSneaking, fluidCapability);
-			CreateLang.translate("hint.hose_pulley.title")
-				.style(ChatFormatting.GOLD)
-				.forGoggles(tooltip);
+			CreateLang.translate("hint.hose_pulley.title").style(ChatFormatting.GOLD).forGoggles(tooltip);
 			return true;
 		}
 		return containedFluidTooltip(tooltip, isPlayerSneaking, fluidCapability);
@@ -192,18 +192,12 @@ public class InfiniteFluidTankBlockEntity extends SmartBlockEntity implements IH
 	private boolean disabledInfiniteSourceFluidTooltip(List<Component> tooltip) {
 		FluidStack fluid = tankInventory.getFluid();
 
-		CreateLang.translate("gui.goggles.fluid_container")
-			.forGoggles(tooltip);
-		CreateLang.fluidName(fluid)
-			.style(ChatFormatting.GRAY)
-			.forGoggles(tooltip, 1);
-		CreateLang.builder()
-			.add(CreateLang.number(fluid.getAmount())
-				.text("mB")
-				.style(ChatFormatting.GOLD))
+		CreateLang.translate("gui.goggles.fluid_container").forGoggles(tooltip);
+		CreateLang.fluidName(fluid).style(ChatFormatting.GRAY).forGoggles(tooltip, 1);
+		CreateLang.builder().add(CreateLang.number(fluid.getAmount()).text("mB").style(ChatFormatting.GOLD))
 			.text(ChatFormatting.GRAY, " / ")
-			.add(Component.literal(InfiniteFluidSupplyRules.getRequiredAmountText())
-				.withStyle(ChatFormatting.DARK_GRAY))
+			.add(
+				Component.literal(InfiniteFluidSupplyRules.getRequiredAmountText()).withStyle(ChatFormatting.DARK_GRAY))
 			.forGoggles(tooltip, 1);
 		return true;
 	}

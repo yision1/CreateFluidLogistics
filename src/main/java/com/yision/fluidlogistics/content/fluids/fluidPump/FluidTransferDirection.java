@@ -1,16 +1,15 @@
 package com.yision.fluidlogistics.content.fluids.fluidPump;
 
-import com.simibubi.create.foundation.gui.AllIcons;
 import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.INamedIconOptions;
+import com.simibubi.create.foundation.gui.AllIcons;
 
-import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Direction.AxisDirection;
+import net.minecraft.core.Direction;
 
 public enum FluidTransferDirection implements INamedIconOptions {
 	NEGATIVE(AxisDirection.NEGATIVE, AllIcons.I_MTD_LEFT, "fluidlogistics.fluid_pump.direction.forward"),
-	POSITIVE(AxisDirection.POSITIVE, AllIcons.I_MTD_RIGHT, "fluidlogistics.fluid_pump.direction.reverse"),
-	;
+	POSITIVE(AxisDirection.POSITIVE, AllIcons.I_MTD_RIGHT, "fluidlogistics.fluid_pump.direction.reverse"),;
 
 	private final String translationKey;
 	private final AllIcons guiIcon;
@@ -49,7 +48,8 @@ public enum FluidTransferDirection implements INamedIconOptions {
 
 				@Override
 				public String getTranslationKey() {
-					return "fluidlogistics.fluid_pump.direction." + Direction.fromAxisAndDirection(axis, option.axisDirection).getSerializedName();
+					return "fluidlogistics.fluid_pump.direction."
+						+ Direction.fromAxisAndDirection(axis, option.axisDirection).getSerializedName();
 				}
 			};
 		}

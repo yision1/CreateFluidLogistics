@@ -5,7 +5,9 @@
       "conditions": {
         "items": [
           {
-            "items": "fluidlogistics:fluid_packager"
+            "items": [
+              "fluidlogistics:fluid_packager"
+            ]
           }
         ]
       },

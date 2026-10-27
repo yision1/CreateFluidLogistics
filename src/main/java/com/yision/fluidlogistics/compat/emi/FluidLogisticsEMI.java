@@ -18,38 +18,40 @@ import dev.emi.emi.api.EmiRegistry;
 @SuppressWarnings("unused")
 public class FluidLogisticsEMI implements EmiPlugin {
 
-    private static final EmiDragDropHandler<FilterScreen> FILTER_DRAG_DROP =
-        new GhostSlotEmiDragDropHandler<>(GhostSlotEmiDragDropHandler.AcceptMode.FLUID_ONLY);
-    private static final EmiDragDropHandler<AttributeFilterScreen> ATTRIBUTE_FILTER_DRAG_DROP =
-        new GhostSlotEmiDragDropHandler<>(GhostSlotEmiDragDropHandler.AcceptMode.FLUID_ONLY);
-    private static final EmiDragDropHandler<ResourceFactoryGaugeSetFilterScreen> RESOURCE_GAUGE_SET_FILTER_DRAG_DROP =
-        new GhostSlotEmiDragDropHandler<>(GhostSlotEmiDragDropHandler.AcceptMode.FLUID_ONLY);
-    private static final EmiDragDropHandler<RedstoneRequesterScreen> REDSTONE_REQUESTER_DRAG_DROP =
-        new GhostSlotEmiDragDropHandler<>(GhostSlotEmiDragDropHandler.AcceptMode.ITEM_OR_FLUID,
-            (gui, slotIndex, fromFluid) -> {
-                if (!fromFluid) {
-                    return;
-                }
-                ((RedstoneRequesterScreenAccessor) gui).getAmounts()
-                    .set(slotIndex, FluidAmountHelper.DEFAULT_FLUID_REQUEST_AMOUNT);
-            });
-    private static final EmiDragDropHandler<HandPointerFilterScreen> HAND_POINTER_DRAG_DROP =
-        new GhostSlotEmiDragDropHandler<>(GhostSlotEmiDragDropHandler.AcceptMode.ITEM_OR_FLUID);
+	private static final EmiDragDropHandler<FilterScreen> FILTER_DRAG_DROP = new GhostSlotEmiDragDropHandler<>(
+		GhostSlotEmiDragDropHandler.AcceptMode.FLUID_ONLY);
+	private static final EmiDragDropHandler<AttributeFilterScreen> ATTRIBUTE_FILTER_DRAG_DROP = new GhostSlotEmiDragDropHandler<>(
+		GhostSlotEmiDragDropHandler.AcceptMode.FLUID_ONLY);
+	private static final EmiDragDropHandler<ResourceFactoryGaugeSetFilterScreen> RESOURCE_GAUGE_SET_FILTER_DRAG_DROP = new GhostSlotEmiDragDropHandler<>(
+		GhostSlotEmiDragDropHandler.AcceptMode.FLUID_ONLY);
+	private static final EmiDragDropHandler<RedstoneRequesterScreen> REDSTONE_REQUESTER_DRAG_DROP = new GhostSlotEmiDragDropHandler<>(
+		GhostSlotEmiDragDropHandler.AcceptMode.ITEM_OR_FLUID, (gui, slotIndex, fromFluid) -> {
+			if (!fromFluid) {
+				return;
+			}
+			((RedstoneRequesterScreenAccessor) gui).getAmounts().set(slotIndex,
+				FluidAmountHelper.DEFAULT_FLUID_REQUEST_AMOUNT);
+		});
+	private static final EmiDragDropHandler<HandPointerFilterScreen> HAND_POINTER_DRAG_DROP = new GhostSlotEmiDragDropHandler<>(
+		GhostSlotEmiDragDropHandler.AcceptMode.ITEM_OR_FLUID);
 
-    @Override
-    public void register(EmiRegistry registry) {
-        registry.addDragDropHandler(FilterScreen.class, FILTER_DRAG_DROP);
-        registry.addDragDropHandler(AttributeFilterScreen.class, ATTRIBUTE_FILTER_DRAG_DROP);
-        registry.addDragDropHandler(ResourceFactoryGaugeSetFilterScreen.class, RESOURCE_GAUGE_SET_FILTER_DRAG_DROP);
-        registry.addDragDropHandler(RedstoneRequesterScreen.class, REDSTONE_REQUESTER_DRAG_DROP);
-        registry.addDragDropHandler(HandPointerFilterScreen.class, HAND_POINTER_DRAG_DROP);
+	@Override
+	public void register(EmiRegistry registry) {
+		registry.removeEmiStacks(stack -> com.yision.fluidlogistics.content.logistics.fluidPackage.FluidProxyRegistry
+			.isProxy(stack.getItemStack())
+			|| stack.getItemStack().is(com.yision.fluidlogistics.registry.AllItems.COMPRESSED_STORAGE_TANK.get()));
+		registry.addDragDropHandler(FilterScreen.class, FILTER_DRAG_DROP);
+		registry.addDragDropHandler(AttributeFilterScreen.class, ATTRIBUTE_FILTER_DRAG_DROP);
+		registry.addDragDropHandler(ResourceFactoryGaugeSetFilterScreen.class, RESOURCE_GAUGE_SET_FILTER_DRAG_DROP);
+		registry.addDragDropHandler(RedstoneRequesterScreen.class, REDSTONE_REQUESTER_DRAG_DROP);
+		registry.addDragDropHandler(HandPointerFilterScreen.class, HAND_POINTER_DRAG_DROP);
 
-        registry.addStackProvider(FilterScreen.class, EmiFluidStackProvider.Filter.INSTANCE);
-        registry.addStackProvider(AttributeFilterScreen.class, EmiFluidStackProvider.AttributeFilter.INSTANCE);
-        registry.addStackProvider(ResourceFactoryGaugeSetFilterScreen.class,
-            EmiFluidStackProvider.ResourceGaugeSetFilter.INSTANCE);
-        registry.addStackProvider(RedstoneRequesterScreen.class, EmiFluidStackProvider.RedstoneRequester.INSTANCE);
-        registry.addStackProvider(HandPointerFilterScreen.class, EmiFluidStackProvider.HandPointerFilter.INSTANCE);
-        registry.addStackProvider(StockKeeperRequestScreen.class, EmiFluidStackProvider.StockKeeper.INSTANCE);
-    }
+		registry.addStackProvider(FilterScreen.class, EmiFluidStackProvider.Filter.INSTANCE);
+		registry.addStackProvider(AttributeFilterScreen.class, EmiFluidStackProvider.AttributeFilter.INSTANCE);
+		registry.addStackProvider(ResourceFactoryGaugeSetFilterScreen.class,
+			EmiFluidStackProvider.ResourceGaugeSetFilter.INSTANCE);
+		registry.addStackProvider(RedstoneRequesterScreen.class, EmiFluidStackProvider.RedstoneRequester.INSTANCE);
+		registry.addStackProvider(HandPointerFilterScreen.class, EmiFluidStackProvider.HandPointerFilter.INSTANCE);
+		registry.addStackProvider(StockKeeperRequestScreen.class, EmiFluidStackProvider.StockKeeper.INSTANCE);
+	}
 }

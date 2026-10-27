@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "fluidlogistics:block/oscillating_steam_engine/block"
+    }
+  }
+}

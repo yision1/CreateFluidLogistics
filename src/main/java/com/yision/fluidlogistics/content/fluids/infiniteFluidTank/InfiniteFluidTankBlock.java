@@ -4,8 +4,8 @@ import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.content.fluids.transfer.GenericItemEmptying;
 import com.simibubi.create.content.fluids.transfer.GenericItemFilling;
 import com.simibubi.create.foundation.block.IBE;
-import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.fluid.FluidHelper.FluidExchange;
+import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
 
 import net.minecraft.core.BlockPos;
@@ -27,6 +27,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -45,7 +46,7 @@ public class InfiniteFluidTankBlock extends Block implements IWrenchable, IBE<In
 
 	@Override
 	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
-								 BlockHitResult hitResult) {
+		BlockHitResult hitResult) {
 		ItemStack stack = player.getItemInHand(hand);
 		boolean onClient = level.isClientSide;
 
@@ -80,8 +81,7 @@ public class InfiniteFluidTankBlock extends Block implements IWrenchable, IBE<In
 		}
 
 		if (exchange == null) {
-			if (GenericItemEmptying.canItemBeEmptied(level, stack)
-				|| GenericItemFilling.canItemBeFilled(level, stack))
+			if (GenericItemEmptying.canItemBeEmptied(level, stack) || GenericItemFilling.canItemBeFilled(level, stack))
 				return InteractionResult.SUCCESS;
 			return InteractionResult.PASS;
 		}
@@ -110,8 +110,7 @@ public class InfiniteFluidTankBlock extends Block implements IWrenchable, IBE<In
 			level.playSound(null, pos, soundEvent, SoundSource.BLOCKS, .5f, pitch);
 		}
 
-		if (!isSameFluid(fluidInTank, prevFluidInTank)
-			|| fluidInTank.getAmount() != prevFluidInTank.getAmount()) {
+		if (!isSameFluid(fluidInTank, prevFluidInTank) || fluidInTank.getAmount() != prevFluidInTank.getAmount()) {
 			if (fluidState != null && onClient) {
 				BlockParticleOption particle = new BlockParticleOption(ParticleTypes.BLOCK, fluidState);
 				float fluidLevel = be.getFillState();
@@ -135,8 +134,10 @@ public class InfiniteFluidTankBlock extends Block implements IWrenchable, IBE<In
 	}
 
 	private static boolean isSameFluid(FluidStack a, FluidStack b) {
-		if (a.isEmpty() && b.isEmpty()) return true;
-		if (a.isEmpty() || b.isEmpty()) return false;
+		if (a.isEmpty() && b.isEmpty())
+			return true;
+		if (a.isEmpty() || b.isEmpty())
+			return false;
 		return a.isFluidEqual(b) && FluidStack.areFluidStackTagsEqual(a, b);
 	}
 

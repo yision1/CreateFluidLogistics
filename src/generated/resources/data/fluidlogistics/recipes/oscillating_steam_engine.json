@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:oscillating_steam_engine"
+    }
+  ],
+  "key": {
+    "A": {
+      "item": "create:andesite_alloy"
+    },
+    "C": {
+      "tag": "forge:storage_blocks/copper"
+    },
+    "P": {
+      "tag": "forge:storage_blocks/gold"
+    }
+  },
+  "pattern": [
+    "P",
+    "A",
+    "C"
+  ],
+  "result": {
+    "count": 1,
+    "item": "fluidlogistics:oscillating_steam_engine"
+  }
+}

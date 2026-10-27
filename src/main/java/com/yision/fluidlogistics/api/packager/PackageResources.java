@@ -15,121 +15,123 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 public final class PackageResources {
-    private static final PackageResourceRegistry REGISTRY = PackageResourceRegistry.create();
+	private static final PackageResourceRegistry REGISTRY = PackageResourceRegistry.create();
 
-    private PackageResources() {
-        throw new AssertionError("This class should not be instantiated");
-    }
+	private PackageResources() {
+		throw new AssertionError("This class should not be instantiated");
+	}
 
-    public static void register(PackageResourceType type) {
-        REGISTRY.register(type);
-    }
+	public static void register(PackageResourceType type) {
+		REGISTRY.register(type);
+	}
 
-    public static void registerRequestSelector(
-            Supplier<? extends Item> selectorItem, Supplier<ItemStack> resourceKey) {
-        REGISTRY.registerRequestSelector(selectorItem, resourceKey);
-    }
+	public static void registerRequestSelector(Supplier<? extends Item> selectorItem, Supplier<ItemStack> resourceKey) {
+		REGISTRY.registerRequestSelector(selectorItem, resourceKey);
+	}
 
-    public static void bootstrap() {
-        REGISTRY.bootstrap();
-    }
+	public static void bootstrap() {
+		REGISTRY.bootstrap();
+	}
 
-    public static boolean isBootstrapped() {
-        return REGISTRY.isBootstrapped();
-    }
+	public static boolean isBootstrapped() {
+		return REGISTRY.isBootstrapped();
+	}
 
-    public static Optional<PackageResourceType> get(ResourceLocation id) {
-        return REGISTRY.get(id);
-    }
+	public static Optional<PackageResourceType> get(ResourceLocation id) {
+		return REGISTRY.get(id);
+	}
 
-    public static Optional<PackageResourceType> findType(ItemStack carrierStack) {
-        return REGISTRY.findType(carrierStack);
-    }
+	public static Optional<PackageResourceType> findType(ItemStack carrierStack) {
+		return REGISTRY.findType(carrierStack);
+	}
 
-    public static Optional<PackageResource> readResource(ItemStack carrierStack) {
-        return REGISTRY.readResource(carrierStack);
-    }
+	public static Optional<PackageResource> readResource(ItemStack carrierStack) {
+		return REGISTRY.readResource(carrierStack);
+	}
 
-    public static Optional<ItemStack> normalizeKey(ItemStack carrierStack) {
-        return REGISTRY.normalizeKey(carrierStack);
-    }
+	public static Optional<ItemStack> normalizeKey(ItemStack carrierStack) {
+		return REGISTRY.normalizeKey(carrierStack);
+	}
 
-    public static Optional<PackageResourceKey> keyOf(ItemStack carrierStack) {
-        return REGISTRY.keyOf(carrierStack);
-    }
+	public static Optional<PackageResourceKey> keyOf(ItemStack carrierStack) {
+		return REGISTRY.keyOf(carrierStack);
+	}
 
-    public static Optional<ItemStack> resolveRequestKey(ItemStack carrierOrSelector) {
-        return REGISTRY.resolveRequestKey(carrierOrSelector);
-    }
+	public static Optional<ItemStack> resolveRequestKey(ItemStack carrierOrSelector) {
+		return REGISTRY.resolveRequestKey(carrierOrSelector);
+	}
 
-    public static boolean sameResource(ItemStack first, ItemStack second) {
-        return REGISTRY.sameResource(first, second);
-    }
+	public static boolean sameResource(ItemStack first, ItemStack second) {
+		return REGISTRY.sameResource(first, second);
+	}
 
-    public static PackageInspection inspectPackage(ItemStack packageStack) {
-        return REGISTRY.inspectPackage(packageStack);
-    }
+	public static PackageInspection inspectPackage(ItemStack packageStack) {
+		return REGISTRY.inspectPackage(packageStack);
+	}
 
-    public static ItemStack createPackage(ItemStack normalizedKey, int amount) {
-        return REGISTRY.createPackage(normalizedKey, amount);
-    }
+	public static ItemStack createPackage(ItemStack normalizedKey, int amount) {
+		return REGISTRY.createPackage(normalizedKey, amount);
+	}
 
-    public static List<ItemStack> splitPackage(ItemStack packageStack) {
-        return REGISTRY.splitPackage(packageStack);
-    }
+	public static List<ItemStack> splitPackage(ItemStack packageStack) {
+		return REGISTRY.splitPackage(packageStack);
+	}
 
-    public static boolean unpackPackage(PackageUnpackContext context, boolean simulate) {
-        return REGISTRY.unpackPackage(context, simulate);
-    }
+	public static boolean unpackPackage(PackageUnpackContext context, boolean simulate) {
+		return REGISTRY.unpackPackage(context, simulate);
+	}
 
-    public static Optional<PackageResourceDisplay> displayOf(ItemStack carrierOrKey) {
-        return REGISTRY.displayOf(carrierOrKey);
-    }
+	public static PackageUnpackResult unpackPackageResult(PackageUnpackContext context, boolean simulate) {
+		return REGISTRY.unpackPackageResult(context, simulate);
+	}
 
-    public static Optional<Component> nameOf(ItemStack carrierOrKey) {
-        return REGISTRY.nameOf(carrierOrKey);
-    }
+	public static ItemStack withPackageAmount(ItemStack packageStack, ItemStack key, int amount) {
+		return REGISTRY.withPackageAmount(packageStack, key, amount);
+	}
 
-    public static Optional<ItemStack> iconOf(ItemStack carrierOrKey) {
-        return REGISTRY.iconOf(carrierOrKey);
-    }
+	public static Optional<PackageResourceDisplay> displayOf(ItemStack carrierOrKey) {
+		return REGISTRY.displayOf(carrierOrKey);
+	}
 
-    public static Optional<List<Component>> tooltipOf(
-            ItemStack carrierOrKey, int amount, boolean advanced) {
-        return REGISTRY.tooltipOf(carrierOrKey, amount, advanced);
-    }
+	public static Optional<Component> nameOf(ItemStack carrierOrKey) {
+		return REGISTRY.nameOf(carrierOrKey);
+	}
 
-    public static Optional<List<Component>> tooltipOf(
-            ItemStack carrierOrKey,
-            int amount,
-            boolean advanced,
-            PackageResourceDisplay.TooltipContext context) {
-        return REGISTRY.tooltipOf(carrierOrKey, amount, advanced, context);
-    }
+	public static Optional<ItemStack> iconOf(ItemStack carrierOrKey) {
+		return REGISTRY.iconOf(carrierOrKey);
+	}
 
-    public static Optional<String> formatAmount(
-            ItemStack carrierOrKey, int amount, PackageResourceDisplay.Format format) {
-        return REGISTRY.formatAmount(carrierOrKey, amount, format);
-    }
+	public static Optional<List<Component>> tooltipOf(ItemStack carrierOrKey, int amount, boolean advanced) {
+		return REGISTRY.tooltipOf(carrierOrKey, amount, advanced);
+	}
 
-    public static OptionalInt adjustAmount(
-            ItemStack carrierOrKey, PackageResourceDisplay.Adjustment adjustment) {
-        return REGISTRY.adjustAmount(carrierOrKey, adjustment);
-    }
+	public static Optional<List<Component>> tooltipOf(ItemStack carrierOrKey, int amount, boolean advanced,
+		PackageResourceDisplay.TooltipContext context) {
+		return REGISTRY.tooltipOf(carrierOrKey, amount, advanced, context);
+	}
 
-    public static boolean blocksManualOpen(ItemStack packageStack) {
-        return REGISTRY.blocksManualOpen(packageStack);
-    }
+	public static Optional<String> formatAmount(ItemStack carrierOrKey, int amount,
+		PackageResourceDisplay.Format format) {
+		return REGISTRY.formatAmount(carrierOrKey, amount, format);
+	}
 
-    public static boolean survivesWater(ItemStack packageStack) {
-        return REGISTRY.survivesWater(packageStack);
-    }
+	public static OptionalInt adjustAmount(ItemStack carrierOrKey, PackageResourceDisplay.Adjustment adjustment) {
+		return REGISTRY.adjustAmount(carrierOrKey, adjustment);
+	}
 
-    public static PackageResourceType.SawAction sawAction(ItemStack packageStack) {
-        return REGISTRY.sawAction(packageStack);
-    }
+	public static boolean blocksManualOpen(ItemStack packageStack) {
+		return REGISTRY.blocksManualOpen(packageStack);
+	}
 
-    public static Set<ResourceLocation> handleDestroyed(PackageDestroyContext context) {
-        return REGISTRY.handleDestroyed(context);
-    }
+	public static boolean survivesWater(ItemStack packageStack) {
+		return REGISTRY.survivesWater(packageStack);
+	}
+
+	public static PackageResourceType.SawAction sawAction(ItemStack packageStack) {
+		return REGISTRY.sawAction(packageStack);
+	}
+
+	public static Set<ResourceLocation> handleDestroyed(PackageDestroyContext context) {
+		return REGISTRY.handleDestroyed(context);
+	}
 }

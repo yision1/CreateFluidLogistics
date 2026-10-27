@@ -1,8 +1,13 @@
 package com.yision.fluidlogistics.content.logistics.smartHopper;
 
+import java.util.List;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.simibubi.create.content.kinetics.belt.behaviour.DirectBeltInputBehaviour;
-import com.simibubi.create.content.kinetics.belt.behaviour.TransportedItemStackHandlerBehaviour;
 import com.simibubi.create.content.kinetics.belt.behaviour.TransportedItemStackHandlerBehaviour.TransportedResult;
+import com.simibubi.create.content.kinetics.belt.behaviour.TransportedItemStackHandlerBehaviour;
 import com.simibubi.create.content.kinetics.belt.transport.TransportedItemStack;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
@@ -12,6 +17,7 @@ import com.simibubi.create.foundation.item.ItemHelper;
 import com.yision.fluidlogistics.content.fluids.infiniteWater.InfiniteWaterSource;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
 import com.yision.fluidlogistics.util.SidedCapabilityCache;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -20,20 +26,17 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.ItemStackHandler;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.List;
 
 public class SmartHopperBlockEntity extends SmartBlockEntity {
 
@@ -62,10 +65,10 @@ public class SmartHopperBlockEntity extends SmartBlockEntity {
 	private FilteringBehaviour filtering;
 	private int transferCooldown;
 
-	private final SidedCapabilityCache<IItemHandler> itemCapCaches =
-		new SidedCapabilityCache<>(ForgeCapabilities.ITEM_HANDLER);
-	private final SidedCapabilityCache<IFluidHandler> fluidCapCaches =
-		new SidedCapabilityCache<>(ForgeCapabilities.FLUID_HANDLER);
+	private final SidedCapabilityCache<IItemHandler> itemCapCaches = new SidedCapabilityCache<>(
+		ForgeCapabilities.ITEM_HANDLER);
+	private final SidedCapabilityCache<IFluidHandler> fluidCapCaches = new SidedCapabilityCache<>(
+		ForgeCapabilities.FLUID_HANDLER);
 
 	public SmartHopperBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
@@ -74,8 +77,7 @@ public class SmartHopperBlockEntity extends SmartBlockEntity {
 	@Override
 	public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
 		behaviours.add(tank = SmartFluidTankBehaviour.single(this, FLUID_CAPACITY));
-		behaviours.add(filtering = new FilteringBehaviour(this,
-			new SmartHopperFilterSlotPositioning())
+		behaviours.add(filtering = new FilteringBehaviour(this, new SmartHopperFilterSlotPositioning())
 			.withCallback($ -> notifyUpdate()));
 	}
 
@@ -176,8 +178,8 @@ public class SmartHopperBlockEntity extends SmartBlockEntity {
 
 			ItemStack toExtract = stackInSlot.copyWithCount(ITEM_TRANSFER_AMOUNT);
 
-			DirectBeltInputBehaviour beltBehaviour =
-				BlockEntityBehaviour.get(level, outputPos, DirectBeltInputBehaviour.TYPE);
+			DirectBeltInputBehaviour beltBehaviour = BlockEntityBehaviour.get(level, outputPos,
+				DirectBeltInputBehaviour.TYPE);
 			if (beltBehaviour != null) {
 				if (!beltBehaviour.canInsertFromSide(facing)) {
 					continue;
@@ -223,8 +225,8 @@ public class SmartHopperBlockEntity extends SmartBlockEntity {
 
 	private boolean pullItems() {
 		BlockPos abovePos = worldPosition.above();
-		TransportedItemStackHandlerBehaviour beltItems =
-			BlockEntityBehaviour.get(level, abovePos, TransportedItemStackHandlerBehaviour.TYPE);
+		TransportedItemStackHandlerBehaviour beltItems = BlockEntityBehaviour.get(level, abovePos,
+			TransportedItemStackHandlerBehaviour.TYPE);
 		if (beltItems != null) {
 			return pullItemsFromBelt(beltItems);
 		}
@@ -272,7 +274,7 @@ public class SmartHopperBlockEntity extends SmartBlockEntity {
 	}
 
 	private boolean pullItemsFromBelt(TransportedItemStackHandlerBehaviour beltItems) {
-		boolean[] transferred = {false};
+		boolean[] transferred = { false };
 		beltItems.handleCenteredProcessingOnAllItems(.51f, transported -> {
 			if (transferred[0]) {
 				return TransportedResult.doNothing();
@@ -374,8 +376,8 @@ public class SmartHopperBlockEntity extends SmartBlockEntity {
 		BlockPos abovePos = worldPosition.above();
 		IFluidHandler source = getFluidCapability(Direction.UP, abovePos);
 		if (source == null) {
-			source = InfiniteWaterSource.getSourceHandler(
-				InfiniteWaterSource.Consumer.SMART_HOPPER, level.getBlockState(abovePos));
+			source = InfiniteWaterSource.getSourceHandler(InfiniteWaterSource.Consumer.SMART_HOPPER,
+				level.getBlockState(abovePos));
 		}
 		if (source == null) {
 			return false;
@@ -392,7 +394,7 @@ public class SmartHopperBlockEntity extends SmartBlockEntity {
 
 			int requestAmount = Math.min(Math.min(space, candidate.getAmount()), FLUID_TRANSFER_AMOUNT);
 			FluidStack request = candidate.copy();
-				request.setAmount(requestAmount);
+			request.setAmount(requestAmount);
 			FluidStack simulated = source.drain(request, FluidAction.SIMULATE);
 			if (simulated.isEmpty() || !canAcceptFluid(simulated)) {
 				continue;
@@ -404,8 +406,8 @@ public class SmartHopperBlockEntity extends SmartBlockEntity {
 			}
 
 			FluidStack toDrain = simulated.copy();
-				toDrain.setAmount(canFill);
-				FluidStack drained = source.drain(toDrain, FluidAction.EXECUTE);
+			toDrain.setAmount(canFill);
+			FluidStack drained = source.drain(toDrain, FluidAction.EXECUTE);
 			if (drained.isEmpty()) {
 				continue;
 			}
@@ -477,6 +479,8 @@ public class SmartHopperBlockEntity extends SmartBlockEntity {
 
 		@Override
 		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+			if (!isItemValid(slot, stack))
+				return stack;
 			return inventory.insertItem(slot, stack, simulate);
 		}
 

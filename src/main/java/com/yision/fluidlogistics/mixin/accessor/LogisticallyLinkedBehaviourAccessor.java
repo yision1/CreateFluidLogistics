@@ -8,6 +8,6 @@ import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBeha
 @Mixin(LogisticallyLinkedBehaviour.class)
 public interface LogisticallyLinkedBehaviourAccessor {
 
-    @Accessor("global")
-    boolean fluidlogistics$isGlobal();
+	@Accessor(value = "global", remap = false)
+	boolean fluidlogistics$isGlobal();
 }

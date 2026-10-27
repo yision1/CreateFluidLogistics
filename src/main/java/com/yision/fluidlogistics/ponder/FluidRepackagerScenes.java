@@ -11,9 +11,10 @@ import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 import com.simibubi.create.foundation.ponder.element.BeltItemElement;
 import com.simibubi.create.infrastructure.ponder.scenes.highLogistics.PonderHilo;
 import com.yision.fluidlogistics.api.packager.PackageResources;
-import com.yision.fluidlogistics.content.logistics.fluidPackager.repackager.FluidRepackagerBlockEntity;
+import com.yision.fluidlogistics.config.Config;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageContentHelper;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageItem;
+import com.yision.fluidlogistics.content.logistics.fluidPackager.repackager.FluidRepackagerBlockEntity;
 import com.yision.fluidlogistics.content.processing.copperBasin.CopperBasinCapacity;
 import com.yision.fluidlogistics.registry.AllBlocks;
 
@@ -31,11 +32,12 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluids;
+
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
-import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.ItemStackHandler;
@@ -71,59 +73,47 @@ public final class FluidRepackagerScenes {
 		Selection unpackager = util.select().position(unpackagerPos);
 		Selection unpackagerFunnel = util.select().position(unpackagerFunnelPos);
 		Selection mixer = util.select().position(mixerPos);
-		Selection initialMachinery = scaffolds.add(depot)
-			.add(basin)
-			.add(unpackager)
-			.add(unpackagerFunnel)
-			.add(mixer);
+		Selection initialMachinery = scaffolds.add(depot).add(basin).add(unpackager).add(unpackagerFunnel).add(mixer);
 
 		Selection firstInputFunnel = util.select().position(firstInputFunnelPos);
 		Selection secondInputFunnel = util.select().position(secondInputFunnelPos);
 		Selection outputFunnel = util.select().position(outputFunnelPos);
-		Selection beltFunnels = firstInputFunnel.add(secondInputFunnel)
-			.add(outputFunnel);
+		Selection beltFunnels = firstInputFunnel.add(secondInputFunnel).add(outputFunnel);
 		Selection belt1 = util.select().fromTo(1, 1, 2, 4, 1, 1);
 		Selection belt2 = util.select().fromTo(7, 1, 2, 6, 1, 1);
-		Selection belt3 = util.select().fromTo(5, 1, 1, 5, 1, 6)
-			.add(util.select().fromTo(6, 1, 5, 6, 1, 6));
+		Selection belt3 = util.select().fromTo(5, 1, 1, 5, 1, 6).add(util.select().fromTo(6, 1, 5, 6, 1, 6));
 		Selection largeCog1 = util.select().position(0, 0, 2);
 		Selection largeCog2 = util.select().position(8, 0, 2);
 		Selection largeCog3 = util.select().position(6, 0, 7);
-		Selection mixerKinetics = util.select().position(3, 0, 7)
-			.add(util.select().fromTo(3, 1, 6, 3, 4, 6));
+		Selection mixerKinetics = util.select().position(3, 0, 7).add(util.select().fromTo(3, 1, 6, 3, 4, 6));
 		Selection barrel = util.select().position(barrelPos);
 		Selection repackagerAndLever = util.select().fromTo(5, 2, 2, 5, 3, 2);
 		Selection thirdStageInputBelt = util.select().fromTo(1, 1, 1, 4, 1, 1);
 		Selection thirdStageOutputBelt = util.select().fromTo(5, 1, 1, 5, 1, 5);
-		Selection thirdStageHidden = util.select().everywhere()
-			.substract(util.select().fromTo(1, 0, 0, 7, 0, 6))
-			.substract(thirdStageInputBelt)
-			.substract(thirdStageOutputBelt)
-			.substract(util.select().position(5, 1, 6))
+		Selection thirdStageHidden = util.select().everywhere().substract(util.select().fromTo(1, 0, 0, 7, 0, 6))
+			.substract(thirdStageInputBelt).substract(thirdStageOutputBelt).substract(util.select().position(5, 1, 6))
 			.substract(util.select().position(barrelPos));
 		Selection thirdStageUnpackager = util.select().position(repackagerPos);
 		Selection thirdStageLever = util.select().position(5, 3, 2);
 		Selection thirdStageFunnels = util.select().position(firstInputFunnelPos)
 			.add(util.select().position(outputFunnelPos));
 
-		FluidStack water = new FluidStack(Fluids.WATER.getSource(), FluidType.BUCKET_VOLUME);
-		FluidStack fullBasinWater =
-			new FluidStack(Fluids.WATER.getSource(), CopperBasinCapacity.SLOT_CAPACITY);
+		FluidStack water = new FluidStack(Fluids.WATER.getSource(),
+			Math.min(FluidType.BUCKET_VOLUME, Config.getFluidPerPackage()));
+		FluidStack fullBasinWater = new FluidStack(Fluids.WATER.getSource(), CopperBasinCapacity.SLOT_CAPACITY);
 		ItemStack saplings = new ItemStack(Items.OAK_SAPLING, 16);
 
 		ItemStack fluidPackage = com.yision.fluidlogistics.registry.AllItems.FLUID_PACKAGE.asStack();
 		FluidPackageContentHelper.setCanonicalContents(fluidPackage, water);
 		ItemStack itemPackage = PackageItem.containing(List.of(saplings.copy()));
 
-		ItemStackHandler mixedContents = FluidPackageContentHelper.createCanonicalContents(water);
-		mixedContents.setStackInSlot(1, saplings.copy());
-		ItemStack mixedPackage = PackageItem.containing(mixedContents);
+		ItemStack mixedPackage = PackageItem.containing(List.of(saplings.copy()));
+		FluidPackageContentHelper.setCanonicalContents(mixedPackage, water);
 		List<ItemStack> splitPackages = PackageResources.splitPackage(mixedPackage);
 
 		ItemStack leaves = new ItemStack(Items.OAK_LEAVES, 16);
-		ItemStackHandler separatingContents = FluidPackageContentHelper.createCanonicalContents(water);
-		separatingContents.setStackInSlot(1, leaves);
-		ItemStack separatingPackage = PackageItem.containing(separatingContents);
+		ItemStack separatingPackage = PackageItem.containing(List.of(leaves));
+		FluidPackageContentHelper.setCanonicalContents(separatingPackage, water);
 		List<ItemStack> separatedPackages = PackageResources.splitPackage(separatingPackage);
 		ItemStack separatedFluidPackage = separatedPackages.get(0);
 		ItemStack separatedItemPackage = separatedPackages.get(1);
@@ -141,10 +131,8 @@ public final class FluidRepackagerScenes {
 		scene.idle(10);
 
 		scene.overlay().showText(120)
-			.text("Sometimes, requested item cargo and fluid cargo need to arrive in a single package")
-			.attachKeyFrame()
-			.placeNearTarget()
-			.independent(130);
+			.text("Sometimes, requested item cargo and fluid cargo need to arrive in a single package").attachKeyFrame()
+			.placeNearTarget().independent(130);
 		scene.idle(90);
 
 		scene.world().showSection(belt3, Direction.WEST);
@@ -163,18 +151,13 @@ public final class FluidRepackagerScenes {
 		scene.rotateCameraY(-15);
 		scene.idle(15);
 
-		scene.overlay().showText(80)
-			.text("In this case, redirect the packages into a storage block")
-			.attachKeyFrame()
-			.pointAt(util.vector().blockSurface(barrelPos, Direction.WEST))
-			.placeNearTarget();
+		scene.overlay().showText(80).text("In this case, redirect the packages into a storage block").attachKeyFrame()
+			.pointAt(util.vector().blockSurface(barrelPos, Direction.WEST)).placeNearTarget();
 		scene.idle(90);
 
 		scene.overlay().showText(70)
-			.text("Place a Re-Packager on the storage block and activate it with a redstone signal")
-			.attachKeyFrame()
-			.pointAt(util.vector().blockSurface(repackagerPos, Direction.WEST))
-			.placeNearTarget();
+			.text("Place a Re-Packager on the storage block and activate it with a redstone signal").attachKeyFrame()
+			.pointAt(util.vector().blockSurface(repackagerPos, Direction.WEST)).placeNearTarget();
 		scene.idle(50);
 
 		scene.world().toggleRedstonePower(repackagerAndLever);
@@ -204,17 +187,15 @@ public final class FluidRepackagerScenes {
 		scene.rotateCameraY(15);
 		scene.world().multiplyKineticSpeed(util.select().everywhere(), 2);
 		scene.world().flapFunnel(outputFunnelPos, true);
-		ElementLink<BeltItemElement> mixedPackageOnBelt =
-			scene.world().createItemOnBelt(outputFunnelPos.below(), Direction.NORTH, mixedPackage);
+		ElementLink<BeltItemElement> mixedPackageOnBelt = scene.world().createItemOnBelt(outputFunnelPos.below(),
+			Direction.NORTH, mixedPackage);
 		scene.idle(12);
 		scene.world().stallBeltItem(mixedPackageOnBelt, true);
 		scene.idle(5);
 
-		scene.overlay().showOutlineWithText(unpackager, 100)
-			.text("The Unpackager can now split a package containing both item and fluid cargo into the appropriate container")
-			.attachKeyFrame()
-			.pointAt(util.vector().centerOf(unpackagerPos))
-			.placeNearTarget();
+		scene.overlay().showOutlineWithText(unpackager, 100).text(
+			"The Unpackager can now split a package containing both item and fluid cargo into the appropriate container")
+			.attachKeyFrame().pointAt(util.vector().centerOf(unpackagerPos)).placeNearTarget();
 		scene.idle(110);
 
 		scene.world().stallBeltItem(mixedPackageOnBelt, false);
@@ -234,13 +215,12 @@ public final class FluidRepackagerScenes {
 		ItemStack pulp = new ItemStack(AllItems.PULP.get(), 4);
 		scene.world().modifyBlockEntity(basinPos, BasinBlockEntity.class, basinBlockEntity -> {
 			basinBlockEntity.getInputInventory().clearContent();
-			IFluidHandler fluidHandler =
-				basinBlockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(null);
+			IFluidHandler fluidHandler = basinBlockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(null);
 			if (fluidHandler != null)
 				fluidHandler.drain(FluidType.BUCKET_VOLUME, FluidAction.EXECUTE);
 		});
-		scene.world().modifyBlockEntityNBT(basin, BasinBlockEntity.class, nbt -> nbt.put("VisualizedItems",
-			NBTHelper.writeCompoundList(List.of(IntAttached.with(1, pulp.copy())),
+		scene.world().modifyBlockEntityNBT(basin, BasinBlockEntity.class,
+			nbt -> nbt.put("VisualizedItems", NBTHelper.writeCompoundList(List.of(IntAttached.with(1, pulp.copy())),
 				attached -> attached.getValue().serializeNBT())));
 		scene.idle(12);
 
@@ -289,11 +269,9 @@ public final class FluidRepackagerScenes {
 		unpackPackageContents(scene, basinPos, List.of(itemPackage));
 		scene.idle(20);
 
-		scene.overlay().showOutlineWithText(unpackager, 120)
-			.text("Packages that cannot be fully unpacked will be cached in the Unpackager until the corresponding container can fully unpack them")
-			.attachKeyFrame()
-			.pointAt(util.vector().centerOf(unpackagerPos))
-			.placeNearTarget();
+		scene.overlay().showOutlineWithText(unpackager, 120).text(
+			"Packages that cannot be fully unpacked will be cached in the Unpackager until the corresponding container can fully unpack them")
+			.attachKeyFrame().pointAt(util.vector().centerOf(unpackagerPos)).placeNearTarget();
 		scene.idle(130);
 
 		scene.world().modifyBlockEntity(mixerPos, MechanicalMixerBlockEntity.class,
@@ -302,13 +280,12 @@ public final class FluidRepackagerScenes {
 
 		scene.world().modifyBlockEntity(basinPos, BasinBlockEntity.class, basinBlockEntity -> {
 			basinBlockEntity.getInputInventory().clearContent();
-			IFluidHandler fluidHandler =
-				basinBlockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(null);
+			IFluidHandler fluidHandler = basinBlockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(null);
 			if (fluidHandler != null)
 				fluidHandler.drain(FluidType.BUCKET_VOLUME, FluidAction.EXECUTE);
 		});
-		scene.world().modifyBlockEntityNBT(basin, BasinBlockEntity.class, nbt -> nbt.put("VisualizedItems",
-			NBTHelper.writeCompoundList(List.of(IntAttached.with(1, pulp.copy())),
+		scene.world().modifyBlockEntityNBT(basin, BasinBlockEntity.class,
+			nbt -> nbt.put("VisualizedItems", NBTHelper.writeCompoundList(List.of(IntAttached.with(1, pulp.copy())),
 				attached -> attached.getValue().serializeNBT())));
 		scene.idle(12);
 
@@ -324,24 +301,19 @@ public final class FluidRepackagerScenes {
 		scene.rotateCameraY(-15);
 		scene.idle(20);
 
-		scene.overlay().showText(90)
-			.text("Additionally, the Unpackager can separate different types of cargo")
-			.attachKeyFrame()
-			.placeNearTarget()
-			.independent(100);
+		scene.overlay().showText(90).text("Additionally, the Unpackager can separate different types of cargo")
+			.attachKeyFrame().placeNearTarget().independent(100);
 		scene.idle(100);
 
 		scene.world().restoreBlocks(thirdStageLever);
-		scene.world().setBlock(repackagerPos, AllBlocks.FLUID_REPACKAGER.getDefaultState()
-			.setValue(PackagerBlock.FACING, Direction.SOUTH), false);
+		scene.world().setBlock(repackagerPos,
+			AllBlocks.FLUID_REPACKAGER.getDefaultState().setValue(PackagerBlock.FACING, Direction.SOUTH), false);
 		scene.world().showSection(thirdStageUnpackager, Direction.NORTH);
 		scene.idle(15);
 
 		scene.overlay().showText(80)
-			.text("Place an Unpackager on the storage block and activate it with a redstone signal")
-			.attachKeyFrame()
-			.pointAt(util.vector().blockSurface(repackagerPos, Direction.WEST))
-			.placeNearTarget();
+			.text("Place an Unpackager on the storage block and activate it with a redstone signal").attachKeyFrame()
+			.pointAt(util.vector().blockSurface(repackagerPos, Direction.WEST)).placeNearTarget();
 		scene.idle(40);
 
 		scene.world().showSection(thirdStageLever, Direction.DOWN);
@@ -354,9 +326,8 @@ public final class FluidRepackagerScenes {
 		scene.idle(20);
 
 		scene.world().multiplyKineticSpeed(util.select().everywhere(), 1 / 2f);
-		ElementLink<BeltItemElement> separatingPackageOnBelt =
-			scene.world().createItemOnBelt(util.grid().at(1, 1, 1), Direction.DOWN,
-				separatingPackage.copy());
+		ElementLink<BeltItemElement> separatingPackageOnBelt = scene.world().createItemOnBelt(util.grid().at(1, 1, 1),
+			Direction.DOWN, separatingPackage.copy());
 		scene.idle(91);
 		scene.world().changeBeltItemTo(separatingPackageOnBelt, ItemStack.EMPTY);
 		scene.world().removeItemsFromBelt(firstInputFunnelPos.below());
@@ -370,29 +341,25 @@ public final class FluidRepackagerScenes {
 		scene.idle(20);
 		PonderHilo.packagerClear(scene, repackagerPos);
 		scene.world().flapFunnel(outputFunnelPos, true);
-		scene.world().createItemOnBelt(outputFunnelPos.below(), Direction.NORTH,
-			separatedFluidPackage.copy());
+		scene.world().createItemOnBelt(outputFunnelPos.below(), Direction.NORTH, separatedFluidPackage.copy());
 
 		PonderHilo.packagerCreate(scene, repackagerPos, separatedItemPackage);
 		scene.idle(20);
 		PonderHilo.packagerClear(scene, repackagerPos);
 		scene.world().flapFunnel(outputFunnelPos, true);
-		scene.world().createItemOnBelt(outputFunnelPos.below(), Direction.NORTH,
-			separatedItemPackage.copy());
+		scene.world().createItemOnBelt(outputFunnelPos.below(), Direction.NORTH, separatedItemPackage.copy());
 		scene.idle(40);
 	}
 
 	private static void fillBasinFluid(CreateSceneBuilder scene, BlockPos basinPos, FluidStack fluid) {
 		scene.world().modifyBlockEntity(basinPos, BasinBlockEntity.class, basinBlockEntity -> {
-			IFluidHandler fluidHandler =
-				basinBlockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(null);
+			IFluidHandler fluidHandler = basinBlockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(null);
 			if (fluidHandler != null)
 				fluidHandler.fill(fluid.copy(), FluidAction.EXECUTE);
 		});
 	}
 
-	private static void setStalledPackage(CreateSceneBuilder scene, Selection unpackager,
-			ItemStack packageStack) {
+	private static void setStalledPackage(CreateSceneBuilder scene, Selection unpackager, ItemStack packageStack) {
 		scene.world().modifyBlockEntityNBT(unpackager, FluidRepackagerBlockEntity.class, nbt -> {
 			ListTag stalledPackages = new ListTag();
 			if (!packageStack.isEmpty()) {
@@ -405,7 +372,7 @@ public final class FluidRepackagerScenes {
 	}
 
 	private static void unpackPackageContents(CreateSceneBuilder scene, BlockPos basinPos,
-			List<ItemStack> splitPackages) {
+		List<ItemStack> splitPackages) {
 		for (ItemStack splitPackage : splitPackages) {
 			if (FluidPackageItem.isFluidPackage(splitPackage)) {
 				FluidStack fluid = FluidPackageContentHelper.getSingleContainedFluid(splitPackage);
@@ -420,8 +387,8 @@ public final class FluidRepackagerScenes {
 					continue;
 
 				scene.world().modifyBlockEntity(basinPos, BasinBlockEntity.class, basinBlockEntity -> {
-					IItemHandler itemHandler =
-						basinBlockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER).orElse(null);
+					IItemHandler itemHandler = basinBlockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER)
+						.orElse(null);
 					if (itemHandler != null)
 						ItemHandlerHelper.insertItemStacked(itemHandler, cargo.copy(), false);
 				});

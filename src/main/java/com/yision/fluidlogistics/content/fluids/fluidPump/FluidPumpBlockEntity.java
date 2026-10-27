@@ -5,11 +5,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableList;
 import com.simibubi.create.content.fluids.FluidPropagator;
 import com.simibubi.create.content.fluids.FluidTransportBehaviour;
 import com.simibubi.create.content.fluids.PipeConnection;
@@ -20,8 +21,6 @@ import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsBoard;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsFormatter.ScrollOptionSettingsFormatter;
 import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.ScrollOptionBehaviour;
 import com.yision.fluidlogistics.config.Config;
-
-import com.google.common.collect.ImmutableList;
 
 import net.createmod.catnip.data.Couple;
 import net.createmod.catnip.data.Pair;
@@ -36,6 +35,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 
 public class FluidPumpBlockEntity extends PumpBlockEntity {
@@ -58,15 +58,15 @@ public class FluidPumpBlockEntity extends PumpBlockEntity {
 	public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
 		super.addBehaviours(behaviours);
 
-		directionSelector = new ScrollOptionBehaviour<>(
-			FluidTransferDirection.class,
-			Component.translatable("fluidlogistics.fluid_pump.transfer_direction"),
-			this, new FluidPumpDirectionSlot()) {
+		directionSelector = new ScrollOptionBehaviour<>(FluidTransferDirection.class,
+			Component.translatable("fluidlogistics.fluid_pump.transfer_direction"), this,
+			new FluidPumpDirectionSlot()) {
 			@Override
 			public ValueSettingsBoard createBoard(Player player, BlockHitResult hitResult) {
-				return new ValueSettingsBoard(label, max, 1, ImmutableList.of(label),
-					new ScrollOptionSettingsFormatter(FluidTransferDirection.guiOptions(FluidPumpBlock.getFluidAxis(getBlockState()))));
+				return new ValueSettingsBoard(label, max, 1, ImmutableList.of(label), new ScrollOptionSettingsFormatter(
+					FluidTransferDirection.guiOptions(FluidPumpBlock.getFluidAxis(getBlockState()))));
 			}
+
 			@Override
 			public void read(CompoundTag nbt, boolean clientPacket) {
 				syncDirectionSelectorWithBlockState();
@@ -110,7 +110,8 @@ public class FluidPumpBlockEntity extends PumpBlockEntity {
 
 	private void syncDirectionSelectorWithBlockState() {
 		if (directionSelector != null)
-			directionSelector.value = FluidTransferDirection.fromAxisDirection(getBlockState().getValue(PumpBlock.FACING).getAxisDirection()).ordinal();
+			directionSelector.value = FluidTransferDirection
+				.fromAxisDirection(getBlockState().getValue(PumpBlock.FACING).getAxisDirection()).ordinal();
 	}
 
 	@Override
@@ -120,7 +121,8 @@ public class FluidPumpBlockEntity extends PumpBlockEntity {
 	}
 
 	private void onDirectionSelected(int newOrdinal) {
-		if (level == null || level.isClientSide || newOrdinal < 0 || newOrdinal >= FluidTransferDirection.values().length)
+		if (level == null || level.isClientSide || newOrdinal < 0
+			|| newOrdinal >= FluidTransferDirection.values().length)
 			return;
 		BlockState state = getBlockState();
 		Direction output = Direction.fromAxisAndDirection(FluidPumpBlock.getFluidAxis(state),
@@ -161,11 +163,9 @@ public class FluidPumpBlockEntity extends PumpBlockEntity {
 
 		if (!hasReachedValidEndpoint(level, start, pull)) {
 
-			pipeGraph.computeIfAbsent(worldPosition, $ -> Pair.of(0, new IdentityHashMap<>()))
-				.getSecond()
-				.put(side, pull);
-			pipeGraph.computeIfAbsent(start.getConnectedPos(), $ -> Pair.of(1, new IdentityHashMap<>()))
-				.getSecond()
+			pipeGraph.computeIfAbsent(worldPosition, $ -> Pair.of(0, new IdentityHashMap<>())).getSecond().put(side,
+				pull);
+			pipeGraph.computeIfAbsent(start.getConnectedPos(), $ -> Pair.of(1, new IdentityHashMap<>())).getSecond()
 				.put(side.getOpposite(), !pull);
 
 			Queue<Pair<Integer, BlockPos>> frontier = new ArrayDeque<>();
@@ -198,8 +198,7 @@ public class FluidPumpBlockEntity extends PumpBlockEntity {
 						continue;
 					if (hasReachedValidEndpoint(level, blockFace, pull)) {
 						pipeGraph.computeIfAbsent(currentPos, $ -> Pair.of(distance, new IdentityHashMap<>()))
-							.getSecond()
-							.put(face, pull);
+							.getSecond().put(face, pull);
 						targets.add(blockFace);
 						continue;
 					}
@@ -213,18 +212,15 @@ public class FluidPumpBlockEntity extends PumpBlockEntity {
 						continue;
 					if (distance + 1 >= maxDistance) {
 						pipeGraph.computeIfAbsent(currentPos, $ -> Pair.of(distance, new IdentityHashMap<>()))
-							.getSecond()
-							.put(face, pull);
+							.getSecond().put(face, pull);
 						targets.add(blockFace);
 						continue;
 					}
 
-					pipeGraph.computeIfAbsent(currentPos, $ -> Pair.of(distance, new IdentityHashMap<>()))
-						.getSecond()
+					pipeGraph.computeIfAbsent(currentPos, $ -> Pair.of(distance, new IdentityHashMap<>())).getSecond()
 						.put(face, pull);
 					pipeGraph.computeIfAbsent(connectedPos, $ -> Pair.of(distance + 1, new IdentityHashMap<>()))
-						.getSecond()
-						.put(face.getOpposite(), !pull);
+						.getSecond().put(face.getOpposite(), !pull);
 					frontier.add(Pair.of(distance + 1, connectedPos));
 				}
 			}
@@ -244,9 +240,7 @@ public class FluidPumpBlockEntity extends PumpBlockEntity {
 				if (pipePos.equals(worldPosition))
 					continue;
 
-				boolean inbound = pipeGraph.get(pipePos)
-					.getSecond()
-					.get(pipeSide);
+				boolean inbound = pipeGraph.get(pipePos).getSecond().get(pipeSide);
 				FluidTransportBehaviour pipeBehaviour = FluidPropagator.getPipe(level, pipePos);
 				if (pipeBehaviour == null)
 					continue;

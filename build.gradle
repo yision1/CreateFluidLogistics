@@ -149,6 +149,8 @@ dependencies {
     modRuntimeOnly("mezz.jei:jei-${jei_minecraft_version}-forge:${jei_version}")
     modCompileOnly("dev.emi:emi-forge:${emi_version}:api")
     modImplementation("curse.maven:jade-324717:${jade_id}")
+    modCompileOnly("maven.modrinth:create-dragons-plus:${create_dragons_plus_version_id}")
+    modCompileOnly("maven.modrinth:create-enchantment-industry:${create_enchantment_industry_version_id}")
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
@@ -163,6 +165,8 @@ tasks.named('processResources', ProcessResources).configure {
             forge_version_range    : forge_version_range,
             loader_version_range   : loader_version_range,
             create_version_range   : create_version_range,
+            create_dragons_plus_version: create_dragons_plus_version,
+            create_enchantment_industry_version: create_enchantment_industry_version,
             mod_id                 : mod_id,
             mod_name               : mod_name,
             mod_license            : mod_license,
@@ -241,7 +245,7 @@ publisher {
     setGameVersions("${project.minecraft_version}")
     setLoaders("forge")
     setCurseEnvironment("both")
-    setArtifact(tasks.named("jar", Jar))
+    setArtifact(tasks.named("reobfJar", Jar))
     setJavaVersions([JavaVersion.VERSION_17])
 
     addAdditionalFile {

@@ -8,10 +8,11 @@ import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -21,7 +22,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -29,19 +29,15 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public class MechanicalFluidGunBlock extends KineticBlock implements IBE<MechanicalFluidGunBlockEntity>, ICogWheel {
 
 	public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-	public static final DirectionProperty MOUNT_FACE = DirectionProperty.create("mount_face",
-		Direction.UP, Direction.DOWN, Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST);
+	public static final DirectionProperty MOUNT_FACE = DirectionProperty.create("mount_face", Direction.UP,
+		Direction.DOWN, Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST);
 
-	public static final TagKey<Block> TARGETS = TagKey.create(
-		Registries.BLOCK,
-		FluidLogistics.asResource("mechanical_fluid_gun_targets")
-	);
+	public static final TagKey<Block> TARGETS = TagKey.create(Registries.BLOCK,
+		FluidLogistics.asResource("mechanical_fluid_gun_targets"));
 
 	public MechanicalFluidGunBlock(Properties properties) {
 		super(properties);
-		registerDefaultState(defaultBlockState()
-			.setValue(FACING, Direction.NORTH)
-			.setValue(MOUNT_FACE, Direction.UP));
+		registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH).setValue(MOUNT_FACE, Direction.UP));
 	}
 
 	@Override
@@ -60,9 +56,7 @@ public class MechanicalFluidGunBlock extends KineticBlock implements IBE<Mechani
 		Direction mountFace = context.getClickedFace();
 		Direction playerDir = context.getHorizontalDirection().getOpposite();
 		Direction facing = MechanicalFluidGunMount.resolveFacing(mountFace, playerDir);
-		return defaultBlockState()
-			.setValue(MOUNT_FACE, mountFace)
-			.setValue(FACING, facing);
+		return defaultBlockState().setValue(MOUNT_FACE, mountFace).setValue(FACING, facing);
 	}
 
 	@Override
@@ -122,8 +116,8 @@ public class MechanicalFluidGunBlock extends KineticBlock implements IBE<Mechani
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block otherBlock,
-	                            BlockPos neighborPos, boolean isMoving) {
+	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block otherBlock, BlockPos neighborPos,
+		boolean isMoving) {
 		withBlockEntityDo(world, pos, MechanicalFluidGunBlockEntity::redstoneUpdate);
 	}
 
@@ -150,12 +144,10 @@ public class MechanicalFluidGunBlock extends KineticBlock implements IBE<Mechani
 	}
 
 	public static boolean isSelectableCandidate(Level level, BlockPos gunPos, BlockPos targetPos) {
-		return !gunPos.equals(targetPos)
-			&& isTargetTagged(level, targetPos);
+		return !gunPos.equals(targetPos) && isTargetTagged(level, targetPos);
 	}
 
 	public static boolean isSelectableTarget(Level level, BlockPos gunPos, BlockPos targetPos) {
-		return isSelectableCandidate(level, gunPos, targetPos)
-			&& isTargetInRange(gunPos, targetPos);
+		return isSelectableCandidate(level, gunPos, targetPos) && isTargetInRange(gunPos, targetPos);
 	}
 }

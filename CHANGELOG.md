@@ -1,5 +1,11 @@
-- Add Flow Meter
-- Add Redstone Fluid Valve
-- Add Potato Server(thanks 吴聊只会淼淼叫)
-- Allow fluid packagers to extract honey from beehives
-- Fix stock link redstone signals not lowering fluid packager priority
+- Add Oscillating Steam Engine
+- Add Snow Golem Freezer to replace Blaze Cooler
+- Add Package List Filter
+- Add more language support
+- Allow hand pointer to show unloaded stock link locations
+- Update fluid storage in packages
+- Update Potato Server TPS calculation
+- Update copper frogport connection rules
+- Increase fluid factory gauge restock target limit
+- Fix fluid gauges turning into item gauges after first placement
+- Fix configuration loading and synchronization

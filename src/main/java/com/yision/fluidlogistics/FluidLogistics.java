@@ -1,321 +1,338 @@
 package com.yision.fluidlogistics;
 
-import com.mojang.logging.LogUtils;
-import com.mojang.serialization.Codec;
-import com.simibubi.create.AllFluids;
-import com.simibubi.create.content.kinetics.mechanicalArm.ArmInteractionPointType;
-import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlockEntity;
-import com.simibubi.create.api.stress.BlockStressValues;
-import com.simibubi.create.foundation.data.CreateRegistrate;
-import com.simibubi.create.foundation.item.ItemDescription;
-import com.simibubi.create.foundation.item.KineticStats;
-import com.simibubi.create.foundation.item.TooltipModifier;
-import com.yision.fluidlogistics.api.factorygauge.FactoryGaugeType;
-import com.yision.fluidlogistics.api.factorygauge.FactoryGauges;
-import com.yision.fluidlogistics.content.logistics.fluidPackager.FluidPackagerBlockEntity;
-import com.yision.fluidlogistics.content.fluids.fluidPump.FluidPumpNetworkUpdater;
-import com.yision.fluidlogistics.content.logistics.factoryGauge.FactoryGaugeBehaviourAttachment;
-import com.yision.fluidlogistics.content.logistics.factoryGauge.FactoryGaugeLootModifier;
-import com.yision.fluidlogistics.content.logistics.factoryGauge.builtin.FluidContainerProbe;
-import com.yision.fluidlogistics.config.Config;
-import com.yision.fluidlogistics.infrastructure.data.FluidLogisticsDatagen;
-import com.yision.fluidlogistics.content.fluids.powderSnow.PowderSnowBucketFluidHandler;
-import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerFuelManager;
-import com.yision.fluidlogistics.api.handpointer.PackagerAddresses;
-import com.yision.fluidlogistics.api.handpointer.crafter.HandPointerCrafterAdapters;
-import com.yision.fluidlogistics.api.packager.PackageResources;
-import com.yision.fluidlogistics.api.packager.PackageResourceTypes;
-import com.yision.fluidlogistics.config.FeatureEnabledCondition;
-import com.yision.fluidlogistics.config.FeatureToggle;
-import com.yision.fluidlogistics.config.FluidHatchAdvertisedCondition;
-import com.yision.fluidlogistics.content.logistics.fluidPackage.CompressedTankItem;
-import com.yision.fluidlogistics.content.logistics.fluidPackage.CompressedTankTooltipModifier;
-import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageContentHelper;
-import com.yision.fluidlogistics.content.equipment.handPointer.CreateMechanicalCrafterAdapter;
-import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidTankItem;
-import com.yision.fluidlogistics.network.FluidLogisticsPackets;
-import com.yision.fluidlogistics.registry.AllBlockEntities;
-import com.yision.fluidlogistics.registry.FluidLogisticsUnpackingHandlers;
-import com.yision.fluidlogistics.registry.AllBlocks;
-import com.yision.fluidlogistics.registry.AllFluidLogisticsDisplaySources;
-import com.yision.fluidlogistics.registry.AllItems;
-import com.yision.fluidlogistics.registry.AllMenuTypes;
-import com.yision.fluidlogistics.registry.AllFluidAttributeTypes;
-import com.yision.fluidlogistics.registry.AllMountedStorageTypes;
-import com.yision.fluidlogistics.registry.AllFluidLogisticsParticleTypes;
-import com.yision.fluidlogistics.registry.AllFluidLogisticsFluids;
-import com.yision.fluidlogistics.registry.AllFluidLogisticsFanProcessingTypes;
-import com.yision.fluidlogistics.registry.AllFluidLogisticsRecipeTypes;
-import com.yision.fluidlogistics.registry.FluidLogisticsArmInteractionPointTypes;
-import net.createmod.catnip.lang.FontHelper;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.ForgeMod;
-import net.minecraftforge.common.loot.IGlobalLootModifier;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
-import net.minecraftforge.event.server.ServerStoppedEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandlerItem;
-import net.minecraftforge.registries.RegisterEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
-import org.slf4j.Logger;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
+
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+
+import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Codec;
+import com.simibubi.create.AllFluids;
+import com.simibubi.create.api.stress.BlockStressValues;
+import com.simibubi.create.content.kinetics.mechanicalArm.ArmInteractionPointType;
+import com.simibubi.create.content.logistics.box.PackageEntity;
+import com.simibubi.create.content.logistics.box.PackageItem;
+import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlockEntity;
+import com.simibubi.create.foundation.data.CreateRegistrate;
+import com.simibubi.create.foundation.item.ItemDescription;
+import com.simibubi.create.foundation.item.KineticStats;
+import com.simibubi.create.foundation.item.TooltipModifier;
+import com.yision.fluidlogistics.api.factorygauge.FactoryGaugeType;
+import com.yision.fluidlogistics.api.factorygauge.FactoryGauges;
+import com.yision.fluidlogistics.api.handpointer.PackagerAddresses;
+import com.yision.fluidlogistics.api.handpointer.crafter.HandPointerCrafterAdapters;
+import com.yision.fluidlogistics.api.packager.PackageResourceTypes;
+import com.yision.fluidlogistics.api.packager.PackageResources;
+import com.yision.fluidlogistics.compat.CompatMods;
+import com.yision.fluidlogistics.config.Config;
+import com.yision.fluidlogistics.config.FeatureEnabledCondition;
+import com.yision.fluidlogistics.config.FeatureToggle;
+import com.yision.fluidlogistics.config.FluidHatchAdvertisedCondition;
+import com.yision.fluidlogistics.content.equipment.handPointer.CreateMechanicalCrafterAdapter;
+import com.yision.fluidlogistics.content.fluids.fluidPump.FluidPumpNetworkUpdater;
+import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidTankItem;
+import com.yision.fluidlogistics.content.fluids.powderSnow.PowderSnowBucketFluidHandler;
+import com.yision.fluidlogistics.content.logistics.factoryGauge.FactoryGaugeBehaviourAttachment;
+import com.yision.fluidlogistics.content.logistics.factoryGauge.FactoryGaugeLootModifier;
+import com.yision.fluidlogistics.content.logistics.factoryGauge.builtin.FluidContainerProbe;
+import com.yision.fluidlogistics.content.logistics.fluidPackage.CompressedTankItem;
+import com.yision.fluidlogistics.content.logistics.fluidPackage.CompressedTankTooltipModifier;
+import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageContentHelper;
+import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageEntityFluidHandler;
+import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageFluidHandler;
+import com.yision.fluidlogistics.content.processing.snowGolemFreezer.SnowGolemFreezerFuelManager;
+import com.yision.fluidlogistics.infrastructure.data.FluidLogisticsDatagen;
+import com.yision.fluidlogistics.network.FluidLogisticsPackets;
+import com.yision.fluidlogistics.registry.AllBlockEntities;
+import com.yision.fluidlogistics.registry.AllBlocks;
+import com.yision.fluidlogistics.registry.AllFluidAttributeTypes;
+import com.yision.fluidlogistics.registry.AllFluidLogisticsDisplaySources;
+import com.yision.fluidlogistics.registry.AllFluidLogisticsFanProcessingTypes;
+import com.yision.fluidlogistics.registry.AllFluidLogisticsFluids;
+import com.yision.fluidlogistics.registry.AllFluidLogisticsParticleTypes;
+import com.yision.fluidlogistics.registry.AllFluidLogisticsRecipeTypes;
+import com.yision.fluidlogistics.registry.AllItems;
+import com.yision.fluidlogistics.registry.AllMenuTypes;
+import com.yision.fluidlogistics.registry.AllMountedStorageTypes;
+import com.yision.fluidlogistics.registry.FluidLogisticsArmInteractionPointTypes;
+import com.yision.fluidlogistics.registry.FluidLogisticsUnpackingHandlers;
+
+import net.createmod.catnip.lang.FontHelper;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
+
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.ForgeMod;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.crafting.CraftingHelper;
+import net.minecraftforge.common.loot.IGlobalLootModifier;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
+import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegisterEvent;
+import net.minecraftforge.registries.RegistryObject;
 
 @Mod(FluidLogistics.MODID)
-public class FluidLogistics
-{
-    public static final String MODID = "fluidlogistics";
-    public static final Logger LOGGER = LogUtils.getLogger();
-    private static final ResourceKey<CreativeModeTab> FLUID_LOGISTICS_TAB =
-            ResourceKey.create(Registries.CREATIVE_MODE_TAB, asResource("fluidlogistics_tab"));
-    private static final DeferredRegister<CreativeModeTab> CREATIVE_TABS =
-            DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
-    private static final DeferredRegister<Codec<? extends IGlobalLootModifier>> LOOT_MODIFIERS =
-            DeferredRegister.create(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, MODID);
+public class FluidLogistics {
+	public static final String MODID = "fluidlogistics";
+	public static final Logger LOGGER = LogUtils.getLogger();
+	private static final ResourceKey<CreativeModeTab> FLUID_LOGISTICS_TAB = ResourceKey
+		.create(Registries.CREATIVE_MODE_TAB, asResource("fluidlogistics_tab"));
+	private static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister
+		.create(Registries.CREATIVE_MODE_TAB, MODID);
+	private static final DeferredRegister<Codec<? extends IGlobalLootModifier>> LOOT_MODIFIERS = DeferredRegister
+		.create(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, MODID);
 
-    public static final RegistryObject<CreativeModeTab> FLUID_LOGISTICS_CREATIVE_TAB =
-            CREATIVE_TABS.register("fluidlogistics_tab", () -> CreativeModeTab.builder()
-                    .title(Component.translatable("itemGroup.fluidlogistics.fluidlogistics_tab"))
-                    .icon(() -> createRandomFluidPackage(Config.getFluidPerPackage()))
-                    .build());
+	public static final RegistryObject<CreativeModeTab> FLUID_LOGISTICS_CREATIVE_TAB = CREATIVE_TABS.register(
+		"fluidlogistics_tab",
+		() -> CreativeModeTab.builder().title(Component.translatable("itemGroup.fluidlogistics.fluidlogistics_tab"))
+			.icon(() -> createRandomFluidPackage(Config.getFluidPerPackage())).build());
 
-    public static final RegistryObject<Codec<? extends IGlobalLootModifier>> FACTORY_GAUGE_LOOT_MODIFIER =
-            LOOT_MODIFIERS.register("factory_gauge_drops", () -> FactoryGaugeLootModifier.CODEC);
+	public static final RegistryObject<Codec<? extends IGlobalLootModifier>> FACTORY_GAUGE_LOOT_MODIFIER = LOOT_MODIFIERS
+		.register("factory_gauge_drops", () -> FactoryGaugeLootModifier.CODEC);
 
-    public static final CreateRegistrate REGISTRATE = CreateRegistrate.create(MODID)
-            .setTooltipModifierFactory(item -> {
-                TooltipModifier base = item instanceof InfiniteFluidTankItem
-                        ? new InfiniteFluidTankItem.TooltipModifier(item, FontHelper.Palette.STANDARD_CREATE)
-                        : item instanceof CompressedTankItem
-                            ? new CompressedTankTooltipModifier(item, FontHelper.Palette.STANDARD_CREATE)
-                            : new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE);
-                return base.andThen(TooltipModifier.mapNull(KineticStats.create(item)));
-            })
-            .defaultCreativeTab(FLUID_LOGISTICS_TAB);
+	public static final CreateRegistrate REGISTRATE = CreateRegistrate.create(MODID).setTooltipModifierFactory(item -> {
+		TooltipModifier base = item instanceof InfiniteFluidTankItem
+			? new InfiniteFluidTankItem.TooltipModifier(item, FontHelper.Palette.STANDARD_CREATE)
+			: item instanceof CompressedTankItem
+				? new CompressedTankTooltipModifier(item, FontHelper.Palette.STANDARD_CREATE)
+				: new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE);
+		return base.andThen(TooltipModifier.mapNull(KineticStats.create(item)));
+	}).defaultCreativeTab(FLUID_LOGISTICS_TAB);
 
-    public FluidLogistics(FMLJavaModLoadingContext context)
-    {
-        IEventBus modEventBus = context.getModEventBus();
-        Config.loadStartupValues();
+	public FluidLogistics(FMLJavaModLoadingContext context) {
+		IEventBus modEventBus = context.getModEventBus();
 
-        CREATIVE_TABS.register(modEventBus);
-        LOOT_MODIFIERS.register(modEventBus);
-        REGISTRATE.registerEventListeners(modEventBus);
-        modEventBus.addListener(FluidLogisticsDatagen::gatherData);
+		CREATIVE_TABS.register(modEventBus);
+		LOOT_MODIFIERS.register(modEventBus);
+		REGISTRATE.registerEventListeners(modEventBus);
+		modEventBus.addListener(FluidLogisticsDatagen::gatherData);
 
-        AllFluidLogisticsDisplaySources.register();
-        AllBlocks.register();
-        PackagerAddresses.register(com.simibubi.create.AllBlocks.PACKAGER);
-        PackagerAddresses.register(AllBlocks.FLUID_PACKAGER);
-        HandPointerCrafterAdapters.register(
-            asResource("create_mechanical_crafter"), CreateMechanicalCrafterAdapter.INSTANCE);
-        AllBlockEntities.register();
-        AllItems.register();
-        PackageResourceTypes.registerBuiltIns();
-        FactoryGauges.register(new FactoryGaugeType(
-            AllItems.FLUID_GAUGE_TYPE_ID,
-            PackageResourceTypes.FLUID,
-            AllItems.FLUID_FACTORY_GAUGE,
-            FluidContainerProbe.INSTANCE));
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> FluidLogisticsClient::registerFactoryGaugeModels);
-        AllMenuTypes.register();
-        AllMountedStorageTypes.register();
-        AllFluidLogisticsParticleTypes.register(modEventBus);
-        AllFluidLogisticsFluids.register();
-        if (Config.isBlazeCoolerEnabled()) {
-            AllFluidLogisticsRecipeTypes.register(modEventBus);
-        }
-        FluidLogisticsArmInteractionPointTypes.ARM_INTERACTION_POINT_TYPES.register(modEventBus);
-        FluidLogisticsPackets.register();
+		AllFluidLogisticsDisplaySources.register();
+		AllBlocks.register();
+		PackagerAddresses.register(com.simibubi.create.AllBlocks.PACKAGER);
+		PackagerAddresses.register(AllBlocks.FLUID_PACKAGER);
+		HandPointerCrafterAdapters.register(asResource("create_mechanical_crafter"),
+			CreateMechanicalCrafterAdapter.INSTANCE);
+		AllBlockEntities.register();
+		AllItems.register();
+		PackageResourceTypes.registerBuiltIns();
+		FactoryGauges.register(new FactoryGaugeType(AllItems.FLUID_GAUGE_TYPE_ID, PackageResourceTypes.FLUID,
+			AllItems.FLUID_FACTORY_GAUGE, FluidContainerProbe.INSTANCE));
+		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> FluidLogisticsClient::registerFactoryGaugeModels);
+		AllMenuTypes.register();
+		AllMountedStorageTypes.register();
+		AllFluidLogisticsParticleTypes.register(modEventBus);
+		AllFluidLogisticsFluids.register();
+		AllFluidLogisticsRecipeTypes.register(modEventBus);
+		FluidLogisticsArmInteractionPointTypes.ARM_INTERACTION_POINT_TYPES.register(modEventBus);
+		FluidLogisticsPackets.register();
 
-        context.registerConfig(ModConfig.Type.SERVER, Config.SERVER_SPEC,
-            net.minecraftforge.fml.loading.FMLPaths.CONFIGDIR.get().resolve("fluidlogistics-server.toml").toString());
-        context.registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_SPEC);
+		context.registerConfig(ModConfig.Type.SERVER, Config.SERVER_SPEC);
+		context.registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_SPEC);
 
-        CraftingHelper.register(FeatureEnabledCondition.Serializer.INSTANCE);
-        CraftingHelper.register(FluidHatchAdvertisedCondition.Serializer.INSTANCE);
+		CraftingHelper.register(FeatureEnabledCondition.Serializer.INSTANCE);
+		CraftingHelper.register(FluidHatchAdvertisedCondition.Serializer.INSTANCE);
 
-        modEventBus.addListener(this::onRegister);
-        modEventBus.addListener(this::commonSetup);
-        modEventBus.addListener(this::registerCapabilities);
-        modEventBus.addListener(this::hideDisabledItems);
+		modEventBus.addListener(com.yision.fluidlogistics.content.logistics.fluidPackage.FluidProxyRegistry::register);
+		modEventBus.addListener(this::onRegister);
+		modEventBus.addListener(this::commonSetup);
+		modEventBus.addListener(this::hideDisabledItems);
 
-        MinecraftForge.EVENT_BUS.register(this);
-        MinecraftForge.EVENT_BUS.addListener(this::addReloadListeners);
-        MinecraftForge.EVENT_BUS.addGenericListener(FactoryPanelBlockEntity.class,
-            FactoryGaugeBehaviourAttachment::onAttachBehaviours);
-        
-        LOGGER.info("FluidLogistics initialized!");
-    }
+		MinecraftForge.EVENT_BUS.register(this);
+		MinecraftForge.EVENT_BUS.addListener(this::addReloadListeners);
+		MinecraftForge.EVENT_BUS.addGenericListener(FactoryPanelBlockEntity.class,
+			FactoryGaugeBehaviourAttachment::onAttachBehaviours);
+		MinecraftForge.EVENT_BUS.addGenericListener(
+			com.simibubi.create.content.logistics.packager.repackager.RepackagerBlockEntity.class,
+			com.yision.fluidlogistics.content.logistics.packageResource.ResourceRepackagerAttachment::onAttachBehaviours);
 
-    private void commonSetup(final FMLCommonSetupEvent event)
-    {
-        event.enqueueWork(() -> {
-            PackageResources.bootstrap();
-            FactoryGauges.bootstrap();
-            ArmInteractionPointType.init();
-            FluidLogisticsUnpackingHandlers.registerDefaults();
-            BlockStressValues.IMPACTS.register(AllBlocks.FLUID_PUMP.get(), () -> 8.0);
-            BlockStressValues.IMPACTS.register(AllBlocks.MECHANICAL_FLUID_GUN.get(), () -> 2.0);
-            LOGGER.info("FluidLogistics partial models registered!");
-        });
-    }
+		LOGGER.info("FluidLogistics initialized!");
+	}
 
-    private void onRegister(final RegisterEvent event) {
-        if (Config.isBlazeCoolerEnabled()) {
-            AllFluidLogisticsFanProcessingTypes.register();
-        }
-        AllFluidAttributeTypes.init();
-    }
+	private void commonSetup(final FMLCommonSetupEvent event) {
+		event.enqueueWork(() -> {
+			PackageResources.bootstrap();
+			FactoryGauges.bootstrap();
+			ArmInteractionPointType.init();
+			com.yision.fluidlogistics.compat.createdragonsplus.CreateDragonsPlusCompat.register();
+			FluidLogisticsUnpackingHandlers.registerDefaults();
+			BlockStressValues.IMPACTS.register(AllBlocks.FLUID_PUMP.get(), () -> 8.0);
+			BlockStressValues.IMPACTS.register(AllBlocks.MECHANICAL_FLUID_GUN.get(), () -> 2.0);
+			LOGGER.info("FluidLogistics partial models registered!");
+		});
+	}
 
-    private void registerCapabilities(final RegisterCapabilitiesEvent event)
-    {
-        FluidPackagerBlockEntity.registerCapabilities(event);
-    }
+	private void onRegister(final RegisterEvent event) {
+		AllFluidLogisticsFanProcessingTypes.register();
+		AllFluidAttributeTypes.init();
+	}
 
-    private void addReloadListeners(final AddReloadListenerEvent event) {
-        event.addListener(BlazeCoolerFuelManager.INSTANCE);
-    }
+	private void addReloadListeners(final AddReloadListenerEvent event) {
+		event.addListener(SnowGolemFreezerFuelManager.INSTANCE);
+	}
 
-    @SubscribeEvent
-    public void attachItemCapabilities(AttachCapabilitiesEvent<ItemStack> event) {
-        if (!event.getObject().is(net.minecraft.world.item.Items.POWDER_SNOW_BUCKET))
-            return;
+	@SubscribeEvent
+	public void attachItemCapabilities(AttachCapabilitiesEvent<ItemStack> event) {
+		ItemStack stack = event.getObject();
+		boolean isPackage = stack.getItem() instanceof PackageItem;
+		if (!isPackage && !stack.is(net.minecraft.world.item.Items.POWDER_SNOW_BUCKET))
+			return;
 
-        PowderSnowBucketFluidHandler handler = new PowderSnowBucketFluidHandler(event.getObject());
-        LazyOptional<IFluidHandlerItem> optional = LazyOptional.of(() -> handler);
-        event.addCapability(asResource("powder_snow_bucket_fluid"), new ICapabilityProvider() {
-            @Override
-            public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction side) {
-                return capability == ForgeCapabilities.FLUID_HANDLER_ITEM ? optional.cast() : LazyOptional.empty();
-            }
-        });
-        event.addListener(optional::invalidate);
-    }
+		LazyOptional<IFluidHandlerItem> optional = LazyOptional
+			.of(() -> isPackage ? new FluidPackageFluidHandler(stack) : new PowderSnowBucketFluidHandler(stack));
+		event.addCapability(asResource(isPackage ? "package_fluid" : "powder_snow_bucket_fluid"),
+			new ICapabilityProvider() {
+				@Override
+				public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction side) {
+					if (capability != ForgeCapabilities.FLUID_HANDLER_ITEM
+						|| isPackage && FluidPackageContentHelper.getContainedFluids(stack).isEmpty())
+						return LazyOptional.empty();
+					return optional.cast();
+				}
+			});
+		event.addListener(optional::invalidate);
+	}
 
-    public static ResourceLocation asResource(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MODID, path);
-    }
+	@SubscribeEvent
+	public void attachEntityCapabilities(AttachCapabilitiesEvent<Entity> event) {
+		if (!(event.getObject() instanceof PackageEntity entity))
+			return;
 
-    private static ItemStack createRandomFluidPackage(int amount) {
-        Fluid fluid = switch (ThreadLocalRandom.current().nextInt(5)) {
-            case 0 -> Fluids.WATER;
-            case 1 -> Fluids.LAVA;
-            case 2 -> AllFluids.HONEY.get().getSource();
-            case 3 -> AllFluids.CHOCOLATE.get().getSource();
-            default -> ForgeMod.MILK.get();
-        };
-        return FluidPackageContentHelper.createCanonicalPackage(new FluidStack(fluid, amount));
-    }
+		LazyOptional<IFluidHandler> optional = LazyOptional.of(() -> new FluidPackageEntityFluidHandler(entity));
+		event.addCapability(asResource("package_fluid"), new ICapabilityProvider() {
+			@Override
+			public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction side) {
+				return capability == ForgeCapabilities.FLUID_HANDLER ? optional.cast() : LazyOptional.empty();
+			}
+		});
+		event.addListener(optional::invalidate);
+	}
 
-    private void hideDisabledItems(final BuildCreativeModeTabContentsEvent event) {
-        if (!Objects.equals(event.getTabKey(), FLUID_LOGISTICS_TAB)
-                && !Objects.equals(event.getTabKey(), CreativeModeTabs.SEARCH)) {
-            return;
-        }
+	public static ResourceLocation asResource(String path) {
+		return ResourceLocation.fromNamespaceAndPath(MODID, path);
+	}
 
-        removeCreativeItem(event, AllItems.FLUID_SCHEMATIC);
+	private static ItemStack createRandomFluidPackage(int amount) {
+		Fluid fluid = switch (ThreadLocalRandom.current().nextInt(5)) {
+		case 0 -> Fluids.WATER;
+		case 1 -> Fluids.LAVA;
+		case 2 -> AllFluids.HONEY.get().getSource();
+		case 3 -> AllFluids.CHOCOLATE.get().getSource();
+		default -> ForgeMod.MILK.get();
+		};
+		return FluidPackageContentHelper.createCanonicalPackage(new FluidStack(fluid, amount));
+	}
 
-        for (FeatureItem fi : FEATURE_ITEMS) {
-            if (!FeatureToggle.isEnabled(fi.feature)) {
-                removeCreativeItem(event, fi.item);
-            }
-        }
-    }
+	private void hideDisabledItems(final BuildCreativeModeTabContentsEvent event) {
+		if (!Objects.equals(event.getTabKey(), FLUID_LOGISTICS_TAB)
+			&& !Objects.equals(event.getTabKey(), CreativeModeTabs.SEARCH)) {
+			return;
+		}
 
-    private static void removeCreativeItem(
-            BuildCreativeModeTabContentsEvent event, Supplier<? extends ItemLike> item) {
-        List<ItemStack> toRemove = new ArrayList<>();
-        for (Map.Entry<ItemStack, CreativeModeTab.TabVisibility> entry : event.getEntries()) {
-            if (entry.getKey().getItem() == item.get().asItem()) {
-                toRemove.add(entry.getKey());
-            }
-        }
-        for (ItemStack stack : toRemove) {
-            event.getEntries().remove(stack);
-        }
-    }
+		removeCreativeItem(event, AllItems.FLUID_SCHEMATIC);
+		if (Objects.equals(event.getTabKey(), FLUID_LOGISTICS_TAB) && !CompatMods.farmersDelightLoaded()) {
+			for (Map.Entry<ItemStack, CreativeModeTab.TabVisibility> entry : event.getEntries()) {
+				if (entry.getKey().is(AllBlocks.COPPER_BASKET.asItem()))
+					entry.setValue(CreativeModeTab.TabVisibility.SEARCH_TAB_ONLY);
+			}
+		}
+		for (FeatureItem fi : FEATURE_ITEMS) {
+			if (!FeatureToggle.isEnabled(fi.feature)) {
+				removeCreativeItem(event, fi.item);
+			}
+		}
+	}
 
-    record FeatureItem(ResourceLocation feature, Supplier<? extends ItemLike> item) {}
+	private static void removeCreativeItem(BuildCreativeModeTabContentsEvent event, Supplier<? extends ItemLike> item) {
+		List<ItemStack> toRemove = new ArrayList<>();
+		for (Map.Entry<ItemStack, CreativeModeTab.TabVisibility> entry : event.getEntries()) {
+			if (entry.getKey().getItem() == item.get().asItem()) {
+				toRemove.add(entry.getKey());
+			}
+		}
+		for (ItemStack stack : toRemove) {
+			event.getEntries().remove(stack);
+		}
+	}
 
-    private static final FeatureItem[] FEATURE_ITEMS = {
-            new FeatureItem(FeatureToggle.FLUID_TRANSPORTER, AllBlocks.FLUID_TRANSPORTER),
-            new FeatureItem(FeatureToggle.SMART_FAUCET, AllBlocks.SMART_FAUCET),
-            new FeatureItem(FeatureToggle.FAUCET, AllBlocks.FAUCET),
-            new FeatureItem(FeatureToggle.MULTI_FLUID_TANK, AllBlocks.MULTI_FLUID_TANK),
-            new FeatureItem(FeatureToggle.HORIZONTAL_MULTI_FLUID_TANK, AllBlocks.HORIZONTAL_MULTI_FLUID_TANK),
-            new FeatureItem(FeatureToggle.MULTI_FLUID_ACCESS_PORT, AllBlocks.MULTI_FLUID_ACCESS_PORT),
-            new FeatureItem(FeatureToggle.FLUID_INVENTORY_ACCESS_PORT, AllBlocks.FLUID_INVENTORY_ACCESS_PORT),
-            new FeatureItem(FeatureToggle.SMART_HOPPER, AllBlocks.SMART_HOPPER),
-            new FeatureItem(FeatureToggle.FLUID_PUMP, AllBlocks.FLUID_PUMP),
-            new FeatureItem(FeatureToggle.INFINITE_FLUID_TANK, AllBlocks.INFINITE_FLUID_TANK),
-            new FeatureItem(FeatureToggle.WATER_CONTAINING_COPPER_CASING, AllBlocks.WATER_CONTAINING_COPPER_CASING),
-            new FeatureItem(FeatureToggle.COPPER_BASIN, AllBlocks.COPPER_BASIN),
-            new FeatureItem(FeatureToggle.MECHANICAL_FLUID_GUN, AllBlocks.MECHANICAL_FLUID_GUN),
-            new FeatureItem(FeatureToggle.HAND_POINTER, AllItems.HAND_POINTER),
-            new FeatureItem(FeatureToggle.COPPER_FROGPORT, AllBlocks.COPPER_FROGPORT),
-            new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllBlocks.FLUID_PACKAGER),
-            new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllItems.FLUID_PACKAGE),
-            new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllItems.FLUID_PACKAGE_EXPOSED),
-            new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllItems.FLUID_PACKAGE_WEATHERED),
-            new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllItems.FLUID_PACKAGE_OXIDIZED),
-            new FeatureItem(FeatureToggle.FLUID_REPACKAGER, AllBlocks.FLUID_REPACKAGER),
-            new FeatureItem(FeatureToggle.COPPER_BUCKET, AllItems.COPPER_BUCKET),
-            new FeatureItem(FeatureToggle.PHANTOM_CHAIN, AllItems.PHANTOM_CHAIN),
-            new FeatureItem(FeatureToggle.FLUID_HATCH, AllBlocks.FLUID_HATCH),
-            new FeatureItem(FeatureToggle.FLUID_FACTORY_GAUGE, AllItems.FLUID_FACTORY_GAUGE),
-            new FeatureItem(FeatureToggle.BLAZE_COOLER, AllBlocks.BLAZE_COOLER),
-            new FeatureItem(FeatureToggle.COPPER_SCHEMATICANNON, AllBlocks.COPPER_SCHEMATICANNON),
-            new FeatureItem(FeatureToggle.FLUID_SCHEMATIC, AllItems.EMPTY_FLUID_SCHEMATIC),
-            new FeatureItem(FeatureToggle.FROST_CAKE, AllItems.FROST_CAKE),
-            new FeatureItem(FeatureToggle.FLUID_SCHEMATIC, AllItems.FLUID_SCHEMATIC),
-    };
+	record FeatureItem(ResourceLocation feature, Supplier<? extends ItemLike> item) {
+	}
 
-    @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event)
-    {
-        LOGGER.info("FluidLogistics server starting!");
-    }
+	private static final FeatureItem[] FEATURE_ITEMS = {
+		new FeatureItem(FeatureToggle.FLUID_TRANSPORTER, AllBlocks.FLUID_TRANSPORTER),
+		new FeatureItem(FeatureToggle.SMART_FAUCET, AllBlocks.SMART_FAUCET),
+		new FeatureItem(FeatureToggle.FAUCET, AllBlocks.FAUCET),
+		new FeatureItem(FeatureToggle.MULTI_FLUID_TANK, AllBlocks.MULTI_FLUID_TANK),
+		new FeatureItem(FeatureToggle.HORIZONTAL_MULTI_FLUID_TANK, AllBlocks.HORIZONTAL_MULTI_FLUID_TANK),
+		new FeatureItem(FeatureToggle.MULTI_FLUID_ACCESS_PORT, AllBlocks.MULTI_FLUID_ACCESS_PORT),
+		new FeatureItem(FeatureToggle.FLUID_INVENTORY_ACCESS_PORT, AllBlocks.FLUID_INVENTORY_ACCESS_PORT),
+		new FeatureItem(FeatureToggle.COPPER_BASKET, AllBlocks.COPPER_BASKET),
+		new FeatureItem(FeatureToggle.SMART_HOPPER, AllBlocks.SMART_HOPPER),
+		new FeatureItem(FeatureToggle.FLUID_PUMP, AllBlocks.FLUID_PUMP),
+		new FeatureItem(FeatureToggle.OSCILLATING_STEAM_ENGINE, AllBlocks.OSCILLATING_STEAM_ENGINE),
+		new FeatureItem(FeatureToggle.INFINITE_FLUID_TANK, AllBlocks.INFINITE_FLUID_TANK),
+		new FeatureItem(FeatureToggle.WATER_CONTAINING_COPPER_CASING, AllBlocks.WATER_CONTAINING_COPPER_CASING),
+		new FeatureItem(FeatureToggle.COPPER_BASIN, AllBlocks.COPPER_BASIN),
+		new FeatureItem(FeatureToggle.MECHANICAL_FLUID_GUN, AllBlocks.MECHANICAL_FLUID_GUN),
+		new FeatureItem(FeatureToggle.HAND_POINTER, AllItems.HAND_POINTER),
+		new FeatureItem(FeatureToggle.COPPER_FROGPORT, AllBlocks.COPPER_FROGPORT),
+		new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllBlocks.FLUID_PACKAGER),
+		new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllItems.FLUID_PACKAGE),
+		new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllItems.FLUID_PACKAGE_EXPOSED),
+		new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllItems.FLUID_PACKAGE_WEATHERED),
+		new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllItems.FLUID_PACKAGE_OXIDIZED),
+		new FeatureItem(FeatureToggle.FLUID_REPACKAGER, AllBlocks.FLUID_REPACKAGER),
+		new FeatureItem(FeatureToggle.COPPER_BUCKET, AllItems.COPPER_BUCKET),
+		new FeatureItem(FeatureToggle.PHANTOM_CHAIN, AllItems.PHANTOM_CHAIN),
+		new FeatureItem(FeatureToggle.FLUID_HATCH, AllBlocks.FLUID_HATCH),
+		new FeatureItem(FeatureToggle.FLUID_FACTORY_GAUGE, AllItems.FLUID_FACTORY_GAUGE),
+		new FeatureItem(FeatureToggle.SNOW_GOLEM_FREEZER, AllBlocks.SNOW_GOLEM_FREEZER),
+		new FeatureItem(FeatureToggle.SNOW_GOLEM_FREEZER, AllItems.EMPTY_SNOW_GOLEM_FREEZER),
+		new FeatureItem(FeatureToggle.COPPER_SCHEMATICANNON, AllBlocks.COPPER_SCHEMATICANNON),
+		new FeatureItem(FeatureToggle.FLUID_SCHEMATIC, AllItems.EMPTY_FLUID_SCHEMATIC),
+		new FeatureItem(FeatureToggle.FLUID_SCHEMATIC, AllItems.FLUID_SCHEMATIC), };
 
-    @SubscribeEvent
-    public void onServerStopped(ServerStoppedEvent event)
-    {
-        FluidPumpNetworkUpdater.clearLoadedFluidPumpCounts();
-    }
+	@SubscribeEvent
+	public void onServerStarting(ServerStartingEvent event) {
+		LOGGER.info("FluidLogistics server starting!");
+	}
+
+	@SubscribeEvent
+	public void onServerStopped(ServerStoppedEvent event) {
+		FluidPumpNetworkUpdater.clearLoadedFluidPumpCounts();
+	}
 }

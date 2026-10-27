@@ -5,7 +5,9 @@
       "conditions": {
         "items": [
           {
-            "items": "fluidlogistics:horizontal_multi_fluid_tank"
+            "items": [
+              "fluidlogistics:horizontal_multi_fluid_tank"
+            ]
           }
         ]
       },

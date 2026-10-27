@@ -1,7 +1,8 @@
 {
   "values": [
+    "fluidlogistics:oscillating_steam_engine",
     "fluidlogistics:potato_server",
-    "fluidlogistics:blaze_cooler",
+    "fluidlogistics:snow_golem_freezer",
     "fluidlogistics:copper_frogport",
     "fluidlogistics:fluid_transporter",
     "fluidlogistics:fluid_packager",
@@ -10,6 +11,7 @@
     "fluidlogistics:faucet",
     "fluidlogistics:multi_fluid_tank",
     "fluidlogistics:horizontal_multi_fluid_tank",
+    "fluidlogistics:copper_basket",
     "fluidlogistics:smart_hopper",
     "fluidlogistics:multi_fluid_access_port",
     "fluidlogistics:fluid_inventory_access_port",

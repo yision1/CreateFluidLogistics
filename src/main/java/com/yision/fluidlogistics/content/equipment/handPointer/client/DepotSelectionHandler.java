@@ -1,5 +1,8 @@
 package com.yision.fluidlogistics.content.equipment.handPointer.client;
 
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
+
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.content.logistics.depot.EjectorBlockEntity;
 import com.simibubi.create.content.logistics.depot.EjectorPlacementPacket;
@@ -19,236 +22,222 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
 
 public class DepotSelectionHandler {
-    private static final String EJECTOR_HIGHLIGHT = "HandPointerEjectorHighlight";
-    private static final String EJECTOR_TARGET = "HandPointerEjectorTarget";
-    private static final String EJECTOR_INVALID_TARGET = "HandPointerEjectorInvalidTarget";
-    private static final String WRENCH_EJECTOR_TARGET = "HandPointerWrenchEjectorTarget";
-    private static final String WRENCH_EJECTOR_VALID_ARC = "HandPointerWrenchEjectorValidArc";
-    private static final int SELECTED_COLOR = 0xDDC166;
-    private static final int VALID_COLOR = 0x9EF173;
-    private static final int INVALID_COLOR = 0xFF6171;
-    private static final int EJECTOR_TARGET_COLOR = 0xFFCB74;
+	private static final String EJECTOR_HIGHLIGHT = "HandPointerEjectorHighlight";
+	private static final String EJECTOR_TARGET = "HandPointerEjectorTarget";
+	private static final String EJECTOR_INVALID_TARGET = "HandPointerEjectorInvalidTarget";
+	private static final String WRENCH_EJECTOR_TARGET = "HandPointerWrenchEjectorTarget";
+	private static final String WRENCH_EJECTOR_VALID_ARC = "HandPointerWrenchEjectorValidArc";
+	private static final int SELECTED_COLOR = 0xDDC166;
+	private static final int VALID_COLOR = 0x9EF173;
+	private static final int INVALID_COLOR = 0xFF6171;
+	private static final int EJECTOR_TARGET_COLOR = 0xFFCB74;
 
-    private static BlockPos selectedEjectorPos;
-    private static BlockPos ejectorTargetPos;
-    private static EntityLauncher launcher;
+	private static BlockPos selectedEjectorPos;
+	private static BlockPos ejectorTargetPos;
+	private static EntityLauncher launcher;
 
-    private DepotSelectionHandler() {
-    }
+	private DepotSelectionHandler() {
+	}
 
-    public static void enterMode(Level level, BlockPos pos) {
-        selectedEjectorPos = pos.immutable();
-        launcher = null;
+	public static void enterMode(Level level, BlockPos pos) {
+		selectedEjectorPos = pos.immutable();
+		launcher = null;
 
-        if (level.getBlockEntity(pos) instanceof EjectorBlockEntity ejector) {
-            BlockPos currentTarget = ejector.getTargetPosition();
-            ejectorTargetPos = currentTarget.equals(pos) ? null : currentTarget.immutable();
-        } else {
-            ejectorTargetPos = null;
-        }
-    }
+		if (level.getBlockEntity(pos) instanceof EjectorBlockEntity ejector) {
+			BlockPos currentTarget = ejector.getTargetPosition();
+			ejectorTargetPos = currentTarget.equals(pos) ? null : currentTarget.immutable();
+		} else {
+			ejectorTargetPos = null;
+		}
+	}
 
-    public static boolean hasSelection() {
-        return selectedEjectorPos != null;
-    }
+	public static boolean hasSelection() {
+		return selectedEjectorPos != null;
+	}
 
-    public static boolean isSelectedEjector(BlockPos pos) {
-        return selectedEjectorPos != null && selectedEjectorPos.equals(pos);
-    }
+	public static boolean isSelectedEjector(BlockPos pos) {
+		return selectedEjectorPos != null && selectedEjectorPos.equals(pos);
+	}
 
-    public static BlockPos getTargetPos() {
-        return ejectorTargetPos;
-    }
+	public static BlockPos getTargetPos() {
+		return ejectorTargetPos;
+	}
 
-    public static void setTarget(BlockPos pos) {
-        ejectorTargetPos = pos == null ? null : pos.immutable();
-        launcher = null;
-    }
+	public static void setTarget(BlockPos pos) {
+		ejectorTargetPos = pos == null ? null : pos.immutable();
+		launcher = null;
+	}
 
-    public static void clearSelection() {
-        selectedEjectorPos = null;
-        ejectorTargetPos = null;
-        launcher = null;
-        clearHoverPreview();
-        Outliner.getInstance().remove(EJECTOR_HIGHLIGHT);
-    }
+	public static void clearSelection() {
+		selectedEjectorPos = null;
+		ejectorTargetPos = null;
+		launcher = null;
+		clearHoverPreview();
+		Outliner.getInstance().remove(EJECTOR_HIGHLIGHT);
+	}
 
-    public static void clearHoverPreview() {
-        Outliner.getInstance().remove(EJECTOR_TARGET);
-        Outliner.getInstance().remove(EJECTOR_INVALID_TARGET);
-    }
+	public static void clearHoverPreview() {
+		Outliner.getInstance().remove(EJECTOR_TARGET);
+		Outliner.getInstance().remove(EJECTOR_INVALID_TARGET);
+	}
 
-    public record EjectorTargetValidation(boolean valid, @Nullable Direction facing, int horizontalDistance,
-                                           int verticalDistance) {
-    }
+	public record EjectorTargetValidation(boolean valid, @Nullable Direction facing, int horizontalDistance,
+		int verticalDistance) {
+	}
 
-    public static EjectorTargetValidation validateTarget(BlockPos ejectorPos, BlockPos targetPos) {
-        if (ejectorPos == null || targetPos == null || ejectorPos.equals(targetPos)) {
-            return new EjectorTargetValidation(false, null, 0, 0);
-        }
+	public static EjectorTargetValidation validateTarget(BlockPos ejectorPos, BlockPos targetPos) {
+		if (ejectorPos == null || targetPos == null || ejectorPos.equals(targetPos)) {
+			return new EjectorTargetValidation(false, null, 0, 0);
+		}
 
-        int xDiff = targetPos.getX() - ejectorPos.getX();
-        int zDiff = targetPos.getZ() - ejectorPos.getZ();
-        int yDiff = targetPos.getY() - ejectorPos.getY();
-        int max = AllConfigs.server().kinetics.maxEjectorDistance.get();
+		int xDiff = targetPos.getX() - ejectorPos.getX();
+		int zDiff = targetPos.getZ() - ejectorPos.getZ();
+		int yDiff = targetPos.getY() - ejectorPos.getY();
+		int max = AllConfigs.server().kinetics.maxEjectorDistance.get();
 
-        if ((xDiff == 0 && zDiff == 0) || (xDiff != 0 && zDiff != 0)) {
-            return new EjectorTargetValidation(false, null, 0, yDiff);
-        }
+		if ((xDiff == 0 && zDiff == 0) || (xDiff != 0 && zDiff != 0)) {
+			return new EjectorTargetValidation(false, null, 0, yDiff);
+		}
 
-        int horizontalDistance = Math.max(Math.abs(xDiff), Math.abs(zDiff));
-        if (horizontalDistance > max) {
-            return new EjectorTargetValidation(false, null, horizontalDistance, yDiff);
-        }
+		int horizontalDistance = Math.max(Math.abs(xDiff), Math.abs(zDiff));
+		if (horizontalDistance > max) {
+			return new EjectorTargetValidation(false, null, horizontalDistance, yDiff);
+		}
 
-        Direction facing = xDiff == 0
-            ? Direction.get(zDiff < 0 ? Direction.AxisDirection.NEGATIVE : Direction.AxisDirection.POSITIVE, Direction.Axis.Z)
-            : Direction.get(xDiff < 0 ? Direction.AxisDirection.NEGATIVE : Direction.AxisDirection.POSITIVE, Direction.Axis.X);
-        return new EjectorTargetValidation(true, facing, horizontalDistance, yDiff);
-    }
+		Direction facing = xDiff == 0
+			? Direction.get(zDiff < 0 ? Direction.AxisDirection.NEGATIVE : Direction.AxisDirection.POSITIVE,
+				Direction.Axis.Z)
+			: Direction.get(xDiff < 0 ? Direction.AxisDirection.NEGATIVE : Direction.AxisDirection.POSITIVE,
+				Direction.Axis.X);
+		return new EjectorTargetValidation(true, facing, horizontalDistance, yDiff);
+	}
 
-    public static boolean submit() {
-        if (selectedEjectorPos == null || ejectorTargetPos == null) {
-            return false;
-        }
+	public static boolean submit() {
+		if (selectedEjectorPos == null || ejectorTargetPos == null) {
+			return false;
+		}
 
-        EjectorTargetValidation validation = validateTarget(selectedEjectorPos, ejectorTargetPos);
-        if (!validation.valid() || validation.facing() == null) {
-            return false;
-        }
+		EjectorTargetValidation validation = validateTarget(selectedEjectorPos, ejectorTargetPos);
+		if (!validation.valid() || validation.facing() == null) {
+			return false;
+		}
 
-        AllPackets.getChannel().sendToServer(new EjectorPlacementPacket(
-            validation.horizontalDistance(),
-            validation.verticalDistance(),
-            selectedEjectorPos,
-            validation.facing()
-        ));
-        return true;
-    }
+		AllPackets.getChannel().sendToServer(new EjectorPlacementPacket(validation.horizontalDistance(),
+			validation.verticalDistance(), selectedEjectorPos, validation.facing()));
+		return true;
+	}
 
-    public static void renderSelection(Minecraft mc) {
-        if (mc.level == null || selectedEjectorPos == null) {
-            clearHoverPreview();
-            Outliner.getInstance().remove(EJECTOR_HIGHLIGHT);
-            return;
-        }
+	public static void renderSelection(Minecraft mc) {
+		if (mc.level == null || selectedEjectorPos == null) {
+			clearHoverPreview();
+			Outliner.getInstance().remove(EJECTOR_HIGHLIGHT);
+			return;
+		}
 
-        renderOutline(mc.level, selectedEjectorPos, EJECTOR_HIGHLIGHT, SELECTED_COLOR);
+		renderOutline(mc.level, selectedEjectorPos, EJECTOR_HIGHLIGHT, SELECTED_COLOR);
 
-        if (ejectorTargetPos == null) {
-            clearHoverPreview();
-            return;
-        }
+		if (ejectorTargetPos == null) {
+			clearHoverPreview();
+			return;
+		}
 
-        EjectorTargetValidation validation = validateTarget(selectedEjectorPos, ejectorTargetPos);
-        renderOutline(
-            mc.level,
-            ejectorTargetPos,
-            validation.valid() ? EJECTOR_TARGET : EJECTOR_INVALID_TARGET,
-            validation.valid() ? VALID_COLOR : INVALID_COLOR
-        );
-        if (validation.valid()) {
-            Outliner.getInstance().remove(EJECTOR_INVALID_TARGET);
-        } else {
-            Outliner.getInstance().remove(EJECTOR_TARGET);
-        }
+		EjectorTargetValidation validation = validateTarget(selectedEjectorPos, ejectorTargetPos);
+		renderOutline(mc.level, ejectorTargetPos, validation.valid() ? EJECTOR_TARGET : EJECTOR_INVALID_TARGET,
+			validation.valid() ? VALID_COLOR : INVALID_COLOR);
+		if (validation.valid()) {
+			Outliner.getInstance().remove(EJECTOR_INVALID_TARGET);
+		} else {
+			Outliner.getInstance().remove(EJECTOR_TARGET);
+		}
 
-        drawArc(mc, validation);
-    }
+		drawArc(mc, validation);
+	}
 
-    private static void renderOutline(Level level, BlockPos pos, String slot, int color) {
-        BlockState state = level.getBlockState(pos);
-        VoxelShape shape = state.getShape(level, pos);
-        if (shape.isEmpty()) {
-            Outliner.getInstance().remove(slot);
-            return;
-        }
-        Outliner.getInstance().showAABB(slot, shape.bounds().move(pos)).colored(color).lineWidth(0.0625F);
-    }
+	private static void renderOutline(Level level, BlockPos pos, String slot, int color) {
+		BlockState state = level.getBlockState(pos);
+		VoxelShape shape = state.getShape(level, pos);
+		if (shape.isEmpty()) {
+			Outliner.getInstance().remove(slot);
+			return;
+		}
+		Outliner.getInstance().showAABB(slot, shape.bounds().move(pos)).colored(color).lineWidth(0.0625F);
+	}
 
-    private static void drawArc(Minecraft mc, EjectorTargetValidation validation) {
-        if (selectedEjectorPos == null || ejectorTargetPos == null || mc.level == null) {
-            return;
-        }
+	private static void drawArc(Minecraft mc, EjectorTargetValidation validation) {
+		if (selectedEjectorPos == null || ejectorTargetPos == null || mc.level == null) {
+			return;
+		}
 
-        int color = validation.valid() ? VALID_COLOR : INVALID_COLOR;
-        drawTrajectory(mc, selectedEjectorPos, ejectorTargetPos, color, null);
-    }
+		int color = validation.valid() ? VALID_COLOR : INVALID_COLOR;
+		drawTrajectory(mc, selectedEjectorPos, ejectorTargetPos, color, null);
+	}
 
-    private static void drawTrajectory(Minecraft mc, BlockPos ejectorPos, BlockPos targetPos,
-                                       int color, @Nullable String sourceOutlineKey) {
-        if (mc.level == null || ejectorPos == null || targetPos == null) {
-            return;
-        }
+	private static void drawTrajectory(Minecraft mc, BlockPos ejectorPos, BlockPos targetPos, int color,
+		@Nullable String sourceOutlineKey) {
+		if (mc.level == null || ejectorPos == null || targetPos == null) {
+			return;
+		}
 
-        int xDiff = targetPos.getX() - ejectorPos.getX();
-        int zDiff = targetPos.getZ() - ejectorPos.getZ();
-        int yDiff = targetPos.getY() - ejectorPos.getY();
+		int xDiff = targetPos.getX() - ejectorPos.getX();
+		int zDiff = targetPos.getZ() - ejectorPos.getZ();
+		int yDiff = targetPos.getY() - ejectorPos.getY();
 
-        int validX = Math.abs(zDiff) > Math.abs(xDiff) ? 0 : xDiff;
-        int validZ = Math.abs(zDiff) < Math.abs(xDiff) ? 0 : zDiff;
-        BlockPos validPos = targetPos.offset(validX, yDiff, validZ);
-        EjectorTargetValidation renderValidation = validateTarget(validPos, targetPos);
-        if (!renderValidation.valid() || renderValidation.facing() == null) {
-            if (sourceOutlineKey != null) {
-                Outliner.getInstance().remove(sourceOutlineKey);
-            }
-            return;
-        }
+		int validX = Math.abs(zDiff) > Math.abs(xDiff) ? 0 : xDiff;
+		int validZ = Math.abs(zDiff) < Math.abs(xDiff) ? 0 : zDiff;
+		BlockPos validPos = targetPos.offset(validX, yDiff, validZ);
+		EjectorTargetValidation renderValidation = validateTarget(validPos, targetPos);
+		if (!renderValidation.valid() || renderValidation.facing() == null) {
+			if (sourceOutlineKey != null) {
+				Outliner.getInstance().remove(sourceOutlineKey);
+			}
+			return;
+		}
 
-        int hDist = Math.max(1, Math.abs(validX + validZ));
-        if (launcher == null || launcher.getHorizontalDistance() != hDist
-            || launcher.getVerticalDistance() != yDiff) {
-            launcher = new EntityLauncher(hDist, yDiff);
-        }
+		int hDist = Math.max(1, Math.abs(validX + validZ));
+		if (launcher == null || launcher.getHorizontalDistance() != hDist || launcher.getVerticalDistance() != yDiff) {
+			launcher = new EntityLauncher(hDist, yDiff);
+		}
 
-        double totalFlyingTicks = launcher.getTotalFlyingTicks() + 3.0;
-        int segments = (int) (totalFlyingTicks / 3) + 1;
-        double tickOffset = totalFlyingTicks / segments;
-        Vector3f colorVec = new Color(color).asVectorF();
-        DustParticleOptions dust = new DustParticleOptions(colorVec, 1.0F);
-        ClientLevel world = mc.level;
+		double totalFlyingTicks = launcher.getTotalFlyingTicks() + 3.0;
+		int segments = (int) (totalFlyingTicks / 3) + 1;
+		double tickOffset = totalFlyingTicks / segments;
+		Vector3f colorVec = new Color(color).asVectorF();
+		DustParticleOptions dust = new DustParticleOptions(colorVec, 1.0F);
+		ClientLevel world = mc.level;
 
-        if (sourceOutlineKey != null) {
-            AABB bb = new AABB(0, 0, 0, 1, 0, 1).move(targetPos.offset(-validX, -yDiff, -validZ));
-            Outliner.getInstance()
-                .chaseAABB(sourceOutlineKey, bb)
-                .colored(color)
-                .lineWidth(1 / 16f);
-        }
+		if (sourceOutlineKey != null) {
+			AABB bb = new AABB(0, 0, 0, 1, 0, 1).move(targetPos.offset(-validX, -yDiff, -validZ));
+			Outliner.getInstance().chaseAABB(sourceOutlineKey, bb).colored(color).lineWidth(1 / 16f);
+		}
 
-        for (int i = 0; i < segments; i++) {
-            double ticks = (AnimationTickHolder.getRenderTime() / 3.0F) % tickOffset + i * tickOffset;
-            Vec3 vec = launcher.getGlobalPos(ticks, renderValidation.facing(), ejectorPos)
-                .add(xDiff - validX, 0, zDiff - validZ);
-            world.addParticle(dust, vec.x, vec.y, vec.z, 0, 0, 0);
-        }
-    }
+		for (int i = 0; i < segments; i++) {
+			double ticks = (AnimationTickHolder.getRenderTime() / 3.0F) % tickOffset + i * tickOffset;
+			Vec3 vec = launcher.getGlobalPos(ticks, renderValidation.facing(), ejectorPos).add(xDiff - validX, 0,
+				zDiff - validZ);
+			world.addParticle(dust, vec.x, vec.y, vec.z, 0, 0, 0);
+		}
+	}
 
-    public static void clearHoveredTargetPreview() {
-        Outliner.getInstance().remove(WRENCH_EJECTOR_TARGET);
-        Outliner.getInstance().remove(WRENCH_EJECTOR_VALID_ARC);
-    }
+	public static void clearHoveredTargetPreview() {
+		Outliner.getInstance().remove(WRENCH_EJECTOR_TARGET);
+		Outliner.getInstance().remove(WRENCH_EJECTOR_VALID_ARC);
+	}
 
-    public static void renderHoveredTargetPreview(Minecraft mc, BlockPos ejectorPos, BlockPos targetPos) {
-        if (mc.level == null || ejectorPos == null || targetPos == null) {
-            clearHoveredTargetPreview();
-            return;
-        }
+	public static void renderHoveredTargetPreview(Minecraft mc, BlockPos ejectorPos, BlockPos targetPos) {
+		if (mc.level == null || ejectorPos == null || targetPos == null) {
+			clearHoveredTargetPreview();
+			return;
+		}
 
-        Level level = mc.level;
-        BlockState state = level.getBlockState(targetPos);
-        VoxelShape shape = state.getShape(level, targetPos);
-        AABB targetBox = shape.isEmpty() ? new AABB(BlockPos.ZERO) : shape.bounds();
-        Outliner.getInstance()
-            .showAABB(WRENCH_EJECTOR_TARGET, targetBox.move(targetPos))
-            .colored(EJECTOR_TARGET_COLOR)
-            .lineWidth(1 / 16f);
+		Level level = mc.level;
+		BlockState state = level.getBlockState(targetPos);
+		VoxelShape shape = state.getShape(level, targetPos);
+		AABB targetBox = shape.isEmpty() ? new AABB(BlockPos.ZERO) : shape.bounds();
+		Outliner.getInstance().showAABB(WRENCH_EJECTOR_TARGET, targetBox.move(targetPos)).colored(EJECTOR_TARGET_COLOR)
+			.lineWidth(1 / 16f);
 
-        drawTrajectory(mc, ejectorPos, targetPos, VALID_COLOR, WRENCH_EJECTOR_VALID_ARC);
-    }
+		drawTrajectory(mc, ejectorPos, targetPos, VALID_COLOR, WRENCH_EJECTOR_VALID_ARC);
+	}
 }

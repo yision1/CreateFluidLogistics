@@ -1,9 +1,10 @@
 package com.yision.fluidlogistics.ponder;
 
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
+import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankBlockEntity;
 import com.yision.fluidlogistics.content.logistics.fluidTransporter.FluidTransporterBlock;
 import com.yision.fluidlogistics.content.logistics.fluidTransporter.FluidTransporterBlockEntity;
-import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankBlockEntity;
+
 import net.createmod.catnip.math.Pointing;
 import net.createmod.ponder.api.PonderPalette;
 import net.createmod.ponder.api.element.ElementLink;
@@ -20,6 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
+
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 
@@ -60,17 +62,13 @@ public class FluidTransporterScenes {
 		scene.idle(10);
 		scene.world().showSection(transporterS, Direction.EAST);
 		scene.idle(8);
-		ElementLink<WorldSectionElement> targetTankLink =
-			scene.world().showIndependentSection(targetTankS, Direction.EAST);
+		ElementLink<WorldSectionElement> targetTankLink = scene.world().showIndependentSection(targetTankS,
+			Direction.EAST);
 		scene.world().moveSection(targetTankLink, util.vector().of(1, 0, 0), 0);
 		scene.idle(20);
 
-		scene.overlay()
-			.showText(80)
-			.text("Fluid Transporters can move fluid from one container to another")
-			.attachKeyFrame()
-			.placeNearTarget()
-			.pointAt(util.vector().centerOf(transporter));
+		scene.overlay().showText(80).text("Fluid Transporters can move fluid from one container to another")
+			.attachKeyFrame().placeNearTarget().pointAt(util.vector().centerOf(transporter));
 		scene.idle(90);
 
 		for (int i = 0; i < 3; i++) {
@@ -87,20 +85,14 @@ public class FluidTransporterScenes {
 			fillMultiTank(scene, sourceTankBottom, new FluidStack(Fluids.LAVA, 1000));
 			scene.idle(8);
 		}
-		scene.overlay()
-			.showText(80)
-			.text("Fluid Transporters can use filters to restrict which fluids are allowed through")
-			.attachKeyFrame()
-			.placeNearTarget()
-			.pointAt(util.vector().centerOf(transporter));
+		scene.overlay().showText(80)
+			.text("Fluid Transporters can use filters to restrict which fluids are allowed through").attachKeyFrame()
+			.placeNearTarget().pointAt(util.vector().centerOf(transporter));
 		scene.idle(85);
 
 		ItemStack lavaBucket = new ItemStack(Items.LAVA_BUCKET);
-		scene.overlay()
-			.showFilterSlotInput(util.vector().of(3.44, 1.99, 3.5), Direction.UP, 50);
-		scene.overlay()
-			.showControls(util.vector().of(3.44, 1.94, 3.5), Pointing.DOWN, 50)
-			.rightClick()
+		scene.overlay().showFilterSlotInput(util.vector().of(3.44, 1.99, 3.5), Direction.UP, 50);
+		scene.overlay().showControls(util.vector().of(3.44, 1.94, 3.5), Pointing.DOWN, 50).rightClick()
 			.withItem(lavaBucket);
 		scene.idle(10);
 		scene.world().setFilterData(transporterS, FluidTransporterBlockEntity.class, lavaBucket);
@@ -121,12 +113,8 @@ public class FluidTransporterScenes {
 		scene.world().showSection(leverS, Direction.DOWN);
 		scene.idle(15);
 
-		scene.overlay()
-			.showText(75)
-			.text("Fluid Transporters can also be disabled by redstone signals")
-			.attachKeyFrame()
-			.placeNearTarget()
-			.pointAt(util.vector().centerOf(transporter));
+		scene.overlay().showText(75).text("Fluid Transporters can also be disabled by redstone signals")
+			.attachKeyFrame().placeNearTarget().pointAt(util.vector().centerOf(transporter));
 		scene.idle(80);
 
 		scene.world().modifyBlock(leverPos, state -> state.setValue(BlockStateProperties.POWERED, true), false);
@@ -161,14 +149,9 @@ public class FluidTransporterScenes {
 		scene.world().showSection(chainTransporterS, Direction.SOUTH);
 		scene.idle(20);
 
-		scene.overlay()
-			.showOutline(PonderPalette.GREEN, "head_to_tail", chainTransporterS.add(chainInputS), 80);
-		scene.overlay()
-			.showText(80)
-			.text("Fluid Transporters can also connect like this")
-			.attachKeyFrame()
-			.placeNearTarget()
-			.pointAt(util.vector().centerOf(chainTransporter));
+		scene.overlay().showOutline(PonderPalette.GREEN, "head_to_tail", chainTransporterS.add(chainInputS), 80);
+		scene.overlay().showText(80).text("Fluid Transporters can also connect like this").attachKeyFrame()
+			.placeNearTarget().pointAt(util.vector().centerOf(chainTransporter));
 		scene.idle(130);
 
 		fillMultiTank(scene, sideTallTankBottom, new FluidStack(Fluids.WATER, 4000));
@@ -176,48 +159,41 @@ public class FluidTransporterScenes {
 		scene.idle(8);
 		scene.world().showSection(sideTallTankS.add(sideTallTransporterS), Direction.NORTH);
 		scene.idle(20);
-		scene.overlay()
-			.showOutlineWithText(sideTransportersS, 90)
-			.text("Note that Fluid Transporters cannot connect sideways like this")
-			.colored(PonderPalette.RED)
-			.placeNearTarget()
-			.pointAt(util.vector().of(3.5, 1.5, 3));
+		scene.overlay().showOutlineWithText(sideTransportersS, 90)
+			.text("Note that Fluid Transporters cannot connect sideways like this").colored(PonderPalette.RED)
+			.placeNearTarget().pointAt(util.vector().of(3.5, 1.5, 3));
 		scene.idle(100);
 
 		scene.markAsFinished();
 	}
 
 	private static void fillMultiTank(CreateSceneBuilder scene, BlockPos pos, FluidStack stack) {
-		scene.world()
-			.modifyBlockEntity(pos, MultiFluidTankBlockEntity.class,
-				be -> be.getTankInventory().fill(stack, FluidAction.EXECUTE));
+		scene.world().modifyBlockEntity(pos, MultiFluidTankBlockEntity.class,
+			be -> be.getTankInventory().fill(stack, FluidAction.EXECUTE));
 	}
 
 	private static void drainMultiTank(CreateSceneBuilder scene, BlockPos pos, FluidStack stack) {
-		scene.world()
-			.modifyBlockEntity(pos, MultiFluidTankBlockEntity.class,
-				be -> be.getTankInventory().drain(stack, FluidAction.EXECUTE));
+		scene.world().modifyBlockEntity(pos, MultiFluidTankBlockEntity.class,
+			be -> be.getTankInventory().drain(stack, FluidAction.EXECUTE));
 	}
 
 	private static void setTransporterFluid(CreateSceneBuilder scene, Selection selection, String fluidId, int amount) {
-		scene.world()
-			.modifyBlockEntityNBT(selection, FluidTransporterBlockEntity.class, nbt -> {
-				CompoundTag tank = getPrimaryTank(nbt);
-				CompoundTag fluid = new CompoundTag();
-				fluid.putString("id", fluidId);
-				fluid.putInt("amount", amount);
-				tank.put("TankContent", fluid);
-				setTankLevel(tank, amount / 1000f);
-			});
+		scene.world().modifyBlockEntityNBT(selection, FluidTransporterBlockEntity.class, nbt -> {
+			CompoundTag tank = getPrimaryTank(nbt);
+			CompoundTag fluid = new CompoundTag();
+			fluid.putString("id", fluidId);
+			fluid.putInt("amount", amount);
+			tank.put("TankContent", fluid);
+			setTankLevel(tank, amount / 1000f);
+		});
 	}
 
 	private static void clearTransporterFluid(CreateSceneBuilder scene, Selection selection) {
-		scene.world()
-			.modifyBlockEntityNBT(selection, FluidTransporterBlockEntity.class, nbt -> {
-				CompoundTag tank = getPrimaryTank(nbt);
-				tank.put("TankContent", new CompoundTag());
-				setTankLevel(tank, 0);
-			});
+		scene.world().modifyBlockEntityNBT(selection, FluidTransporterBlockEntity.class, nbt -> {
+			CompoundTag tank = getPrimaryTank(nbt);
+			tank.put("TankContent", new CompoundTag());
+			setTankLevel(tank, 0);
+		});
 	}
 
 	private static CompoundTag getPrimaryTank(CompoundTag nbt) {

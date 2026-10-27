@@ -1,5 +1,10 @@
 package com.yision.fluidlogistics.content.equipment.mechanicalFluidGun;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.jetbrains.annotations.Nullable;
+
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.network.MechanicalFluidGunPackets;
 
 import net.minecraft.core.BlockPos;
@@ -15,10 +20,6 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MechanicalFluidGunItem extends BlockItem {
 
@@ -35,8 +36,7 @@ public class MechanicalFluidGunItem extends BlockItem {
 		Level level = context.getLevel();
 		BlockPos pos = context.getClickedPos();
 		Player player = context.getPlayer();
-		if (MechanicalFluidGunBlock.isTargetTagged(level, pos)
-			&& (player == null || !player.isShiftKeyDown())) {
+		if (MechanicalFluidGunBlock.isTargetTagged(level, pos) && (player == null || !player.isShiftKeyDown())) {
 			return InteractionResult.SUCCESS;
 		}
 		return super.useOn(context);
@@ -44,7 +44,7 @@ public class MechanicalFluidGunItem extends BlockItem {
 
 	@Override
 	protected boolean updateCustomBlockEntityTag(BlockPos pos, Level level, Player player, ItemStack stack,
-	                                            BlockState state) {
+		BlockState state) {
 		boolean updated = super.updateCustomBlockEntityTag(pos, level, player, stack, state);
 		if (!level.isClientSide) {
 			applySelectedTargetsToPlacedGun(pos, level, stack);
@@ -72,8 +72,7 @@ public class MechanicalFluidGunItem extends BlockItem {
 
 		for (int i = list.size() - 1; i >= 0; i--) {
 			CompoundTag entry = list.getCompound(i);
-			if (entry.getInt("X") == targetPos.getX()
-				&& entry.getInt("Y") == targetPos.getY()
+			if (entry.getInt("X") == targetPos.getX() && entry.getInt("Y") == targetPos.getY()
 				&& entry.getInt("Z") == targetPos.getZ()) {
 				list.remove(i);
 			}
@@ -92,14 +91,15 @@ public class MechanicalFluidGunItem extends BlockItem {
 
 	public static void removeSelectedTarget(ItemStack stack, BlockPos targetPos) {
 		CompoundTag tag = stack.getTag();
-		if (tag == null) return;
-		if (!tag.contains(TAG_SELECTED_TARGETS, Tag.TAG_LIST)) return;
+		if (tag == null)
+			return;
+		if (!tag.contains(TAG_SELECTED_TARGETS, Tag.TAG_LIST))
+			return;
 
 		ListTag list = tag.getList(TAG_SELECTED_TARGETS, Tag.TAG_COMPOUND);
 		for (int i = list.size() - 1; i >= 0; i--) {
 			CompoundTag entry = list.getCompound(i);
-			if (entry.getInt("X") == targetPos.getX()
-				&& entry.getInt("Y") == targetPos.getY()
+			if (entry.getInt("X") == targetPos.getX() && entry.getInt("Y") == targetPos.getY()
 				&& entry.getInt("Z") == targetPos.getZ()) {
 				list.remove(i);
 			}
@@ -116,7 +116,8 @@ public class MechanicalFluidGunItem extends BlockItem {
 	public static List<SelectedTargetEntry> getSelectedTargets(ItemStack stack) {
 		List<SelectedTargetEntry> result = new ArrayList<>();
 		CompoundTag tag = stack.getTag();
-		if (tag == null || !tag.contains(TAG_SELECTED_TARGETS, Tag.TAG_LIST)) return result;
+		if (tag == null || !tag.contains(TAG_SELECTED_TARGETS, Tag.TAG_LIST))
+			return result;
 
 		ListTag list = tag.getList(TAG_SELECTED_TARGETS, Tag.TAG_COMPOUND);
 		for (int i = 0; i < list.size(); i++) {
@@ -130,12 +131,14 @@ public class MechanicalFluidGunItem extends BlockItem {
 
 	public static List<SelectedTargetEntry> getSelectedTargets(ItemStack stack, Level level) {
 		CompoundTag tag = stack.getTag();
-		if (tag == null || !tag.contains(TAG_SELECTED_TARGETS, Tag.TAG_LIST)) return List.of();
+		if (tag == null || !tag.contains(TAG_SELECTED_TARGETS, Tag.TAG_LIST))
+			return List.of();
 
 		String selectedDim = tag.contains(TAG_SELECTED_DIMENSION, Tag.TAG_STRING)
 			? tag.getString(TAG_SELECTED_DIMENSION)
 			: "";
-		if (!selectedDim.equals(level.dimension().location().toString())) return List.of();
+		if (!selectedDim.equals(level.dimension().location().toString()))
+			return List.of();
 
 		return getSelectedTargets(stack);
 	}
@@ -148,7 +151,8 @@ public class MechanicalFluidGunItem extends BlockItem {
 
 	public static void clearSelectedTargets(ItemStack stack) {
 		CompoundTag tag = stack.getTag();
-		if (tag == null) return;
+		if (tag == null)
+			return;
 		tag.remove(TAG_SELECTED_TARGETS);
 		tag.remove(TAG_SELECTED_DIMENSION);
 		removeEmptyTag(stack, tag);
@@ -156,20 +160,26 @@ public class MechanicalFluidGunItem extends BlockItem {
 
 	private void applySelectedTargetsToPlacedGun(BlockPos gunPos, Level level, ItemStack stack) {
 		CompoundTag tag = stack.getTag();
-		if (tag == null) return;
+		if (tag == null)
+			return;
 
 		String selectedDim = tag.contains(TAG_SELECTED_DIMENSION) ? tag.getString(TAG_SELECTED_DIMENSION) : "";
-		if (!selectedDim.equals(level.dimension().location().toString())) return;
+		if (!selectedDim.equals(level.dimension().location().toString()))
+			return;
 
 		List<SelectedTargetEntry> rawTargets = getSelectedTargets(stack, level);
-		if (rawTargets.isEmpty()) return;
+		if (rawTargets.isEmpty())
+			return;
 
-		if (!(level.getBlockEntity(gunPos) instanceof MechanicalFluidGunBlockEntity gunBe)) return;
+		if (!(level.getBlockEntity(gunPos) instanceof MechanicalFluidGunBlockEntity gunBe))
+			return;
 
 		List<MechanicalFluidGunTargetConfig> validatedTargets = new ArrayList<>();
 		for (SelectedTargetEntry entry : rawTargets) {
-			if (validatedTargets.size() >= MAX_TARGETS) break;
-			if (!MechanicalFluidGunBlock.isSelectableTarget(level, gunPos, entry.pos)) continue;
+			if (validatedTargets.size() >= MAX_TARGETS)
+				break;
+			if (!MechanicalFluidGunBlock.isSelectableTarget(level, gunPos, entry.pos))
+				continue;
 			validatedTargets.add(MechanicalFluidGunTargetConfig.fromAbsolute(gunPos, entry.pos, entry.face));
 		}
 

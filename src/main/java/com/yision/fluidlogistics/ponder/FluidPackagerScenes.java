@@ -3,9 +3,11 @@ package com.yision.fluidlogistics.ponder;
 import com.simibubi.create.content.logistics.box.PackageEntity;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
-import com.yision.fluidlogistics.content.logistics.fluidPackager.FluidPackagerBlockEntity;
+import com.yision.fluidlogistics.config.Config;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageContentHelper;
+import com.yision.fluidlogistics.content.logistics.fluidPackager.FluidPackagerBlockEntity;
 import com.yision.fluidlogistics.registry.AllItems;
+
 import net.createmod.catnip.math.Pointing;
 import net.createmod.ponder.api.PonderPalette;
 import net.createmod.ponder.api.element.ElementLink;
@@ -19,6 +21,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
+
 import net.minecraftforge.fluids.FluidStack;
 
 public class FluidPackagerScenes {
@@ -39,102 +42,73 @@ public class FluidPackagerScenes {
 		Selection tankS = util.select().position(tankPos);
 		Selection leverS = util.select().position(leverPos);
 		Selection largeCog = util.select().position(7, 0, 3);
-		Selection cogNBelt = util.select().fromTo(6, 1, 2, 0, 1, 2)
-			.add(util.select().position(6, 1, 3));
+		Selection cogNBelt = util.select().fromTo(6, 1, 2, 0, 1, 2).add(util.select().position(6, 1, 3));
 		Selection scaff1 = util.select().fromTo(5, 1, 3, 5, 1, 4);
 		BlockPos funnelPos = util.grid().at(4, 2, 2);
 		Selection funnelS = util.select().position(funnelPos);
 
 		scene.idle(5);
 
-		ElementLink<WorldSectionElement> tankL = scene.world()
-			.showIndependentSection(tankS, Direction.DOWN);
-		scene.world()
-			.moveSection(tankL, util.vector().of(-2, -1, 0), 0);
+		ElementLink<WorldSectionElement> tankL = scene.world().showIndependentSection(tankS, Direction.DOWN);
+		scene.world().moveSection(tankL, util.vector().of(-2, -1, 0), 0);
 		scene.idle(10);
 
-		ElementLink<WorldSectionElement> packagerL = scene.world()
-			.showIndependentSection(packagerS, Direction.SOUTH);
-		scene.world()
-			.moveSection(packagerL, util.vector().of(-2, -1, 0), 0);
+		ElementLink<WorldSectionElement> packagerL = scene.world().showIndependentSection(packagerS, Direction.SOUTH);
+		scene.world().moveSection(packagerL, util.vector().of(-2, -1, 0), 0);
 		scene.idle(20);
 
-		scene.overlay()
-			.showText(80)
-			.text("Fluid Packagers can package fluids from tanks into fluid packages")
-			.attachKeyFrame()
-			.placeNearTarget()
-			.pointAt(util.vector().of(3, 1.5, 2.5));
+		scene.overlay().showText(80).text("Fluid Packagers can package fluids from tanks into fluid packages")
+			.attachKeyFrame().placeNearTarget().pointAt(util.vector().of(3, 1.5, 2.5));
 		scene.idle(60);
 
-		ElementLink<WorldSectionElement> leverL = scene.world()
-			.showIndependentSection(leverS, Direction.DOWN);
-		scene.world()
-			.moveSection(leverL, util.vector().of(-2, -1, 0), 0);
+		ElementLink<WorldSectionElement> leverL = scene.world().showIndependentSection(leverS, Direction.DOWN);
+		scene.world().moveSection(leverL, util.vector().of(-2, -1, 0), 0);
 		scene.idle(30);
 
-		scene.world()
-			.toggleRedstonePower(util.select().fromTo(leverPos, packagerPos));
-		scene.effects()
-			.indicateRedstone(leverPos.west(2).below());
+		scene.world().toggleRedstonePower(util.select().fromTo(leverPos, packagerPos));
+		scene.effects().indicateRedstone(leverPos.west(2).below());
 
 		scene.idle(10);
 
 		ItemStack fluidPackage = new ItemStack(AllItems.FLUID_PACKAGE.get());
-		setFluidPackageContents(fluidPackage, new FluidStack(Fluids.WATER, 1000));
+		setFluidPackageContents(fluidPackage,
+			new FluidStack(Fluids.WATER, Math.min(1000, Config.getFluidPerPackage())));
 		fluidPackagerCreate(scene, packagerPos, fluidPackage);
 
 		scene.idle(20);
 
-		scene.overlay()
-			.showText(80)
-			.text("Given redstone power, they will extract fluid from the tank and package it up")
-			.attachKeyFrame()
-			.placeNearTarget()
-			.pointAt(util.vector().of(3, 1.5, 2.5));
+		scene.overlay().showText(80)
+			.text("Given redstone power, they will extract fluid from the tank and package it up").attachKeyFrame()
+			.placeNearTarget().pointAt(util.vector().of(3, 1.5, 2.5));
 		scene.idle(90);
 
-		scene.world()
-			.moveSection(leverL, util.vector().of(2, 1, 0), 10);
-		scene.world()
-			.moveSection(packagerL, util.vector().of(2, 1, 0), 10);
-		scene.world()
-			.moveSection(tankL, util.vector().of(2, 1, 0), 10);
-		scene.world()
-			.showSection(scaff1, Direction.UP);
+		scene.world().moveSection(leverL, util.vector().of(2, 1, 0), 10);
+		scene.world().moveSection(packagerL, util.vector().of(2, 1, 0), 10);
+		scene.world().moveSection(tankL, util.vector().of(2, 1, 0), 10);
+		scene.world().showSection(scaff1, Direction.UP);
 		scene.idle(10);
 
-		scene.world()
-			.showSection(largeCog, Direction.UP);
-		scene.world()
-			.showSection(cogNBelt, Direction.SOUTH);
+		scene.world().showSection(largeCog, Direction.UP);
+		scene.world().showSection(cogNBelt, Direction.SOUTH);
 		scene.idle(10);
-		scene.world()
-			.showSection(funnelS, Direction.DOWN);
+		scene.world().showSection(funnelS, Direction.DOWN);
 		scene.idle(15);
 
 		fluidPackagerClear(scene, packagerPos);
-		scene.world()
-			.createItemOnBelt(util.grid().at(4, 1, 2), Direction.EAST, fluidPackage);
+		scene.world().createItemOnBelt(util.grid().at(4, 1, 2), Direction.EAST, fluidPackage);
 		scene.idle(20);
 
-		scene.world()
-			.toggleRedstonePower(util.select().fromTo(5, 2, 2, 5, 3, 2));
+		scene.world().toggleRedstonePower(util.select().fromTo(5, 2, 2, 5, 3, 2));
 
-		scene.world()
-			.multiplyKineticSpeed(util.select().everywhere(), 1 / 16f);
+		scene.world().multiplyKineticSpeed(util.select().everywhere(), 1 / 16f);
 
-		scene.overlay()
-			.showText(70)
-			.text("Fluid packages can be transported and processed like regular items")
-			.attachKeyFrame()
-			.placeNearTarget()
+		scene.overlay().showText(70).text("Fluid packages can be transported and processed like regular items")
+			.attachKeyFrame().placeNearTarget()
 			.pointAt(util.vector().blockSurface(util.grid().at(3, 2, 2), Direction.EAST));
 
 		scene.idle(80);
 
-		scene.world()
-			.multiplyKineticSpeed(util.select().everywhere(), 16f);
+		scene.world().multiplyKineticSpeed(util.select().everywhere(), 16f);
 		scene.idle(10);
 
 		BlockPos packager2Pos = util.grid().at(1, 2, 3);
@@ -145,86 +119,62 @@ public class FluidPackagerScenes {
 		BlockPos funnel2Pos = util.grid().at(1, 2, 2);
 		Selection funnel2S = util.select().position(funnel2Pos);
 
-		scene.world()
-			.showSection(scaff2, Direction.DOWN);
+		scene.world().showSection(scaff2, Direction.DOWN);
 		scene.idle(5);
-		scene.world()
-			.showSection(tank2S, Direction.DOWN);
-		scene.world()
-			.showSection(packager2S, Direction.DOWN);
+		scene.world().showSection(tank2S, Direction.DOWN);
+		scene.world().showSection(packager2S, Direction.DOWN);
 		scene.idle(10);
-		scene.world()
-			.showSection(funnel2S, Direction.SOUTH);
+		scene.world().showSection(funnel2S, Direction.SOUTH);
 		scene.rotateCameraY(-15);
 		scene.idle(40);
 
-		scene.world()
-			.removeItemsFromBelt(util.grid().at(1, 1, 2));
-		scene.world()
-			.flapFunnel(funnel2Pos, false);
+		scene.world().removeItemsFromBelt(util.grid().at(1, 1, 2));
+		scene.world().flapFunnel(funnel2Pos, false);
 		fluidPackagerUnpack(scene, packager2Pos, fluidPackage);
 
 		scene.idle(20);
 
-		scene.overlay()
-			.showText(90)
-			.text("Inserting a fluid package will unpack it, filling the connected tank")
-			.attachKeyFrame()
-			.placeNearTarget()
-			.pointAt(util.vector().blockSurface(packager2Pos, Direction.WEST));
+		scene.overlay().showText(90).text("Inserting a fluid package will unpack it, filling the connected tank")
+			.attachKeyFrame().placeNearTarget().pointAt(util.vector().blockSurface(packager2Pos, Direction.WEST));
 		scene.idle(100);
 
-		scene.world()
-			.toggleRedstonePower(util.select().fromTo(5, 2, 2, 5, 3, 2));
-		scene.effects()
-			.indicateRedstone(leverPos);
+		scene.world().toggleRedstonePower(util.select().fromTo(5, 2, 2, 5, 3, 2));
+		scene.effects().indicateRedstone(leverPos);
 		fluidPackagerCreate(scene, packagerPos, fluidPackage);
 		scene.idle(25);
 
 		fluidPackagerClear(scene, packagerPos);
-		scene.world()
-			.createItemOnBelt(util.grid().at(4, 1, 2), Direction.EAST, fluidPackage);
+		scene.world().createItemOnBelt(util.grid().at(4, 1, 2), Direction.EAST, fluidPackage);
 		scene.idle(30);
 
-		scene.overlay()
-			.showText(60)
-			.text("Full")
-			.colored(PonderPalette.RED)
-			.placeNearTarget()
+		scene.overlay().showText(60).text("Full").colored(PonderPalette.RED).placeNearTarget()
 			.pointAt(util.vector().topOf(tank2Pos));
 		scene.idle(80);
 
-		scene.overlay()
-			.showOutlineWithText(util.select().fromTo(packager2Pos, tank2Pos), 90)
-			.text("Fluid Packagers will not accept fluid packages they cannot fully unpack")
-			.colored(PonderPalette.RED)
-			.placeNearTarget()
-			.attachKeyFrame()
-			.pointAt(util.vector().blockSurface(packager2Pos, Direction.WEST));
+		scene.overlay().showOutlineWithText(util.select().fromTo(packager2Pos, tank2Pos), 90)
+			.text("Fluid Packagers will not accept fluid packages they cannot fully unpack").colored(PonderPalette.RED)
+			.placeNearTarget().attachKeyFrame().pointAt(util.vector().blockSurface(packager2Pos, Direction.WEST));
 		scene.idle(100);
 	}
 
 	private static void fluidPackagerCreate(CreateSceneBuilder scene, BlockPos pos, ItemStack box) {
-		scene.world()
-			.modifyBlockEntity(pos, FluidPackagerBlockEntity.class, be -> {
-				be.animationTicks = FluidPackagerBlockEntity.CYCLE;
-				be.animationInward = false;
-				be.heldBox = box;
-			});
+		scene.world().modifyBlockEntity(pos, FluidPackagerBlockEntity.class, be -> {
+			be.animationTicks = FluidPackagerBlockEntity.CYCLE;
+			be.animationInward = false;
+			be.heldBox = box;
+		});
 	}
 
 	private static void fluidPackagerUnpack(CreateSceneBuilder scene, BlockPos pos, ItemStack box) {
-		scene.world()
-			.modifyBlockEntity(pos, FluidPackagerBlockEntity.class, be -> {
-				be.animationTicks = FluidPackagerBlockEntity.CYCLE;
-				be.animationInward = true;
-				be.previouslyUnwrapped = box;
-			});
+		scene.world().modifyBlockEntity(pos, FluidPackagerBlockEntity.class, be -> {
+			be.animationTicks = FluidPackagerBlockEntity.CYCLE;
+			be.animationInward = true;
+			be.previouslyUnwrapped = box;
+		});
 	}
 
 	private static void fluidPackagerClear(CreateSceneBuilder scene, BlockPos pos) {
-		scene.world()
-			.modifyBlockEntity(pos, FluidPackagerBlockEntity.class, be -> be.heldBox = ItemStack.EMPTY);
+		scene.world().modifyBlockEntity(pos, FluidPackagerBlockEntity.class, be -> be.heldBox = ItemStack.EMPTY);
 	}
 
 	private static void setFluidPackageContents(ItemStack packageStack, FluidStack fluid) {
@@ -255,261 +205,165 @@ public class FluidPackagerScenes {
 		Selection signS = util.select().position(7, 2, 5);
 
 		scene.idle(10);
-		ElementLink<WorldSectionElement> tankL = scene.world()
-			.showIndependentSection(tank, Direction.DOWN);
-		scene.world()
-			.moveSection(tankL, util.vector().of(-2, -1, -2), 0);
+		ElementLink<WorldSectionElement> tankL = scene.world().showIndependentSection(tank, Direction.DOWN);
+		scene.world().moveSection(tankL, util.vector().of(-2, -1, -2), 0);
 		scene.idle(5);
-		scene.world()
-			.showSectionAndMerge(packagerAndLever, Direction.SOUTH, tankL);
+		scene.world().showSectionAndMerge(packagerAndLever, Direction.SOUTH, tankL);
 		scene.idle(20);
 
-		scene.world()
-			.showSectionAndMerge(signS, Direction.SOUTH, tankL);
+		scene.world().showSectionAndMerge(signS, Direction.SOUTH, tankL);
 		scene.idle(15);
 
-		scene.overlay()
-			.showText(40)
-			.text("Warehouse")
-			.colored(PonderPalette.OUTPUT)
-			.placeNearTarget()
-			.pointAt(util.vector()
-				.blockSurface(util.grid().at(5, 1, 4), Direction.NORTH)
-				.add(-0.5, 0, 0));
+		scene.overlay().showText(40).text("Warehouse").colored(PonderPalette.OUTPUT).placeNearTarget()
+			.pointAt(util.vector().blockSurface(util.grid().at(5, 1, 4), Direction.NORTH).add(-0.5, 0, 0));
 		scene.idle(50);
 
-		scene.overlay()
-			.showText(60)
-			.text("When a sign is placed on a Fluid Packager...")
-			.attachKeyFrame()
+		scene.overlay().showText(60).text("When a sign is placed on a Fluid Packager...").attachKeyFrame()
 			.placeNearTarget()
-			.pointAt(util.vector()
-				.blockSurface(util.grid().at(5, 1, 4), Direction.NORTH)
-				.add(-0.5, 0, 0));
+			.pointAt(util.vector().blockSurface(util.grid().at(5, 1, 4), Direction.NORTH).add(-0.5, 0, 0));
 		scene.idle(50);
 
-		scene.world()
-			.toggleRedstonePower(packagerAndLever);
-		scene.effects()
-			.indicateRedstone(util.grid().at(5, 1, 4));
+		scene.world().toggleRedstonePower(packagerAndLever);
+		scene.effects().indicateRedstone(util.grid().at(5, 1, 4));
 		ItemStack fluidBox = new ItemStack(AllItems.FLUID_PACKAGE.get());
-		setFluidPackageContents(fluidBox, new FluidStack(Fluids.WATER, 1000));
+		setFluidPackageContents(fluidBox, new FluidStack(Fluids.WATER, Math.min(1000, Config.getFluidPerPackage())));
 		fluidPackagerCreate(scene, packager, fluidBox);
 
 		scene.idle(20);
-		scene.world()
-			.moveSection(tankL, util.vector().of(0, 1, 0), 10);
+		scene.world().moveSection(tankL, util.vector().of(0, 1, 0), 10);
 		scene.idle(10);
-		scene.world()
-			.showSectionAndMerge(scaffold, Direction.NORTH, tankL);
-		scene.world()
-			.showSection(largeCog, Direction.UP);
-		scene.world()
-			.showSection(initialKinetics, Direction.NORTH);
-		scene.world()
-			.showSectionAndMerge(packagerBelt, Direction.SOUTH, tankL);
+		scene.world().showSectionAndMerge(scaffold, Direction.NORTH, tankL);
+		scene.world().showSection(largeCog, Direction.UP);
+		scene.world().showSection(initialKinetics, Direction.NORTH);
+		scene.world().showSectionAndMerge(packagerBelt, Direction.SOUTH, tankL);
 		scene.idle(5);
-		scene.world()
-			.showSectionAndMerge(util.select().position(funnel), Direction.DOWN, tankL);
+		scene.world().showSectionAndMerge(util.select().position(funnel), Direction.DOWN, tankL);
 		scene.idle(15);
 
 		fluidPackagerClear(scene, packager);
-		scene.world()
-			.createItemOnBelt(util.grid().at(6, 1, 6), Direction.EAST, fluidBox);
+		scene.world().createItemOnBelt(util.grid().at(6, 1, 6), Direction.EAST, fluidBox);
 		scene.idle(20);
 
-		scene.world()
-			.multiplyKineticSpeed(util.select().everywhere(), 1 / 32f);
-		scene.overlay()
-			.showText(40)
-			.text("-> Warehouse")
-			.colored(PonderPalette.OUTPUT)
-			.placeNearTarget()
-			.pointAt(util.vector()
-				.blockSurface(util.grid().at(3, 2, 4), Direction.NORTH));
+		scene.world().multiplyKineticSpeed(util.select().everywhere(), 1 / 32f);
+		scene.overlay().showText(40).text("-> Warehouse").colored(PonderPalette.OUTPUT).placeNearTarget()
+			.pointAt(util.vector().blockSurface(util.grid().at(3, 2, 4), Direction.NORTH));
 		scene.idle(50);
 
-		scene.overlay()
-			.showText(100)
-			.text("Created fluid packages will carry the written lines of text as their address")
-			.attachKeyFrame()
+		scene.overlay().showText(100)
+			.text("Created fluid packages will carry the written lines of text as their address").attachKeyFrame()
 			.placeNearTarget()
-			.pointAt(util.vector()
-				.blockSurface(util.grid().at(3, 2, 4), Direction.NORTH)
-				.add(-0.5, 0, 0));
+			.pointAt(util.vector().blockSurface(util.grid().at(3, 2, 4), Direction.NORTH).add(-0.5, 0, 0));
 		scene.idle(120);
 
-		scene.world()
-			.hideIndependentSection(tankL, Direction.NORTH);
+		scene.world().hideIndependentSection(tankL, Direction.NORTH);
 		scene.idle(15);
-		scene.world()
-			.removeItemsFromBelt(util.grid().at(5, 1, 6));
-		scene.world()
-			.removeItemsFromBelt(util.grid().at(4, 1, 6));
+		scene.world().removeItemsFromBelt(util.grid().at(5, 1, 6));
+		scene.world().removeItemsFromBelt(util.grid().at(4, 1, 6));
 		scene.idle(15);
 
-		scene.world()
-			.showSection(eastBelt, Direction.WEST);
+		scene.world().showSection(eastBelt, Direction.WEST);
 		scene.idle(5);
-		scene.world()
-			.showSection(tunnelS, Direction.DOWN);
+		scene.world().showSection(tunnelS, Direction.DOWN);
 		scene.idle(5);
-		scene.world()
-			.showSection(saw, Direction.EAST);
+		scene.world().showSection(saw, Direction.EAST);
 		scene.idle(5);
-		scene.world()
-			.showSection(northBelt, Direction.SOUTH);
+		scene.world().showSection(northBelt, Direction.SOUTH);
 		scene.rotateCameraY(-15);
 		scene.idle(15);
 
-		scene.overlay()
-			.showControls(util.vector().of(4, 2.825, 4.5), Pointing.DOWN, 60)
+		scene.overlay().showControls(util.vector().of(4, 2.825, 4.5), Pointing.DOWN, 60)
 			.withItem(com.simibubi.create.AllItems.PACKAGE_FILTER.asStack());
 		scene.idle(10);
-		scene.overlay()
-			.showFilterSlotInput(util.vector().of(4.1, 2.825, 4.5), 50);
+		scene.overlay().showFilterSlotInput(util.vector().of(4.1, 2.825, 4.5), 50);
 		scene.idle(30);
 
-		scene.overlay()
-			.showText(70)
-			.text("Package filters route fluid packages based on their address")
-			.attachKeyFrame()
-			.placeNearTarget()
-			.pointAt(util.vector().of(4, 2.825, 4.5));
+		scene.overlay().showText(70).text("Package filters route fluid packages based on their address")
+			.attachKeyFrame().placeNearTarget().pointAt(util.vector().of(4, 2.825, 4.5));
 		scene.idle(70);
 
 		ItemStack warehouseFluidBox = new ItemStack(AllItems.FLUID_PACKAGE.get());
-		setFluidPackageContents(warehouseFluidBox, new FluidStack(Fluids.WATER, 1000));
+		setFluidPackageContents(warehouseFluidBox,
+			new FluidStack(Fluids.WATER, Math.min(1000, Config.getFluidPerPackage())));
 		ItemStack factoryFluidBox = new ItemStack(AllItems.FLUID_PACKAGE.get());
-		setFluidPackageContents(factoryFluidBox, new FluidStack(Fluids.LAVA, 1000));
+		setFluidPackageContents(factoryFluidBox,
+			new FluidStack(Fluids.LAVA, Math.min(1000, Config.getFluidPerPackage())));
 		PackageItem.addAddress(warehouseFluidBox, "Warehouse");
 		PackageItem.addAddress(factoryFluidBox, "Factory");
 
-		scene.world()
-			.createItemOnBelt(util.grid().at(6, 1, 4), Direction.EAST, warehouseFluidBox);
+		scene.world().createItemOnBelt(util.grid().at(6, 1, 4), Direction.EAST, warehouseFluidBox);
 		scene.idle(10);
 
-		scene.overlay()
-			.showText(50)
-			.text("-> Warehouse")
-			.colored(PonderPalette.OUTPUT)
-			.placeNearTarget()
-			.pointAt(util.vector()
-				.blockSurface(util.grid().at(7, 2, 4), Direction.WEST));
-		scene.overlay()
-			.showText(50)
-			.colored(PonderPalette.BLUE)
-			.text("Factory")
-			.placeNearTarget()
+		scene.overlay().showText(50).text("-> Warehouse").colored(PonderPalette.OUTPUT).placeNearTarget()
+			.pointAt(util.vector().blockSurface(util.grid().at(7, 2, 4), Direction.WEST));
+		scene.overlay().showText(50).colored(PonderPalette.BLUE).text("Factory").placeNearTarget()
 			.pointAt(util.vector().of(4, 2.825, 4.5));
 		scene.idle(60);
 
-		scene.world()
-			.multiplyKineticSpeed(util.select().everywhere(), 32f);
+		scene.world().multiplyKineticSpeed(util.select().everywhere(), 32f);
 
 		scene.idle(60);
 
-		scene.world()
-			.createItemOnBelt(util.grid().at(6, 1, 4), Direction.EAST, factoryFluidBox);
-		scene.world()
-			.multiplyKineticSpeed(util.select().everywhere(), 1 / 32f);
+		scene.world().createItemOnBelt(util.grid().at(6, 1, 4), Direction.EAST, factoryFluidBox);
+		scene.world().multiplyKineticSpeed(util.select().everywhere(), 1 / 32f);
 		scene.idle(10);
 
-		scene.overlay()
-			.showText(50)
-			.text("-> Factory")
-			.colored(PonderPalette.OUTPUT)
-			.placeNearTarget()
-			.pointAt(util.vector()
-				.blockSurface(util.grid().at(7, 2, 4), Direction.WEST));
-		scene.overlay()
-			.showText(50)
-			.colored(PonderPalette.BLUE)
-			.text("Factory")
-			.placeNearTarget()
+		scene.overlay().showText(50).text("-> Factory").colored(PonderPalette.OUTPUT).placeNearTarget()
+			.pointAt(util.vector().blockSurface(util.grid().at(7, 2, 4), Direction.WEST));
+		scene.overlay().showText(50).colored(PonderPalette.BLUE).text("Factory").placeNearTarget()
 			.pointAt(util.vector().of(4, 2.825, 4.5));
 		scene.idle(60);
 
-		scene.world()
-			.multiplyKineticSpeed(util.select().everywhere(), 32f);
+		scene.world().multiplyKineticSpeed(util.select().everywhere(), 32f);
 
 		scene.idle(40);
 		fluidPackageHopsOffBelt(scene, util.grid().at(4, 1, 0), Direction.NORTH, warehouseFluidBox);
 		scene.idle(40);
-		scene.world()
-			.multiplyKineticSpeed(util.select().everywhere(), 1 / 32f);
-		scene.overlay()
-			.showText(100)
-			.text("Fluid packages are destroyed by Mechanical Saws without dropping any items")
-			.attachKeyFrame()
-			.placeNearTarget()
-			.pointAt(util.vector().topOf(util.grid().at(2, 1, 4)));
+		scene.world().multiplyKineticSpeed(util.select().everywhere(), 1 / 32f);
+		scene.overlay().showText(100).text("Fluid packages are destroyed by Mechanical Saws without dropping any items")
+			.attachKeyFrame().placeNearTarget().pointAt(util.vector().topOf(util.grid().at(2, 1, 4)));
 		scene.idle(110);
 
-		scene.world()
-			.multiplyKineticSpeed(util.select().everywhere(), 32f);
+		scene.world().multiplyKineticSpeed(util.select().everywhere(), 32f);
 
 		scene.idle(20);
-		scene.world()
-			.hideSection(eastBelt, Direction.EAST);
+		scene.world().hideSection(eastBelt, Direction.EAST);
 		scene.idle(5);
-		scene.world()
-			.hideSection(tunnelS, Direction.UP);
+		scene.world().hideSection(tunnelS, Direction.UP);
 		scene.idle(5);
-		scene.world()
-			.hideSection(saw, Direction.WEST);
+		scene.world().hideSection(saw, Direction.WEST);
 		scene.idle(5);
-		scene.world()
-			.hideSection(initialKinetics, Direction.UP);
-		scene.world()
-			.hideSection(largeCog, Direction.DOWN);
-		scene.world()
-			.hideSection(northBelt, Direction.NORTH);
+		scene.world().hideSection(initialKinetics, Direction.UP);
+		scene.world().hideSection(largeCog, Direction.DOWN);
+		scene.world().hideSection(northBelt, Direction.NORTH);
 		scene.rotateCameraY(15);
 		scene.idle(15);
 
-		ElementLink<WorldSectionElement> extrasL = scene.world()
-			.showIndependentSection(postbox, Direction.DOWN);
-		scene.world()
-			.moveSection(extrasL, util.vector().of(-3, 0, 2), 0);
+		ElementLink<WorldSectionElement> extrasL = scene.world().showIndependentSection(postbox, Direction.DOWN);
+		scene.world().moveSection(extrasL, util.vector().of(-3, 0, 2), 0);
 		scene.idle(5);
-		scene.world()
-			.showSectionAndMerge(frogport, Direction.DOWN, extrasL);
+		scene.world().showSectionAndMerge(frogport, Direction.DOWN, extrasL);
 		scene.idle(20);
 
-		scene.overlay()
-			.showText(100)
-			.text("Besides filters, Package Frogports and Postboxes can also route fluid packages")
-			.attachKeyFrame()
-			.placeNearTarget()
-			.pointAt(util.vector()
-				.blockSurface(util.grid().at(3, 2, 4), Direction.NORTH));
+		scene.overlay().showText(100)
+			.text("Besides filters, Package Frogports and Postboxes can also route fluid packages").attachKeyFrame()
+			.placeNearTarget().pointAt(util.vector().blockSurface(util.grid().at(3, 2, 4), Direction.NORTH));
 		scene.idle(110);
 
-		scene.overlay()
-			.showText(80)
-			.text("Check their Ponder scenes to learn how they behave")
-			.placeNearTarget()
-			.pointAt(util.vector()
-				.blockSurface(util.grid().at(3, 2, 4), Direction.NORTH));
+		scene.overlay().showText(80).text("Check their Ponder scenes to learn how they behave").placeNearTarget()
+			.pointAt(util.vector().blockSurface(util.grid().at(3, 2, 4), Direction.NORTH));
 		scene.idle(90);
 	}
 
-	private static ElementLink<EntityElement> fluidPackageHopsOffBelt(
-		CreateSceneBuilder scene, BlockPos beltPos, Direction side, ItemStack box) {
-		scene.world()
-			.removeItemsFromBelt(beltPos);
-		return scene.world()
-			.createEntity(level -> {
-				PackageEntity packageEntity = PackageEntity.fromItemStack(level,
-					new Vec3(
-						beltPos.getX() + 0.5 + side.getStepX() * 0.675,
-						beltPos.getY() + 0.875,
-						beltPos.getZ() + 0.5 + side.getStepZ() * 0.675),
-					box);
-				packageEntity.setDeltaMovement(new Vec3(
-					side.getStepX(), 1f, side.getStepZ()).scale(0.125f));
-				return packageEntity;
-			});
+	private static ElementLink<EntityElement> fluidPackageHopsOffBelt(CreateSceneBuilder scene, BlockPos beltPos,
+		Direction side, ItemStack box) {
+		scene.world().removeItemsFromBelt(beltPos);
+		return scene.world().createEntity(level -> {
+			PackageEntity packageEntity = PackageEntity.fromItemStack(level,
+				new Vec3(beltPos.getX() + 0.5 + side.getStepX() * 0.675, beltPos.getY() + 0.875,
+					beltPos.getZ() + 0.5 + side.getStepZ() * 0.675),
+				box);
+			packageEntity.setDeltaMovement(new Vec3(side.getStepX(), 1f, side.getStepZ()).scale(0.125f));
+			return packageEntity;
+		});
 	}
 }

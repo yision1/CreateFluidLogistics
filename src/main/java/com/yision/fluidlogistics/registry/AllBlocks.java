@@ -1,19 +1,71 @@
 package com.yision.fluidlogistics.registry;
 
+import static com.simibubi.create.api.behaviour.interaction.MovingInteractionBehaviour.interactionBehaviour;
+import static com.simibubi.create.api.behaviour.movement.MovementBehaviour.movementBehaviour;
+import static com.simibubi.create.api.contraption.storage.fluid.MountedFluidStorageType.mountedFluidStorage;
+import static com.simibubi.create.foundation.data.TagGen.pickaxeOnly;
+import static com.yision.fluidlogistics.FluidLogistics.REGISTRATE;
+
 import com.simibubi.create.AllTags.AllBlockTags;
 import com.simibubi.create.api.behaviour.display.DisplaySource;
+import com.simibubi.create.api.behaviour.interaction.ConductorBlockInteractionBehavior;
+import com.simibubi.create.api.registry.CreateRegistries;
+import com.simibubi.create.api.stress.BlockStressValues;
 import com.simibubi.create.content.fluids.PipeAttachmentModel;
 import com.simibubi.create.content.processing.basin.BasinGenerator;
 import com.simibubi.create.content.processing.basin.BasinMovementBehaviour;
-import com.simibubi.create.content.processing.burner.BlazeBurnerBlockItem;
-import com.simibubi.create.api.behaviour.interaction.ConductorBlockInteractionBehavior;
-import com.simibubi.create.api.registry.CreateRegistries;
 import com.simibubi.create.foundation.data.AssetLookup;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.data.SharedProperties;
 import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
+import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.MechanicalFluidGunBlock;
+import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.MechanicalFluidGunGenerator;
+import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.MechanicalFluidGunItem;
+import com.yision.fluidlogistics.content.fluids.faucet.FaucetBlock;
+import com.yision.fluidlogistics.content.fluids.faucet.FaucetGenerator;
+import com.yision.fluidlogistics.content.fluids.faucet.SmartFaucetBlock;
+import com.yision.fluidlogistics.content.fluids.fluidHatch.FluidHatchBlock;
+import com.yision.fluidlogistics.content.fluids.fluidInventoryAccessPort.FluidInventoryAccessPortBlock;
+import com.yision.fluidlogistics.content.fluids.fluidInventoryAccessPort.FluidInventoryAccessPortGenerator;
+import com.yision.fluidlogistics.content.fluids.fluidPump.FluidPumpBlock;
+import com.yision.fluidlogistics.content.fluids.fluidPump.FluidPumpGenerator;
+import com.yision.fluidlogistics.content.fluids.horizontalMultiFluidTank.HorizontalMultiFluidTankBlock;
+import com.yision.fluidlogistics.content.fluids.horizontalMultiFluidTank.HorizontalMultiFluidTankGenerator;
+import com.yision.fluidlogistics.content.fluids.horizontalMultiFluidTank.HorizontalMultiFluidTankItem;
+import com.yision.fluidlogistics.content.fluids.horizontalMultiFluidTank.HorizontalMultiFluidTankModel;
+import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidTankBlock;
+import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidTankItem;
+import com.yision.fluidlogistics.content.fluids.multiFluidAccessPort.MultiFluidAccessPortBlock;
+import com.yision.fluidlogistics.content.fluids.multiFluidAccessPort.MultiFluidAccessPortGenerator;
+import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankBlock;
+import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankGenerator;
+import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankItem;
+import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankModel;
+import com.yision.fluidlogistics.content.fluids.pressureGauge.PressureGaugeBlock;
+import com.yision.fluidlogistics.content.fluids.redstoneFluidValve.RedstoneFluidValveBlock;
+import com.yision.fluidlogistics.content.fluids.waterContainingCopperCasing.WaterContainingCopperCasingBlock;
+import com.yision.fluidlogistics.content.fluids.waterContainingCopperCasing.WaterContainingCopperCasingItem;
+import com.yision.fluidlogistics.content.kinetics.oscillatingSteamEngine.OscillatingSteamEngineBlock;
+import com.yision.fluidlogistics.content.logistics.copperBasket.CopperBasketBlock;
+import com.yision.fluidlogistics.content.logistics.copperFrogport.CopperFrogportBlock;
+import com.yision.fluidlogistics.content.logistics.copperFrogport.CopperFrogportItem;
+import com.yision.fluidlogistics.content.logistics.fluidPackager.FluidPackagerBlock;
+import com.yision.fluidlogistics.content.logistics.fluidPackager.FluidPackagerGenerator;
+import com.yision.fluidlogistics.content.logistics.fluidPackager.repackager.FluidRepackagerBlock;
+import com.yision.fluidlogistics.content.logistics.fluidPackager.repackager.FluidRepackagerGenerator;
+import com.yision.fluidlogistics.content.logistics.fluidTransporter.FluidTransporterBlock;
+import com.yision.fluidlogistics.content.logistics.fluidTransporter.FluidTransporterGenerator;
+import com.yision.fluidlogistics.content.logistics.potatoServer.PotatoServerBlock;
+import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperBlock;
+import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperGenerator;
+import com.yision.fluidlogistics.content.processing.copperBasin.CopperBasinBlock;
+import com.yision.fluidlogistics.content.processing.snowGolemFreezer.SnowGolemFreezerBlock;
+import com.yision.fluidlogistics.content.processing.snowGolemFreezer.SnowGolemFreezerBlockItem;
+import com.yision.fluidlogistics.content.processing.snowGolemFreezer.SnowGolemFreezerMovementBehaviour;
+import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonBlock;
+
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -29,549 +81,381 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
 import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraftforge.client.model.generators.ModelFile;
-import net.minecraftforge.client.model.generators.ConfiguredModel;
-import com.yision.fluidlogistics.content.processing.copperBasin.CopperBasinBlock;
-import com.yision.fluidlogistics.content.fluids.faucet.FaucetBlock;
-import com.yision.fluidlogistics.content.fluids.faucet.FaucetGenerator;
-import com.yision.fluidlogistics.content.logistics.fluidPackager.FluidPackagerBlock;
-import com.yision.fluidlogistics.content.logistics.copperFrogport.CopperFrogportBlock;
-import com.yision.fluidlogistics.content.logistics.copperFrogport.CopperFrogportItem;
-import com.yision.fluidlogistics.content.logistics.fluidPackager.FluidPackagerGenerator;
-import com.yision.fluidlogistics.content.logistics.fluidPackager.repackager.FluidRepackagerBlock;
-import com.yision.fluidlogistics.content.logistics.fluidPackager.repackager.FluidRepackagerGenerator;
-import com.yision.fluidlogistics.content.logistics.fluidTransporter.FluidTransporterBlock;
-import com.yision.fluidlogistics.content.logistics.fluidTransporter.FluidTransporterGenerator;
-import com.yision.fluidlogistics.content.fluids.horizontalMultiFluidTank.HorizontalMultiFluidTankBlock;
-import com.yision.fluidlogistics.content.fluids.horizontalMultiFluidTank.HorizontalMultiFluidTankGenerator;
-import com.yision.fluidlogistics.content.fluids.horizontalMultiFluidTank.HorizontalMultiFluidTankModel;
-import com.yision.fluidlogistics.content.fluids.fluidInventoryAccessPort.FluidInventoryAccessPortBlock;
-import com.yision.fluidlogistics.content.fluids.fluidInventoryAccessPort.FluidInventoryAccessPortGenerator;
-import com.yision.fluidlogistics.content.fluids.multiFluidAccessPort.MultiFluidAccessPortBlock;
-import com.yision.fluidlogistics.content.fluids.multiFluidAccessPort.MultiFluidAccessPortGenerator;
-import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankBlock;
-import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankGenerator;
-import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankModel;
-import com.yision.fluidlogistics.content.fluids.faucet.SmartFaucetBlock;
-import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperBlock;
-import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperGenerator;
-import com.yision.fluidlogistics.content.fluids.fluidPump.FluidPumpBlock;
-import com.yision.fluidlogistics.content.fluids.fluidPump.FluidPumpGenerator;
-import com.yision.fluidlogistics.content.fluids.pressureGauge.PressureGaugeBlock;
-import com.yision.fluidlogistics.content.fluids.redstoneFluidValve.RedstoneFluidValveBlock;
-import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.MechanicalFluidGunBlock;
-import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.MechanicalFluidGunGenerator;
-import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.MechanicalFluidGunItem;
-import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidTankBlock;
-import com.yision.fluidlogistics.content.fluids.waterContainingCopperCasing.WaterContainingCopperCasingBlock;
-import com.yision.fluidlogistics.content.fluids.waterContainingCopperCasing.WaterContainingCopperCasingItem;
-import com.yision.fluidlogistics.content.fluids.fluidHatch.FluidHatchBlock;
-import com.yision.fluidlogistics.content.fluids.horizontalMultiFluidTank.HorizontalMultiFluidTankItem;
-import com.yision.fluidlogistics.content.fluids.infiniteFluidTank.InfiniteFluidTankItem;
-import com.yision.fluidlogistics.content.fluids.multiFluidTank.MultiFluidTankItem;
-import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonBlock;
-import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerBlock;
-import com.yision.fluidlogistics.content.processing.blazeCooler.BlazeCoolerMovementBehaviour;
-import com.yision.fluidlogistics.content.logistics.potatoServer.PotatoServerBlock;
 
-import static com.simibubi.create.api.behaviour.interaction.MovingInteractionBehaviour.interactionBehaviour;
-import static com.simibubi.create.api.behaviour.movement.MovementBehaviour.movementBehaviour;
-import static com.simibubi.create.api.contraption.storage.fluid.MountedFluidStorageType.mountedFluidStorage;
-import static com.simibubi.create.foundation.data.TagGen.pickaxeOnly;
-import static com.yision.fluidlogistics.FluidLogistics.REGISTRATE;
+import net.minecraftforge.client.model.generators.ConfiguredModel;
+import net.minecraftforge.client.model.generators.ModelFile;
 
 @SuppressWarnings("removal")
 public class AllBlocks {
 
-    public static final BlockEntry<PotatoServerBlock> POTATO_SERVER =
-        REGISTRATE.block("potato_server", PotatoServerBlock::new)
-            .initialProperties(SharedProperties::copperMetal)
-            .properties(p -> p.noOcclusion())
-            .transform(pickaxeOnly())
-            .onRegisterAfter(CreateRegistries.DISPLAY_SOURCE, block -> {
-                DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_TPS.get());
-                DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_MSPT.get());
-                DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_MEMORY.get());
-                DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_CPU.get());
-                DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_UPLOAD.get());
-                DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_DOWNLOAD.get());
-                DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_TIME.get());
-                DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_ENTITIES.get());
-                DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_DROPPED_ITEMS.get());
-                DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_LOADED_CHUNKS.get());
-                DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_GC_COUNT.get());
-                DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_GC_TIME.get());
-            })
-            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
-            .addLayer(() -> RenderType::cutoutMipped)
-            .loot((loot, block) -> loot.dropSelf(block))
-            .blockstate((context, provider) -> provider.getVariantBuilder(context.getEntry())
-                .forAllStates(state -> ConfiguredModel.builder()
-                    .modelFile(provider.models().getExistingFile(provider.modLoc("block/potato_server"
-                        + (state.getValue(PotatoServerBlock.PART) == PotatoServerBlock.Part.SINGLE ? ""
-                        : "_" + state.getValue(PotatoServerBlock.PART).getSerializedName()))))
-                    .rotationY(((int) state.getValue(PotatoServerBlock.FACING).toYRot() + 180) % 360)
-                    .build()))
-            .item()
-            .model((context, provider) -> provider.withExistingParent(context.getName(),
-                    provider.modLoc("block/potato_server"))
-                .transforms()
-                .transform(ItemDisplayContext.GUI)
-                .rotation(30, -135, 0)
-                .scale(0.625f))
-            .build()
-            .register();
+	public static final BlockEntry<OscillatingSteamEngineBlock> OSCILLATING_STEAM_ENGINE = REGISTRATE
+		.block("oscillating_steam_engine", OscillatingSteamEngineBlock::new)
+		.initialProperties(SharedProperties::copperMetal)
+		.properties(p -> p.noOcclusion())
+		.transform(pickaxeOnly())
+		.setData(ProviderType.LANG, NonNullBiConsumer.noop())
+		.blockstate((context, provider) -> provider.simpleBlock(context.getEntry(),
+			provider.models().getExistingFile(provider.modLoc("block/oscillating_steam_engine/block"))))
+		.onRegister(block -> BlockStressValues.CAPACITIES.register(block,
+			() -> BlockStressValues.getCapacity(com.simibubi.create.AllBlocks.STEAM_ENGINE.get())))
+		.onRegister(BlockStressValues.setGeneratorSpeed(64, true))
+		.item()
+		.model(AssetLookup::customItemModel)
+		.build()
+		.register();
 
-    public static final BlockEntry<BlazeCoolerBlock> BLAZE_COOLER =
-        REGISTRATE.block("blaze_cooler", BlazeCoolerBlock::new)
-            .initialProperties(SharedProperties::softMetal)
-            .properties(p -> p.mapColor(MapColor.ICE).lightLevel(state -> 0))
-            .transform(pickaxeOnly())
-            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
-            .addLayer(() -> RenderType::cutoutMipped)
-            .tag(AllBlockTags.FAN_TRANSPARENT.tag)
-            .loot((loot, block) -> loot.dropSelf(block))
-            .blockstate((context, provider) -> provider.simpleBlock(context.getEntry(),
-                provider.models().getExistingFile(provider.modLoc("block/blaze_cooler/block"))))
-            .onRegister(movementBehaviour(new BlazeCoolerMovementBehaviour()))
-            .onRegister(interactionBehaviour(new ConductorBlockInteractionBehavior.BlazeBurner()))
-            .item(BlazeBurnerBlockItem::withBlaze)
-            .model((context, provider) -> provider.withExistingParent(context.getName(),
-                provider.modLoc("block/blaze_cooler/item")))
-            .build()
-            .register();
+	public static final BlockEntry<PotatoServerBlock> POTATO_SERVER = REGISTRATE
+		.block("potato_server", PotatoServerBlock::new).initialProperties(SharedProperties::copperMetal)
+		.properties(p -> p.noOcclusion()).transform(pickaxeOnly())
+		.onRegisterAfter(CreateRegistries.DISPLAY_SOURCE, block -> {
+			DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_TPS.get());
+			DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_MSPT.get());
+			DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_MEMORY.get());
+			DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_CPU.get());
+			DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_UPLOAD.get());
+			DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_DOWNLOAD.get());
+			DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_TIME.get());
+			DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_ENTITIES.get());
+			DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_DROPPED_ITEMS.get());
+			DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_LOADED_CHUNKS.get());
+			DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_GC_COUNT.get());
+			DisplaySource.BY_BLOCK.add(block, AllFluidLogisticsDisplaySources.POTATO_GC_TIME.get());
+		}).setData(ProviderType.LANG,
+			NonNullBiConsumer.noop())
+		.addLayer(
+			() -> RenderType::cutoutMipped)
+		.loot(
+			(loot, block) -> loot.dropSelf(block))
+		.blockstate((context, provider) -> provider.getVariantBuilder(context.getEntry())
+			.forAllStates(state -> ConfiguredModel.builder()
+				.modelFile(provider.models()
+					.getExistingFile(provider.modLoc("block/potato_server"
+						+ (state.getValue(PotatoServerBlock.PART) == PotatoServerBlock.Part.SINGLE ? ""
+							: "_" + state.getValue(PotatoServerBlock.PART).getSerializedName()))))
+				.rotationY(((int) state.getValue(PotatoServerBlock.FACING).toYRot() + 180) % 360).build()))
+		.item()
+		.model((context, provider) -> provider
+			.withExistingParent(context.getName(), provider.modLoc("block/potato_server")).transforms()
+			.transform(ItemDisplayContext.GUI).rotation(30, -135, 0).scale(0.625f))
+		.build().register();
 
-    public static final BlockEntry<CopperFrogportBlock> COPPER_FROGPORT =
-        REGISTRATE.block("copper_frogport", CopperFrogportBlock::new)
-            .initialProperties(SharedProperties::softMetal)
-            .properties(p -> p.noOcclusion()
-                .mapColor(MapColor.TERRACOTTA_BLUE)
-                .sound(SoundType.NETHERITE_BLOCK))
-            .transform(pickaxeOnly())
-            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
-            .addLayer(() -> RenderType::cutoutMipped)
-            .blockstate((context, provider) -> provider.getVariantBuilder(context.getEntry())
-                .forAllStates(state -> {
-                    Direction attachedDirection = state.getValue(CopperFrogportBlock.ATTACHED_DIRECTION);
-                    int rotationX;
-                    int rotationY;
-                    switch (attachedDirection) {
-                        case DOWN -> {
-                            rotationX = 0;
-                            rotationY = 0;
-                        }
-                        case UP -> {
-                            rotationX = 180;
-                            rotationY = 0;
-                        }
-                        case NORTH -> {
-                            rotationX = 270;
-                            rotationY = 0;
-                        }
-                        case SOUTH -> {
-                            rotationX = 90;
-                            rotationY = 0;
-                        }
-                        case WEST -> {
-                            rotationX = 90;
-                            rotationY = 90;
-                        }
-                        case EAST -> {
-                            rotationX = 90;
-                            rotationY = 270;
-                        }
-                        default -> throw new IllegalStateException(
-                            "Unexpected Copper Frogport attachment direction: " + attachedDirection);
-                    }
-                    return ConfiguredModel.builder()
-                        .modelFile(new ModelFile.UncheckedModelFile(
-                            provider.modLoc("block/copper_frogport/block")))
-                        .rotationX(rotationX)
-                        .rotationY(rotationY)
-                        .build();
-                }))
-            .item(CopperFrogportItem::new)
-            .model((context, provider) -> provider.getBuilder(context.getName())
-                .parent(new ModelFile.UncheckedModelFile(
-                    provider.modLoc("block/copper_frogport/item"))))
-            .build()
-            .register();
+	public static final BlockEntry<SnowGolemFreezerBlock> SNOW_GOLEM_FREEZER = REGISTRATE
+		.block("snow_golem_freezer", SnowGolemFreezerBlock::new).initialProperties(SharedProperties::softMetal)
+		.properties(p -> p.mapColor(MapColor.ICE).lightLevel(state -> 0)).transform(pickaxeOnly())
+		.setData(ProviderType.LANG, NonNullBiConsumer.noop()).addLayer(() -> RenderType::cutoutMipped)
+		.tag(AllBlockTags.FAN_TRANSPARENT.tag)
+		.loot((loot, block) -> loot.add(block, SnowGolemFreezerBlock.buildLootTable()))
+		.blockstate((context, provider) -> provider.simpleBlock(context.getEntry(),
+			provider.models().getExistingFile(provider.modLoc("block/snow_golem_freezer/block"))))
+		.onRegister(movementBehaviour(new SnowGolemFreezerMovementBehaviour()))
+		.onRegister(interactionBehaviour(new ConductorBlockInteractionBehavior.BlazeBurner()))
+		.item(SnowGolemFreezerBlockItem::withSnowGolem).model((context, provider) -> provider
+			.withExistingParent(context.getName(), provider.modLoc("block/snow_golem_freezer/item")))
+		.build().register();
 
-    public static final BlockEntry<FluidTransporterBlock> FLUID_TRANSPORTER = REGISTRATE
-            .block("fluid_transporter", FluidTransporterBlock::new)
-            .initialProperties(SharedProperties::softMetal)
-            .properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
-            .properties(p -> p.mapColor(MapColor.TERRACOTTA_YELLOW).sound(SoundType.NETHERITE_BLOCK))
-            .transform(pickaxeOnly())
-            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
-            .addLayer(() -> RenderType::cutoutMipped)
-            .blockstate(new FluidTransporterGenerator()::generate)
-            .item()
-            .model(AssetLookup.customBlockItemModel("fluid_transporter", "block_vertical"))
-            .build()
-            .register();
+	public static final BlockEntry<CopperFrogportBlock> COPPER_FROGPORT = REGISTRATE
+		.block("copper_frogport", CopperFrogportBlock::new).initialProperties(SharedProperties::softMetal)
+		.properties(p -> p.noOcclusion().mapColor(MapColor.TERRACOTTA_BLUE).sound(SoundType.NETHERITE_BLOCK))
+		.transform(pickaxeOnly()).setData(ProviderType.LANG, NonNullBiConsumer.noop())
+		.addLayer(() -> RenderType::cutoutMipped)
+		.blockstate((context, provider) -> provider.getVariantBuilder(context.getEntry()).forAllStates(state -> {
+			Direction attachedDirection = state.getValue(CopperFrogportBlock.ATTACHED_DIRECTION);
+			int rotationX;
+			int rotationY;
+			switch (attachedDirection) {
+			case DOWN -> {
+				rotationX = 0;
+				rotationY = 0;
+			}
+			case UP -> {
+				rotationX = 180;
+				rotationY = 0;
+			}
+			case NORTH -> {
+				rotationX = 270;
+				rotationY = 0;
+			}
+			case SOUTH -> {
+				rotationX = 90;
+				rotationY = 0;
+			}
+			case WEST -> {
+				rotationX = 90;
+				rotationY = 90;
+			}
+			case EAST -> {
+				rotationX = 90;
+				rotationY = 270;
+			}
+			default -> throw new IllegalStateException(
+				"Unexpected Copper Frogport attachment direction: " + attachedDirection);
+			}
+			return ConfiguredModel.builder()
+				.modelFile(new ModelFile.UncheckedModelFile(provider.modLoc("block/copper_frogport/block")))
+				.rotationX(rotationX).rotationY(rotationY).build();
+		})).item(CopperFrogportItem::new)
+		.model((context, provider) -> provider.getBuilder(context.getName())
+			.parent(new ModelFile.UncheckedModelFile(provider.modLoc("block/copper_frogport/item"))))
+		.build().register();
 
-    public static final BlockEntry<FluidPackagerBlock> FLUID_PACKAGER = REGISTRATE.block("fluid_packager", FluidPackagerBlock::new)
-            .initialProperties(SharedProperties::softMetal)
-            .properties(p -> p.noOcclusion())
-            .properties(p -> p.isRedstoneConductor(($1, $2, $3) -> false))
-            .properties(p -> p.mapColor(MapColor.TERRACOTTA_BLUE)
-                    .sound(SoundType.NETHERITE_BLOCK))
-            .transform(pickaxeOnly())
-            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
-            .addLayer(() -> RenderType::cutoutMipped)
-            .blockstate(new FluidPackagerGenerator()::generate)
-            .item()
-            .model(AssetLookup::customItemModel)
-            .build()
-            .register();
+	public static final BlockEntry<FluidTransporterBlock> FLUID_TRANSPORTER = REGISTRATE
+		.block("fluid_transporter", FluidTransporterBlock::new).initialProperties(SharedProperties::softMetal)
+		.properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
+		.properties(p -> p.mapColor(MapColor.TERRACOTTA_YELLOW).sound(SoundType.NETHERITE_BLOCK))
+		.transform(pickaxeOnly()).setData(ProviderType.LANG, NonNullBiConsumer.noop())
+		.addLayer(() -> RenderType::cutoutMipped).blockstate(new FluidTransporterGenerator()::generate).item()
+		.model(AssetLookup.customBlockItemModel("fluid_transporter", "block_vertical")).build().register();
 
-    public static final BlockEntry<FluidRepackagerBlock> FLUID_REPACKAGER = REGISTRATE.block("fluid_repackager", FluidRepackagerBlock::new)
-            .initialProperties(SharedProperties::softMetal)
-            .properties(p -> p.noOcclusion())
-            .properties(p -> p.isRedstoneConductor(($1, $2, $3) -> false))
-            .properties(p -> p.mapColor(MapColor.TERRACOTTA_BLUE)
-                    .sound(SoundType.NETHERITE_BLOCK))
-            .transform(pickaxeOnly())
-            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
-            .addLayer(() -> RenderType::cutoutMipped)
-            .blockstate(new FluidRepackagerGenerator()::generate)
-            .item()
-            .model(AssetLookup::customItemModel)
-            .build()
-            .register();
+	public static final BlockEntry<FluidPackagerBlock> FLUID_PACKAGER = REGISTRATE
+		.block("fluid_packager", FluidPackagerBlock::new).initialProperties(SharedProperties::softMetal)
+		.properties(p -> p.noOcclusion()).properties(p -> p.isRedstoneConductor(($1, $2, $3) -> false))
+		.properties(p -> p.mapColor(MapColor.TERRACOTTA_BLUE).sound(SoundType.NETHERITE_BLOCK)).transform(pickaxeOnly())
+		.setData(ProviderType.LANG, NonNullBiConsumer.noop()).addLayer(() -> RenderType::cutoutMipped)
+		.blockstate(new FluidPackagerGenerator()::generate).item().model(AssetLookup::customItemModel).build()
+		.register();
 
-    public static final BlockEntry<SmartFaucetBlock> SMART_FAUCET = REGISTRATE
-            .block("smart_faucet", SmartFaucetBlock::new)
-            .initialProperties(SharedProperties::copperMetal)
-            .properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
-            .properties(p -> p.mapColor(MapColor.COLOR_ORANGE).sound(SoundType.COPPER))
-            .transform(pickaxeOnly())
-            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
-            .addLayer(() -> RenderType::cutoutMipped)
-            .blockstate(new FaucetGenerator("smart_faucet/smart_faucet", "smart_faucet/smart_faucet_open")::generate)
-            .item()
-            .model((c, p) -> p.withExistingParent(c.getName(), p.modLoc("block/smart_faucet/smart_faucet"))
-                .transforms()
-                .transform(ItemDisplayContext.GUI)
-                .rotation(30, -135, 0)
-                .translation(2.5f, -1.25f, 0)
-                .scale(0.625f)
-                .end()
-                .transform(ItemDisplayContext.FIXED)
-                .translation(0, 0, -2)
-                .scale(0.5f))
-            .build()
-            .register();
+	public static final BlockEntry<FluidRepackagerBlock> FLUID_REPACKAGER = REGISTRATE
+		.block("fluid_repackager", FluidRepackagerBlock::new).initialProperties(SharedProperties::softMetal)
+		.properties(p -> p.noOcclusion()).properties(p -> p.isRedstoneConductor(($1, $2, $3) -> false))
+		.properties(p -> p.mapColor(MapColor.TERRACOTTA_BLUE).sound(SoundType.NETHERITE_BLOCK)).transform(pickaxeOnly())
+		.setData(ProviderType.LANG, NonNullBiConsumer.noop()).addLayer(() -> RenderType::cutoutMipped)
+		.blockstate(new FluidRepackagerGenerator()::generate).item().model(AssetLookup::customItemModel).build()
+		.register();
 
-    public static final BlockEntry<FaucetBlock> FAUCET = REGISTRATE
-            .block("faucet", FaucetBlock::new)
-            .initialProperties(SharedProperties::copperMetal)
-            .properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
-            .properties(p -> p.mapColor(MapColor.COLOR_ORANGE).sound(SoundType.COPPER))
-            .transform(pickaxeOnly())
-            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
-            .addLayer(() -> RenderType::cutoutMipped)
-            .blockstate(new FaucetGenerator("faucet/faucet", "faucet/faucet_open")::generate)
-            .item()
-            .model((c, p) -> p.withExistingParent(c.getName(), p.modLoc("block/faucet/faucet"))
-                .transforms()
-                .transform(ItemDisplayContext.GUI)
-                .rotation(30, -135, 0)
-                .translation(2.5f, -1.25f, 0)
-                .scale(0.625f)
-                .end()
-                .transform(ItemDisplayContext.FIXED)
-                .translation(0, 0, -2)
-                .scale(0.5f))
-            .build()
-            .register();
+	public static final BlockEntry<SmartFaucetBlock> SMART_FAUCET = REGISTRATE
+		.block("smart_faucet", SmartFaucetBlock::new).initialProperties(SharedProperties::copperMetal)
+		.properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
+		.properties(p -> p.mapColor(MapColor.COLOR_ORANGE).sound(SoundType.COPPER)).transform(pickaxeOnly())
+		.setData(ProviderType.LANG, NonNullBiConsumer.noop()).addLayer(() -> RenderType::cutoutMipped)
+		.blockstate(new FaucetGenerator("smart_faucet/smart_faucet", "smart_faucet/smart_faucet_open")::generate).item()
+		.model((c, p) -> p.withExistingParent(c.getName(), p.modLoc("block/smart_faucet/smart_faucet")).transforms()
+			.transform(ItemDisplayContext.GUI).rotation(30, -135, 0).translation(2.5f, -1.25f, 0).scale(0.625f).end()
+			.transform(ItemDisplayContext.FIXED).translation(0, 0, -2).scale(0.5f))
+		.build().register();
 
-    public static final BlockEntry<MultiFluidTankBlock> MULTI_FLUID_TANK = REGISTRATE
-            .block("multi_fluid_tank", MultiFluidTankBlock::regular)
-            .initialProperties(SharedProperties::copperMetal)
-            .properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> true))
-            .transform(pickaxeOnly())
-            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
-            .blockstate(new MultiFluidTankGenerator()::generate)
-            .onRegister(CreateRegistrate.blockModel(() -> MultiFluidTankModel::standard))
-            .addLayer(() -> RenderType::cutoutMipped)
-            .item(MultiFluidTankItem::new)
-            .model(AssetLookup.customBlockItemModel("_", "block_single_window"))
-            .build()
-            .transform(mountedFluidStorage(AllMountedStorageTypes.MULTI_FLUID_TANK))
-            .register();
+	public static final BlockEntry<FaucetBlock> FAUCET = REGISTRATE.block("faucet", FaucetBlock::new)
+		.initialProperties(SharedProperties::copperMetal)
+		.properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
+		.properties(p -> p.mapColor(MapColor.COLOR_ORANGE).sound(SoundType.COPPER)).transform(pickaxeOnly())
+		.setData(ProviderType.LANG, NonNullBiConsumer.noop()).addLayer(() -> RenderType::cutoutMipped)
+		.blockstate(new FaucetGenerator("faucet/faucet", "faucet/faucet_open")::generate).item()
+		.model((c, p) -> p.withExistingParent(c.getName(), p.modLoc("block/faucet/faucet")).transforms()
+			.transform(ItemDisplayContext.GUI).rotation(30, -135, 0).translation(2.5f, -1.25f, 0).scale(0.625f).end()
+			.transform(ItemDisplayContext.FIXED).translation(0, 0, -2).scale(0.5f))
+		.build().register();
 
-    public static final BlockEntry<HorizontalMultiFluidTankBlock> HORIZONTAL_MULTI_FLUID_TANK = REGISTRATE
-            .block("horizontal_multi_fluid_tank", HorizontalMultiFluidTankBlock::regular)
-            .initialProperties(SharedProperties::copperMetal)
-            .properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> true))
-            .transform(pickaxeOnly())
-            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
-            .blockstate(new HorizontalMultiFluidTankGenerator()::generate)
-            .onRegister(CreateRegistrate.blockModel(() -> HorizontalMultiFluidTankModel::standard))
-            .addLayer(() -> RenderType::cutoutMipped)
-            .item(HorizontalMultiFluidTankItem::new)
-            .model(AssetLookup.customBlockItemModel("horizontal_multi_fluid_tank", "block_x_single_window"))
-            .build()
-            .transform(mountedFluidStorage(AllMountedStorageTypes.HORIZONTAL_MULTI_FLUID_TANK))
-            .register();
+	public static final BlockEntry<MultiFluidTankBlock> MULTI_FLUID_TANK = REGISTRATE
+		.block("multi_fluid_tank", MultiFluidTankBlock::regular).initialProperties(SharedProperties::copperMetal)
+		.properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> true)).transform(pickaxeOnly())
+		.setData(ProviderType.LANG, NonNullBiConsumer.noop()).blockstate(new MultiFluidTankGenerator()::generate)
+		.onRegister(CreateRegistrate.blockModel(() -> MultiFluidTankModel::standard))
+		.addLayer(() -> RenderType::cutoutMipped).item(MultiFluidTankItem::new)
+		.model(AssetLookup.customBlockItemModel("_", "block_single_window")).build()
+		.transform(mountedFluidStorage(AllMountedStorageTypes.MULTI_FLUID_TANK)).register();
 
-    public static final BlockEntry<SmartHopperBlock> SMART_HOPPER = REGISTRATE
-            .block("smart_hopper", SmartHopperBlock::new)
-            .initialProperties(SharedProperties::softMetal)
-            .properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
-            .properties(p -> p.mapColor(MapColor.TERRACOTTA_CYAN).sound(SoundType.NETHERITE_BLOCK))
-            .transform(pickaxeOnly())
-            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
-            .addLayer(() -> RenderType::cutoutMipped)
-            .blockstate(new SmartHopperGenerator()::generate)
-            .item()
-            .model(AssetLookup.customBlockItemModel("smart_hopper", "fluid_hopper_side"))
-            .build()
-            .register();
+	public static final BlockEntry<HorizontalMultiFluidTankBlock> HORIZONTAL_MULTI_FLUID_TANK = REGISTRATE
+		.block("horizontal_multi_fluid_tank", HorizontalMultiFluidTankBlock::regular)
+		.initialProperties(SharedProperties::copperMetal)
+		.properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> true)).transform(pickaxeOnly())
+		.setData(ProviderType.LANG, NonNullBiConsumer.noop())
+		.blockstate(new HorizontalMultiFluidTankGenerator()::generate)
+		.onRegister(CreateRegistrate.blockModel(() -> HorizontalMultiFluidTankModel::standard))
+		.addLayer(() -> RenderType::cutoutMipped).item(HorizontalMultiFluidTankItem::new)
+		.model(AssetLookup.customBlockItemModel("horizontal_multi_fluid_tank", "block_x_single_window")).build()
+		.transform(mountedFluidStorage(AllMountedStorageTypes.HORIZONTAL_MULTI_FLUID_TANK)).register();
 
-    public static final BlockEntry<MultiFluidAccessPortBlock> MULTI_FLUID_ACCESS_PORT = REGISTRATE
-            .block("multi_fluid_access_port", MultiFluidAccessPortBlock::new)
-            .initialProperties(SharedProperties::softMetal)
-            .properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
-            .properties(p -> p.mapColor(MapColor.TERRACOTTA_BLUE).sound(SoundType.NETHERITE_BLOCK))
-            .transform(pickaxeOnly())
-            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
-            .addLayer(() -> RenderType::cutoutMipped)
-            .blockstate(new MultiFluidAccessPortGenerator()::generate)
-            .item()
-            .model(AssetLookup.customBlockItemModel("multi_fluid_access_port", "block_wall_off"))
-            .build()
-            .register();
+	public static final BlockEntry<CopperBasketBlock> COPPER_BASKET = REGISTRATE
+		.block("copper_basket", CopperBasketBlock::new).initialProperties(SharedProperties::copperMetal)
+		.properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false).sound(SoundType.WOOD))
+		.transform(pickaxeOnly()).setData(ProviderType.LANG, NonNullBiConsumer.noop())
+		.addLayer(() -> RenderType::cutoutMipped)
+		.blockstate((ctx, prov) -> prov.getVariantBuilder(ctx.get()).forAllStatesExcept(state -> {
+			Direction facing = state.getValue(CopperBasketBlock.FACING);
+			return ConfiguredModel.builder()
+				.modelFile(prov.models().getExistingFile(prov.modLoc("block/copper_basket/block")))
+				.rotationX(facing == Direction.UP ? 0 : facing == Direction.DOWN ? 180 : 90)
+				.rotationY(facing.getAxis().isVertical() ? 0 : ((int) facing.toYRot() + 180) % 360).build();
+		}, CopperBasketBlock.POWERED, CopperBasketBlock.WATERLOGGED)).loot((loot, block) -> loot.dropSelf(block)).item()
+		.properties(p -> p.stacksTo(64))
+		.model((ctx, prov) -> prov.withExistingParent(ctx.getName(), prov.modLoc("block/copper_basket/block"))).build()
+		.register();
 
-    public static final BlockEntry<FluidInventoryAccessPortBlock> FLUID_INVENTORY_ACCESS_PORT = REGISTRATE
-            .block("fluid_inventory_access_port", FluidInventoryAccessPortBlock::new)
-            .initialProperties(SharedProperties::softMetal)
-            .properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
-            .properties(p -> p.mapColor(MapColor.TERRACOTTA_ORANGE).sound(SoundType.NETHERITE_BLOCK))
-            .transform(pickaxeOnly())
-            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
-            .addLayer(() -> RenderType::cutoutMipped)
-            .blockstate(new FluidInventoryAccessPortGenerator()::generate)
-            .item()
-            .model(AssetLookup.customBlockItemModel("fluid_inventory_access_port", "block_wall_on"))
-            .build()
-            .register();
+	public static final BlockEntry<SmartHopperBlock> SMART_HOPPER = REGISTRATE
+		.block("smart_hopper", SmartHopperBlock::new).initialProperties(SharedProperties::softMetal)
+		.properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
+		.properties(p -> p.mapColor(MapColor.TERRACOTTA_CYAN).sound(SoundType.NETHERITE_BLOCK)).transform(pickaxeOnly())
+		.setData(ProviderType.LANG, NonNullBiConsumer.noop()).addLayer(() -> RenderType::cutoutMipped)
+		.blockstate(new SmartHopperGenerator()::generate).item()
+		.model(AssetLookup.customBlockItemModel("smart_hopper", "fluid_hopper_side")).build().register();
 
-    public static final BlockEntry<PressureGaugeBlock> FLOW_METER =
-        REGISTRATE.block("flow_meter", PressureGaugeBlock::new)
-            .initialProperties(SharedProperties::copperMetal)
-            .properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
-            .transform(pickaxeOnly())
-            .transform(DisplaySource.displaySource(AllFluidLogisticsDisplaySources.FLOW_RATE))
-            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
-            .addLayer(() -> RenderType::cutoutMipped)
-            .blockstate((context, provider) -> provider.getVariantBuilder(context.getEntry())
-                .forAllStatesExcept(state -> {
-                    Direction facing = state.getValue(PressureGaugeBlock.FACING);
-                    boolean along = PressureGaugeBlock.isAxisAlongFirstCoordinate(state);
-                    int rotationX = switch (facing) {
-                        case DOWN -> 180;
-                        case NORTH, SOUTH -> along ? 0 : 90;
-                        case EAST, WEST -> along ? 90 : 0;
-                        default -> 0;
-                    };
-                    int rotationY = switch (facing) {
-                        case NORTH -> 270;
-                        case SOUTH -> 90;
-                        case WEST -> 180;
-                        case DOWN, UP -> along ? 90 : 0;
-                        default -> 0;
-                    };
-                    String model = facing.getAxis().isVertical() ? "block" : "block_wall";
-                    return ConfiguredModel.builder()
-                        .modelFile(provider.models().getExistingFile(provider.modLoc("block/flow_meter/" + model)))
-                        .rotationX(rotationX)
-                        .rotationY(rotationY)
-                        .build();
-                }, PressureGaugeBlock.WATERLOGGED))
-            .onRegister(CreateRegistrate.blockModel(() -> PipeAttachmentModel::withAO))
-            .item()
-            .model(AssetLookup::customItemModel)
-            .build()
-            .register();
+	public static final BlockEntry<MultiFluidAccessPortBlock> MULTI_FLUID_ACCESS_PORT = REGISTRATE
+		.block("multi_fluid_access_port", MultiFluidAccessPortBlock::new).initialProperties(SharedProperties::softMetal)
+		.properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
+		.properties(p -> p.mapColor(MapColor.TERRACOTTA_BLUE).sound(SoundType.NETHERITE_BLOCK)).transform(pickaxeOnly())
+		.setData(ProviderType.LANG, NonNullBiConsumer.noop()).addLayer(() -> RenderType::cutoutMipped)
+		.blockstate(new MultiFluidAccessPortGenerator()::generate).item()
+		.model(AssetLookup.customBlockItemModel("multi_fluid_access_port", "block_wall_off")).build().register();
 
-    public static final BlockEntry<RedstoneFluidValveBlock> REDSTONE_FLUID_VALVE =
-        REGISTRATE.block("redstone_fluid_valve", RedstoneFluidValveBlock::new)
-            .initialProperties(SharedProperties::copperMetal)
-            .properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
-            .transform(pickaxeOnly())
-            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
-            .addLayer(() -> RenderType::cutoutMipped)
-            .blockstate((context, provider) -> provider.getVariantBuilder(context.getEntry())
-                .forAllStates(state -> {
-                    boolean alongFirst = state.getValue(RedstoneFluidValveBlock.AXIS_ALONG_FIRST_COORDINATE);
-                    Direction direction = state.getValue(RedstoneFluidValveBlock.FACING);
-                    boolean vertical = direction.getAxis().isHorizontal()
-                        && (direction.getAxis() == Direction.Axis.X) == alongFirst;
-                    int rotationX = direction == Direction.DOWN ? 270 : direction == Direction.UP ? 90 : 0;
-                    int rotationY = direction.getAxis().isVertical()
-                        ? alongFirst ? 0 : 90
-                        : (int) direction.toYRot();
-                    return ConfiguredModel.builder()
-                        .modelFile(AssetLookup.partialBaseModel(context, provider,
-                            vertical ? "vertical" : "horizontal",
-                            state.getValue(RedstoneFluidValveBlock.ENABLED) ? "open" : "closed"))
-                        .rotationX(rotationX)
-                        .rotationY(rotationY)
-                        .build();
-                }))
-            .onRegister(CreateRegistrate.blockModel(() -> PipeAttachmentModel::withAO))
-            .item()
-            .model((context, provider) -> {})
-            .build()
-            .register();
+	public static final BlockEntry<FluidInventoryAccessPortBlock> FLUID_INVENTORY_ACCESS_PORT = REGISTRATE
+		.block("fluid_inventory_access_port", FluidInventoryAccessPortBlock::new)
+		.initialProperties(SharedProperties::softMetal)
+		.properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
+		.properties(p -> p.mapColor(MapColor.TERRACOTTA_ORANGE).sound(SoundType.NETHERITE_BLOCK))
+		.transform(pickaxeOnly()).setData(ProviderType.LANG, NonNullBiConsumer.noop())
+		.addLayer(() -> RenderType::cutoutMipped).blockstate(new FluidInventoryAccessPortGenerator()::generate).item()
+		.model(AssetLookup.customBlockItemModel("fluid_inventory_access_port", "block_wall_on")).build().register();
 
+	public static final BlockEntry<PressureGaugeBlock> FLOW_METER = REGISTRATE
+		.block("flow_meter", PressureGaugeBlock::new).initialProperties(SharedProperties::copperMetal)
+		.properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false)).transform(pickaxeOnly())
+		.transform(DisplaySource.displaySource(AllFluidLogisticsDisplaySources.FLOW_RATE))
+		.setData(ProviderType.LANG, NonNullBiConsumer.noop()).addLayer(() -> RenderType::cutoutMipped)
+		.blockstate((context, provider) -> provider.getVariantBuilder(context.getEntry()).forAllStatesExcept(state -> {
+			Direction facing = state.getValue(PressureGaugeBlock.FACING);
+			boolean along = PressureGaugeBlock.isAxisAlongFirstCoordinate(state);
+			int rotationX = switch (facing) {
+			case DOWN -> 180;
+			case NORTH, SOUTH -> along ? 0 : 90;
+			case EAST, WEST -> along ? 90 : 0;
+			default -> 0;
+			};
+			int rotationY = switch (facing) {
+			case NORTH -> 270;
+			case SOUTH -> 90;
+			case WEST -> 180;
+			case DOWN, UP -> along ? 90 : 0;
+			default -> 0;
+			};
+			String model = facing.getAxis().isVertical() ? "block" : "block_wall";
+			return ConfiguredModel.builder()
+				.modelFile(provider.models().getExistingFile(provider.modLoc("block/flow_meter/" + model)))
+				.rotationX(rotationX).rotationY(rotationY).build();
+		}, PressureGaugeBlock.WATERLOGGED)).onRegister(CreateRegistrate.blockModel(() -> PipeAttachmentModel::withAO))
+		.item().model(AssetLookup::customItemModel).build().register();
 
+	public static final BlockEntry<RedstoneFluidValveBlock> REDSTONE_FLUID_VALVE = REGISTRATE
+		.block("redstone_fluid_valve", RedstoneFluidValveBlock::new).initialProperties(SharedProperties::copperMetal)
+		.properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false)).transform(pickaxeOnly())
+		.setData(ProviderType.LANG, NonNullBiConsumer.noop()).addLayer(() -> RenderType::cutoutMipped)
+		.blockstate((context, provider) -> provider.getVariantBuilder(context.getEntry()).forAllStates(state -> {
+			boolean alongFirst = state.getValue(RedstoneFluidValveBlock.AXIS_ALONG_FIRST_COORDINATE);
+			Direction direction = state.getValue(RedstoneFluidValveBlock.FACING);
+			boolean vertical = direction.getAxis().isHorizontal()
+				&& (direction.getAxis() == Direction.Axis.X) == alongFirst;
+			int rotationX = direction == Direction.DOWN ? 270 : direction == Direction.UP ? 90 : 0;
+			int rotationY = direction.getAxis().isVertical() ? alongFirst ? 0 : 90 : (int) direction.toYRot();
+			return ConfiguredModel.builder()
+				.modelFile(AssetLookup.partialBaseModel(context, provider, vertical ? "vertical" : "horizontal",
+					state.getValue(RedstoneFluidValveBlock.ENABLED) ? "open" : "closed"))
+				.rotationX(rotationX).rotationY(rotationY).build();
+		})).onRegister(CreateRegistrate.blockModel(() -> PipeAttachmentModel::withAO)).item()
+		.model((context, provider) -> {
+		}).build().register();
 
-    public static final BlockEntry<FluidPumpBlock> FLUID_PUMP =
-        REGISTRATE.block("fluid_pump", FluidPumpBlock::new)
-            .initialProperties(SharedProperties::copperMetal)
-            .properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
-            .properties(p -> p.mapColor(MapColor.STONE).sound(SoundType.COPPER))
-            .transform(pickaxeOnly())
-            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
-            .addLayer(() -> RenderType::cutoutMipped)
-            .blockstate(new FluidPumpGenerator()::generate)
-            .onRegister(CreateRegistrate.blockModel(() -> PipeAttachmentModel::withAO))
-            .item()
-            .model(AssetLookup::customItemModel)
-            .build()
-            .register();
+	public static final BlockEntry<FluidPumpBlock> FLUID_PUMP = REGISTRATE.block("fluid_pump", FluidPumpBlock::new)
+		.initialProperties(SharedProperties::copperMetal)
+		.properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
+		.properties(p -> p.mapColor(MapColor.STONE).sound(SoundType.COPPER)).transform(pickaxeOnly())
+		.setData(ProviderType.LANG, NonNullBiConsumer.noop()).addLayer(() -> RenderType::cutoutMipped)
+		.blockstate(new FluidPumpGenerator()::generate)
+		.onRegister(CreateRegistrate.blockModel(() -> PipeAttachmentModel::withAO)).item()
+		.model(AssetLookup::customItemModel).build().register();
 
-    public static final BlockEntry<InfiniteFluidTankBlock> INFINITE_FLUID_TANK =
-        REGISTRATE.block("infinite_fluid_tank", InfiniteFluidTankBlock::new)
-            .initialProperties(SharedProperties::copperMetal)
-            .properties(p -> p.noOcclusion()
-                .mapColor(MapColor.COLOR_PURPLE)
-                .isRedstoneConductor(($1, $2, $3) -> true))
-            .transform(pickaxeOnly())
-            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
-            .addLayer(() -> RenderType::cutoutMipped)
-            .blockstate((ctx, prov) -> prov.simpleBlock(ctx.get(),
-                prov.models().getExistingFile(prov.modLoc("block/infinite_fluid_tank/block"))))
-            .loot((loot, block) -> loot.add(block, LootTable.lootTable()
-                .withPool(loot.applyExplosionCondition(block, LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1.0F))
-                    .add(LootItem.lootTableItem(block)
-                        .apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
-                            .copy("TankContent", "BlockEntityTag.TankContent")
-                            .copy("Luminosity", "BlockEntityTag.Luminosity")))))))
-            .item(InfiniteFluidTankItem::new)
-            .properties(p -> p.rarity(Rarity.EPIC))
-            .model((ctx, prov) -> prov.withExistingParent(ctx.getName(), prov.modLoc("block/infinite_fluid_tank/block")))
-            .build()
-            .register();
+	public static final BlockEntry<InfiniteFluidTankBlock> INFINITE_FLUID_TANK = REGISTRATE
+		.block("infinite_fluid_tank", InfiniteFluidTankBlock::new).initialProperties(SharedProperties::copperMetal)
+		.properties(p -> p.noOcclusion().mapColor(MapColor.COLOR_PURPLE).isRedstoneConductor(($1, $2, $3) -> true))
+		.transform(pickaxeOnly()).setData(ProviderType.LANG, NonNullBiConsumer.noop())
+		.addLayer(() -> RenderType::cutoutMipped)
+		.blockstate((ctx, prov) -> prov.simpleBlock(ctx.get(),
+			prov.models().getExistingFile(prov.modLoc("block/infinite_fluid_tank/block"))))
+		.loot((loot, block) -> loot.add(block,
+			LootTable.lootTable()
+				.withPool(loot.applyExplosionCondition(block,
+					LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
+						.add(LootItem.lootTableItem(block)
+							.apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
+								.copy("TankContent", "BlockEntityTag.TankContent")
+								.copy("Luminosity", "BlockEntityTag.Luminosity")))))))
+		.item(InfiniteFluidTankItem::new).properties(p -> p.rarity(Rarity.EPIC))
+		.model((ctx, prov) -> prov.withExistingParent(ctx.getName(), prov.modLoc("block/infinite_fluid_tank/block")))
+		.build().register();
 
-    public static final BlockEntry<CopperBasinBlock> COPPER_BASIN =
-        REGISTRATE.block("copper_basin", CopperBasinBlock::new)
-            .initialProperties(SharedProperties::stone)
-            .properties(p -> p.noOcclusion()
-                .mapColor(MapColor.COLOR_GRAY)
-                .sound(SoundType.NETHERITE_BLOCK))
-            .transform(pickaxeOnly())
-            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
-            .blockstate(new BasinGenerator()::generate)
-            .addLayer(() -> RenderType::cutoutMipped)
-            .onRegister(movementBehaviour(new BasinMovementBehaviour()))
-            .item()
-            .model(AssetLookup.customBlockItemModel("_", "block"))
-            .build()
-            .register();
+	public static final BlockEntry<CopperBasinBlock> COPPER_BASIN = REGISTRATE
+		.block("copper_basin", CopperBasinBlock::new).initialProperties(SharedProperties::stone)
+		.properties(p -> p.noOcclusion().mapColor(MapColor.COLOR_GRAY).sound(SoundType.NETHERITE_BLOCK))
+		.transform(pickaxeOnly()).setData(ProviderType.LANG, NonNullBiConsumer.noop())
+		.blockstate(new BasinGenerator()::generate).addLayer(() -> RenderType::cutoutMipped)
+		.onRegister(movementBehaviour(new BasinMovementBehaviour())).item()
+		.model(AssetLookup.customBlockItemModel("_", "block")).build().register();
 
-    public static final BlockEntry<MechanicalFluidGunBlock> MECHANICAL_FLUID_GUN =
-        REGISTRATE.block("mechanical_fluid_gun", MechanicalFluidGunBlock::new)
-            .initialProperties(SharedProperties::copperMetal)
-            .properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
-            .properties(p -> p.mapColor(MapColor.TERRACOTTA_LIGHT_GRAY).sound(SoundType.COPPER))
-            .transform(pickaxeOnly())
-            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
-            .addLayer(() -> RenderType::cutoutMipped)
-            .blockstate(MechanicalFluidGunGenerator::generate)
-            .item(MechanicalFluidGunItem::new)
-            .model(AssetLookup::customItemModel)
-            .build()
-            .register();
+	public static final BlockEntry<MechanicalFluidGunBlock> MECHANICAL_FLUID_GUN = REGISTRATE
+		.block("mechanical_fluid_gun", MechanicalFluidGunBlock::new).initialProperties(SharedProperties::copperMetal)
+		.properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
+		.properties(p -> p.mapColor(MapColor.TERRACOTTA_LIGHT_GRAY).sound(SoundType.COPPER)).transform(pickaxeOnly())
+		.setData(ProviderType.LANG, NonNullBiConsumer.noop()).addLayer(() -> RenderType::cutoutMipped)
+		.blockstate(MechanicalFluidGunGenerator::generate).item(MechanicalFluidGunItem::new)
+		.model(AssetLookup::customItemModel).build().register();
 
-    public static final BlockEntry<CopperSchematicannonBlock> COPPER_SCHEMATICANNON =
-        REGISTRATE.block("copper_schematicannon", CopperSchematicannonBlock::new)
-            .initialProperties(() -> Blocks.DISPENSER)
-            .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
-            .transform(pickaxeOnly())
-            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
-            .blockstate((ctx, prov) -> prov.simpleBlock(ctx.get(),
-                prov.models().getExistingFile(prov.modLoc("block/copper_schematicannon/block"))))
-            .loot((loot, block) -> loot.add(block, LootTable.lootTable()
-                .withPool(loot.applyExplosionCondition(block, LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1.0F))
-                    .add(LootItem.lootTableItem(block)
-                        .apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
-                            .copy("Options", "BlockEntityTag.Options")))))))
-            .item()
-            .model((ctx, prov) -> prov.withExistingParent(ctx.getName(),
-                prov.modLoc("block/copper_schematicannon/item")))
-            .build()
-            .register();
+	public static final BlockEntry<CopperSchematicannonBlock> COPPER_SCHEMATICANNON = REGISTRATE
+		.block("copper_schematicannon", CopperSchematicannonBlock::new).initialProperties(() -> Blocks.DISPENSER)
+		.properties(p -> p.mapColor(MapColor.COLOR_GRAY)).transform(pickaxeOnly())
+		.setData(ProviderType.LANG, NonNullBiConsumer.noop())
+		.blockstate((ctx, prov) -> prov.simpleBlock(ctx.get(),
+			prov.models().getExistingFile(prov.modLoc("block/copper_schematicannon/block"))))
+		.loot((loot, block) -> loot.add(block,
+			LootTable.lootTable()
+				.withPool(loot.applyExplosionCondition(block,
+					LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
+						.add(LootItem.lootTableItem(block)
+							.apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY).copy("Options",
+								"BlockEntityTag.Options")))))))
+		.item()
+		.model((ctx, prov) -> prov.withExistingParent(ctx.getName(), prov.modLoc("block/copper_schematicannon/item")))
+		.build().register();
 
-    public static final BlockEntry<WaterContainingCopperCasingBlock> WATER_CONTAINING_COPPER_CASING =
-        REGISTRATE.block("water_containing_copper_casing", WaterContainingCopperCasingBlock::new)
-            .initialProperties(SharedProperties::copperMetal)
-            .properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
-            .properties(p -> p.mapColor(MapColor.TERRACOTTA_LIGHT_GRAY).sound(SoundType.COPPER))
-            .transform(pickaxeOnly())
-            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
-            .addLayer(() -> RenderType::cutoutMipped)
-            .blockstate((ctx, prov) -> prov.simpleBlock(ctx.get(),
-                prov.models().getExistingFile(prov.modLoc("block/water_containing_copper_casing/block"))))
-            .item(WaterContainingCopperCasingItem::new)
-            .model((ctx, prov) -> prov.withExistingParent(ctx.getName(),
-                prov.modLoc("block/water_containing_copper_casing/block")))
-            .build()
-            .register();
+	public static final BlockEntry<WaterContainingCopperCasingBlock> WATER_CONTAINING_COPPER_CASING = REGISTRATE
+		.block("water_containing_copper_casing", WaterContainingCopperCasingBlock::new)
+		.initialProperties(SharedProperties::copperMetal)
+		.properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
+		.properties(p -> p.mapColor(MapColor.TERRACOTTA_LIGHT_GRAY).sound(SoundType.COPPER)).transform(pickaxeOnly())
+		.setData(ProviderType.LANG, NonNullBiConsumer.noop()).addLayer(() -> RenderType::cutoutMipped)
+		.blockstate((ctx, prov) -> prov.simpleBlock(ctx.get(),
+			prov.models().getExistingFile(prov.modLoc("block/water_containing_copper_casing/block"))))
+		.item(WaterContainingCopperCasingItem::new).model((ctx, prov) -> prov.withExistingParent(ctx.getName(),
+			prov.modLoc("block/water_containing_copper_casing/block")))
+		.build().register();
 
-    public static final BlockEntry<FluidHatchBlock> FLUID_HATCH = REGISTRATE
-            .block("fluid_hatch", FluidHatchBlock::new)
-            .initialProperties(SharedProperties::copperMetal)
-            .properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
-            .properties(p -> p.mapColor(MapColor.COLOR_GRAY).sound(SoundType.COPPER))
-            .transform(pickaxeOnly())
-            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
-            .addLayer(() -> RenderType::cutoutMipped)
-            .blockstate((ctx, prov) -> prov.getVariantBuilder(ctx.getEntry()).forAllStates(state -> {
-                Direction facing = state.getValue(FluidHatchBlock.FACING);
-                AttachFace target = state.getValue(FluidHatchBlock.TARGET);
-                int rotationX = switch (target) {
-                    case FLOOR -> 90;
-                    case CEILING -> 270;
-                    case WALL -> 0;
-                };
-                int rotationY = switch (facing) {
-                    case EAST -> 90;
-                    case SOUTH -> 180;
-                    case WEST -> 270;
-                    default -> 0;
-                };
-                if (target == AttachFace.CEILING)
-                    rotationY = (rotationY + 180) % 360;
-                return ConfiguredModel.builder()
-                    .modelFile(prov.models().getExistingFile(prov.modLoc(
-                        "block/fluid_hatch/block_" + (state.getValue(FluidHatchBlock.OPEN) ? "open" : "closed"))))
-                    .rotationX(rotationX)
-                    .rotationY(rotationY)
-                    .build();
-            }))
-            .item()
-            .model((ctx, prov) -> prov.withExistingParent(ctx.getName(), prov.modLoc("block/fluid_hatch/block_closed")))
-            .build()
-            .register();
+	public static final BlockEntry<FluidHatchBlock> FLUID_HATCH = REGISTRATE.block("fluid_hatch", FluidHatchBlock::new)
+		.initialProperties(SharedProperties::copperMetal)
+		.properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
+		.properties(p -> p.mapColor(MapColor.COLOR_GRAY).sound(SoundType.COPPER)).transform(pickaxeOnly())
+		.setData(ProviderType.LANG, NonNullBiConsumer.noop()).addLayer(() -> RenderType::cutoutMipped)
+		.blockstate((ctx, prov) -> prov.getVariantBuilder(ctx.getEntry()).forAllStates(state -> {
+			Direction facing = state.getValue(FluidHatchBlock.FACING);
+			AttachFace target = state.getValue(FluidHatchBlock.TARGET);
+			int rotationX = switch (target) {
+			case FLOOR -> 90;
+			case CEILING -> 270;
+			case WALL -> 0;
+			};
+			int rotationY = switch (facing) {
+			case EAST -> 90;
+			case SOUTH -> 180;
+			case WEST -> 270;
+			default -> 0;
+			};
+			if (target == AttachFace.CEILING)
+				rotationY = (rotationY + 180) % 360;
+			return ConfiguredModel.builder()
+				.modelFile(prov.models()
+					.getExistingFile(prov.modLoc(
+						"block/fluid_hatch/block_" + (state.getValue(FluidHatchBlock.OPEN) ? "open" : "closed"))))
+				.rotationX(rotationX).rotationY(rotationY).build();
+		})).item()
+		.model((ctx, prov) -> prov.withExistingParent(ctx.getName(), prov.modLoc("block/fluid_hatch/block_closed")))
+		.build().register();
 
-    public static void register() {
-    }
+	public static void register() {
+	}
 
 }

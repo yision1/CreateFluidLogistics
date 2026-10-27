@@ -13,8 +13,8 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.simibubi.create.content.fluids.FluidPropagator;
 import com.simibubi.create.content.fluids.FluidTransportBehaviour;
 import com.yision.fluidlogistics.content.fluids.fluidPump.FluidPumpBlock;
-import com.yision.fluidlogistics.content.fluids.fluidPump.FluidPumpNetworkUpdater;
 import com.yision.fluidlogistics.content.fluids.fluidPump.FluidPumpNetworkUpdater.PropagationContext;
+import com.yision.fluidlogistics.content.fluids.fluidPump.FluidPumpNetworkUpdater;
 
 import net.createmod.catnip.data.Pair;
 import net.minecraft.core.BlockPos;
@@ -25,18 +25,9 @@ import net.minecraft.world.level.block.state.BlockState;
 @Mixin(value = FluidPropagator.class, remap = false)
 public class FluidPropagatorMixin {
 
-	@Inject(
-		method = "propagateChangedPipe",
-		at = @At(
-			value = "INVOKE",
-			target = "Lcom/simibubi/create/content/fluids/FluidTransportBehaviour;wipePressure()V",
-			remap = false
-		),
-		remap = false
-	)
+	@Inject(method = "propagateChangedPipe", at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/fluids/FluidTransportBehaviour;wipePressure()V", remap = false), remap = false)
 	private static void fluidlogistics$recordCreateTraversal(LevelAccessor world, BlockPos pipePos,
-		BlockState pipeState, CallbackInfo ci, @Local Pair<Integer, BlockPos> pair,
-		@Local FluidTransportBehaviour pipe,
+		BlockState pipeState, CallbackInfo ci, @Local Pair<Integer, BlockPos> pair, @Local FluidTransportBehaviour pipe,
 		@Share("fluidPumpPropagation") LocalRef<PropagationContext> contextRef,
 		@Share("fluidPumpPropagationInitialized") LocalBooleanRef initialized) {
 		if (!initialized.get()) {
@@ -48,29 +39,13 @@ public class FluidPropagatorMixin {
 			context.recordCreatePipe(pair.getSecond(), pair.getFirst(), pipe);
 	}
 
-	@ModifyExpressionValue(
-		method = "propagateChangedPipe",
-		at = @At(
-			value = "INVOKE",
-			target = "Lcom/tterrag/registrate/util/entry/BlockEntry;has(Lnet/minecraft/world/level/block/state/BlockState;)Z",
-			remap = false
-		),
-		remap = false
-	)
+	@ModifyExpressionValue(method = "propagateChangedPipe", at = @At(value = "INVOKE", target = "Lcom/tterrag/registrate/util/entry/BlockEntry;has(Lnet/minecraft/world/level/block/state/BlockState;)Z", remap = false), remap = false)
 	private static boolean fluidlogistics$recognizeFluidPump(boolean original, LevelAccessor world, BlockPos pipePos,
 		BlockState pipeState, @Local(ordinal = 2) BlockState targetState) {
 		return original || targetState.getBlock() instanceof FluidPumpBlock;
 	}
 
-	@ModifyExpressionValue(
-		method = "propagateChangedPipe",
-		at = @At(
-			value = "INVOKE",
-			target = "Lcom/simibubi/create/content/fluids/FluidTransportBehaviour;hasAnyPressure()Z",
-			remap = false
-		),
-		remap = false
-	)
+	@ModifyExpressionValue(method = "propagateChangedPipe", at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/fluids/FluidTransportBehaviour;hasAnyPressure()Z", remap = false), remap = false)
 	private static boolean fluidlogistics$captureFluidPumpFrontier(boolean original, LevelAccessor world,
 		BlockPos pipePos, BlockState pipeState, @Local(ordinal = 2) BlockPos target,
 		@Local(ordinal = 2) BlockState targetState, @Local(ordinal = 1) FluidTransportBehaviour targetPipe,
@@ -89,8 +64,7 @@ public class FluidPropagatorMixin {
 
 	@Inject(method = "propagateChangedPipe", at = @At("TAIL"))
 	private static void fluidlogistics$propagateChangedPipeToFluidPumps(LevelAccessor world, BlockPos pipePos,
-		BlockState pipeState, CallbackInfo ci,
-		@Share("fluidPumpPropagation") LocalRef<PropagationContext> contextRef) {
+		BlockState pipeState, CallbackInfo ci, @Share("fluidPumpPropagation") LocalRef<PropagationContext> contextRef) {
 		FluidPumpNetworkUpdater.finishPropagationForFluidPumps(world, contextRef.get());
 	}
 }

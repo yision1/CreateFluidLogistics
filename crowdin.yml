@@ -10,6 +10,15 @@ files:
 
     languages_mapping:
       locale_with_underscore:
+        "de": "de_de"
+        "es-ES": "es_es"
+        "hu": "hu_hu"
+        "ko": "ko_kr"
+        "pl": "pl_pl"
+        "pt-BR": "pt_br"
+        "sv-SE": "sv_se"
+        "tr": "tr_tr"
+        "uk": "uk_ua"
         "en": "en_us"
         "fr": "fr_fr"
         "ja": "ja_jp"

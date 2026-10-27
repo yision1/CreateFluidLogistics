@@ -22,9 +22,9 @@ import com.simibubi.create.foundation.item.ItemHelper;
 import com.yision.fluidlogistics.api.packager.PackageInspection;
 import com.yision.fluidlogistics.api.packager.PackageResources;
 import com.yision.fluidlogistics.api.packager.PackageUnpackContext;
+import com.yision.fluidlogistics.api.packager.PackageUnpackResult;
 import com.yision.fluidlogistics.content.logistics.fluidPackage.FluidPackageContentHelper;
 import com.yision.fluidlogistics.content.logistics.fluidPackager.PackagerGoggleInfo;
-import com.yision.fluidlogistics.registry.AllBlockEntities;
 import com.yision.fluidlogistics.util.IPackagerOverrideData;
 
 import net.minecraft.core.BlockPos;
@@ -39,399 +39,426 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 
-public class FluidRepackagerBlockEntity extends PackagerBlockEntity
-    implements Clearable, IHaveGoggleInformation {
+public class FluidRepackagerBlockEntity extends PackagerBlockEntity implements Clearable, IHaveGoggleInformation {
 
-    private final List<ItemStack> stalledPackages;
-    private final IItemHandler externalItemHandler;
-    private final LazyOptional<IItemHandler> itemHandlerCap;
+	private final List<ItemStack> stalledPackages;
+	private final IItemHandler externalItemHandler;
+	private LazyOptional<IItemHandler> itemHandlerCap;
 
-    public FluidRepackagerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
-        super(type, pos, state);
-        stalledPackages = new ArrayList<>();
-        externalItemHandler = new FluidRepackagerItemHandler();
-        itemHandlerCap = LazyOptional.of(() -> externalItemHandler);
-    }
+	public FluidRepackagerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
+		stalledPackages = new ArrayList<>();
+		externalItemHandler = new FluidRepackagerItemHandler();
+		itemHandlerCap = LazyOptional.of(() -> externalItemHandler);
+	}
 
-    @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER) {
-            return itemHandlerCap.cast();
-        }
-        return super.getCapability(cap, side);
-    }
+	@Override
+	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
+		if (cap == ForgeCapabilities.ITEM_HANDLER) {
+			return itemHandlerCap.cast();
+		}
+		return super.getCapability(cap, side);
+	}
 
-    @Override
-    public void invalidate() {
-        super.invalidate();
-        itemHandlerCap.invalidate();
-    }
+	@Override
+	public void invalidateCaps() {
+		super.invalidateCaps();
+		itemHandlerCap.invalidate();
+	}
 
-    @Override
-    public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-        IPackagerOverrideData overrideData = fluidlogistics$overrideData();
-        int cachedPackageCount = getCachedPackageCount();
-        if (!overrideData.fluidlogistics$isManualOverrideLocked() && cachedPackageCount <= 0) {
-            return false;
-        }
+	@Override
+	public void reviveCaps() {
+		super.reviveCaps();
+		itemHandlerCap = LazyOptional.of(() -> externalItemHandler);
+	}
 
-        PackagerGoggleInfo.addFluidRepackagerToTooltip(
-            tooltip, "", overrideData.fluidlogistics$isManualOverrideLocked(), cachedPackageCount);
-        return true;
-    }
+	@Override
+	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
+		IPackagerOverrideData overrideData = fluidlogistics$overrideData();
+		int cachedPackageCount = getCachedPackageCount();
+		if (!overrideData.fluidlogistics$isManualOverrideLocked() && cachedPackageCount <= 0) {
+			return false;
+		}
 
-    private int getCachedPackageCount() {
-        return stalledPackages.size() + fluidlogistics$overrideData().fluidlogistics$getQueuedPackageCount();
-    }
+		PackagerGoggleInfo.addFluidRepackagerToTooltip(tooltip, "",
+			overrideData.fluidlogistics$isManualOverrideLocked(), cachedPackageCount);
+		return true;
+	}
 
-    private IPackagerOverrideData fluidlogistics$overrideData() {
-        return (IPackagerOverrideData) (Object) this;
-    }
+	private int getCachedPackageCount() {
+		return stalledPackages.size() + fluidlogistics$overrideData().fluidlogistics$getQueuedPackageCount();
+	}
 
-    @Override
-    public void tick() {
-        super.tick();
+	private IPackagerOverrideData fluidlogistics$overrideData() {
+		return (IPackagerOverrideData) (Object) this;
+	}
 
-        if (!level.isClientSide() && animationTicks == 0 && !stalledPackages.isEmpty()) {
-            tryDeliverStalledPackages();
-        }
-    }
+	@Override
+	public void tick() {
+		super.tick();
 
-    @Override
-    public boolean unwrapBox(ItemStack box, boolean simulate) {
-        if (animationTicks > 0 || !stalledPackages.isEmpty()) {
-            return false;
-        }
+		if (!level.isClientSide() && animationTicks == 0 && !stalledPackages.isEmpty()) {
+			tryDeliverStalledPackages();
+		}
+	}
 
-        Objects.requireNonNull(this.level);
+	@Override
+	public boolean unwrapBox(ItemStack box, boolean simulate) {
+		if (animationTicks > 0 || !stalledPackages.isEmpty()) {
+			return false;
+		}
 
-        Direction facing = getBlockState().getOptionalValue(PackagerBlock.FACING).orElse(Direction.UP);
-        BlockPos targetPos = worldPosition.relative(facing.getOpposite());
-        BlockState targetState = level.getBlockState(targetPos);
-        BlockEntity targetBE = level.getBlockEntity(targetPos);
+		Objects.requireNonNull(this.level);
 
-        if (!isSolidLiquidMixedTarget(targetState, targetBE, facing)) {
-            return insertPackageIntoTargetInventory(box, simulate);
-        }
+		Direction facing = getBlockState().getOptionalValue(PackagerBlock.FACING).orElse(Direction.UP);
+		BlockPos targetPos = worldPosition.relative(facing.getOpposite());
+		BlockState targetState = level.getBlockState(targetPos);
+		BlockEntity targetBE = level.getBlockEntity(targetPos);
 
-        List<ItemStack> splitResults = PackageResources.splitPackage(box);
-        if (splitResults.isEmpty()) {
-            return false;
-        }
+		if (!isSolidLiquidMixedTarget(targetState, targetBE, facing)) {
+			return insertPackageIntoTargetInventory(box, simulate);
+		}
 
-        if (simulate) {
-            return true;
-        }
+		List<ItemStack> splitResults = splitSafely(box);
+		if (splitResults.isEmpty()) {
+			return false;
+		}
 
-        computerBehaviour.prepareComputerEvent(new PackageEvent(box, "package_received"));
-        previouslyUnwrapped = box.copy();
-        previouslyUnwrapped.setCount(1);
-        animationInward = true;
-        animationTicks = CYCLE;
+		if (simulate) {
+			return true;
+		}
 
-        deliverToTarget(splitResults, targetPos, targetState, targetBE, facing);
+		computerBehaviour.prepareComputerEvent(new PackageEvent(box, "package_received"));
+		previouslyUnwrapped = box.copy();
+		previouslyUnwrapped.setCount(1);
+		animationInward = true;
+		animationTicks = CYCLE;
 
-        notifyUpdate();
-        return true;
-    }
+		deliverToTarget(splitResults, targetPos, targetState, targetBE, facing);
 
-    private boolean insertPackageIntoTargetInventory(ItemStack box, boolean simulate) {
-        IItemHandler targetInv = targetInventory.getInventory();
-        if (targetInv == null || targetInv instanceof PackagerItemHandler) {
-            return false;
-        }
+		notifyUpdate();
+		return true;
+	}
 
-        ItemStack boxToInsert = box.copy();
-        boxToInsert.setCount(1);
-        boolean targetIsCreativeCrate = targetInv instanceof BottomlessItemHandler;
-        boolean anySpace = false;
+	private boolean insertPackageIntoTargetInventory(ItemStack box, boolean simulate) {
+		IItemHandler targetInv = targetInventory.getInventory();
+		if (targetInv == null || targetInv instanceof PackagerItemHandler) {
+			return false;
+		}
 
-        for (int slot = 0; slot < targetInv.getSlots(); slot++) {
-            ItemStack remainder = targetInv.insertItem(slot, boxToInsert, simulate);
-            if (!remainder.isEmpty()) {
-                continue;
-            }
-            anySpace = true;
-            break;
-        }
+		ItemStack boxToInsert = box.copy();
+		boxToInsert.setCount(1);
+		boolean targetIsCreativeCrate = targetInv instanceof BottomlessItemHandler;
+		boolean anySpace = false;
 
-        if (!targetIsCreativeCrate && !anySpace) {
-            return false;
-        }
-        if (simulate) {
-            return true;
-        }
+		for (int slot = 0; slot < targetInv.getSlots(); slot++) {
+			ItemStack remainder = targetInv.insertItem(slot, boxToInsert, simulate);
+			if (!remainder.isEmpty()) {
+				continue;
+			}
+			anySpace = true;
+			break;
+		}
 
-        computerBehaviour.prepareComputerEvent(new PackageEvent(box, "package_received"));
-        previouslyUnwrapped = boxToInsert;
-        animationInward = true;
-        animationTicks = CYCLE;
-        notifyUpdate();
-        return true;
-    }
+		if (!targetIsCreativeCrate && !anySpace) {
+			return false;
+		}
+		if (simulate) {
+			return true;
+		}
 
-    @Override
-    public void attemptToSend(List<PackagingRequest> queuedRequests) {
-        if (queuedRequests != null) {
-            return;
-        }
+		computerBehaviour.prepareComputerEvent(new PackageEvent(box, "package_received"));
+		previouslyUnwrapped = boxToInsert;
+		animationInward = true;
+		animationTicks = CYCLE;
+		notifyUpdate();
+		return true;
+	}
 
-        if (!heldBox.isEmpty() || animationTicks != 0 || buttonCooldown > 0 || !stalledPackages.isEmpty()) {
-            return;
-        }
-        if (!queuedExitingPackages.isEmpty()) {
-            return;
-        }
+	@Override
+	public void attemptToSend(List<PackagingRequest> queuedRequests) {
+		if (queuedRequests != null) {
+			return;
+		}
 
-        IItemHandler targetInv = targetInventory.getInventory();
-        if (targetInv == null || targetInv instanceof PackagerItemHandler) {
-            return;
-        }
+		if (!heldBox.isEmpty() || animationTicks != 0 || buttonCooldown > 0 || !stalledPackages.isEmpty()) {
+			return;
+		}
+		if (!queuedExitingPackages.isEmpty()) {
+			return;
+		}
 
-        Direction facing = getBlockState().getOptionalValue(PackagerBlock.FACING).orElse(Direction.UP);
-        BlockPos targetPos = worldPosition.relative(facing.getOpposite());
-        BlockState targetState = level.getBlockState(targetPos);
-        BlockEntity targetBE = level.getBlockEntity(targetPos);
+		IItemHandler targetInv = targetInventory.getInventory();
+		if (targetInv == null || targetInv instanceof PackagerItemHandler) {
+			return;
+		}
 
-        boolean mixedTarget = isSolidLiquidMixedTarget(targetState, targetBE, facing);
+		Direction facing = getBlockState().getOptionalValue(PackagerBlock.FACING).orElse(Direction.UP);
+		BlockPos targetPos = worldPosition.relative(facing.getOpposite());
+		BlockState targetState = level.getBlockState(targetPos);
+		BlockEntity targetBE = level.getBlockEntity(targetPos);
 
-        for (int slot = 0; slot < targetInv.getSlots(); slot++) {
-            ItemStack extracted = targetInv.extractItem(slot, 1, true);
-            if (extracted.isEmpty() || !PackageItem.isPackage(extracted)) {
-                continue;
-            }
+		boolean mixedTarget = isSolidLiquidMixedTarget(targetState, targetBE, facing);
 
-            List<ItemStack> splitResults = PackageResources.splitPackage(extracted);
-            if (splitResults.isEmpty()) {
-                continue;
-            }
+		for (int slot = 0; slot < targetInv.getSlots(); slot++) {
+			ItemStack extracted = targetInv.extractItem(slot, 1, true);
+			if (extracted.isEmpty() || !PackageItem.isPackage(extracted)) {
+				continue;
+			}
 
-            targetInv.extractItem(slot, 1, false);
-            computerBehaviour.prepareComputerEvent(new PackageEvent(extracted, "package_received"));
+			List<ItemStack> splitResults = splitSafely(extracted);
+			if (splitResults.isEmpty()) {
+				continue;
+			}
 
-            if (mixedTarget) {
-                previouslyUnwrapped = extracted.copy();
-                previouslyUnwrapped.setCount(1);
-                animationInward = true;
-                animationTicks = CYCLE;
-                deliverToTarget(splitResults, targetPos, targetState, targetBE, facing);
-            } else {
-                queueSplitResults(splitResults);
-            }
+			targetInv.extractItem(slot, 1, false);
+			computerBehaviour.prepareComputerEvent(new PackageEvent(extracted, "package_received"));
 
-            notifyUpdate();
-            return;
-        }
-    }
+			if (mixedTarget) {
+				previouslyUnwrapped = extracted.copy();
+				previouslyUnwrapped.setCount(1);
+				animationInward = true;
+				animationTicks = CYCLE;
+				deliverToTarget(splitResults, targetPos, targetState, targetBE, facing);
+			} else {
+				queueSplitResults(splitResults);
+			}
 
-    @Override
-    public ItemStack getRenderedBox() {
-        if (animationTicks == 0 && heldBox.isEmpty() && !stalledPackages.isEmpty()) {
-            return stalledPackages.get(0);
-        }
-        return super.getRenderedBox();
-    }
+			notifyUpdate();
+			return;
+		}
+	}
 
-    public boolean hasStalledPackageReady() {
-        return animationTicks == 0 && heldBox.isEmpty() && !stalledPackages.isEmpty();
-    }
+	@Override
+	public ItemStack getRenderedBox() {
+		if (animationTicks == 0 && heldBox.isEmpty() && !stalledPackages.isEmpty()) {
+			return stalledPackages.get(0);
+		}
+		return super.getRenderedBox();
+	}
 
-    public ItemStack extractStalledPackage(boolean simulate) {
-        if (!hasStalledPackageReady()) {
-            return ItemStack.EMPTY;
-        }
-        ItemStack stack = stalledPackages.get(0).copy();
-        if (!simulate) {
-            stalledPackages.remove(0);
-            setChanged();
-            notifyUpdate();
-        }
-        return stack;
-    }
+	public boolean hasStalledPackageReady() {
+		return animationTicks == 0 && heldBox.isEmpty() && !stalledPackages.isEmpty();
+	}
 
-    private void tryDeliverStalledPackages() {
-        Direction facing = getBlockState().getOptionalValue(PackagerBlock.FACING).orElse(Direction.UP);
-        BlockPos targetPos = worldPosition.relative(facing.getOpposite());
-        BlockState targetState = level.getBlockState(targetPos);
-        BlockEntity targetBE = level.getBlockEntity(targetPos);
+	public ItemStack extractStalledPackage(boolean simulate) {
+		if (!hasStalledPackageReady()) {
+			return ItemStack.EMPTY;
+		}
+		ItemStack stack = stalledPackages.get(0).copy();
+		if (!simulate) {
+			stalledPackages.remove(0);
+			setChanged();
+			notifyUpdate();
+		}
+		return stack;
+	}
 
-        if (!isSolidLiquidMixedTarget(targetState, targetBE, facing)) {
-            return;
-        }
+	private void tryDeliverStalledPackages() {
+		Direction facing = getBlockState().getOptionalValue(PackagerBlock.FACING).orElse(Direction.UP);
+		BlockPos targetPos = worldPosition.relative(facing.getOpposite());
+		BlockState targetState = level.getBlockState(targetPos);
+		BlockEntity targetBE = level.getBlockEntity(targetPos);
 
-        Iterator<ItemStack> it = stalledPackages.iterator();
-        while (it.hasNext()) {
-            ItemStack pkg = it.next();
-            if (deliverSinglePackage(pkg, targetPos, targetState, targetBE, facing)) {
-                previouslyUnwrapped = pkg.copy();
-                previouslyUnwrapped.setCount(1);
-                animationInward = true;
-                animationTicks = CYCLE;
-                it.remove();
-                setChanged();
-                notifyUpdate();
-                return;
-            }
-        }
-    }
+		if (!isSolidLiquidMixedTarget(targetState, targetBE, facing)) {
+			return;
+		}
 
-    private void deliverToTarget(List<ItemStack> packages, BlockPos targetPos, BlockState targetState,
-                                 BlockEntity targetBE, Direction facing) {
-        boolean stalledAny = false;
-        for (ItemStack pkg : packages) {
-            if (deliverSinglePackage(pkg, targetPos, targetState, targetBE, facing)) {
-                continue;
-            }
+		Iterator<ItemStack> it = stalledPackages.iterator();
+		while (it.hasNext()) {
+			ItemStack pkg = it.next();
+			if (deliverSinglePackage(pkg, targetPos, targetState, targetBE, facing)) {
+				previouslyUnwrapped = pkg.copy();
+				previouslyUnwrapped.setCount(1);
+				animationInward = true;
+				animationTicks = CYCLE;
+				it.remove();
+				setChanged();
+				notifyUpdate();
+				return;
+			}
+		}
+	}
 
-            stalledPackages.add(pkg.copy());
-            stalledAny = true;
-        }
+	private void deliverToTarget(List<ItemStack> packages, BlockPos targetPos, BlockState targetState,
+		BlockEntity targetBE, Direction facing) {
+		boolean stalledAny = false;
+		for (ItemStack pkg : packages) {
+			if (deliverSinglePackage(pkg, targetPos, targetState, targetBE, facing)) {
+				continue;
+			}
 
-        if (stalledAny)
-            setChanged();
-    }
+			stalledPackages.add(pkg.copy());
+			stalledAny = true;
+		}
 
-    private void queueSplitResults(List<ItemStack> packages) {
-        for (ItemStack pkg : packages) {
-            ItemStack copy = pkg.copy();
-            copy.setCount(1);
-            queuedExitingPackages.add(new BigItemStack(copy, pkg.getCount()));
-        }
-        setChanged();
-    }
+		if (stalledAny)
+			setChanged();
+	}
 
-    private boolean deliverSinglePackage(ItemStack pkg, BlockPos targetPos, BlockState targetState,
-                                          BlockEntity targetBE, Direction facing) {
-        PackageInspection inspection = PackageResources.inspectPackage(pkg);
-        if (inspection.hasResources()) {
-            return unpackResourceToTarget(pkg, targetPos, targetState, targetBE, facing, true)
-                && unpackResourceToTarget(pkg, targetPos, targetState, targetBE, facing, false);
-        }
-        return unpackItemsToTarget(pkg, targetPos, targetState, targetBE, facing, true)
-            && unpackItemsToTarget(pkg, targetPos, targetState, targetBE, facing, false);
-    }
+	private void queueSplitResults(List<ItemStack> packages) {
+		for (ItemStack pkg : packages) {
+			ItemStack copy = pkg.copy();
+			copy.setCount(1);
+			queuedExitingPackages.add(new BigItemStack(copy, pkg.getCount()));
+		}
+		setChanged();
+	}
 
-    private boolean unpackResourceToTarget(ItemStack resourcePackage, BlockPos targetPos, BlockState targetState,
-                                         @Nullable BlockEntity targetBE, Direction facing, boolean simulate) {
-        PackageUnpackContext context = new PackageUnpackContext(
-            level, targetPos, targetState, targetBE, facing, resourcePackage,
-            PackageItem.getOrderContext(resourcePackage));
-        return PackageResources.unpackPackage(context, simulate);
-    }
+	private boolean deliverSinglePackage(ItemStack pkg, BlockPos targetPos, BlockState targetState,
+		BlockEntity targetBE, Direction facing) {
+		PackageInspection inspection = PackageResources.inspectPackage(pkg);
+		if (inspection.hasResources()) {
+			if (!unpackResourceToTarget(pkg, targetPos, targetState, targetBE, facing, true).complete()) {
+				return false;
+			}
+			PackageUnpackResult result = unpackResourceToTarget(pkg, targetPos, targetState, targetBE, facing, false);
+			if (!result.complete() && result.transferred() > 0) {
+				ItemStack remainder = result.remainder();
+				pkg.removeTagKey("Items");
+				for (var resource : inspection.resources()) {
+					PackageResources.get(resource.typeId()).orElseThrow().packageComponents()
+						.forEach(pkg::removeTagKey);
+				}
+				if (remainder.hasTag())
+					pkg.getOrCreateTag().merge(remainder.getTag());
+				setChanged();
+				notifyUpdate();
+			}
+			return result.complete();
+		}
+		return unpackItemsToTarget(pkg, targetPos, targetState, targetBE, facing, true)
+			&& unpackItemsToTarget(pkg, targetPos, targetState, targetBE, facing, false);
+	}
 
-    private boolean unpackItemsToTarget(ItemStack itemPackage, BlockPos targetPos, BlockState targetState,
-                                        @Nullable BlockEntity targetBE, Direction facing, boolean simulate) {
-        ItemStackHandler contents = FluidPackageContentHelper.readRawContents(itemPackage);
-        List<ItemStack> items = ItemHelper.getNonEmptyStacks(contents);
-        if (items.isEmpty()) {
-            return true;
-        }
+	private PackageUnpackResult unpackResourceToTarget(ItemStack resourcePackage, BlockPos targetPos,
+		BlockState targetState, @Nullable BlockEntity targetBE, Direction facing, boolean simulate) {
+		PackageUnpackContext context = new PackageUnpackContext(level, targetPos, targetState, targetBE, facing,
+			resourcePackage, PackageItem.getOrderContext(resourcePackage));
+		return PackageResources.unpackPackageResult(context, simulate);
+	}
 
-        PackageOrderWithCrafts orderContext = PackageItem.getOrderContext(itemPackage);
-        UnpackingHandler handler = UnpackingHandler.REGISTRY.get(targetState);
-        UnpackingHandler toUse = handler != null ? handler : UnpackingHandler.DEFAULT;
-        return toUse.unpack(level, targetPos, targetState, facing, items, orderContext, simulate);
-    }
+	private boolean unpackItemsToTarget(ItemStack itemPackage, BlockPos targetPos, BlockState targetState,
+		@Nullable BlockEntity targetBE, Direction facing, boolean simulate) {
+		ItemStackHandler contents = FluidPackageContentHelper.readRawContents(itemPackage);
+		List<ItemStack> items = ItemHelper.getNonEmptyStacks(contents);
+		if (items.isEmpty()) {
+			return true;
+		}
 
-    private boolean isSolidLiquidMixedTarget(BlockState targetState,
-                                             @Nullable BlockEntity targetBE, Direction facing) {
-        boolean hasItemHandler = UnpackingHandler.REGISTRY.get(targetState) != null
-            || targetBE != null && targetBE.getCapability(ForgeCapabilities.ITEM_HANDLER, facing).isPresent();
-        boolean hasFluidHandler = targetBE != null
-            && targetBE.getCapability(ForgeCapabilities.FLUID_HANDLER, facing).isPresent();
-        return hasItemHandler && hasFluidHandler;
-    }
+		PackageOrderWithCrafts orderContext = PackageItem.getOrderContext(itemPackage);
+		UnpackingHandler handler = UnpackingHandler.REGISTRY.get(targetState);
+		UnpackingHandler toUse = handler != null ? handler : UnpackingHandler.DEFAULT;
+		return toUse.unpack(level, targetPos, targetState, facing, items, orderContext, simulate);
+	}
 
-    @Override
-    protected void read(CompoundTag compound, boolean clientPacket) {
-        super.read(compound, clientPacket);
+	private boolean isSolidLiquidMixedTarget(BlockState targetState, @Nullable BlockEntity targetBE, Direction facing) {
+		boolean hasItemHandler = UnpackingHandler.REGISTRY.get(targetState) != null
+			|| targetBE != null && targetBE.getCapability(ForgeCapabilities.ITEM_HANDLER, facing).isPresent();
+		boolean hasFluidHandler = targetBE != null
+			&& targetBE.getCapability(ForgeCapabilities.FLUID_HANDLER, facing).isPresent();
+		return hasItemHandler && hasFluidHandler;
+	}
 
-        stalledPackages.clear();
-        ListTag list = compound.getList("StalledPackages", Tag.TAG_COMPOUND);
-        for (int i = 0; i < list.size(); i++) {
-            ItemStack stack = ItemStack.of(list.getCompound(i));
-            if (!stack.isEmpty()) {
-                stalledPackages.add(stack);
-            }
-        }
-    }
+	@Override
+	protected void read(CompoundTag compound, boolean clientPacket) {
+		super.read(compound, clientPacket);
 
-    @Override
-    protected void write(CompoundTag compound, boolean clientPacket) {
-        super.write(compound, clientPacket);
+		stalledPackages.clear();
+		ListTag list = compound.getList("StalledPackages", Tag.TAG_COMPOUND);
+		for (int i = 0; i < list.size(); i++) {
+			ItemStack stack = ItemStack.of(list.getCompound(i));
+			if (!stack.isEmpty()) {
+				stalledPackages.add(stack);
+			}
+		}
+	}
 
-        ListTag list = new ListTag();
-        for (ItemStack stack : stalledPackages) {
-            list.add(stack.save(new CompoundTag()));
-        }
-        compound.put("StalledPackages", list);
-    }
+	@Override
+	protected void write(CompoundTag compound, boolean clientPacket) {
+		super.write(compound, clientPacket);
 
-    @Override
-    public void clearContent() {
-        inventory.setStackInSlot(0, ItemStack.EMPTY);
-        queuedExitingPackages.clear();
-        stalledPackages.clear();
-    }
+		ListTag list = new ListTag();
+		for (ItemStack stack : stalledPackages) {
+			list.add(stack.save(new CompoundTag()));
+		}
+		compound.put("StalledPackages", list);
+	}
 
-    @Override
-    public void destroy() {
-        super.destroy();
-        for (ItemStack stack : stalledPackages) {
-            Containers.dropItemStack(level, worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(),
-                stack.copy());
-        }
-        stalledPackages.clear();
-    }
+	@Override
+	public void clearContent() {
+		inventory.setStackInSlot(0, ItemStack.EMPTY);
+		queuedExitingPackages.clear();
+		stalledPackages.clear();
+	}
 
-    private class FluidRepackagerItemHandler implements IItemHandler {
+	@Override
+	public void destroy() {
+		super.destroy();
+		for (ItemStack stack : stalledPackages) {
+			Containers.dropItemStack(level, worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(),
+				stack.copy());
+		}
+		stalledPackages.clear();
+	}
 
-        @Override
-        public int getSlots() {
-            return inventory.getSlots();
-        }
+	private class FluidRepackagerItemHandler implements IItemHandler {
 
-        @Override
-        public ItemStack getStackInSlot(int slot) {
-            if (!heldBox.isEmpty()) {
-                return inventory.getStackInSlot(slot);
-            }
-            if (slot == 0 && hasStalledPackageReady()) {
-                return stalledPackages.get(0);
-            }
-            return ItemStack.EMPTY;
-        }
+		@Override
+		public int getSlots() {
+			return inventory.getSlots();
+		}
 
-        @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            return inventory.insertItem(slot, stack, simulate);
-        }
+		@Override
+		public ItemStack getStackInSlot(int slot) {
+			if (!heldBox.isEmpty()) {
+				return inventory.getStackInSlot(slot);
+			}
+			if (slot == 0 && hasStalledPackageReady()) {
+				return stalledPackages.get(0);
+			}
+			return ItemStack.EMPTY;
+		}
 
-        @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            if (slot != 0 || amount <= 0) {
-                return ItemStack.EMPTY;
-            }
-            if (!heldBox.isEmpty()) {
-                return inventory.extractItem(slot, amount, simulate);
-            }
-            return extractStalledPackage(simulate);
-        }
+		@Override
+		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+			return inventory.insertItem(slot, stack, simulate);
+		}
 
-        @Override
-        public int getSlotLimit(int slot) {
-            return inventory.getSlotLimit(slot);
-        }
+		@Override
+		public ItemStack extractItem(int slot, int amount, boolean simulate) {
+			if (slot != 0 || amount <= 0) {
+				return ItemStack.EMPTY;
+			}
+			if (!heldBox.isEmpty()) {
+				return inventory.extractItem(slot, amount, simulate);
+			}
+			return extractStalledPackage(simulate);
+		}
 
-        @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            return inventory.isItemValid(slot, stack);
-        }
-    }
+		@Override
+		public int getSlotLimit(int slot) {
+			return inventory.getSlotLimit(slot);
+		}
+
+		@Override
+		public boolean isItemValid(int slot, ItemStack stack) {
+			return inventory.isItemValid(slot, stack);
+		}
+	}
+
+	private static List<ItemStack> splitSafely(ItemStack packageStack) {
+		try {
+			return PackageResources.splitPackage(packageStack);
+		} catch (IllegalArgumentException | ArithmeticException exception) {
+			return List.of();
+		}
+	}
 }

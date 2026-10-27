@@ -1,8 +1,5 @@
 package com.yision.fluidlogistics.content.equipment.mechanicalFluidGun;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.LevelAccessor;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,12 +9,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.LevelAccessor;
+
 final class MechanicalFluidGunTargetIndex {
 
-	private static final Map<LevelAccessor, Map<BlockPos, Set<BlockPos>>> INDEX =
-		Collections.synchronizedMap(new WeakHashMap<>());
+	private static final Map<LevelAccessor, Map<BlockPos, Set<BlockPos>>> INDEX = Collections
+		.synchronizedMap(new WeakHashMap<>());
 
-	private MechanicalFluidGunTargetIndex() {}
+	private MechanicalFluidGunTargetIndex() {
+	}
 
 	static void update(LevelAccessor level, BlockPos gunPos, Set<BlockPos> oldTargets, Set<BlockPos> newTargets) {
 		if (oldTargets.isEmpty() && newTargets.isEmpty())

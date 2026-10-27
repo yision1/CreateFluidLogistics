@@ -6,8 +6,8 @@ import com.simibubi.create.content.fluids.FluidTransportBehaviour.AttachmentType
 import com.simibubi.create.content.kinetics.base.KineticBlockEntityRenderer;
 import com.yision.fluidlogistics.registry.AllPartialModels;
 
-import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
+import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import net.createmod.catnip.render.CachedBuffers;
 import net.createmod.catnip.render.SuperByteBuffer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -24,8 +24,9 @@ public class MechanicalFluidGunRenderer extends KineticBlockEntityRenderer<Mecha
 
 	@Override
 	protected void renderSafe(MechanicalFluidGunBlockEntity be, float partialTicks, PoseStack ms,
-							  MultiBufferSource buffer, int light, int overlay) {
-		if (VisualizationManager.supportsVisualization(be.getLevel())) return;
+		MultiBufferSource buffer, int light, int overlay) {
+		if (VisualizationManager.supportsVisualization(be.getLevel()))
+			return;
 		ms.pushPose();
 		MechanicalFluidGunMount.rotateModel(ms, be.getBlockState());
 
@@ -49,8 +50,8 @@ public class MechanicalFluidGunRenderer extends KineticBlockEntityRenderer<Mecha
 
 	}
 
-	private void renderYawingPartial(MechanicalFluidGunBlockEntity be, PartialModel model, float yaw,
-									 PoseStack ms, MultiBufferSource buffer, int light) {
+	private void renderYawingPartial(MechanicalFluidGunBlockEntity be, PartialModel model, float yaw, PoseStack ms,
+		MultiBufferSource buffer, int light) {
 		ms.pushPose();
 		transformYaw(ms, yaw);
 		renderPartial(be, model, ms, buffer, light);
@@ -58,7 +59,7 @@ public class MechanicalFluidGunRenderer extends KineticBlockEntityRenderer<Mecha
 	}
 
 	private void renderSpoutPart(MechanicalFluidGunBlockEntity be, PartialModel model, float yaw, float pitch,
-								 PoseStack ms, MultiBufferSource buffer, int light) {
+		PoseStack ms, MultiBufferSource buffer, int light) {
 		ms.pushPose();
 		transformYaw(ms, yaw);
 		transformPitch(ms, pitch);
@@ -66,17 +67,16 @@ public class MechanicalFluidGunRenderer extends KineticBlockEntityRenderer<Mecha
 		ms.popPose();
 	}
 
-	private void renderPartial(MechanicalFluidGunBlockEntity be, PartialModel model,
-							   PoseStack ms, MultiBufferSource buffer, int light) {
+	private void renderPartial(MechanicalFluidGunBlockEntity be, PartialModel model, PoseStack ms,
+		MultiBufferSource buffer, int light) {
 		SuperByteBuffer buf = CachedBuffers.partial(model, be.getBlockState());
 		buf.light(light).renderInto(ms, buffer.getBuffer(RenderType.cutoutMipped()));
 	}
 
-	private void renderSourceInterface(MechanicalFluidGunBlockEntity be, PoseStack ms,
-									   MultiBufferSource buffer, int light) {
+	private void renderSourceInterface(MechanicalFluidGunBlockEntity be, PoseStack ms, MultiBufferSource buffer,
+		int light) {
 		Direction sourceDirection = MechanicalFluidGunMount.getMountFace(be.getBlockState()).getOpposite();
-		PartialModel partial = com.simibubi.create.AllPartialModels.PIPE_ATTACHMENTS
-			.get(ComponentPartials.DRAIN)
+		PartialModel partial = com.simibubi.create.AllPartialModels.PIPE_ATTACHMENTS.get(ComponentPartials.DRAIN)
 			.get(sourceDirection);
 		SuperByteBuffer attachment = CachedBuffers.partial(partial, be.getBlockState());
 		attachment.light(light).renderInto(ms, buffer.getBuffer(RenderType.solid()));

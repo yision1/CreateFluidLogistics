@@ -1,436 +1,549 @@
 package com.yision.fluidlogistics.config;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.attribute.FileTime;
+
+import com.electronwill.nightconfig.core.file.CommentedFileConfig;
+import com.electronwill.nightconfig.core.io.ParsingException;
+import com.yision.fluidlogistics.FluidLogistics;
+
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import com.electronwill.nightconfig.core.file.CommentedFileConfig;
-import net.minecraftforge.fml.loading.FMLPaths;
 
 @Mod.EventBusSubscriber(modid = "fluidlogistics", bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Config {
-    private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
-    private static final ForgeConfigSpec.Builder CLIENT_BUILDER = new ForgeConfigSpec.Builder();
+	private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
+	private static final ForgeConfigSpec.Builder CLIENT_BUILDER = new ForgeConfigSpec.Builder();
 
-    private static final boolean FLUID_TRANSPORTER_ENABLED_DEFAULT = true;
-    private static final boolean SMART_FAUCET_ENABLED_DEFAULT = true;
-    private static final boolean FAUCET_ENABLED_DEFAULT = true;
-    private static final boolean MULTI_FLUID_TANK_ENABLED_DEFAULT = true;
-    private static final boolean HORIZONTAL_MULTI_FLUID_TANK_ENABLED_DEFAULT = true;
-    private static final boolean MULTI_FLUID_ACCESS_PORT_ENABLED_DEFAULT = true;
-    private static final boolean FLUID_INVENTORY_ACCESS_PORT_ENABLED_DEFAULT = true;
-    private static final boolean SMART_HOPPER_ENABLED_DEFAULT = true;
-    private static final boolean FLUID_PUMP_ENABLED_DEFAULT = true;
-    private static final boolean INFINITE_FLUID_TANK_ENABLED_DEFAULT = true;
-    private static final boolean WATER_CONTAINING_COPPER_CASING_ENABLED_DEFAULT = true;
-    private static final boolean COPPER_BASIN_ENABLED_DEFAULT = true;
-    private static final boolean MECHANICAL_FLUID_GUN_ENABLED_DEFAULT = true;
-    private static final boolean HAND_POINTER_ENABLED_DEFAULT = true;
-    private static final boolean COPPER_FROGPORT_ENABLED_DEFAULT = true;
-    private static final boolean FLUID_PACKAGER_ENABLED_DEFAULT = true;
-    private static final boolean FLUID_REPACKAGER_ENABLED_DEFAULT = true;
-    private static final boolean COPPER_BUCKET_ENABLED_DEFAULT = true;
-    private static final boolean PHANTOM_CHAIN_ENABLED_DEFAULT = true;
-    private static final boolean FLUID_HATCH_ENABLED_DEFAULT = true;
-    private static final boolean FLUID_FACTORY_GAUGE_ENABLED_DEFAULT = true;
-    private static final boolean BLAZE_COOLER_ENABLED_DEFAULT = true;
-    private static final boolean COPPER_SCHEMATICANNON_ENABLED_DEFAULT = true;
-    private static final boolean FLUID_SCHEMATIC_ENABLED_DEFAULT = true;
-    private static final boolean FROST_CAKE_ENABLED_DEFAULT = true;
+	private static final boolean FLUID_TRANSPORTER_ENABLED_DEFAULT = true;
+	private static final boolean SMART_FAUCET_ENABLED_DEFAULT = true;
+	private static final boolean FAUCET_ENABLED_DEFAULT = true;
+	private static final boolean MULTI_FLUID_TANK_ENABLED_DEFAULT = true;
+	private static final boolean HORIZONTAL_MULTI_FLUID_TANK_ENABLED_DEFAULT = true;
+	private static final boolean MULTI_FLUID_ACCESS_PORT_ENABLED_DEFAULT = true;
+	private static final boolean FLUID_INVENTORY_ACCESS_PORT_ENABLED_DEFAULT = true;
+	private static final boolean COPPER_BASKET_ENABLED_DEFAULT = true;
+	private static final boolean SMART_HOPPER_ENABLED_DEFAULT = true;
+	private static final boolean OSCILLATING_STEAM_ENGINE_ENABLED_DEFAULT = true;
+	private static final boolean FLUID_PUMP_ENABLED_DEFAULT = true;
+	private static final boolean INFINITE_FLUID_TANK_ENABLED_DEFAULT = true;
+	private static final boolean WATER_CONTAINING_COPPER_CASING_ENABLED_DEFAULT = true;
+	private static final boolean COPPER_BASIN_ENABLED_DEFAULT = true;
+	private static final boolean MECHANICAL_FLUID_GUN_ENABLED_DEFAULT = true;
+	private static final boolean HAND_POINTER_ENABLED_DEFAULT = true;
+	private static final boolean COPPER_FROGPORT_ENABLED_DEFAULT = true;
+	private static final boolean FLUID_PACKAGER_ENABLED_DEFAULT = true;
+	private static final boolean FLUID_REPACKAGER_ENABLED_DEFAULT = true;
+	private static final boolean COPPER_BUCKET_ENABLED_DEFAULT = true;
+	private static final boolean PHANTOM_CHAIN_ENABLED_DEFAULT = true;
+	private static final boolean FLUID_HATCH_ENABLED_DEFAULT = true;
+	private static final boolean FLUID_FACTORY_GAUGE_ENABLED_DEFAULT = true;
+	private static final boolean SNOW_GOLEM_FREEZER_ENABLED_DEFAULT = true;
+	private static final boolean COPPER_SCHEMATICANNON_ENABLED_DEFAULT = true;
+	private static final boolean FLUID_SCHEMATIC_ENABLED_DEFAULT = true;
 
-    private static final int FLUID_PACKAGE_CAPACITY_DEFAULT = 10000;
-    private static final int FLUID_PACKAGE_CAPACITY_MIN = 1;
-    private static final int FLUID_PACKAGE_CAPACITY_MAX = Integer.MAX_VALUE;
-    private static final int FLUID_PUMP_RANGE_DEFAULT = 24;
-    private static final int FLUID_PUMP_RANGE_MIN = 1;
-    private static final int FLUID_PUMP_RANGE_MAX = Integer.MAX_VALUE;
-    private static final int HAND_POINTER_MAX_ARMS_DEFAULT = 5;
-    private static final int HAND_POINTER_MAX_FROGPORTS_DEFAULT = 5;
-    private static final int HAND_POINTER_MAX_MAILBOXES_DEFAULT = 5;
-    private static final int HAND_POINTER_SELECTION_LIMIT_MIN = 1;
-    private static final int HAND_POINTER_SELECTION_LIMIT_MAX = 64;
+	private static final int FLUID_PACKAGE_CAPACITY_DEFAULT = 10000;
+	private static final int FLUID_PACKAGE_CAPACITY_MIN = 1;
+	private static final int FLUID_PACKAGE_CAPACITY_MAX = Integer.MAX_VALUE;
+	private static final int FLUID_PUMP_RANGE_DEFAULT = 24;
+	private static final int FLUID_PUMP_RANGE_MIN = 1;
+	private static final int FLUID_PUMP_RANGE_MAX = Integer.MAX_VALUE;
+	private static final int HAND_POINTER_MAX_ARMS_DEFAULT = 5;
+	private static final int HAND_POINTER_MAX_FROGPORTS_DEFAULT = 5;
+	private static final int HAND_POINTER_MAX_MAILBOXES_DEFAULT = 5;
+	private static final int HAND_POINTER_SELECTION_LIMIT_MIN = 1;
+	private static final int HAND_POINTER_SELECTION_LIMIT_MAX = 64;
 
-    private static final boolean FLUID_TRANSPORTER_INFINITE_WATER_ENABLED_DEFAULT = true;
-    private static final boolean FAUCET_INFINITE_WATER_ENABLED_DEFAULT = true;
-    private static final boolean SMART_HOPPER_INFINITE_WATER_ENABLED_DEFAULT = true;
-    private static final int MILLIBUCKETS_PER_BUCKET = 1000;
-    private static final int INFINITE_FLUID_TANK_CAPACITY_DEFAULT = -1;
-    private static final int INFINITE_FLUID_TANK_CAPACITY_MIN = -1;
-    private static final int INFINITE_FLUID_TANK_CAPACITY_MAX = Integer.MAX_VALUE / MILLIBUCKETS_PER_BUCKET;
-    private static final boolean USE_ITEM_RENDERING_FOR_FLUID_FACTORY_GAUGE_FLUID_DEFAULT = false;
+	private static final boolean FLUID_TRANSPORTER_INFINITE_WATER_ENABLED_DEFAULT = true;
+	private static final boolean FAUCET_INFINITE_WATER_ENABLED_DEFAULT = true;
+	private static final boolean SMART_HOPPER_INFINITE_WATER_ENABLED_DEFAULT = true;
+	private static final int MILLIBUCKETS_PER_BUCKET = 1000;
+	private static final int INFINITE_FLUID_TANK_CAPACITY_DEFAULT = -1;
+	private static final int INFINITE_FLUID_TANK_CAPACITY_MIN = -1;
+	private static final int INFINITE_FLUID_TANK_CAPACITY_MAX = Integer.MAX_VALUE / MILLIBUCKETS_PER_BUCKET;
+	private static final boolean USE_ITEM_RENDERING_FOR_FLUID_FACTORY_GAUGE_FLUID_DEFAULT = false;
 
-    public static final ForgeConfigSpec.BooleanValue USE_ITEM_RENDERING_FOR_FLUID_FACTORY_GAUGE_FLUID = CLIENT_BUILDER
-            .translation("fluidlogistics.configuration.useItemRenderingForFluidFactoryGaugeFluid")
-            .define("useItemRenderingForFluidFactoryGaugeFluid",
-                    USE_ITEM_RENDERING_FOR_FLUID_FACTORY_GAUGE_FLUID_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue USE_ITEM_RENDERING_FOR_FLUID_FACTORY_GAUGE_FLUID = CLIENT_BUILDER
+		.translation("fluidlogistics.configuration.useItemRenderingForFluidFactoryGaugeFluid")
+		.define("useItemRenderingForFluidFactoryGaugeFluid", USE_ITEM_RENDERING_FOR_FLUID_FACTORY_GAUGE_FLUID_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue DISABLE_BLAZE_COOLER_PARTICLES = CLIENT_BUILDER
-            .translation("fluidlogistics.configuration.disableBlazeCoolerParticles")
-            .define("disableBlazeCoolerParticles", false);
+	public static final ForgeConfigSpec CLIENT_SPEC = CLIENT_BUILDER.build();
 
-    public static final ForgeConfigSpec CLIENT_SPEC = CLIENT_BUILDER.build();
+	static {
+		BUILDER.translation("fluidlogistics.configuration.section.featureToggles").push("featureToggles");
+	}
 
-    static {
-        BUILDER.translation("fluidlogistics.configuration.section.featureToggles")
-                .push("featureToggles");
-    }
+	public static final ForgeConfigSpec.BooleanValue FLUID_TRANSPORTER_ENABLED = BUILDER
+		.translation("block.fluidlogistics.fluid_transporter")
+		.define("fluidTransporterEnabled", FLUID_TRANSPORTER_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue FLUID_TRANSPORTER_ENABLED = BUILDER
-            .translation("block.fluidlogistics.fluid_transporter")
-            .define("fluidTransporterEnabled", FLUID_TRANSPORTER_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue SMART_FAUCET_ENABLED = BUILDER
+		.translation("block.fluidlogistics.smart_faucet").define("smartFaucetEnabled", SMART_FAUCET_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue SMART_FAUCET_ENABLED = BUILDER
-            .translation("block.fluidlogistics.smart_faucet")
-            .define("smartFaucetEnabled", SMART_FAUCET_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue FAUCET_ENABLED = BUILDER.translation("block.fluidlogistics.faucet")
+		.define("faucetEnabled", FAUCET_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue FAUCET_ENABLED = BUILDER
-            .translation("block.fluidlogistics.faucet")
-            .define("faucetEnabled", FAUCET_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue MULTI_FLUID_TANK_ENABLED = BUILDER
+		.translation("block.fluidlogistics.multi_fluid_tank")
+		.define("multiFluidTankEnabled", MULTI_FLUID_TANK_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue MULTI_FLUID_TANK_ENABLED = BUILDER
-            .translation("block.fluidlogistics.multi_fluid_tank")
-            .define("multiFluidTankEnabled", MULTI_FLUID_TANK_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue HORIZONTAL_MULTI_FLUID_TANK_ENABLED = BUILDER
+		.translation("block.fluidlogistics.horizontal_multi_fluid_tank")
+		.define("horizontalMultiFluidTankEnabled", HORIZONTAL_MULTI_FLUID_TANK_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue HORIZONTAL_MULTI_FLUID_TANK_ENABLED = BUILDER
-            .translation("block.fluidlogistics.horizontal_multi_fluid_tank")
-            .define("horizontalMultiFluidTankEnabled", HORIZONTAL_MULTI_FLUID_TANK_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue MULTI_FLUID_ACCESS_PORT_ENABLED = BUILDER
+		.translation("block.fluidlogistics.multi_fluid_access_port")
+		.define("multiFluidAccessPortEnabled", MULTI_FLUID_ACCESS_PORT_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue MULTI_FLUID_ACCESS_PORT_ENABLED = BUILDER
-            .translation("block.fluidlogistics.multi_fluid_access_port")
-            .define("multiFluidAccessPortEnabled", MULTI_FLUID_ACCESS_PORT_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue FLUID_INVENTORY_ACCESS_PORT_ENABLED = BUILDER
+		.translation("block.fluidlogistics.fluid_inventory_access_port")
+		.define("fluidInventoryAccessPortEnabled", FLUID_INVENTORY_ACCESS_PORT_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue FLUID_INVENTORY_ACCESS_PORT_ENABLED = BUILDER
-            .translation("block.fluidlogistics.fluid_inventory_access_port")
-            .define("fluidInventoryAccessPortEnabled", FLUID_INVENTORY_ACCESS_PORT_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue COPPER_BASKET_ENABLED = BUILDER
+		.translation("block.fluidlogistics.copper_basket").define("copperBasketEnabled", COPPER_BASKET_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue SMART_HOPPER_ENABLED = BUILDER
-            .translation("block.fluidlogistics.smart_hopper")
-            .define("smartHopperEnabled", SMART_HOPPER_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue SMART_HOPPER_ENABLED = BUILDER
+		.translation("block.fluidlogistics.smart_hopper").define("smartHopperEnabled", SMART_HOPPER_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue FLUID_PUMP_ENABLED = BUILDER
-            .translation("block.fluidlogistics.fluid_pump")
-            .define("fluidPumpEnabled", FLUID_PUMP_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue OSCILLATING_STEAM_ENGINE_ENABLED = BUILDER
+		.translation("block.fluidlogistics.oscillating_steam_engine")
+		.define("oscillatingSteamEngineEnabled", OSCILLATING_STEAM_ENGINE_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue INFINITE_FLUID_TANK_ENABLED = BUILDER
-            .translation("block.fluidlogistics.infinite_fluid_tank")
-            .define("infiniteFluidTankEnabled", INFINITE_FLUID_TANK_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue FLUID_PUMP_ENABLED = BUILDER
+		.translation("block.fluidlogistics.fluid_pump").define("fluidPumpEnabled", FLUID_PUMP_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue WATER_CONTAINING_COPPER_CASING_ENABLED = BUILDER
-            .translation("block.fluidlogistics.water_containing_copper_casing")
-            .define("waterContainingCopperCasingEnabled", WATER_CONTAINING_COPPER_CASING_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue INFINITE_FLUID_TANK_ENABLED = BUILDER
+		.translation("block.fluidlogistics.infinite_fluid_tank")
+		.define("infiniteFluidTankEnabled", INFINITE_FLUID_TANK_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue COPPER_BASIN_ENABLED = BUILDER
-            .translation("block.fluidlogistics.copper_basin")
-            .define("copperBasinEnabled", COPPER_BASIN_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue WATER_CONTAINING_COPPER_CASING_ENABLED = BUILDER
+		.translation("block.fluidlogistics.water_containing_copper_casing")
+		.define("waterContainingCopperCasingEnabled", WATER_CONTAINING_COPPER_CASING_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue MECHANICAL_FLUID_GUN_ENABLED = BUILDER
-            .translation("block.fluidlogistics.mechanical_fluid_gun")
-            .define("mechanicalFluidGunEnabled", MECHANICAL_FLUID_GUN_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue COPPER_BASIN_ENABLED = BUILDER
+		.translation("block.fluidlogistics.copper_basin").define("copperBasinEnabled", COPPER_BASIN_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue HAND_POINTER_ENABLED = BUILDER
-            .translation("item.fluidlogistics.hand_pointer")
-            .define("handPointerEnabled", HAND_POINTER_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue MECHANICAL_FLUID_GUN_ENABLED = BUILDER
+		.translation("block.fluidlogistics.mechanical_fluid_gun")
+		.define("mechanicalFluidGunEnabled", MECHANICAL_FLUID_GUN_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue COPPER_FROGPORT_ENABLED = BUILDER
-            .translation("block.fluidlogistics.copper_frogport")
-            .define("copperFrogportEnabled", COPPER_FROGPORT_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue HAND_POINTER_ENABLED = BUILDER
+		.translation("item.fluidlogistics.hand_pointer").define("handPointerEnabled", HAND_POINTER_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue FLUID_PACKAGER_ENABLED = BUILDER
-            .translation("block.fluidlogistics.fluid_packager")
-            .define("fluidPackagerEnabled", FLUID_PACKAGER_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue COPPER_FROGPORT_ENABLED = BUILDER
+		.translation("block.fluidlogistics.copper_frogport")
+		.define("copperFrogportEnabled", COPPER_FROGPORT_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue FLUID_REPACKAGER_ENABLED = BUILDER
-            .translation("block.fluidlogistics.fluid_repackager")
-            .define("fluidRepackagerEnabled", FLUID_REPACKAGER_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue FLUID_PACKAGER_ENABLED = BUILDER
+		.translation("block.fluidlogistics.fluid_packager")
+		.define("fluidPackagerEnabled", FLUID_PACKAGER_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue COPPER_BUCKET_ENABLED = BUILDER
-            .translation("item.fluidlogistics.copper_bucket")
-            .define("copperBucketEnabled", COPPER_BUCKET_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue FLUID_REPACKAGER_ENABLED = BUILDER
+		.translation("block.fluidlogistics.fluid_repackager")
+		.define("fluidRepackagerEnabled", FLUID_REPACKAGER_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue PHANTOM_CHAIN_ENABLED = BUILDER
-            .translation("item.fluidlogistics.phantom_chain")
-            .define("phantomChainEnabled", PHANTOM_CHAIN_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue COPPER_BUCKET_ENABLED = BUILDER
+		.translation("item.fluidlogistics.copper_bucket").define("copperBucketEnabled", COPPER_BUCKET_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue FLUID_HATCH_ENABLED = BUILDER
-            .translation("block.fluidlogistics.fluid_hatch")
-            .define("fluidHatchEnabled", FLUID_HATCH_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue PHANTOM_CHAIN_ENABLED = BUILDER
+		.translation("item.fluidlogistics.phantom_chain").define("phantomChainEnabled", PHANTOM_CHAIN_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue FLUID_FACTORY_GAUGE_ENABLED = BUILDER
-            .translation("item.fluidlogistics.fluid_factory_gauge")
-            .define("fluidFactoryGaugeEnabled", FLUID_FACTORY_GAUGE_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue FLUID_HATCH_ENABLED = BUILDER
+		.translation("block.fluidlogistics.fluid_hatch").define("fluidHatchEnabled", FLUID_HATCH_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue BLAZE_COOLER_ENABLED = BUILDER
-            .translation("block.fluidlogistics.blaze_cooler")
-            .worldRestart()
-            .define("blazeCoolerEnabled", BLAZE_COOLER_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue FLUID_FACTORY_GAUGE_ENABLED = BUILDER
+		.translation("item.fluidlogistics.fluid_factory_gauge")
+		.define("fluidFactoryGaugeEnabled", FLUID_FACTORY_GAUGE_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue COPPER_SCHEMATICANNON_ENABLED = BUILDER
-            .translation("block.fluidlogistics.copper_schematicannon")
-            .define("copperSchematicannonEnabled", COPPER_SCHEMATICANNON_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue SNOW_GOLEM_FREEZER_ENABLED = BUILDER
+		.translation("block.fluidlogistics.snow_golem_freezer")
+		.define("snowGolemFreezerEnabled", SNOW_GOLEM_FREEZER_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue FLUID_SCHEMATIC_ENABLED = BUILDER
-            .translation("item.fluidlogistics.empty_fluid_schematic")
-            .define("fluidSchematicEnabled", FLUID_SCHEMATIC_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue COPPER_SCHEMATICANNON_ENABLED = BUILDER
+		.translation("block.fluidlogistics.copper_schematicannon")
+		.define("copperSchematicannonEnabled", COPPER_SCHEMATICANNON_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue FROST_CAKE_ENABLED = BUILDER
-            .translation("item.fluidlogistics.frost_cake")
-            .define("frostCakeEnabled", FROST_CAKE_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue FLUID_SCHEMATIC_ENABLED = BUILDER
+		.translation("item.fluidlogistics.empty_fluid_schematic")
+		.define("fluidSchematicEnabled", FLUID_SCHEMATIC_ENABLED_DEFAULT);
 
-    static {
-        BUILDER.pop();
-        BUILDER.translation("fluidlogistics.configuration.section.blockProperties")
-                .push("blockProperties");
-    }
+	static {
+		BUILDER.pop();
+		BUILDER.translation("fluidlogistics.configuration.section.blockProperties").push("blockProperties");
+	}
 
-    public static final ForgeConfigSpec.IntValue FLUID_PACKAGE_CAPACITY = BUILDER
-            .comment("Maximum fluid amount a fluid package can hold (in mB)")
-            .translation("fluidlogistics.configuration.fluidPackageCapacity")
-            .defineInRange("fluidPackageCapacity",
-                    FLUID_PACKAGE_CAPACITY_DEFAULT,
-                    FLUID_PACKAGE_CAPACITY_MIN,
-                    FLUID_PACKAGE_CAPACITY_MAX);
+	public static final ForgeConfigSpec.IntValue FLUID_PACKAGE_CAPACITY = BUILDER
+		.comment("Maximum fluid amount a fluid package can hold (in mB)")
+		.translation("fluidlogistics.configuration.fluidPackageCapacity").defineInRange("fluidPackageCapacity",
+			FLUID_PACKAGE_CAPACITY_DEFAULT, FLUID_PACKAGE_CAPACITY_MIN, FLUID_PACKAGE_CAPACITY_MAX);
 
-    public static final ForgeConfigSpec.IntValue FLUID_PUMP_RANGE = BUILDER
-            .comment("Maximum distance a Fluid Pump can push or pull fluids on either side")
-            .translation("fluidlogistics.configuration.fluidPumpRange")
-            .defineInRange("fluidPumpRange",
-                    FLUID_PUMP_RANGE_DEFAULT,
-                    FLUID_PUMP_RANGE_MIN,
-                    FLUID_PUMP_RANGE_MAX);
+	public static final ForgeConfigSpec.IntValue FLUID_PUMP_RANGE = BUILDER
+		.comment("Maximum distance a Fluid Pump can push or pull fluids on either side")
+		.translation("fluidlogistics.configuration.fluidPumpRange")
+		.defineInRange("fluidPumpRange", FLUID_PUMP_RANGE_DEFAULT, FLUID_PUMP_RANGE_MIN, FLUID_PUMP_RANGE_MAX);
 
-    public static final ForgeConfigSpec.IntValue HAND_POINTER_MAX_ARMS = BUILDER
-            .comment("Maximum number of Mechanical Arms configurable in one Hand Pointer session")
-            .translation("fluidlogistics.configuration.handPointerMaxArms")
-            .defineInRange("handPointerMaxArms",
-                    HAND_POINTER_MAX_ARMS_DEFAULT,
-                    HAND_POINTER_SELECTION_LIMIT_MIN,
-                    HAND_POINTER_SELECTION_LIMIT_MAX);
+	public static final ForgeConfigSpec.IntValue HAND_POINTER_MAX_ARMS = BUILDER
+		.comment("Maximum number of Mechanical Arms configurable in one Hand Pointer session")
+		.translation("fluidlogistics.configuration.handPointerMaxArms").defineInRange("handPointerMaxArms",
+			HAND_POINTER_MAX_ARMS_DEFAULT, HAND_POINTER_SELECTION_LIMIT_MIN, HAND_POINTER_SELECTION_LIMIT_MAX);
 
-    public static final ForgeConfigSpec.IntValue HAND_POINTER_MAX_FROGPORTS = BUILDER
-            .comment("Maximum number of Package Frogports configurable in one Hand Pointer session")
-            .translation("fluidlogistics.configuration.handPointerMaxFrogports")
-            .defineInRange("handPointerMaxFrogports",
-                    HAND_POINTER_MAX_FROGPORTS_DEFAULT,
-                    HAND_POINTER_SELECTION_LIMIT_MIN,
-                    HAND_POINTER_SELECTION_LIMIT_MAX);
+	public static final ForgeConfigSpec.IntValue HAND_POINTER_MAX_FROGPORTS = BUILDER
+		.comment("Maximum number of Package Frogports configurable in one Hand Pointer session")
+		.translation("fluidlogistics.configuration.handPointerMaxFrogports").defineInRange("handPointerMaxFrogports",
+			HAND_POINTER_MAX_FROGPORTS_DEFAULT, HAND_POINTER_SELECTION_LIMIT_MIN, HAND_POINTER_SELECTION_LIMIT_MAX);
 
-    public static final ForgeConfigSpec.IntValue HAND_POINTER_MAX_MAILBOXES = BUILDER
-            .comment("Maximum number of Postboxes configurable in one Hand Pointer session")
-            .translation("fluidlogistics.configuration.handPointerMaxMailboxes")
-            .defineInRange("handPointerMaxMailboxes",
-                    HAND_POINTER_MAX_MAILBOXES_DEFAULT,
-                    HAND_POINTER_SELECTION_LIMIT_MIN,
-                    HAND_POINTER_SELECTION_LIMIT_MAX);
+	public static final ForgeConfigSpec.IntValue HAND_POINTER_MAX_MAILBOXES = BUILDER
+		.comment("Maximum number of Postboxes configurable in one Hand Pointer session")
+		.translation("fluidlogistics.configuration.handPointerMaxMailboxes").defineInRange("handPointerMaxMailboxes",
+			HAND_POINTER_MAX_MAILBOXES_DEFAULT, HAND_POINTER_SELECTION_LIMIT_MIN, HAND_POINTER_SELECTION_LIMIT_MAX);
 
-    public static final ForgeConfigSpec.EnumValue<FluidContainerMode> FAUCET_FLUID_CONTAINER_MODE = BUILDER
-            .comment("ALLOW_BY_TAG allows fluid containers in #fluidlogistics:faucet_fillable; ALLOW_ALL allows every fluid container; DENY_ALL allows none")
-            .translation("fluidlogistics.configuration.faucetFluidContainerMode")
-            .defineEnum("faucetFluidContainerMode", FluidContainerMode.ALLOW_BY_TAG);
+	public static final ForgeConfigSpec.EnumValue<FluidContainerMode> FAUCET_FLUID_CONTAINER_MODE = BUILDER.comment(
+		"ALLOW_BY_TAG allows fluid containers in #fluidlogistics:faucet_fillable; ALLOW_ALL allows every fluid container; DENY_ALL allows none")
+		.translation("fluidlogistics.configuration.faucetFluidContainerMode")
+		.defineEnum("faucetFluidContainerMode", FluidContainerMode.ALLOW_BY_TAG);
 
-    public static final ForgeConfigSpec.BooleanValue FLUID_TRANSPORTER_INFINITE_WATER_ENABLED = BUILDER
-            .comment("Allow the fluid transporter to extract infinite water from waterlogged leaves")
-            .translation("fluidlogistics.configuration.fluidTransporterInfiniteWater")
-            .define("fluidTransporterInfiniteWaterEnabled", FLUID_TRANSPORTER_INFINITE_WATER_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue FLUID_TRANSPORTER_INFINITE_WATER_ENABLED = BUILDER
+		.comment("Allow the fluid transporter to extract infinite water from waterlogged leaves")
+		.translation("fluidlogistics.configuration.fluidTransporterInfiniteWater")
+		.define("fluidTransporterInfiniteWaterEnabled", FLUID_TRANSPORTER_INFINITE_WATER_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue FAUCET_INFINITE_WATER_ENABLED = BUILDER
-            .comment("Allow the faucet and smart faucet to extract infinite water from waterlogged leaves")
-            .translation("fluidlogistics.configuration.faucetInfiniteWater")
-            .define("faucetInfiniteWaterEnabled", FAUCET_INFINITE_WATER_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue FAUCET_INFINITE_WATER_ENABLED = BUILDER
+		.comment("Allow the faucet and smart faucet to extract infinite water from waterlogged leaves")
+		.translation("fluidlogistics.configuration.faucetInfiniteWater")
+		.define("faucetInfiniteWaterEnabled", FAUCET_INFINITE_WATER_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.BooleanValue SMART_HOPPER_INFINITE_WATER_ENABLED = BUILDER
-            .comment("Allow the smart hopper to extract infinite water from waterlogged leaves")
-            .translation("fluidlogistics.configuration.smartHopperInfiniteWater")
-            .define("smartHopperInfiniteWaterEnabled", SMART_HOPPER_INFINITE_WATER_ENABLED_DEFAULT);
+	public static final ForgeConfigSpec.BooleanValue SMART_HOPPER_INFINITE_WATER_ENABLED = BUILDER
+		.comment("Allow the smart hopper to extract infinite water from waterlogged leaves")
+		.translation("fluidlogistics.configuration.smartHopperInfiniteWater")
+		.define("smartHopperInfiniteWaterEnabled", SMART_HOPPER_INFINITE_WATER_ENABLED_DEFAULT);
 
-    public static final ForgeConfigSpec.IntValue INFINITE_FLUID_TANK_CAPACITY = BUILDER
-            .comment("Infinite tank capacity (in B/buckets). -1 = follow Create's infinite fluid capacity config option")
-            .translation("fluidlogistics.configuration.infiniteFluidTankCapacity")
-            .defineInRange("infiniteFluidTankCapacity",
-                    INFINITE_FLUID_TANK_CAPACITY_DEFAULT,
-                    INFINITE_FLUID_TANK_CAPACITY_MIN,
-                    INFINITE_FLUID_TANK_CAPACITY_MAX);
+	public static final ForgeConfigSpec.IntValue INFINITE_FLUID_TANK_CAPACITY = BUILDER
+		.comment("Infinite tank capacity (in B/buckets). -1 = follow Create's infinite fluid capacity config option")
+		.translation("fluidlogistics.configuration.infiniteFluidTankCapacity")
+		.defineInRange("infiniteFluidTankCapacity", INFINITE_FLUID_TANK_CAPACITY_DEFAULT,
+			INFINITE_FLUID_TANK_CAPACITY_MIN, INFINITE_FLUID_TANK_CAPACITY_MAX);
 
-    public static final ForgeConfigSpec.EnumValue<InfiniteTankFluidMode> INFINITE_FLUID_TANK_ALLOWED_FLUIDS = BUILDER
-            .comment("FOLLOW_CREATE = follow Create's bottomless fluid config option")
-            .translation("fluidlogistics.configuration.infiniteFluidTankAllowedFluids")
-            .defineEnum("infiniteFluidTankAllowedFluids", InfiniteTankFluidMode.FOLLOW_CREATE);
+	public static final ForgeConfigSpec.EnumValue<InfiniteTankFluidMode> INFINITE_FLUID_TANK_ALLOWED_FLUIDS = BUILDER
+		.comment("FOLLOW_CREATE = follow Create's bottomless fluid config option")
+		.translation("fluidlogistics.configuration.infiniteFluidTankAllowedFluids")
+		.defineEnum("infiniteFluidTankAllowedFluids", InfiniteTankFluidMode.FOLLOW_CREATE);
 
-    static {
-        BUILDER.pop();
-    }
+	static {
+		BUILDER.pop();
+	}
 
-    public static final ForgeConfigSpec SERVER_SPEC = BUILDER.build();
+	public static final ForgeConfigSpec SERVER_SPEC = BUILDER.build();
+	private static volatile ModConfig serverConfig;
+	private static FileTime lastModified;
 
-    private static boolean fluidTransporterEnabled = FLUID_TRANSPORTER_ENABLED_DEFAULT;
-    private static boolean smartFaucetEnabled = SMART_FAUCET_ENABLED_DEFAULT;
-    private static boolean faucetEnabled = FAUCET_ENABLED_DEFAULT;
-    private static boolean multiFluidTankEnabled = MULTI_FLUID_TANK_ENABLED_DEFAULT;
-    private static boolean horizontalMultiFluidTankEnabled = HORIZONTAL_MULTI_FLUID_TANK_ENABLED_DEFAULT;
-    private static boolean multiFluidAccessPortEnabled = MULTI_FLUID_ACCESS_PORT_ENABLED_DEFAULT;
-    private static boolean fluidInventoryAccessPortEnabled = FLUID_INVENTORY_ACCESS_PORT_ENABLED_DEFAULT;
-    private static boolean smartHopperEnabled = SMART_HOPPER_ENABLED_DEFAULT;
-    private static boolean fluidPumpEnabled = FLUID_PUMP_ENABLED_DEFAULT;
-    private static boolean infiniteFluidTankEnabled = INFINITE_FLUID_TANK_ENABLED_DEFAULT;
-    private static boolean waterContainingCopperCasingEnabled = WATER_CONTAINING_COPPER_CASING_ENABLED_DEFAULT;
-    private static boolean copperBasinEnabled = COPPER_BASIN_ENABLED_DEFAULT;
-    private static boolean mechanicalFluidGunEnabled = MECHANICAL_FLUID_GUN_ENABLED_DEFAULT;
-    private static boolean handPointerEnabled = HAND_POINTER_ENABLED_DEFAULT;
-    private static boolean copperFrogportEnabled = COPPER_FROGPORT_ENABLED_DEFAULT;
-    private static boolean fluidPackagerEnabled = FLUID_PACKAGER_ENABLED_DEFAULT;
-    private static boolean fluidRepackagerEnabled = FLUID_REPACKAGER_ENABLED_DEFAULT;
-    private static boolean copperBucketEnabled = COPPER_BUCKET_ENABLED_DEFAULT;
-    private static boolean phantomChainEnabled = PHANTOM_CHAIN_ENABLED_DEFAULT;
-    private static boolean fluidHatchEnabled = FLUID_HATCH_ENABLED_DEFAULT;
-    private static boolean fluidFactoryGaugeEnabled = FLUID_FACTORY_GAUGE_ENABLED_DEFAULT;
-    private static boolean blazeCoolerEnabled = BLAZE_COOLER_ENABLED_DEFAULT;
-    private static boolean copperSchematicannonEnabled = COPPER_SCHEMATICANNON_ENABLED_DEFAULT;
-    private static boolean fluidSchematicEnabled = FLUID_SCHEMATIC_ENABLED_DEFAULT;
-    private static boolean frostCakeEnabled = FROST_CAKE_ENABLED_DEFAULT;
-    private static int fluidPackageCapacity = FLUID_PACKAGE_CAPACITY_DEFAULT;
-    private static int fluidPumpRange = FLUID_PUMP_RANGE_DEFAULT;
-    private static int handPointerMaxArms = HAND_POINTER_MAX_ARMS_DEFAULT;
-    private static int handPointerMaxFrogports = HAND_POINTER_MAX_FROGPORTS_DEFAULT;
-    private static int handPointerMaxMailboxes = HAND_POINTER_MAX_MAILBOXES_DEFAULT;
-    private static FluidContainerMode faucetFluidContainerMode = FluidContainerMode.ALLOW_BY_TAG;
-    private static boolean fluidTransporterInfiniteWaterEnabled = FLUID_TRANSPORTER_INFINITE_WATER_ENABLED_DEFAULT;
-    private static boolean faucetInfiniteWaterEnabled = FAUCET_INFINITE_WATER_ENABLED_DEFAULT;
-    private static boolean smartHopperInfiniteWaterEnabled = SMART_HOPPER_INFINITE_WATER_ENABLED_DEFAULT;
-    private static int infiniteFluidTankCapacity = INFINITE_FLUID_TANK_CAPACITY_DEFAULT;
-    private static InfiniteTankFluidMode infiniteFluidTankAllowedFluids = InfiniteTankFluidMode.FOLLOW_CREATE;
-    private static boolean useItemRenderingForFluidFactoryGaugeFluid =
-            USE_ITEM_RENDERING_FOR_FLUID_FACTORY_GAUGE_FLUID_DEFAULT;
-    private static boolean disableBlazeCoolerParticles = false;
+	private static boolean fluidTransporterEnabled = FLUID_TRANSPORTER_ENABLED_DEFAULT;
+	private static boolean smartFaucetEnabled = SMART_FAUCET_ENABLED_DEFAULT;
+	private static boolean faucetEnabled = FAUCET_ENABLED_DEFAULT;
+	private static boolean multiFluidTankEnabled = MULTI_FLUID_TANK_ENABLED_DEFAULT;
+	private static boolean horizontalMultiFluidTankEnabled = HORIZONTAL_MULTI_FLUID_TANK_ENABLED_DEFAULT;
+	private static boolean multiFluidAccessPortEnabled = MULTI_FLUID_ACCESS_PORT_ENABLED_DEFAULT;
+	private static boolean fluidInventoryAccessPortEnabled = FLUID_INVENTORY_ACCESS_PORT_ENABLED_DEFAULT;
+	private static boolean copperBasketEnabled = COPPER_BASKET_ENABLED_DEFAULT;
+	private static boolean smartHopperEnabled = SMART_HOPPER_ENABLED_DEFAULT;
+	private static boolean oscillatingSteamEngineEnabled = OSCILLATING_STEAM_ENGINE_ENABLED_DEFAULT;
+	private static boolean fluidPumpEnabled = FLUID_PUMP_ENABLED_DEFAULT;
+	private static boolean infiniteFluidTankEnabled = INFINITE_FLUID_TANK_ENABLED_DEFAULT;
+	private static boolean waterContainingCopperCasingEnabled = WATER_CONTAINING_COPPER_CASING_ENABLED_DEFAULT;
+	private static boolean copperBasinEnabled = COPPER_BASIN_ENABLED_DEFAULT;
+	private static boolean mechanicalFluidGunEnabled = MECHANICAL_FLUID_GUN_ENABLED_DEFAULT;
+	private static boolean handPointerEnabled = HAND_POINTER_ENABLED_DEFAULT;
+	private static boolean copperFrogportEnabled = COPPER_FROGPORT_ENABLED_DEFAULT;
+	private static boolean fluidPackagerEnabled = FLUID_PACKAGER_ENABLED_DEFAULT;
+	private static boolean fluidRepackagerEnabled = FLUID_REPACKAGER_ENABLED_DEFAULT;
+	private static boolean copperBucketEnabled = COPPER_BUCKET_ENABLED_DEFAULT;
+	private static boolean phantomChainEnabled = PHANTOM_CHAIN_ENABLED_DEFAULT;
+	private static boolean fluidHatchEnabled = FLUID_HATCH_ENABLED_DEFAULT;
+	private static boolean fluidFactoryGaugeEnabled = FLUID_FACTORY_GAUGE_ENABLED_DEFAULT;
+	private static boolean snowGolemFreezerEnabled = SNOW_GOLEM_FREEZER_ENABLED_DEFAULT;
+	private static boolean copperSchematicannonEnabled = COPPER_SCHEMATICANNON_ENABLED_DEFAULT;
+	private static boolean fluidSchematicEnabled = FLUID_SCHEMATIC_ENABLED_DEFAULT;
+	private static int fluidPackageCapacity = FLUID_PACKAGE_CAPACITY_DEFAULT;
+	private static int fluidPumpRange = FLUID_PUMP_RANGE_DEFAULT;
+	private static int handPointerMaxArms = HAND_POINTER_MAX_ARMS_DEFAULT;
+	private static int handPointerMaxFrogports = HAND_POINTER_MAX_FROGPORTS_DEFAULT;
+	private static int handPointerMaxMailboxes = HAND_POINTER_MAX_MAILBOXES_DEFAULT;
+	private static FluidContainerMode faucetFluidContainerMode = FluidContainerMode.ALLOW_BY_TAG;
+	private static boolean fluidTransporterInfiniteWaterEnabled = FLUID_TRANSPORTER_INFINITE_WATER_ENABLED_DEFAULT;
+	private static boolean faucetInfiniteWaterEnabled = FAUCET_INFINITE_WATER_ENABLED_DEFAULT;
+	private static boolean smartHopperInfiniteWaterEnabled = SMART_HOPPER_INFINITE_WATER_ENABLED_DEFAULT;
+	private static int infiniteFluidTankCapacity = INFINITE_FLUID_TANK_CAPACITY_DEFAULT;
+	private static InfiniteTankFluidMode infiniteFluidTankAllowedFluids = InfiniteTankFluidMode.FOLLOW_CREATE;
+	private static boolean useItemRenderingForFluidFactoryGaugeFluid = USE_ITEM_RENDERING_FOR_FLUID_FACTORY_GAUGE_FLUID_DEFAULT;
 
-    @SubscribeEvent
-    static void onLoad(final ModConfigEvent.Loading event) {
-        if (event.getConfig().getSpec() == SERVER_SPEC) {
-            reloadValues();
-        } else if (event.getConfig().getSpec() == CLIENT_SPEC) {
-            reloadClientValues();
-        }
-    }
+	@SubscribeEvent
+	static void onLoad(final ModConfigEvent.Loading event) {
+		if (event.getConfig().getSpec() == SERVER_SPEC) {
+			serverConfig = event.getConfig();
+			reloadValues();
+		} else if (event.getConfig().getSpec() == CLIENT_SPEC) {
+			reloadClientValues();
+		}
+	}
 
-    @SubscribeEvent
-    static void onReload(final ModConfigEvent.Reloading event) {
-        if (event.getConfig().getSpec() == SERVER_SPEC) {
-            reloadValues();
-        } else if (event.getConfig().getSpec() == CLIENT_SPEC) {
-            reloadClientValues();
-        }
-    }
+	@SubscribeEvent
+	static void onReload(final ModConfigEvent.Reloading event) {
+		if (event.getConfig().getSpec() == SERVER_SPEC) {
+			serverConfig = event.getConfig();
+			reloadValues();
+		} else if (event.getConfig().getSpec() == CLIENT_SPEC) {
+			reloadClientValues();
+		}
+	}
 
-    private static void reloadClientValues() {
-        useItemRenderingForFluidFactoryGaugeFluid = USE_ITEM_RENDERING_FOR_FLUID_FACTORY_GAUGE_FLUID.get();
-        disableBlazeCoolerParticles = DISABLE_BLAZE_COOLER_PARTICLES.get();
-    }
+	@SubscribeEvent
+	static void onUnload(final ModConfigEvent.Unloading event) {
+		if (event.getConfig().getSpec() != SERVER_SPEC) {
+			return;
+		}
+		serverConfig = null;
+		lastModified = null;
+		reloadValues();
+	}
 
-    public static void loadStartupValues() {
-        Path path = FMLPaths.CONFIGDIR.get().resolve("fluidlogistics-server.toml");
-        if (Files.exists(path)) {
-            try (CommentedFileConfig config = CommentedFileConfig.of(path)) {
-                config.load();
-                Object value = config.get(BLAZE_COOLER_ENABLED.getPath());
-                blazeCoolerEnabled = value instanceof Boolean enabled ? enabled : BLAZE_COOLER_ENABLED_DEFAULT;
-            }
-        }
-        FeatureToggle.reload();
-    }
+	private static void reloadClientValues() {
+		useItemRenderingForFluidFactoryGaugeFluid = USE_ITEM_RENDERING_FOR_FLUID_FACTORY_GAUGE_FLUID.get();
+	}
 
-    private static void reloadValues() {
-        fluidTransporterEnabled = FLUID_TRANSPORTER_ENABLED.get();
-        smartFaucetEnabled = SMART_FAUCET_ENABLED.get();
-        faucetEnabled = FAUCET_ENABLED.get();
-        multiFluidTankEnabled = MULTI_FLUID_TANK_ENABLED.get();
-        horizontalMultiFluidTankEnabled = HORIZONTAL_MULTI_FLUID_TANK_ENABLED.get();
-        multiFluidAccessPortEnabled = MULTI_FLUID_ACCESS_PORT_ENABLED.get();
-        fluidInventoryAccessPortEnabled = FLUID_INVENTORY_ACCESS_PORT_ENABLED.get();
-        smartHopperEnabled = SMART_HOPPER_ENABLED.get();
-        fluidPumpEnabled = FLUID_PUMP_ENABLED.get();
-        infiniteFluidTankEnabled = INFINITE_FLUID_TANK_ENABLED.get();
-        waterContainingCopperCasingEnabled = WATER_CONTAINING_COPPER_CASING_ENABLED.get();
-        copperBasinEnabled = COPPER_BASIN_ENABLED.get();
-        mechanicalFluidGunEnabled = MECHANICAL_FLUID_GUN_ENABLED.get();
-        handPointerEnabled = HAND_POINTER_ENABLED.get();
-        copperFrogportEnabled = COPPER_FROGPORT_ENABLED.get();
-        fluidPackagerEnabled = FLUID_PACKAGER_ENABLED.get();
-        fluidRepackagerEnabled = FLUID_REPACKAGER_ENABLED.get();
-        copperBucketEnabled = COPPER_BUCKET_ENABLED.get();
-        phantomChainEnabled = PHANTOM_CHAIN_ENABLED.get();
-        fluidHatchEnabled = FLUID_HATCH_ENABLED.get();
-        fluidFactoryGaugeEnabled = FLUID_FACTORY_GAUGE_ENABLED.get();
-        copperSchematicannonEnabled = COPPER_SCHEMATICANNON_ENABLED.get();
-        fluidSchematicEnabled = FLUID_SCHEMATIC_ENABLED.get();
-        frostCakeEnabled = FROST_CAKE_ENABLED.get();
-        fluidPackageCapacity = FLUID_PACKAGE_CAPACITY.get();
-        fluidPumpRange = FLUID_PUMP_RANGE.get();
-        handPointerMaxArms = HAND_POINTER_MAX_ARMS.get();
-        handPointerMaxFrogports = HAND_POINTER_MAX_FROGPORTS.get();
-        handPointerMaxMailboxes = HAND_POINTER_MAX_MAILBOXES.get();
-        faucetFluidContainerMode = FAUCET_FLUID_CONTAINER_MODE.get();
-        fluidTransporterInfiniteWaterEnabled = FLUID_TRANSPORTER_INFINITE_WATER_ENABLED.get();
-        faucetInfiniteWaterEnabled = FAUCET_INFINITE_WATER_ENABLED.get();
-        smartHopperInfiniteWaterEnabled = SMART_HOPPER_INFINITE_WATER_ENABLED.get();
-        infiniteFluidTankCapacity = bucketsToMillibuckets(INFINITE_FLUID_TANK_CAPACITY.get());
-        infiniteFluidTankAllowedFluids = INFINITE_FLUID_TANK_ALLOWED_FLUIDS.get();
-        FeatureToggle.reload();
-    }
+	private static void pollServerConfig() {
+		ModConfig config = serverConfig;
+		if (config == null || !(config.getConfigData() instanceof CommentedFileConfig file)) {
+			return;
+		}
+		try {
+			FileTime modified = Files.getLastModifiedTime(file.getNioPath());
+			if (modified.equals(lastModified)) {
+				return;
+			}
+			file.load();
+			SERVER_SPEC.setConfig(file);
+			lastModified = modified;
+			reloadValues();
+		} catch (IOException | ParsingException exception) {
+			FluidLogistics.LOGGER.warn("Could not reload fluidlogistics-server.toml", exception);
+		}
+	}
 
-    public static boolean isFluidTransporterEnabled() { return fluidTransporterEnabled; }
-    public static boolean isSmartFaucetEnabled() { return smartFaucetEnabled; }
-    public static boolean isFaucetEnabled() { return faucetEnabled; }
-    public static boolean isMultiFluidTankEnabled() { return multiFluidTankEnabled; }
-    public static boolean isHorizontalMultiFluidTankEnabled() { return horizontalMultiFluidTankEnabled; }
-    public static boolean isMultiFluidAccessPortEnabled() { return multiFluidAccessPortEnabled; }
-    public static boolean isFluidInventoryAccessPortEnabled() { return fluidInventoryAccessPortEnabled; }
-    public static boolean isSmartHopperEnabled() { return smartHopperEnabled; }
-    public static boolean isFluidPumpEnabled() { return fluidPumpEnabled; }
-    public static boolean isInfiniteFluidTankEnabled() { return infiniteFluidTankEnabled; }
-    public static boolean isWaterContainingCopperCasingEnabled() { return waterContainingCopperCasingEnabled; }
-    public static boolean isCopperBasinEnabled() { return copperBasinEnabled; }
-    public static boolean isMechanicalFluidGunEnabled() { return mechanicalFluidGunEnabled; }
-    public static boolean isHandPointerEnabled() { return handPointerEnabled; }
-    public static boolean isCopperFrogportEnabled() { return copperFrogportEnabled; }
-    public static boolean isFluidPackagerEnabled() { return fluidPackagerEnabled; }
-    public static boolean isFluidRepackagerEnabled() { return fluidRepackagerEnabled; }
-    public static boolean isCopperBucketEnabled() { return copperBucketEnabled; }
-    public static boolean isPhantomChainEnabled() { return phantomChainEnabled; }
-    public static boolean isFluidHatchEnabled() { return fluidHatchEnabled; }
-    public static boolean isFluidFactoryGaugeEnabled() { return fluidFactoryGaugeEnabled; }
-    public static boolean isBlazeCoolerEnabled() { return blazeCoolerEnabled; }
-    public static boolean isCopperSchematicannonEnabled() { return copperSchematicannonEnabled; }
-    public static boolean isFluidSchematicEnabled() { return fluidSchematicEnabled; }
-    public static boolean isFrostCakeEnabled() { return frostCakeEnabled; }
+	@Mod.EventBusSubscriber(modid = "fluidlogistics")
+	public static class ServerEvents {
+		@SubscribeEvent
+		public static void onServerTick(TickEvent.ServerTickEvent event) {
+			if (event.phase == TickEvent.Phase.END && event.getServer().getTickCount() % 20 == 0) {
+				pollServerConfig();
+			}
+		}
+	}
 
-    public static int getFluidPumpRange() { return fluidPumpRange; }
+	private static void reloadValues() {
+		fluidTransporterEnabled = serverValue(FLUID_TRANSPORTER_ENABLED);
+		smartFaucetEnabled = serverValue(SMART_FAUCET_ENABLED);
+		faucetEnabled = serverValue(FAUCET_ENABLED);
+		multiFluidTankEnabled = serverValue(MULTI_FLUID_TANK_ENABLED);
+		horizontalMultiFluidTankEnabled = serverValue(HORIZONTAL_MULTI_FLUID_TANK_ENABLED);
+		multiFluidAccessPortEnabled = serverValue(MULTI_FLUID_ACCESS_PORT_ENABLED);
+		fluidInventoryAccessPortEnabled = serverValue(FLUID_INVENTORY_ACCESS_PORT_ENABLED);
+		copperBasketEnabled = serverValue(COPPER_BASKET_ENABLED);
+		smartHopperEnabled = serverValue(SMART_HOPPER_ENABLED);
+		oscillatingSteamEngineEnabled = serverValue(OSCILLATING_STEAM_ENGINE_ENABLED);
+		fluidPumpEnabled = serverValue(FLUID_PUMP_ENABLED);
+		infiniteFluidTankEnabled = serverValue(INFINITE_FLUID_TANK_ENABLED);
+		waterContainingCopperCasingEnabled = serverValue(WATER_CONTAINING_COPPER_CASING_ENABLED);
+		copperBasinEnabled = serverValue(COPPER_BASIN_ENABLED);
+		mechanicalFluidGunEnabled = serverValue(MECHANICAL_FLUID_GUN_ENABLED);
+		handPointerEnabled = serverValue(HAND_POINTER_ENABLED);
+		copperFrogportEnabled = serverValue(COPPER_FROGPORT_ENABLED);
+		fluidPackagerEnabled = serverValue(FLUID_PACKAGER_ENABLED);
+		fluidRepackagerEnabled = serverValue(FLUID_REPACKAGER_ENABLED);
+		copperBucketEnabled = serverValue(COPPER_BUCKET_ENABLED);
+		phantomChainEnabled = serverValue(PHANTOM_CHAIN_ENABLED);
+		fluidHatchEnabled = serverValue(FLUID_HATCH_ENABLED);
+		fluidFactoryGaugeEnabled = serverValue(FLUID_FACTORY_GAUGE_ENABLED);
+		snowGolemFreezerEnabled = serverValue(SNOW_GOLEM_FREEZER_ENABLED);
+		copperSchematicannonEnabled = serverValue(COPPER_SCHEMATICANNON_ENABLED);
+		fluidSchematicEnabled = serverValue(FLUID_SCHEMATIC_ENABLED);
+		fluidPackageCapacity = serverValue(FLUID_PACKAGE_CAPACITY);
+		fluidPumpRange = serverValue(FLUID_PUMP_RANGE);
+		handPointerMaxArms = serverValue(HAND_POINTER_MAX_ARMS);
+		handPointerMaxFrogports = serverValue(HAND_POINTER_MAX_FROGPORTS);
+		handPointerMaxMailboxes = serverValue(HAND_POINTER_MAX_MAILBOXES);
+		faucetFluidContainerMode = serverValue(FAUCET_FLUID_CONTAINER_MODE);
+		fluidTransporterInfiniteWaterEnabled = serverValue(FLUID_TRANSPORTER_INFINITE_WATER_ENABLED);
+		faucetInfiniteWaterEnabled = serverValue(FAUCET_INFINITE_WATER_ENABLED);
+		smartHopperInfiniteWaterEnabled = serverValue(SMART_HOPPER_INFINITE_WATER_ENABLED);
+		infiniteFluidTankCapacity = bucketsToMillibuckets(serverValue(INFINITE_FLUID_TANK_CAPACITY));
+		infiniteFluidTankAllowedFluids = serverValue(INFINITE_FLUID_TANK_ALLOWED_FLUIDS);
+		FeatureToggle.reload();
+	}
 
-    public static int getHandPointerMaxArms() { return handPointerMaxArms; }
-    public static int getHandPointerMaxFrogports() { return handPointerMaxFrogports; }
-    public static int getHandPointerMaxMailboxes() { return handPointerMaxMailboxes; }
-    public static FluidContainerMode getFaucetFluidContainerMode() { return faucetFluidContainerMode; }
+	private static <T> T serverValue(ForgeConfigSpec.ConfigValue<T> value) {
+		return serverConfig == null ? value.getDefault() : value.get();
+	}
 
-    public static int getFluidPerPackage() {
-        return Math.max(FLUID_PACKAGE_CAPACITY_MIN, fluidPackageCapacity);
-    }
+	public static boolean isFluidTransporterEnabled() {
+		return fluidTransporterEnabled;
+	}
 
-    public static boolean isFluidTransporterInfiniteWaterEnabled() { return fluidTransporterInfiniteWaterEnabled; }
-    public static boolean isFaucetInfiniteWaterEnabled() { return faucetInfiniteWaterEnabled; }
-    public static boolean isSmartHopperInfiniteWaterEnabled() { return smartHopperInfiniteWaterEnabled; }
-    public static int getInfiniteFluidTankCapacity() { return infiniteFluidTankCapacity; }
-    public static InfiniteTankFluidMode getInfiniteFluidTankAllowedFluids() { return infiniteFluidTankAllowedFluids; }
-    public static boolean areBlazeCoolerParticlesDisabled() {
-        return disableBlazeCoolerParticles;
-    }
+	public static boolean isSmartFaucetEnabled() {
+		return smartFaucetEnabled;
+	}
 
-    public static boolean useItemRenderingForFluidFactoryGaugeFluid() {
-        return useItemRenderingForFluidFactoryGaugeFluid;
-    }
+	public static boolean isFaucetEnabled() {
+		return faucetEnabled;
+	}
 
-    private static int bucketsToMillibuckets(int buckets) {
-        if (buckets <= 0) {
-            return buckets;
-        }
-        return buckets * MILLIBUCKETS_PER_BUCKET;
-    }
+	public static boolean isMultiFluidTankEnabled() {
+		return multiFluidTankEnabled;
+	}
+
+	public static boolean isHorizontalMultiFluidTankEnabled() {
+		return horizontalMultiFluidTankEnabled;
+	}
+
+	public static boolean isMultiFluidAccessPortEnabled() {
+		return multiFluidAccessPortEnabled;
+	}
+
+	public static boolean isFluidInventoryAccessPortEnabled() {
+		return fluidInventoryAccessPortEnabled;
+	}
+
+	public static boolean isCopperBasketEnabled() {
+		return copperBasketEnabled;
+	}
+
+	public static boolean isSmartHopperEnabled() {
+		return smartHopperEnabled;
+	}
+
+	public static boolean isOscillatingSteamEngineEnabled() {
+		return oscillatingSteamEngineEnabled;
+	}
+
+	public static boolean isFluidPumpEnabled() {
+		return fluidPumpEnabled;
+	}
+
+	public static boolean isInfiniteFluidTankEnabled() {
+		return infiniteFluidTankEnabled;
+	}
+
+	public static boolean isWaterContainingCopperCasingEnabled() {
+		return waterContainingCopperCasingEnabled;
+	}
+
+	public static boolean isCopperBasinEnabled() {
+		return copperBasinEnabled;
+	}
+
+	public static boolean isMechanicalFluidGunEnabled() {
+		return mechanicalFluidGunEnabled;
+	}
+
+	public static boolean isHandPointerEnabled() {
+		return handPointerEnabled;
+	}
+
+	public static boolean isCopperFrogportEnabled() {
+		return copperFrogportEnabled;
+	}
+
+	public static boolean isFluidPackagerEnabled() {
+		return fluidPackagerEnabled;
+	}
+
+	public static boolean isFluidRepackagerEnabled() {
+		return fluidRepackagerEnabled;
+	}
+
+	public static boolean isCopperBucketEnabled() {
+		return copperBucketEnabled;
+	}
+
+	public static boolean isPhantomChainEnabled() {
+		return phantomChainEnabled;
+	}
+
+	public static boolean isFluidHatchEnabled() {
+		return fluidHatchEnabled;
+	}
+
+	public static boolean isFluidFactoryGaugeEnabled() {
+		return fluidFactoryGaugeEnabled;
+	}
+
+	public static boolean isSnowGolemFreezerEnabled() {
+		return snowGolemFreezerEnabled;
+	}
+
+	public static boolean isCopperSchematicannonEnabled() {
+		return copperSchematicannonEnabled;
+	}
+
+	public static boolean isFluidSchematicEnabled() {
+		return fluidSchematicEnabled;
+	}
+
+	public static boolean useItemRenderingForFluidFactoryGaugeFluid() {
+		return useItemRenderingForFluidFactoryGaugeFluid;
+	}
+
+	public static int getFluidPumpRange() {
+		return fluidPumpRange;
+	}
+
+	public static int getHandPointerMaxArms() {
+		return handPointerMaxArms;
+	}
+
+	public static int getHandPointerMaxFrogports() {
+		return handPointerMaxFrogports;
+	}
+
+	public static int getHandPointerMaxMailboxes() {
+		return handPointerMaxMailboxes;
+	}
+
+	public static FluidContainerMode getFaucetFluidContainerMode() {
+		return faucetFluidContainerMode;
+	}
+
+	public static int getFluidPerPackage() {
+		return Math.max(FLUID_PACKAGE_CAPACITY_MIN, fluidPackageCapacity);
+	}
+
+	public static boolean isFluidTransporterInfiniteWaterEnabled() {
+		return fluidTransporterInfiniteWaterEnabled;
+	}
+
+	public static boolean isFaucetInfiniteWaterEnabled() {
+		return faucetInfiniteWaterEnabled;
+	}
+
+	public static boolean isSmartHopperInfiniteWaterEnabled() {
+		return smartHopperInfiniteWaterEnabled;
+	}
+
+	public static int getInfiniteFluidTankCapacity() {
+		return infiniteFluidTankCapacity;
+	}
+
+	public static InfiniteTankFluidMode getInfiniteFluidTankAllowedFluids() {
+		return infiniteFluidTankAllowedFluids;
+	}
+
+	private static int bucketsToMillibuckets(int buckets) {
+		if (buckets <= 0) {
+			return buckets;
+		}
+		return buckets * MILLIBUCKETS_PER_BUCKET;
+	}
 }

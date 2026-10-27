@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.jetbrains.annotations.Nullable;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.api.contraption.transformable.TransformableBlockEntity;
 import com.simibubi.create.content.contraptions.StructureTransform;
@@ -16,8 +18,8 @@ import com.simibubi.create.foundation.item.TooltipHelper;
 import com.yision.fluidlogistics.content.equipment.mechanicalFluidGun.network.MechanicalFluidGunPackets;
 import com.yision.fluidlogistics.foundation.fluid.CachedFluidInterface;
 import com.yision.fluidlogistics.network.FluidLogisticsPackets;
-import dev.engine_room.flywheel.lib.transform.TransformStack;
 
+import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.animation.LerpedFloat;
 import net.createmod.catnip.math.AngleHelper;
 import net.createmod.catnip.math.VecHelper;
@@ -32,9 +34,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import org.jetbrains.annotations.Nullable;
 
 public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 	implements MechanicalFluidGunContext, TransformableBlockEntity {
@@ -85,9 +87,8 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 		beltHandler = new MechanicalFluidGunBeltHandler(this);
 		processor = new MechanicalFluidGunProcessor(this);
 
-		yaw.startWithValue(state == null
-			? MechanicalFluidGunTarget.DEFAULT_YAW
-			: MechanicalFluidGunVisuals.computeIdleYaw(state));
+		yaw.startWithValue(
+			state == null ? MechanicalFluidGunTarget.DEFAULT_YAW : MechanicalFluidGunVisuals.computeIdleYaw(state));
 		pitch.startWithValue(MechanicalFluidGunTarget.DEFAULT_PITCH);
 	}
 
@@ -101,14 +102,12 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 		ensureComponentsInitialized(getBlockState());
 		super.addBehaviours(behaviours);
 
-		scheduleMode = new ScrollOptionBehaviour<>(
-			MechanicalFluidGunScheduleMode.class,
-			Component.translatable("fluidlogistics.mechanical_fluid_gun.schedule_mode"),
-			this, new ScheduleModeSlotPositioning());
+		scheduleMode = new ScrollOptionBehaviour<>(MechanicalFluidGunScheduleMode.class,
+			Component.translatable("fluidlogistics.mechanical_fluid_gun.schedule_mode"), this,
+			new ScheduleModeSlotPositioning());
 		behaviours.add(scheduleMode);
 
-		beltProcessing = new BeltProcessingBehaviour(this)
-			.whenItemEnters(MechanicalFluidGunBeltDispatcher::received)
+		beltProcessing = new BeltProcessingBehaviour(this).whenItemEnters(MechanicalFluidGunBeltDispatcher::received)
 			.whileItemHeld(MechanicalFluidGunBeltDispatcher::held);
 		behaviours.add(beltProcessing);
 	}
@@ -156,7 +155,8 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 	public void tick() {
 		super.tick();
 
-		if (level == null) return;
+		if (level == null)
+			return;
 
 		if (level.isClientSide) {
 			updateVisuals();
@@ -200,18 +200,21 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 	@Override
 	public void notifyGunUpdate() {
 		setChanged();
-		if (level == null || level.isClientSide) return;
+		if (level == null || level.isClientSide)
+			return;
 		Vec3 point = aimState.getAimPoint(targets.getActiveTargetIndex());
 		var state = new MechanicalFluidGunPackets.VisualStatePacket(worldPosition, targets.getActiveTargetIndex(),
 			cycle.isActive(), point, visuals.isSpraying(), visuals.getRenderingFluid().copy(), itemFilling.isFilling());
-		if (state.hasSameVisualState(lastVisualState)) return;
+		if (state.hasSameVisualState(lastVisualState))
+			return;
 		lastVisualState = state;
 		FluidLogisticsPackets.sendToNear(level, worldPosition, 64, state);
 	}
 
 	public void applyVisualState(int activeTargetIndex, boolean cycleActive, @Nullable Vec3 dynamicAimPoint,
-								 boolean spraying, FluidStack renderingFluid, boolean fillingItem) {
-		if (level == null || !level.isClientSide) return;
+		boolean spraying, FluidStack renderingFluid, boolean fillingItem) {
+		if (level == null || !level.isClientSide)
+			return;
 		if (activeTargetIndex >= 0 && activeTargetIndex < targets.size()) {
 			targets.setActiveTargetIndex(activeTargetIndex);
 		} else {
@@ -351,12 +354,13 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 	void updateVisuals() {
 		MechanicalFluidGunTargetConfig activeTarget = targets.getActiveTarget();
 		Vec3 aimPoint = getTargetAimPoint(activeTarget);
-		visuals.updateTargetAngles(worldPosition, getBlockState(), aimPoint,
-			cycle.isActive(), itemFilling.isFilling(), redstoneLocked && !itemFilling.isFilling() ? 0 : Math.abs(getSpeed()));
+		visuals.updateTargetAngles(worldPosition, getBlockState(), aimPoint, cycle.isActive(), itemFilling.isFilling(),
+			redstoneLocked && !itemFilling.isFilling() ? 0 : Math.abs(getSpeed()));
 	}
 
 	Vec3 getTargetAimPoint(@Nullable MechanicalFluidGunTargetConfig target) {
-		if (target == null) return null;
+		if (target == null)
+			return null;
 		Vec3 dynamicAimPoint = aimState.getAimPoint(targets.getActiveTargetIndex());
 		if (dynamicAimPoint != null) {
 			return dynamicAimPoint;
@@ -374,7 +378,8 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 
 	@Nullable
 	IFluidHandler getSourceHandler() {
-		if (level == null) return null;
+		if (level == null)
+			return null;
 		Direction sourceSide = MechanicalFluidGunMount.getMountFace(getBlockState());
 		BlockPos sourcePos = worldPosition.relative(sourceSide.getOpposite());
 		return sourceCache.get(level, sourcePos, sourceSide);
@@ -383,7 +388,6 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 	public boolean shouldRenderSourceInterface() {
 		return getSourceHandler() != null;
 	}
-
 
 	public void setTargets(List<MechanicalFluidGunTargetConfig> newTargets) {
 		itemFilling.clear();
@@ -439,13 +443,15 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 		return targets.getTargets();
 	}
 
-
 	public int getComparatorOutput() {
-		if (targets.isEmpty()) return 0;
+		if (targets.isEmpty())
+			return 0;
 		IFluidHandler source = getSourceHandler();
-		if (source == null) return 0;
+		if (source == null)
+			return 0;
 		for (int tank = 0; tank < source.getTanks(); tank++) {
-			if (!source.getFluidInTank(tank).isEmpty()) return 15;
+			if (!source.getFluidInTank(tank).isEmpty())
+				return 15;
 		}
 		return 0;
 	}
@@ -525,10 +531,7 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity
 			float xRot = side == Direction.UP ? 90 : side == Direction.DOWN ? 270 : 0;
 			float zRot = getIconRollTowardsSource(sourceDirection, xRot, yRot);
 
-			TransformStack.of(ms)
-				.rotateYDegrees(yRot)
-				.rotateXDegrees(xRot)
-				.rotateZDegrees(zRot);
+			TransformStack.of(ms).rotateYDegrees(yRot).rotateXDegrees(xRot).rotateZDegrees(zRot);
 		}
 
 		@Override

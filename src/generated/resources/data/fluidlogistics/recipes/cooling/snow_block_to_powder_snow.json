@@ -1,36 +1,25 @@
 {
   "type": "fluidlogistics:cooling_mixing",
+  "conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:snow_golem_freezer"
+    }
+  ],
   "ingredients": [
     {
       "item": "minecraft:snow_block"
     },
     {
-      "item": "minecraft:snow_block"
-    },
-    {
-      "item": "minecraft:snow_block"
-    },
-    {
-      "item": "minecraft:snow_block"
-    },
-    {
+      "type": "fluid_stack",
       "amount": 250,
-      "fluid": "minecraft:water",
-      "nbt": {}
+      "fluid": "minecraft:water"
     }
   ],
   "results": [
     {
-      "amount": 250,
-      "fluid": "fluidlogistics:powder_snow",
-      "nbt": {}
-    }
-  ],
-  "supercooled": false,
-  "conditions": [
-    {
-      "type": "fluidlogistics:feature_enabled",
-      "feature": "fluidlogistics:blaze_cooler"
+      "amount": 500,
+      "fluid": "fluidlogistics:powder_snow"
     }
   ]
 }
