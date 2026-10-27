@@ -325,6 +325,7 @@
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_1": "Морозильные камеры со снежными големами охлаждают предметы, обрабатывающиеся в чаше",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_2": "Для этого нужно кормить снежного голема замораживающим топливом",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_3": "Процесс кормления может быть автоматизирован при помощи автономного активатора или механической руки",
+  "fluidlogistics.ponder.snow_golem_freezer/fueling.text_4": "Нажмите правой кнопкой мыши с вырезанной тыквой в руке, чтобы надеть её на голову снежному голему",
   "fluidlogistics.recipe.fan_cooling": "Массовая заморозка",
   "gui.fluidlogistics.creative_banner.title": "Жидкостная логистика",
   "item.fluidlogistics.compressed_storage_tank": "Сжатый резервуар для хранения",

@@ -325,6 +325,7 @@
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_1": "Kar Golemi Dondurucuları, Haznede işlem gören malzemelere soğutma sağlayabilir",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_2": "Bunun için Kar Golemi dondurucu yakıtla beslenmelidir",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_3": "Besleme işlemi Konuşlandırıcı veya Mekanik Kol yardımıyla otomatikleştirilebilir",
+  "fluidlogistics.ponder.snow_golem_freezer/fueling.text_4": "Oyulmuş bir balkabağıyla sağ tıklayarak Kar Golemine balkabağı kafası takabilirsiniz",
   "fluidlogistics.recipe.fan_cooling": "Toplu Dondurma",
   "gui.fluidlogistics.creative_banner.title": "Akışkan Lojistiği",
   "item.fluidlogistics.compressed_storage_tank": "Sıkıştırılmış Depolama Tankı",

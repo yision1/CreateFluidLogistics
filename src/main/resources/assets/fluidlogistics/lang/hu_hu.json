@@ -325,6 +325,7 @@
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_1": "A hógólemes fagyasztók képesek hűtést biztosítani a teknőben végzett gyártási folyamatokhoz",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_2": "Ehhez a hógólemet meg kell etetni fagyasztó tüzelőanyaggal",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_3": "A táplálás lehelyezőkkel vagy mechanikus karokkal automatizálható",
+  "fluidlogistics.ponder.snow_golem_freezer/fueling.text_4": "Kattints jobb gombbal egy faragott tökkel a hógólemre, hogy tökfejet adj neki",
   "fluidlogistics.recipe.fan_cooling": "Tömeges fagyasztás",
   "gui.fluidlogistics.creative_banner.title": "Folyadéklogisztika",
   "item.fluidlogistics.compressed_storage_tank": "Sűrített tárolótartály",

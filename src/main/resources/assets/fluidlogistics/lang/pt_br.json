@@ -325,6 +325,7 @@
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_1": "Congeladores de Golem de Neve podem resfriar itens processados em uma Bacia",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_2": "Para isso, o Golem de Neve precisa ser alimentado com combustível congelante",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_3": "O processo de alimentação pode ser automatizado usando Implantadores ou Braços Mecânicos",
+  "fluidlogistics.ponder.snow_golem_freezer/fueling.text_4": "Clique com o botão direito com uma abóbora esculpida para colocar uma cabeça de abóbora no Golem de Neve",
   "fluidlogistics.recipe.fan_cooling": "Congelamento em Massa",
   "gui.fluidlogistics.creative_banner.title": "Logística de Fluidos",
   "item.fluidlogistics.compressed_storage_tank": "Tanque de Armazenamento Comprimido",

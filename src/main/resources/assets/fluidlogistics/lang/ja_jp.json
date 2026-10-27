@@ -325,6 +325,7 @@
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_1": "スノウゴーレム冷凍室は、鉢で加工するアイテムを冷却できます",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_2": "そのためには、スノウゴーレムに冷凍用の燃料を与える必要があります",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_3": "供給作業は、デプロイヤーやメカニカルアームで自動化できます",
+  "fluidlogistics.ponder.snow_golem_freezer/fueling.text_4": "くり抜かれたカボチャを持って右クリックすると、スノウゴーレムにカボチャの頭をかぶせられます",
   "fluidlogistics.recipe.fan_cooling": "一括冷凍",
   "gui.fluidlogistics.creative_banner.title": "液体物流",
   "item.fluidlogistics.compressed_storage_tank": "圧縮貯蔵タンク",

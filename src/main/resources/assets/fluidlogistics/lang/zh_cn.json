@@ -325,6 +325,7 @@
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_1": "雪傀儡冷冻室可以为工作盆中处理的物品提供冷源",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_2": "为此，你需要喂给雪傀儡一些冷冻燃料",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_3": "你可以使用机械手或动力臂进行自动补充",
+  "fluidlogistics.ponder.snow_golem_freezer/fueling.text_4": "使用雕刻南瓜右键可以为雪傀儡带上南瓜头",
   "fluidlogistics.recipe.fan_cooling": "批量冷冻",
   "gui.fluidlogistics.creative_banner.title": "流体物流",
   "item.fluidlogistics.compressed_storage_tank": "压缩储罐",

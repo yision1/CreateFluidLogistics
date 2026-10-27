@@ -325,6 +325,7 @@
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_1": "Морозильні камери зі сніговими ґолемами охолоджують предмети, які обробляються в чаші",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_2": "Для цього потрібно годувати снігового ґолема морозильним паливом",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_3": "Процес годування може бути автоматизований за допомогою застосовувача або механічної руки",
+  "fluidlogistics.ponder.snow_golem_freezer/fueling.text_4": "Клацніть правою кнопкою миші з вирізаним гарбузом у руці, щоб надягнути його на голову сніговому ґолему",
   "fluidlogistics.recipe.fan_cooling": "Масове заморожування",
   "gui.fluidlogistics.creative_banner.title": "Логістика рідин",
   "item.fluidlogistics.compressed_storage_tank": "Стиснений бак для зберігання",

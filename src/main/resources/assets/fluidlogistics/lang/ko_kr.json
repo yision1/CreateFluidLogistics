@@ -325,6 +325,7 @@
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_1": "눈 골렘 냉동실은 대야 안에서 처리되는 아이템에 냉기를 제공합니다.",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_2": "이를 위해 눈 골렘에게 냉동 연료를 먹여야 합니다.",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_3": "이 시스템은 기계 손이나 기계 팔을 이용해 자동화될 수 있습니다.",
+  "fluidlogistics.ponder.snow_golem_freezer/fueling.text_4": "조각된 호박을 들고 우클릭하면 눈 골렘에게 호박 머리를 씌울 수 있습니다.",
   "fluidlogistics.recipe.fan_cooling": "대량 냉동",
   "gui.fluidlogistics.creative_banner.title": "유체 물류",
   "item.fluidlogistics.compressed_storage_tank": "압축 저장 탱크",

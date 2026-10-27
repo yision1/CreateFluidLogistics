@@ -325,6 +325,7 @@
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_1": "Snögolemfrysar kan kyla föremål som bearbetas i ett kärl",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_2": "För detta måste snögolemen matas med frysbränsle",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_3": "Matningsprocessen kan automatiseras med utrullare eller mekaniska armar",
+  "fluidlogistics.ponder.snow_golem_freezer/fueling.text_4": "Högerklicka med en snidad pumpa för att ge snögolemen ett pumpahuvud",
   "fluidlogistics.recipe.fan_cooling": "Massfrysning",
   "gui.fluidlogistics.creative_banner.title": "Vätskelogistik",
   "item.fluidlogistics.compressed_storage_tank": "Komprimerad lagringstank",

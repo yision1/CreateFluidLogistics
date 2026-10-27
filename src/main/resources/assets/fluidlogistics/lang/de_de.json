@@ -325,6 +325,7 @@
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_1": "Schneegolem-Kühler liefern Kälte für Gegenstände, die in einem Becken verarbeitet werden",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_2": "Füttere den Schneegolem dafür mit kühlendem Brennstoff",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_3": "Das Fütterungsverfahren kann mit Einsatzgeräten oder mechanischen Armen automatisiert werden",
+  "fluidlogistics.ponder.snow_golem_freezer/fueling.text_4": "Klicke mit einem geschnitzten Kürbis rechts auf den Schneegolem, um ihm einen Kürbiskopf aufzusetzen",
   "fluidlogistics.recipe.fan_cooling": "Massenvereisung",
   "gui.fluidlogistics.creative_banner.title": "Flüssigkeitslogistik",
   "item.fluidlogistics.compressed_storage_tank": "Komprimierter Speichertank",

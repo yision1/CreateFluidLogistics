@@ -325,6 +325,7 @@
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_1": "Los congeladores de gólem de nieve pueden proporcionar frío a los objetos procesados en una cuenca",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_2": "Para ello, el gólem de nieve tiene que ser alimentado con combustible refrigerante",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_3": "El proceso de alimentación puede automatizarse utilizando desplegadores o brazos mecánicos",
+  "fluidlogistics.ponder.snow_golem_freezer/fueling.text_4": "Haz clic derecho con una calabaza tallada para ponerle una cabeza de calabaza al gólem de nieve",
   "fluidlogistics.recipe.fan_cooling": "Congelación masiva",
   "gui.fluidlogistics.creative_banner.title": "Logística de fluidos",
   "item.fluidlogistics.compressed_storage_tank": "Depósito de almacenamiento comprimido",

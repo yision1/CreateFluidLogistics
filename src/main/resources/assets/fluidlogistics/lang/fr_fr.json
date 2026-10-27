@@ -325,6 +325,7 @@
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_1": "Les refroidisseurs à golem de neige peuvent fournir du froid aux objets traités dans un bassin",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_2": "Pour cela, le golem de neige a besoin d’être nourri avec du combustible réfrigérant",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_3": "L’alimentation peut être automatisée en utilisant des déployeurs ou des bras mécaniques",
+  "fluidlogistics.ponder.snow_golem_freezer/fueling.text_4": "Faites un clic droit avec une citrouille sculptée pour mettre une tête de citrouille au golem de neige",
   "fluidlogistics.recipe.fan_cooling": "Congélation en masse",
   "gui.fluidlogistics.creative_banner.title": "Logistique des fluides",
   "item.fluidlogistics.compressed_storage_tank": "Réservoir de stockage comprimé",

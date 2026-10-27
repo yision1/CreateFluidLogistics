@@ -325,6 +325,7 @@
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_1": "Zamrażarki z bałwanem dają zimno potrzebne do obróbki przedmiotów w tyglu",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_2": "W tym celu nakarm bałwana paliwem mrożącym",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_3": "Dostarczanie płomykowi przedmiotów może zostać zautomatyzowane z użyciem aplikatorów lub mechanicznych ramion",
+  "fluidlogistics.ponder.snow_golem_freezer/fueling.text_4": "Kliknij bałwana prawym przyciskiem myszy, trzymając wykrojoną dynię, aby założyć mu dyniową głowę",
   "fluidlogistics.recipe.fan_cooling": "Masowe zamrażanie",
   "gui.fluidlogistics.creative_banner.title": "Logistyka płynów",
   "item.fluidlogistics.compressed_storage_tank": "Skompresowany zbiornik",

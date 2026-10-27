@@ -325,6 +325,7 @@
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_1": "Snow Golem Freezers can provide a cooling source for items processed in a Basin",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_2": "Feed the Snow Golem Freezer with freezing fuel",
   "fluidlogistics.ponder.snow_golem_freezer/fueling.text_3": "The feeding process can be automated using Deployers or Mechanical Arms",
+  "fluidlogistics.ponder.snow_golem_freezer/fueling.text_4": "Right-click with a Carved Pumpkin to give the Snow Golem a pumpkin head",
   "fluidlogistics.recipe.fan_cooling": "Bulk Freezing",
   "gui.fluidlogistics.creative_banner.title": "Fluid Logistics",
   "item.fluidlogistics.compressed_storage_tank": "Compressed Storage Tank",

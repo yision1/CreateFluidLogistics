@@ -136,6 +136,20 @@ public class SnowGolemFreezerScenes {
 			.pointAt(util.vector().blockSurface(freezer.east(2), Direction.UP));
 		scene.idle(90);
 
+		scene.overlay().showControls(util.vector().topOf(freezer), Pointing.DOWN, 40).rightClick()
+			.withItem(new ItemStack(Items.CARVED_PUMPKIN));
+		scene.idle(10);
+		scene.overlay()
+			.showText(80)
+			.attachKeyFrame()
+			.text("Right-click with a Carved Pumpkin to give the Snow Golem a pumpkin head")
+			.pointAt(util.vector().blockSurface(freezer, Direction.WEST))
+			.placeNearTarget();
+		scene.idle(20);
+		scene.world().modifyBlockEntityNBT(util.select().position(freezer), SnowGolemFreezerBlockEntity.class,
+			nbt -> nbt.putBoolean("PumpkinHead", true), true);
+		scene.idle(70);
+
 		scene.markAsFinished();
 	}
 
