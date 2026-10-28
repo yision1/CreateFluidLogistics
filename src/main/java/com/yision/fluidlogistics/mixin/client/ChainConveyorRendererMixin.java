@@ -34,7 +34,7 @@ import net.minecraft.resources.ResourceLocation;
 public class ChainConveyorRendererMixin {
 	@Unique
 	private static final ResourceLocation fluidlogistics$PHANTOM_CHAIN_TEXTURE = FluidLogistics
-		.asResource("textures/block/phantom_chain.png");
+		.asResource("textures/block/phantom_chain/phantom_chain.png");
 
 	@Unique
 	private static final ThreadLocal<ResourceLocation> fluidlogistics$chainTextureOverride = new ThreadLocal<>();

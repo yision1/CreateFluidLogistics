@@ -50,12 +50,12 @@ public class AllPartialModels {
 	public static final PartialModel SNOW_GOLEM_FREEZER_PUMPKIN = block("snow_golem_freezer/snow_golem/pumpkin");
 	public static final PartialModel SNOW_GOLEM_FREEZER_FLAME = block("snow_golem_freezer/flame");
 
-	public static final PartialModel FLUID_PACKAGE = item("fluid_package");
-	public static final PartialModel FLUID_PACKAGE_EXPOSED = item("fluid_package_exposed");
-	public static final PartialModel FLUID_PACKAGE_OXIDIZED = item("fluid_package_oxidized");
-	public static final PartialModel FLUID_PACKAGE_WEATHERED = item("fluid_package_weathered");
-	public static final PartialModel RARE_PIG_PACKAGE = item("rare_pig_package");
-	public static final PartialModel RARE_FOX_PACKAGE = item("rare_fox_package");
+	public static final PartialModel FLUID_PACKAGE = item("package/fluid_package");
+	public static final PartialModel FLUID_PACKAGE_EXPOSED = item("package/fluid_package_exposed");
+	public static final PartialModel FLUID_PACKAGE_OXIDIZED = item("package/fluid_package_oxidized");
+	public static final PartialModel FLUID_PACKAGE_WEATHERED = item("package/fluid_package_weathered");
+	public static final PartialModel RARE_PIG_PACKAGE = item("package/rare_pig_package");
+	public static final PartialModel RARE_FOX_PACKAGE = item("package/rare_fox_package");
 	public static final PartialModel FLUID_PACKAGE_RIGGING = PartialModel
 		.of(FluidPackageItem.FLUID_STYLE.getRiggingModel());
 	public static final PartialModel RARE_FLUID_PACKAGE_RIGGING = PartialModel

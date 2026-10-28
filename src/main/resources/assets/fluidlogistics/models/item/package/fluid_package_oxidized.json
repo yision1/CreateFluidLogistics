@@ -1,0 +1,9 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "fluidlogistics:item/package/fluid_package",
+	"render_type": "minecraft:cutout",
+	"textures": {
+		"0": "fluidlogistics:item/package/fluid_package_oxidized",
+		"particle": "fluidlogistics:item/package/fluid_package_oxidized"
+	}
+}

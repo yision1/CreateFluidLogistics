@@ -2,7 +2,7 @@
 	"credit": "Made with Blockbench",
 	"parent": "neoforge:item/bucket",
 	"textures": {
-		"base": "fluidlogistics:item/copper_bucket"
+		"base": "fluidlogistics:item/copper_bucket/copper_bucket"
 	},
 	"loader": "neoforge:fluid_container",
 	"fluid": "minecraft:empty",

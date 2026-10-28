@@ -1,6 +1,0 @@
-{
-	"parent": "minecraft:item/generated",
-	"textures": {
-		"layer0": "fluidlogistics:item/package_list_filter"
-	}
-}

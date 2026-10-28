@@ -125,14 +125,14 @@ public class AllBlocks {
 		.loot((loot, block) -> loot.dropSelf(block))
 		.blockstate((context, provider) -> provider.getVariantBuilder(context.getEntry())
 			.forAllStates(state -> ConfiguredModel.builder()
-				.modelFile(provider.models().getExistingFile(provider.modLoc("block/potato_server"
+				.modelFile(provider.models().getExistingFile(provider.modLoc("block/potato_server/block"
 					+ (state.getValue(PotatoServerBlock.PART) == PotatoServerBlock.Part.SINGLE ? ""
 						: "_" + state.getValue(PotatoServerBlock.PART).getSerializedName()))))
 				.rotationY(((int) state.getValue(PotatoServerBlock.FACING).toYRot() + 180) % 360)
 				.build()))
 		.item()
 		.model((context, provider) -> provider.withExistingParent(context.getName(),
-			provider.modLoc("block/potato_server"))
+			provider.modLoc("block/potato_server/block"))
 			.transforms()
 			.transform(ItemDisplayContext.GUI)
 			.rotation(30, -135, 0)
@@ -431,8 +431,7 @@ public class AllBlocks {
 			}))
 		.onRegister(CreateRegistrate.blockModel(() -> PipeAttachmentModel::withAO))
 		.item()
-		.model((context, provider) -> {
-		})
+		.model(AssetLookup.itemModelWithPartials())
 		.build()
 		.register();
 

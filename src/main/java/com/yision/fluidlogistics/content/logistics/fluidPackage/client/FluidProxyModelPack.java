@@ -19,7 +19,7 @@ import net.minecraft.server.packs.resources.IoSupplier;
 import net.minecraft.world.item.Item;
 
 final class FluidProxyModelPack extends AbstractPackResources {
-	private static final byte[] MODEL = "{\"parent\":\"fluidlogistics:item/fluid_proxy\"}"
+	private static final byte[] MODEL = "{\"parent\":\"fluidlogistics:item/fluid_proxy/item\"}"
 		.getBytes(StandardCharsets.UTF_8);
 
 	FluidProxyModelPack(PackLocationInfo location) {

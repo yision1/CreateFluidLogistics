@@ -43,7 +43,7 @@ public final class CopperBucketSpriteSource implements SpriteSource {
 	public static final SpriteSourceType TYPE = new SpriteSourceType(CODEC);
 
 	private static final ResourceLocation EMPTY_BUCKET_SPRITE = ResourceLocation.withDefaultNamespace("item/bucket");
-	private static final ResourceLocation COPPER_BUCKET_SPRITE = FluidLogistics.asResource("item/copper_bucket");
+	private static final ResourceLocation COPPER_BUCKET_SPRITE = FluidLogistics.asResource("item/copper_bucket/copper_bucket");
 
 	private CopperBucketSpriteSource() {
 	}

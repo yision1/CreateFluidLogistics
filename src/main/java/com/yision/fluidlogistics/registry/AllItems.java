@@ -35,28 +35,30 @@ public class AllItems {
 
 	public static final ItemEntry<Item> FLUID_FACTORY_GAUGE = REGISTRATE
 		.item("fluid_factory_gauge", properties -> FactoryGauges.createItem(FLUID_GAUGE_TYPE_ID, properties))
-		.model(AssetLookup.existingItemModel())
+		.model(AssetLookup.itemModelWithPartials())
 		.setData(ProviderType.LANG, NonNullBiConsumer.noop())
 		.register();
 
 	public static final ItemEntry<Item> EMPTY_FLUID_SCHEMATIC = REGISTRATE
 		.item("empty_fluid_schematic", Item::new)
 		.properties(p -> p.stacksTo(1))
-		.model(AssetLookup.existingItemModel())
+		.model((context, provider) -> provider.withExistingParent(context.getName(),
+			provider.modLoc("item/fluid_schematic/" + context.getName())))
 		.setData(ProviderType.LANG, NonNullBiConsumer.noop())
 		.register();
 
 	public static final ItemEntry<FluidSchematicItem> FLUID_SCHEMATIC = REGISTRATE
 		.item("fluid_schematic", FluidSchematicItem::new)
 		.properties(p -> p.stacksTo(1))
-		.model(AssetLookup.existingItemModel())
+		.model((context, provider) -> provider.withExistingParent(context.getName(),
+			provider.modLoc("item/fluid_schematic/" + context.getName())))
 		.setData(ProviderType.LANG, NonNullBiConsumer.noop())
 		.register();
 
 	public static final ItemEntry<CopperBucketItem> COPPER_BUCKET = REGISTRATE
 		.item("copper_bucket", CopperBucketItem::new)
 		.properties(p -> p.stacksTo(1))
-		.model(AssetLookup.existingItemModel())
+		.model(AssetLookup.itemModelWithPartials())
 		.setData(ProviderType.LANG, NonNullBiConsumer.noop())
 		.register();
 
@@ -64,7 +66,7 @@ public class AllItems {
 		.item("compressed_storage_tank", CompressedTankItem::new)
 		.removeTab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, FluidLogistics.asResource("fluidlogistics_tab")))
 		.properties(p -> p.stacksTo(1))
-		.model(AssetLookup.existingItemModel())
+		.model(AssetLookup.itemModelWithPartials())
 		.setData(ProviderType.LANG, NonNullBiConsumer.noop())
 		.register();
 
@@ -72,7 +74,8 @@ public class AllItems {
 		.item("fluid_package", FluidPackageItem::new)
 		.properties(p -> p.stacksTo(1))
 		.tag(AllItemTags.PACKAGES.tag, AllItemTags.NOT_UPRIGHT_ON_BELT.tag)
-		.model(AssetLookup.existingItemModel())
+		.model((context, provider) -> provider.withExistingParent(context.getName(),
+			provider.modLoc("item/package/" + context.getName())))
 		.setData(ProviderType.LANG, NonNullBiConsumer.noop())
 		.register();
 
@@ -82,7 +85,8 @@ public class AllItems {
 		.removeTab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, FluidLogistics.asResource("fluidlogistics_tab")))
 		.properties(p -> p.stacksTo(1))
 		.tag(AllItemTags.PACKAGES.tag, AllItemTags.NOT_UPRIGHT_ON_BELT.tag)
-		.model(AssetLookup.existingItemModel())
+		.model((context, provider) -> provider.withExistingParent(context.getName(),
+			provider.modLoc("item/package/" + context.getName())))
 		.setData(ProviderType.LANG, NonNullBiConsumer.noop())
 		.register();
 
@@ -92,7 +96,8 @@ public class AllItems {
 		.removeTab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, FluidLogistics.asResource("fluidlogistics_tab")))
 		.properties(p -> p.stacksTo(1))
 		.tag(AllItemTags.PACKAGES.tag, AllItemTags.NOT_UPRIGHT_ON_BELT.tag)
-		.model(AssetLookup.existingItemModel())
+		.model((context, provider) -> provider.withExistingParent(context.getName(),
+			provider.modLoc("item/package/" + context.getName())))
 		.setData(ProviderType.LANG, NonNullBiConsumer.noop())
 		.register();
 
@@ -102,7 +107,8 @@ public class AllItems {
 		.removeTab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, FluidLogistics.asResource("fluidlogistics_tab")))
 		.properties(p -> p.stacksTo(1))
 		.tag(AllItemTags.PACKAGES.tag, AllItemTags.NOT_UPRIGHT_ON_BELT.tag)
-		.model(AssetLookup.existingItemModel())
+		.model((context, provider) -> provider.withExistingParent(context.getName(),
+			provider.modLoc("item/package/" + context.getName())))
 		.setData(ProviderType.LANG, NonNullBiConsumer.noop())
 		.register();
 
@@ -112,7 +118,8 @@ public class AllItems {
 		.removeTab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, FluidLogistics.asResource("fluidlogistics_tab")))
 		.properties(p -> p.stacksTo(1))
 		.tag(AllItemTags.PACKAGES.tag, AllItemTags.NOT_UPRIGHT_ON_BELT.tag)
-		.model(AssetLookup.existingItemModel())
+		.model((context, provider) -> provider.withExistingParent(context.getName(),
+			provider.modLoc("item/package/" + context.getName())))
 		.setData(ProviderType.LANG, NonNullBiConsumer.noop())
 		.register();
 
@@ -122,13 +129,14 @@ public class AllItems {
 		.removeTab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, FluidLogistics.asResource("fluidlogistics_tab")))
 		.properties(p -> p.stacksTo(1))
 		.tag(AllItemTags.PACKAGES.tag, AllItemTags.NOT_UPRIGHT_ON_BELT.tag)
-		.model(AssetLookup.existingItemModel())
+		.model((context, provider) -> provider.withExistingParent(context.getName(),
+			provider.modLoc("item/package/" + context.getName())))
 		.setData(ProviderType.LANG, NonNullBiConsumer.noop())
 		.register();
 
 	public static final ItemEntry<PackageListFilterItem> PACKAGE_LIST_FILTER = REGISTRATE
 		.item("package_list_filter", PackageListFilterItem::new)
-		.model(AssetLookup.existingItemModel())
+		.model(AssetLookup.itemModelWithPartials())
 		.setData(ProviderType.LANG, NonNullBiConsumer.noop())
 		.register();
 
@@ -136,13 +144,13 @@ public class AllItems {
 		.item("hand_pointer", HandPointerItem::new)
 		.properties(p -> p.stacksTo(1))
 		.tag(Items.TOOLS)
-		.model(AssetLookup.existingItemModel())
+		.model(AssetLookup.itemModelWithPartials())
 		.setData(ProviderType.LANG, NonNullBiConsumer.noop())
 		.register();
 
 	public static final ItemEntry<Item> PHANTOM_CHAIN = REGISTRATE
 		.item("phantom_chain", Item::new)
-		.model(AssetLookup.existingItemModel())
+		.model(AssetLookup.itemModelWithPartials())
 		.setData(ProviderType.LANG, NonNullBiConsumer.noop())
 		.register();
 
