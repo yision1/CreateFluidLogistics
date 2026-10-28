@@ -21,6 +21,7 @@ import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -30,6 +31,17 @@ import net.minecraft.world.phys.HitResult;
 
 @Mixin(FactoryPanelBlock.class)
 public abstract class FactoryGaugeHostBlockMixin {
+
+	@Inject(method = "getStateForPlacement", at = @At("HEAD"), cancellable = true, remap = false)
+	private void fluidlogistics$queryRegisteredGaugePlacement(BlockPlaceContext context,
+		CallbackInfoReturnable<BlockState> cir) {
+		if (FactoryGauges.findByItem(context.getItemInHand().getItem()).isEmpty())
+			return;
+
+		BlockState state = context.getLevel().getBlockState(context.getClickedPos());
+		if (state.is((FactoryPanelBlock) (Object) this))
+			cir.setReturnValue(state);
+	}
 
 	public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level,
 		BlockPos pos, Player player) {
