@@ -4,11 +4,15 @@ import java.util.function.Predicate;
 
 import org.jetbrains.annotations.Nullable;
 
+import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 
 import net.neoforged.neoforge.fluids.FluidStack;
 
@@ -16,6 +20,11 @@ public class MultiFluidAccessPortBlock extends AbstractFluidPortBlock<MultiFluid
 
 	public MultiFluidAccessPortBlock(Properties properties) {
 		super(properties);
+	}
+
+	@Override
+	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+		IBE.onRemove(state, level, pos, newState);
 	}
 
 	@Nullable
