@@ -15,13 +15,16 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.logistics.BigItemStack;
 import com.simibubi.create.content.logistics.packager.InventorySummary;
 import com.simibubi.create.content.logistics.stockTicker.CraftableBigItemStack;
+import com.simibubi.create.content.logistics.stockTicker.StockKeeperRequestMenu;
 import com.simibubi.create.content.logistics.stockTicker.StockKeeperRequestScreen;
 import com.simibubi.create.content.logistics.stockTicker.StockTickerBlockEntity;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock.HeatLevel;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlockEntity;
+import com.simibubi.create.foundation.gui.menu.AbstractSimiContainerScreen;
 import com.yision.fluidlogistics.api.packager.PackageResourceCrafting;
 import com.yision.fluidlogistics.api.packager.PackageResourceCraftingData;
 import com.yision.fluidlogistics.api.packager.PackageResourceDisplay;
@@ -42,13 +45,15 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 @Mixin(StockKeeperRequestScreen.class)
-public abstract class StockKeeperRequestScreenMixin {
+public abstract class StockKeeperRequestScreenMixin extends AbstractSimiContainerScreen<StockKeeperRequestMenu> {
 
 	@Shadow(remap = false)
 	public List<BigItemStack> itemsToOrder;
@@ -87,6 +92,10 @@ public abstract class StockKeeperRequestScreenMixin {
 
 	@Unique
 	private StockKeeperAmountRenderer fluidlogistics$customAmountRenderer;
+
+	protected StockKeeperRequestScreenMixin(StockKeeperRequestMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title);
+	}
 
 	@WrapOperation(method = "renderBg", at = @At(value = "INVOKE", target = "Lnet/createmod/catnip/render/CachedBuffers;partial("
 		+
@@ -174,7 +183,7 @@ public abstract class StockKeeperRequestScreenMixin {
 		BigItemStack entry = orderClicked ? itemsToOrder.get(hoveredSlot.getSecond())
 			: displayedItems.get(hoveredSlot.getFirst()).get(hoveredSlot.getSecond());
 		if (!fluidlogistics$changeDirectResourceOrder(
-			entry, orderClicked, !(rmb || orderClicked), entry.count)) {
+			entry, orderClicked, !(rmb || orderClicked), entry.count, 1, false)) {
 			return;
 		}
 
@@ -209,7 +218,7 @@ public abstract class StockKeeperRequestScreenMixin {
 		boolean forward = scrollY > 0;
 		int maxAvailable = blockEntity.getLastClientsideStockSnapshotAsSummary().getCountOf(entry.stack);
 		if (!fluidlogistics$changeDirectResourceOrder(
-			entry, orderClicked, forward, maxAvailable, steps)) {
+			entry, orderClicked, forward, maxAvailable, steps, true)) {
 			return;
 		}
 		cir.setReturnValue(true);
@@ -491,13 +500,7 @@ public abstract class StockKeeperRequestScreenMixin {
 
 	@Unique
 	private boolean fluidlogistics$changeDirectResourceOrder(BigItemStack entry, boolean orderClicked, boolean forward,
-		int maxAvailable) {
-		return fluidlogistics$changeDirectResourceOrder(entry, orderClicked, forward, maxAvailable, 1);
-	}
-
-	@Unique
-	private boolean fluidlogistics$changeDirectResourceOrder(BigItemStack entry, boolean orderClicked, boolean forward,
-		int maxAvailable, int steps) {
+		int maxAvailable, int steps, boolean scrolling) {
 		BigItemStack existingOrder = orderClicked ? entry : getOrderForItem(entry.stack);
 		var adjusted = PackageResources.adjustAmount(entry.stack, new PackageResourceDisplay.Adjustment(
 			existingOrder == null ? 0 : existingOrder.count,
@@ -518,15 +521,24 @@ public abstract class StockKeeperRequestScreenMixin {
 			if (!forward || itemsToOrder.size() >= 9 || newAmount <= 0) {
 				return true;
 			}
-			existingOrder = new BigItemStack(entry.stack.copyWithCount(1), 0);
-			itemsToOrder.add(existingOrder);
+			itemsToOrder.add(new BigItemStack(entry.stack.copyWithCount(1), newAmount));
+			playUiSound(SoundEvents.WOOL_STEP, 0.75f, 1.2f);
+			playUiSound(SoundEvents.BAMBOO_WOOD_STEP, 0.75f, 0.8f);
+			return true;
 		}
 		if (newAmount <= 0) {
-			itemsToOrder.remove(existingOrder);
+			if (itemsToOrder.remove(existingOrder)) {
+				playUiSound(SoundEvents.WOOL_STEP, 0.75f, 1.8f);
+				playUiSound(SoundEvents.BAMBOO_WOOD_STEP, 0.75f, 1.8f);
+			}
 			return true;
 		}
 
+		int previousAmount = existingOrder.count;
 		existingOrder.count = newAmount;
+		if (scrolling && newAmount != previousAmount) {
+			playUiSound(AllSoundEvents.SCROLL_VALUE.getMainEvent(), 0.25f, 1.2f);
+		}
 		return true;
 	}
 
