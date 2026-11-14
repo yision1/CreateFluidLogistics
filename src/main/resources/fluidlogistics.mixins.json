@@ -28,6 +28,7 @@
         "logistics.InventorySummaryMixin",
         "logistics.LogisticsManagerMixin",
         "logistics.PackageEntityMixin",
+        "logistics.PackageRepackageHelperMixin",
         "logistics.PackagerBlockEntityMixin",
         "logistics.PackagerBlockMixin",
         "logistics.RequestPromiseQueueMixin",
