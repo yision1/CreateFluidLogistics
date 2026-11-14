@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import com.simibubi.create.content.contraptions.bearing.WindmillBearingBlockEntity.RotationDirection;
 import com.simibubi.create.content.fluids.tank.FluidTankBlockEntity;
 import com.simibubi.create.content.kinetics.base.GeneratingKineticBlockEntity;
+import com.simibubi.create.content.kinetics.base.IRotate.StressImpact;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntityRenderer;
 import com.simibubi.create.content.kinetics.simpleRelays.ShaftBlock;
 import com.simibubi.create.content.kinetics.steamEngine.PoweredShaftBlockEntity;
@@ -20,9 +21,11 @@ import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.ScrollOp
 import com.simibubi.create.foundation.utility.CreateLang;
 
 import net.createmod.catnip.platform.CatnipServices;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -33,6 +36,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 
 public class OscillatingSteamEngineBlockEntity extends SteamEngineBlockEntity {
 	private Float previousParticleAngle;
+	private boolean followingShaftDirection;
 
 	public OscillatingSteamEngineBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
@@ -47,6 +51,13 @@ public class OscillatingSteamEngineBlockEntity extends SteamEngineBlockEntity {
 			PoweredShaftBlockEntity shaft = getShaft();
 			return shaft == null || !shaft.hasSource();
 		});
+		movementDirection.withCallback($ -> {
+			if (followingShaftDirection || level == null || level.isClientSide)
+				return;
+			PoweredShaftBlockEntity shaft = getShaft();
+			if (shaft != null)
+				OscillatingEngineDrive.of(shaft).setDirection(worldPosition, getShaftDirection());
+		});
 		behaviours.add(movementDirection);
 		registerAwardables(behaviours, AllAdvancements.STEAM_ENGINE);
 	}
@@ -55,33 +66,71 @@ public class OscillatingSteamEngineBlockEntity extends SteamEngineBlockEntity {
 	public void tick() {
 		super.tick();
 		PoweredShaftBlockEntity shaft = getShaft();
-		FluidTankBlockEntity tank = getTank();
-		if (shaft == null || tank == null || !isValid())
+		if (shaft == null)
 			return;
 		if (level.isClientSide) {
 			CatnipServices.PLATFORM.executeOnClientOnly(() -> this::spawnSteam);
 			return;
 		}
-		float efficiency = tank.boiler.attachedEngines > 0
+		OscillatingEngineDrive drive = OscillatingEngineDrive.of(shaft);
+		drive.connect(worldPosition);
+		if (drive.getEfficiency(worldPosition) > 0)
+			award(AllAdvancements.STEAM_ENGINE);
+	}
+
+	public float getEngineEfficiency(float previousEfficiency) {
+		if (level == null || !level.isLoaded(worldPosition.relative(SteamEngineBlock.getFacing(getBlockState())
+			.getOpposite())))
+			return previousEfficiency;
+		FluidTankBlockEntity tank = getTank();
+		FluidTankBlockEntity adjacent = source.get();
+		if (adjacent != null && !level.isLoaded(adjacent.getController()))
+			return previousEfficiency;
+		return tank != null && isValid() && tank.boiler.attachedEngines > 0
 			? Mth.clamp(tank.boiler.getEngineEfficiency(tank.getTotalTankSize()), 0, 1) : 0;
-		Axis axis = shaft.getBlockState().getValue(ShaftBlock.AXIS);
+	}
+
+	@Override
+	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
+		if (!StressImpact.isEnabled())
+			return false;
+		PoweredShaftBlockEntity shaft = getShaft();
+		if (shaft == null)
+			return false;
+		float contribution = OscillatingEngineDrive.of(shaft).getStressContribution(worldPosition);
+		if (Mth.equal(contribution, 0))
+			return false;
+		CreateLang.translate("gui.goggles.generator_stats").forGoggles(tooltip);
+		CreateLang.translate("tooltip.capacityProvided").style(ChatFormatting.GRAY).forGoggles(tooltip);
+		CreateLang.number(contribution).translate("generic.unit.stress").style(ChatFormatting.AQUA)
+			.space().add(CreateLang.translate("gui.goggles.at_current_speed").style(ChatFormatting.DARK_GRAY))
+			.forGoggles(tooltip, 1);
+		return true;
+	}
+
+	public int getShaftDirection() {
+		Axis axis = OscillatingSteamEngineBlock.getHousingAxis(getBlockState());
 		Direction facing = SteamEngineBlock.getFacing(getBlockState());
 		if (facing.getAxis() == Axis.Y)
 			facing = getBlockState().getValue(SteamEngineBlock.FACING);
-		int direction = efficiency == 0 || axis == Axis.Y ? 1
+		int direction = axis == Axis.Y ? 1
 			: (int) GeneratingKineticBlockEntity.convertToDirection(1, facing);
 		if (axis == Axis.Z)
 			direction *= -1;
 		if (movementDirection.get() == RotationDirection.COUNTER_CLOCKWISE)
 			direction *= -1;
-		float speed = shaft.getTheoreticalSpeed();
-		if (shaft.hasSource() && speed != 0 && (speed > 0) != (direction > 0)) {
+		return direction;
+	}
+
+	public void followShaftDirection(int direction) {
+		if (getShaftDirection() == direction)
+			return;
+		followingShaftDirection = true;
+		try {
 			movementDirection.setValue(1 - movementDirection.get().ordinal());
-			direction *= -1;
+		} finally {
+			followingShaftDirection = false;
 		}
-		shaft.update(worldPosition, direction, efficiency);
-		if (efficiency > 0)
-			award(AllAdvancements.STEAM_ENGINE);
 	}
 
 	@Override
@@ -122,26 +171,44 @@ public class OscillatingSteamEngineBlockEntity extends SteamEngineBlockEntity {
 		if (!level.isLoaded(pos))
 			return null;
 		if (cached != null && (cached.isRemoved() || !cached.getBlockPos().equals(pos)))
-			source = new WeakReference<>(null);
-		return super.getTank();
+			cached = null;
+		if (cached == null) {
+			cached = level.getBlockEntity(pos) instanceof FluidTankBlockEntity tank ? tank : null;
+			source = new WeakReference<>(cached);
+		}
+		return cached != null && level.isLoaded(cached.getController()) ? cached.getControllerBE() : null;
 	}
 
 	@Override
 	@Nullable
 	@OnlyIn(Dist.CLIENT)
 	public Float getTargetAngle() {
-		PoweredShaftBlockEntity shaft = getShaft();
+		return getTargetAngle(getShaft());
+	}
+
+	@Nullable
+	@OnlyIn(Dist.CLIENT)
+	Float getTargetAngle(@Nullable PoweredShaftBlockEntity shaft) {
 		if (shaft == null)
 			return null;
-		return KineticBlockEntityRenderer.getAngleForBe(shaft, shaft.getBlockPos(),
-			shaft.getBlockState().getValue(ShaftBlock.AXIS));
+		Axis axis = shaft.getBlockState().getValue(ShaftBlock.AXIS);
+		float angle = KineticBlockEntityRenderer.getAngleForBe(shaft, shaft.getBlockPos(), axis);
+		Direction facing = SteamEngineBlock.getFacing(getBlockState());
+		Direction reference = axis == Axis.Y ? Direction.NORTH : Direction.UP;
+		Vec3 normal = Vec3.atLowerCornerOf(facing.getNormal());
+		Vec3 referenceNormal = Vec3.atLowerCornerOf(reference.getNormal());
+		Vec3 perpendicular = Vec3.atLowerCornerOf(Direction.fromAxisAndDirection(axis,
+			Direction.AxisDirection.POSITIVE).getNormal()).cross(referenceNormal);
+		float phase = (float) Math.atan2(normal.dot(perpendicular), normal.dot(referenceNormal));
+		return Mth.positiveModulo(angle - phase, Mth.TWO_PI);
 	}
 
 	@OnlyIn(Dist.CLIENT)
 	private void spawnSteam() {
 		Float angle = getTargetAngle();
 		PoweredShaftBlockEntity shaft = target.get();
-		if (angle == null || shaft == null || shaft.getSpeed() == 0 || shaft.engineEfficiency <= 0) {
+		if (angle == null || shaft == null || shaft.getSpeed() == 0
+			|| OscillatingEngineDrive.of(shaft).getEfficiency(worldPosition) <= 0) {
 			previousParticleAngle = null;
 			return;
 		}

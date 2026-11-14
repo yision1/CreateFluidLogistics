@@ -4,6 +4,7 @@ import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.fluids.pump.PumpBlock;
 import com.simibubi.create.content.kinetics.simpleRelays.ShaftBlock;
+import com.simibubi.create.content.kinetics.steamEngine.PoweredShaftBlockEntity;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock.HeatLevel;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
@@ -19,6 +20,7 @@ import net.createmod.ponder.api.scene.Selection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
@@ -103,6 +105,12 @@ public class OscillatingSteamEngineScenes {
 		scene.world().moveSection(engineElement, util.vector().of(0, -3, 2), 0);
 		scene.world().setBlock(engine1ShaftPos, AllBlocks.POWERED_SHAFT.getDefaultState()
 			.setValue(ShaftBlock.AXIS, Axis.Z), false);
+		scene.world().modifyBlockEntityNBT(engine1Shaft, PoweredShaftBlockEntity.class, nbt -> {
+			CompoundTag engines = new CompoundTag();
+			engines.putFloat(Direction.EAST.getName(), 0);
+			nbt.put("FluidLogisticsOscillatingEngines", engines);
+			nbt.remove("Warmup");
+		});
 		scene.effects().indicateSuccess(util.grid().at(2, 1, 3));
 		scene.idle(40);
 

@@ -107,15 +107,17 @@ public class OscillatingSteamEngineBlock extends SteamEngineBlock {
 		if (!state.is(newState.getBlock()) || getFacing(state) != getFacing(newState)
 			|| getHousingAxis(state) != getHousingAxis(newState)) {
 			BlockPos shaftPos = getShaftPos(state, pos);
-			if (!level.isClientSide && level.getBlockEntity(shaftPos) instanceof PoweredShaftBlockEntity shaft) {
+			if (!level.isClientSide && level.isLoaded(shaftPos)
+				&& level.getBlockEntity(shaftPos) instanceof PoweredShaftBlockEntity shaft) {
 				shaft.remove(pos);
 				level.scheduleTick(shaftPos, shaft.getBlockState().getBlock(), 1);
 			}
 		}
 		if (!state.is(newState.getBlock()))
 			level.removeBlockEntity(pos);
-		if (!level.isClientSide)
-			FluidTankBlock.updateBoilerState(state, level, pos.relative(getFacing(state).getOpposite()));
+		BlockPos tankPos = pos.relative(getFacing(state).getOpposite());
+		if (!level.isClientSide && level.isLoaded(tankPos))
+			FluidTankBlock.updateBoilerState(state, level, tankPos);
 	}
 
 	@Override

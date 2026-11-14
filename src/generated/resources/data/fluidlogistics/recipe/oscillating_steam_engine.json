@@ -15,13 +15,13 @@
       "tag": "c:storage_blocks/copper"
     },
     "P": {
-      "tag": "c:storage_blocks/gold"
+      "tag": "c:plates/gold"
     }
   },
   "pattern": [
-    "P",
-    "A",
-    "C"
+    " P ",
+    "PAP",
+    " C "
   ],
   "result": {
     "count": 1,
