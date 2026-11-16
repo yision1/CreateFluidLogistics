@@ -14,7 +14,6 @@ import com.simibubi.create.api.stress.BlockStressValues;
 import com.simibubi.create.content.fluids.PipeAttachmentModel;
 import com.simibubi.create.content.processing.basin.BasinGenerator;
 import com.simibubi.create.content.processing.basin.BasinMovementBehaviour;
-import com.yision.fluidlogistics.content.processing.snowGolemFreezer.SnowGolemFreezerBlockItem;
 import com.simibubi.create.foundation.data.AssetLookup;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.data.SharedProperties;
@@ -63,6 +62,7 @@ import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperBlock;
 import com.yision.fluidlogistics.content.logistics.smartHopper.SmartHopperGenerator;
 import com.yision.fluidlogistics.content.processing.copperBasin.CopperBasinBlock;
 import com.yision.fluidlogistics.content.processing.snowGolemFreezer.SnowGolemFreezerBlock;
+import com.yision.fluidlogistics.content.processing.snowGolemFreezer.SnowGolemFreezerBlockItem;
 import com.yision.fluidlogistics.content.processing.snowGolemFreezer.SnowGolemFreezerMovementBehaviour;
 import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonBlock;
 
