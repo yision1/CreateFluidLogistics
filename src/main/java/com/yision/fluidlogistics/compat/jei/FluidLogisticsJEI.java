@@ -143,7 +143,8 @@ public class FluidLogisticsJEI implements IModPlugin {
 		List<ItemStack> hidden = jeiRuntime.getIngredientManager().getAllIngredients(VanillaTypes.ITEM_STACK).stream()
 			.filter(stack -> FluidProxyRegistry.isProxy(stack) || stack.is(AllItems.COMPRESSED_STORAGE_TANK.get()))
 			.toList();
-		jeiRuntime.getIngredientManager().removeIngredientsAtRuntime(VanillaTypes.ITEM_STACK, hidden);
+		if (!hidden.isEmpty())
+			jeiRuntime.getIngredientManager().removeIngredientsAtRuntime(VanillaTypes.ITEM_STACK, hidden);
 	}
 
 	@Override
