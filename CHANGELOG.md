@@ -1,11 +1,6 @@
-- Add Oscillating Steam Engine
-- Add Snow Golem Freezer to replace Blaze Cooler
-- Add Package List Filter
-- Add more language support
-- Allow hand pointer to show unloaded stock link locations
-- Update fluid storage in packages
-- Update Potato Server TPS calculation
-- Update copper frogport connection rules
-- Increase fluid factory gauge restock target limit
-- Fix fluid gauges turning into item gauges after first placement
-- Fix configuration loading and synchronization
+- Allow Oscillating Steam Engines to share a shaft
+- Add Flywheel rendering for the Snow Golem Freezer
+- Fix repackager doesn't combine fluid and item packeges into one
+- Fix the Package List Filter failing to match fluids inside packages
+- Fix missing sounds when adjusting fluid orders in the Stock Keeper screen
+- Fix missing filter drops when breaking Multi-Fluid Access Ports
