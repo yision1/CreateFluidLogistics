@@ -89,6 +89,7 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -177,7 +178,7 @@ public class FluidLogistics {
 		modEventBus.addListener(this::registerCapabilities);
 		modEventBus.addListener(this::hideDisabledItems);
 		modEventBus.addListener(AllItems::registerAliases);
-		modEventBus.addListener(FluidProxyRegistry::register);
+		modEventBus.addListener(EventPriority.LOWEST, FluidProxyRegistry::register);
 
 		NeoForge.EVENT_BUS.register(this);
 		NeoForge.EVENT_BUS.addListener(FactoryGaugeBehaviourAttachment::onAttachBehaviours);

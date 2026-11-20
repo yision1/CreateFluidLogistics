@@ -9,9 +9,9 @@ import java.util.Map;
 import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.registry.AllDataComponents;
 
+import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -19,8 +19,8 @@ import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
+import net.neoforged.neoforge.event.BlockEntityTypeAddBlocksEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.registries.RegisterEvent;
 
 public final class FluidProxyRegistry {
 	private static final Map<Fluid, FluidProxyItem> PROXIES = new IdentityHashMap<>();
@@ -29,30 +29,27 @@ public final class FluidProxyRegistry {
 	private FluidProxyRegistry() {
 	}
 
-	public static void register(RegisterEvent event) {
-		event.register(Registries.ITEM, helper -> {
-			Map<Fluid, FluidProxyItem> sources = new IdentityHashMap<>();
-			List<Item> registeredItems = new ArrayList<>();
-			for (ResourceLocation fluidId : BuiltInRegistries.FLUID.keySet().stream()
-				.sorted(ResourceLocation::compareNamespaced).toList()) {
-				Fluid fluid = BuiltInRegistries.FLUID.get(fluidId);
-				if (fluid == Fluids.EMPTY) {
-					continue;
-				}
-				Fluid source = canonicalFluid(fluid);
-				FluidProxyItem proxy = sources.get(source);
-				if (proxy == null) {
-					ResourceLocation sourceId = BuiltInRegistries.FLUID.getKey(source);
-					proxy = new FluidProxyItem(source);
-					helper.register(FluidLogistics.asResource(
-						"fluid_proxy/" + sourceId.getNamespace() + "/" + sourceId.getPath()), proxy);
-					sources.put(source, proxy);
-					registeredItems.add(proxy);
-				}
-				PROXIES.put(fluid, proxy);
+	public static void register(BlockEntityTypeAddBlocksEvent event) {
+		Map<Fluid, FluidProxyItem> sources = new IdentityHashMap<>();
+		List<Item> registeredItems = new ArrayList<>();
+		for (ResourceLocation fluidId : BuiltInRegistries.FLUID.keySet().stream()
+			.sorted(ResourceLocation::compareNamespaced).toList()) {
+			Fluid fluid = BuiltInRegistries.FLUID.get(fluidId);
+			if (fluid == Fluids.EMPTY) {
+				continue;
 			}
-			items = List.copyOf(registeredItems);
-		});
+			Fluid source = canonicalFluid(fluid);
+			FluidProxyItem proxy = sources.get(source);
+			if (proxy == null) {
+				ResourceLocation sourceId = BuiltInRegistries.FLUID.getKey(source);
+				proxy = Registry.register(BuiltInRegistries.ITEM, FluidLogistics.asResource(
+					"fluid_proxy/" + sourceId.getNamespace() + "/" + sourceId.getPath()), new FluidProxyItem(source));
+				sources.put(source, proxy);
+				registeredItems.add(proxy);
+			}
+			PROXIES.put(fluid, proxy);
+		}
+		items = List.copyOf(registeredItems);
 	}
 
 	public static ItemStack createKey(FluidStack fluid) {
