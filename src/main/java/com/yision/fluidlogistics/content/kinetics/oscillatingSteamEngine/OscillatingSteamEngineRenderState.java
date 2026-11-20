@@ -5,26 +5,32 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.simibubi.create.content.kinetics.steamEngine.PoweredShaftBlockEntity;
 import com.simibubi.create.content.kinetics.steamEngine.SteamEngineBlock;
+import com.yision.fluidlogistics.content.kinetics.oscillatingSteamEngine.OscillatingEngineDrive.RenderLayout;
 import com.yision.fluidlogistics.registry.AllPartialModels;
 
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
-import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Direction.AxisDirection;
+import net.minecraft.core.Direction;
 
 public record OscillatingSteamEngineRenderState(Quaternionf orientation, float angle, float swing, float pinY,
-	float pinZ, boolean connected) {
+	float pinZ, boolean connected, boolean renderConnector, float linkageScale) {
 	public static OscillatingSteamEngineRenderState of(OscillatingSteamEngineBlockEntity be) {
 		Direction facing = SteamEngineBlock.getFacing(be.getBlockState());
 		Axis axis = OscillatingSteamEngineBlock.getHousingAxis(be.getBlockState());
 		Quaternionf orientation = orientation(facing, axis);
-		Float targetAngle = be.getTargetAngle();
+		PoweredShaftBlockEntity shaft = be.getShaft();
+		Float targetAngle = be.getTargetAngle(shaft);
+		RenderLayout layout = shaft == null ? RenderLayout.DISCONNECTED
+			: OscillatingEngineDrive.of(shaft).getRenderLayout(be.getBlockPos());
 		float angle = targetAngle == null ? 0 : targetAngle;
 		float pinY = (float) (24 - 5 * Math.cos(angle));
 		float pinZ = (float) (8 - 5 * Math.sin(angle));
 		float swing = (float) Math.atan2(pinZ - 8, pinY - 9);
-		return new OscillatingSteamEngineRenderState(orientation, angle, swing, pinY, pinZ, targetAngle != null);
+		return new OscillatingSteamEngineRenderState(orientation, angle, swing, pinY, pinZ, targetAngle != null,
+			layout.connector(), layout.linkageScale());
 	}
 
 	private static Quaternionf orientation(Direction facing, Axis axis) {
@@ -35,6 +41,8 @@ public record OscillatingSteamEngineRenderState(Quaternionf orientation, float a
 	}
 
 	public boolean isVisible(Part part) {
+		if (part == Part.CONNECTOR)
+			return connected && renderConnector;
 		return connected || part == Part.HOUSING || part == Part.CYLINDER;
 	}
 
@@ -43,39 +51,38 @@ public record OscillatingSteamEngineRenderState(Quaternionf orientation, float a
 		pose.mulPose(orientation);
 		pose.translate(-.5, -.5, -.5);
 		switch (part) {
-			case HOUSING -> {
-			}
-			case CYLINDER -> {
-				pose.translate(.5, 9 / 16f, .5);
-				pose.mulPose(com.mojang.math.Axis.XP.rotation(swing));
-				pose.translate(-.5, -9 / 16f, -.5);
-			}
-			case PISTON, LINKAGE -> {
-				pose.translate(.5, pinY / 16f, pinZ / 16f);
-				pose.mulPose(com.mojang.math.Axis.XP.rotation(swing));
-				pose.translate(-.5, -.5, -.5);
-			}
-			case CONNECTOR -> {
-				pose.translate(.5, 24 / 16f, .5);
-				pose.mulPose(com.mojang.math.Axis.XP.rotation(angle));
-				pose.translate(-.5, -.5, -.5);
-			}
+		case HOUSING -> {
+		}
+		case CYLINDER -> {
+			pose.translate(.5, 9 / 16f, .5);
+			pose.mulPose(com.mojang.math.Axis.XP.rotation(swing));
+			pose.translate(-.5, -9 / 16f, -.5);
+		}
+		case PISTON, LINKAGE -> {
+			pose.translate(.5, pinY / 16f, pinZ / 16f);
+			pose.mulPose(com.mojang.math.Axis.XP.rotation(swing));
+			pose.scale(linkageScale, linkageScale, linkageScale);
+			pose.translate(-.5, -.5, -.5);
+		}
+		case CONNECTOR -> {
+			pose.translate(.5, 24 / 16f, .5);
+			pose.mulPose(com.mojang.math.Axis.XP.rotation(angle));
+			pose.translate(-.5, -.5, -.5);
+		}
 		}
 	}
 
 	public enum Part {
-		HOUSING(AllPartialModels.OSCILLATING_ENGINE_HOUSING), CYLINDER(AllPartialModels.OSCILLATING_ENGINE_CYLINDER),
-		PISTON(AllPartialModels.OSCILLATING_ENGINE_PISTON), LINKAGE(AllPartialModels.OSCILLATING_ENGINE_LINKAGE),
-		CONNECTOR(AllPartialModels.OSCILLATING_ENGINE_CONNECTOR);
-
-		private final PartialModel model;
-
-		Part(PartialModel model) {
-			this.model = model;
-		}
+		HOUSING, CYLINDER, PISTON, LINKAGE, CONNECTOR;
 
 		public PartialModel model() {
-			return model;
+			return switch (this) {
+			case HOUSING -> AllPartialModels.OSCILLATING_ENGINE_HOUSING;
+			case CYLINDER -> AllPartialModels.OSCILLATING_ENGINE_CYLINDER;
+			case PISTON -> AllPartialModels.OSCILLATING_ENGINE_PISTON;
+			case LINKAGE -> AllPartialModels.OSCILLATING_ENGINE_LINKAGE;
+			case CONNECTOR -> AllPartialModels.OSCILLATING_ENGINE_CONNECTOR;
+			};
 		}
 	}
 }

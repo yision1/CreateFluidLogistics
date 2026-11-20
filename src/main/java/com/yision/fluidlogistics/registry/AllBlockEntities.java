@@ -49,6 +49,7 @@ import com.yision.fluidlogistics.content.processing.copperBasin.CopperBasinBlock
 import com.yision.fluidlogistics.content.processing.copperBasin.CopperBasinRenderer;
 import com.yision.fluidlogistics.content.processing.snowGolemFreezer.SnowGolemFreezerBlockEntity;
 import com.yision.fluidlogistics.content.processing.snowGolemFreezer.SnowGolemFreezerRenderer;
+import com.yision.fluidlogistics.content.processing.snowGolemFreezer.SnowGolemFreezerVisual;
 import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonBlockEntity;
 import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonRenderer;
 import com.yision.fluidlogistics.content.schematics.cannon.CopperSchematicannonVisual;
@@ -66,7 +67,8 @@ public class AllBlockEntities {
 		.blockEntity("potato_server", PotatoServerBlockEntity::new).validBlocks(AllBlocks.POTATO_SERVER).register();
 
 	public static final BlockEntityEntry<SnowGolemFreezerBlockEntity> SNOW_GOLEM_FREEZER = REGISTRATE
-		.blockEntity("snow_golem_freezer", SnowGolemFreezerBlockEntity::new).validBlocks(AllBlocks.SNOW_GOLEM_FREEZER)
+		.blockEntity("snow_golem_freezer", SnowGolemFreezerBlockEntity::new)
+		.visual(() -> SnowGolemFreezerVisual::new, false).validBlocks(AllBlocks.SNOW_GOLEM_FREEZER)
 		.renderer(() -> SnowGolemFreezerRenderer::new).register();
 
 	public static final BlockEntityEntry<CopperFrogportBlockEntity> COPPER_FROGPORT = REGISTRATE

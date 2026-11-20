@@ -4,8 +4,8 @@
 	"render_type": "minecraft:cutout",
 	"texture_size": [8, 10],
 	"textures": {
-		"0": "fluidlogistics:item/fluid_package",
-		"particle": "fluidlogistics:item/fluid_package"
+		"0": "fluidlogistics:item/package/fluid_package",
+		"particle": "fluidlogistics:item/package/fluid_package"
 	},
 	"elements": [
 		{

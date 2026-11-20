@@ -164,8 +164,9 @@ public class FluidLogisticsJEI implements IModPlugin {
 			.filter(stack -> com.yision.fluidlogistics.content.logistics.fluidPackage.FluidProxyRegistry.isProxy(stack)
 				|| stack.is(com.yision.fluidlogistics.registry.AllItems.COMPRESSED_STORAGE_TANK.get()))
 			.toList();
-		jeiRuntime.getIngredientManager().removeIngredientsAtRuntime(mezz.jei.api.constants.VanillaTypes.ITEM_STACK,
-			hidden);
+		if (!hidden.isEmpty())
+			jeiRuntime.getIngredientManager().removeIngredientsAtRuntime(mezz.jei.api.constants.VanillaTypes.ITEM_STACK,
+				hidden);
 	}
 
 	@Override

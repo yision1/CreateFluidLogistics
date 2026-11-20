@@ -22,7 +22,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 
-@Mixin(value = FluidPropagator.class, remap = false)
+@Mixin(value = FluidPropagator.class, priority = 1001, remap = false)
 public class FluidPropagatorMixin {
 
 	@Inject(method = "propagateChangedPipe", at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/fluids/FluidTransportBehaviour;wipePressure()V", remap = false), remap = false)

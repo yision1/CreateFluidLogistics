@@ -1,7 +1,7 @@
 {
 	"parent": "create:block/factory_gauge/panel_with_bulb",
 	"textures": {
-		"0": "fluidlogistics:block/factory_panel",
-		"particle": "fluidlogistics:block/factory_panel"
+		"0": "fluidlogistics:block/fluid_factory_gauge/factory_panel",
+		"particle": "fluidlogistics:block/fluid_factory_gauge/factory_panel"
 	}
 }

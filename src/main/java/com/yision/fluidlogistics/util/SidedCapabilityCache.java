@@ -13,7 +13,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 
 public final class SidedCapabilityCache<T> {
-	private final EnumMap<Direction, LazyOptional<T>> caches = new EnumMap<>(Direction.class);
+	private final EnumMap<Direction, CacheEntry<T>> caches = new EnumMap<>(Direction.class);
 	private final Capability<T> capability;
 
 	public SidedCapabilityCache(Capability<T> capability) {
@@ -22,26 +22,35 @@ public final class SidedCapabilityCache<T> {
 
 	@Nullable
 	public T get(Level level, BlockPos targetPos, Direction side) {
-		LazyOptional<T> cache = caches.get(side);
-		if (cache == null || !cache.isPresent()) {
-			BlockEntity blockEntity = level.getBlockEntity(targetPos);
-			if (blockEntity == null) {
-				caches.remove(side);
-				return null;
-			}
+		if (!level.isLoaded(targetPos)) {
+			caches.remove(side);
+			return null;
+		}
+		BlockEntity blockEntity = level.getBlockEntity(targetPos);
+		if (blockEntity == null || blockEntity.isRemoved()) {
+			caches.remove(side);
+			return null;
+		}
+		CacheEntry<T> cache = caches.get(side);
+		if (cache == null || cache.level() != level || !cache.pos().equals(targetPos)
+			|| cache.blockEntity() != blockEntity || !cache.capability().isPresent()) {
 			LazyOptional<T> resolved = blockEntity.getCapability(capability, side.getOpposite());
 			if (!resolved.isPresent()) {
 				caches.remove(side);
 				return null;
 			}
-			caches.put(side, resolved);
-			resolved.addListener(opt -> caches.remove(side, resolved));
-			cache = resolved;
+			CacheEntry<T> entry = new CacheEntry<>(level, targetPos.immutable(), blockEntity, resolved);
+			caches.put(side, entry);
+			resolved.addListener(opt -> caches.remove(side, entry));
+			cache = entry;
 		}
-		return cache.orElse(null);
+		return cache.capability().orElse(null);
 	}
 
 	public void clear() {
 		caches.clear();
+	}
+
+	private record CacheEntry<T>(Level level, BlockPos pos, BlockEntity blockEntity, LazyOptional<T> capability) {
 	}
 }

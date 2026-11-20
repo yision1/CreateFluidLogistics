@@ -1,5 +1,5 @@
 {
-	"parent": "fluidlogistics:block/potato_server",
+	"parent": "fluidlogistics:block/potato_server/block",
 	"display": {
 		"gui": {
 			"rotation": [30, -135, 0],

@@ -9,7 +9,6 @@ import java.util.Map;
 import com.yision.fluidlogistics.FluidLogistics;
 
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -18,6 +17,8 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.ForgeRegistry;
 import net.minecraftforge.registries.RegisterEvent;
 
 public final class FluidProxyRegistry {
@@ -28,7 +29,16 @@ public final class FluidProxyRegistry {
 	}
 
 	public static void register(RegisterEvent event) {
-		event.register(Registries.ITEM, helper -> {
+		if (!event.getRegistryKey().equals(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS)) {
+			return;
+		}
+
+		ForgeRegistry<Item> registry = (ForgeRegistry<Item>) ForgeRegistries.ITEMS;
+		boolean locked = registry.isLocked();
+		if (locked) {
+			registry.unfreeze();
+		}
+		try {
 			Map<Fluid, FluidProxyItem> sources = new IdentityHashMap<>();
 			List<Item> registeredItems = new ArrayList<>();
 			for (ResourceLocation fluidId : BuiltInRegistries.FLUID.keySet().stream()
@@ -42,7 +52,7 @@ public final class FluidProxyRegistry {
 				if (proxy == null) {
 					ResourceLocation sourceId = BuiltInRegistries.FLUID.getKey(source);
 					proxy = new FluidProxyItem(source);
-					helper.register(
+					registry.register(
 						FluidLogistics.asResource("fluid_proxy/" + sourceId.getNamespace() + "/" + sourceId.getPath()),
 						proxy);
 					sources.put(source, proxy);
@@ -51,7 +61,11 @@ public final class FluidProxyRegistry {
 				PROXIES.put(fluid, proxy);
 			}
 			items = List.copyOf(registeredItems);
-		});
+		} finally {
+			if (locked) {
+				registry.freeze();
+			}
+		}
 	}
 
 	public static ItemStack createKey(FluidStack fluid) {

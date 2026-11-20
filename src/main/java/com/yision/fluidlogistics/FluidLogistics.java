@@ -109,6 +109,41 @@ import net.minecraftforge.registries.RegistryObject;
 public class FluidLogistics {
 	public static final String MODID = "fluidlogistics";
 	public static final Logger LOGGER = LogUtils.getLogger();
+	private static final List<String> CREATIVE_BLOCK_ORDER = List.of(
+		"copper_schematicannon",
+		"oscillating_steam_engine",
+		"mechanical_fluid_gun",
+		"flow_meter",
+		"redstone_fluid_valve",
+		"fluid_pump",
+		"fluid_hatch",
+		"faucet",
+		"smart_faucet",
+		"smart_hopper",
+		"fluid_transporter",
+		"copper_basin",
+		"copper_basket",
+		"fluid_packager",
+		"fluid_package",
+		"fluid_repackager",
+		"copper_frogport",
+		"fluid_factory_gauge",
+		"water_containing_copper_casing",
+		"potato_server",
+		"fluid_inventory_access_port",
+		"multi_fluid_access_port",
+		"multi_fluid_tank",
+		"horizontal_multi_fluid_tank",
+		"mixed_vault",
+		"vertical_mixed_vault",
+		"infinite_fluid_tank",
+		"snow_golem_freezer",
+		"package_list_filter",
+		"empty_fluid_schematic",
+		"copper_bucket",
+		"hand_pointer",
+		"phantom_chain");
+
 	private static final ResourceKey<CreativeModeTab> FLUID_LOGISTICS_TAB = ResourceKey
 		.create(Registries.CREATIVE_MODE_TAB, asResource("fluidlogistics_tab"));
 	private static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister
@@ -261,6 +296,21 @@ public class FluidLogistics {
 		if (!Objects.equals(event.getTabKey(), FLUID_LOGISTICS_TAB)
 			&& !Objects.equals(event.getTabKey(), CreativeModeTabs.SEARCH)) {
 			return;
+		}
+
+		if (Objects.equals(event.getTabKey(), FLUID_LOGISTICS_TAB)) {
+			List<Map.Entry<ItemStack, CreativeModeTab.TabVisibility>> entries = new ArrayList<>();
+			for (Map.Entry<ItemStack, CreativeModeTab.TabVisibility> entry : event.getEntries())
+				entries.add(Map.entry(entry.getKey(), entry.getValue()));
+			entries.sort(java.util.Comparator.comparingInt(entry -> {
+				ResourceLocation id = ForgeRegistries.ITEMS.getKey(entry.getKey().getItem());
+				int index = id != null && id.getNamespace().equals(MODID)
+					? CREATIVE_BLOCK_ORDER.indexOf(id.getPath())
+					: -1;
+				return index < 0 ? CREATIVE_BLOCK_ORDER.size() : index;
+			}));
+			entries.forEach(entry -> event.getEntries().remove(entry.getKey()));
+			entries.forEach(entry -> event.accept(entry.getKey(), entry.getValue()));
 		}
 
 		removeCreativeItem(event, AllItems.FLUID_SCHEMATIC);

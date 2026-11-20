@@ -37,7 +37,7 @@ public class ChainConveyorRendererMixin {
 
 	@Unique
 	private static final ResourceLocation fluidlogistics$PHANTOM_CHAIN_LOCATION = FluidLogistics
-		.asResource("textures/block/phantom_chain.png");
+		.asResource("textures/block/phantom_chain/phantom_chain.png");
 
 	@ModifyExpressionValue(method = "renderChain", at = @At(value = "FIELD", target = "Lcom/simibubi/create/content/kinetics/chainConveyor/ChainConveyorRenderer;CHAIN_LOCATION:Lnet/minecraft/resources/ResourceLocation;", remap = false), remap = false)
 	private static ResourceLocation fluidlogistics$overrideChainTexture(ResourceLocation original) {

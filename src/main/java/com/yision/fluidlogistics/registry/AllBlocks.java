@@ -129,13 +129,13 @@ public class AllBlocks {
 		.blockstate((context, provider) -> provider.getVariantBuilder(context.getEntry())
 			.forAllStates(state -> ConfiguredModel.builder()
 				.modelFile(provider.models()
-					.getExistingFile(provider.modLoc("block/potato_server"
+					.getExistingFile(provider.modLoc("block/potato_server/block"
 						+ (state.getValue(PotatoServerBlock.PART) == PotatoServerBlock.Part.SINGLE ? ""
 							: "_" + state.getValue(PotatoServerBlock.PART).getSerializedName()))))
 				.rotationY(((int) state.getValue(PotatoServerBlock.FACING).toYRot() + 180) % 360).build()))
 		.item()
 		.model((context, provider) -> provider
-			.withExistingParent(context.getName(), provider.modLoc("block/potato_server")).transforms()
+			.withExistingParent(context.getName(), provider.modLoc("block/potato_server/block")).transforms()
 			.transform(ItemDisplayContext.GUI).rotation(30, -135, 0).scale(0.625f))
 		.build().register();
 
@@ -349,8 +349,7 @@ public class AllBlocks {
 					state.getValue(RedstoneFluidValveBlock.ENABLED) ? "open" : "closed"))
 				.rotationX(rotationX).rotationY(rotationY).build();
 		})).onRegister(CreateRegistrate.blockModel(() -> PipeAttachmentModel::withAO)).item()
-		.model((context, provider) -> {
-		}).build().register();
+		.model(AssetLookup.itemModelWithPartials()).build().register();
 
 	public static final BlockEntry<FluidPumpBlock> FLUID_PUMP = REGISTRATE.block("fluid_pump", FluidPumpBlock::new)
 		.initialProperties(SharedProperties::copperMetal)

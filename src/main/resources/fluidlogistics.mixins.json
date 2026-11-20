@@ -14,6 +14,7 @@
     "fluids.FluidPropagatorMixin",
     "fluids.BoilerDataMixin",
     "kinetics.PoweredShaftBlockMixin",
+    "kinetics.PoweredShaftBlockEntityMixin",
     "kinetics.SteamEnginePlacementHelperMixin",
     "kinetics.BeltInventoryMixin",
     "kinetics.BeltProcessingBehaviourMixin",

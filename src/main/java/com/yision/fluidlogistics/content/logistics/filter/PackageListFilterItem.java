@@ -3,6 +3,8 @@ package com.yision.fluidlogistics.content.logistics.filter;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.filter.FilterItemStack;
 import com.simibubi.create.content.logistics.filter.ListFilterItem;
+import com.yision.fluidlogistics.datacomponent.FluidTankContent;
+import com.yision.fluidlogistics.datacomponent.PackageFluidContents;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -39,6 +41,14 @@ public class PackageListFilterItem extends ListFilterItem {
 				}
 				if (super.test(world, content, matchNBT) != isBlacklist) {
 					return !isBlacklist;
+				}
+			}
+			PackageFluidContents fluidContents = PackageFluidContents.get(stack);
+			if (fluidContents != null) {
+				for (FluidTankContent tank : fluidContents.tanks()) {
+					if (super.test(world, tank.fluid(), matchNBT) != isBlacklist) {
+						return !isBlacklist;
+					}
 				}
 			}
 			return isBlacklist;
